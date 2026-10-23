@@ -430,6 +430,8 @@
             <a href="{{ route('aiku-public.docs.index') }}">Documentation</a>
             <a href="{{ route('aiku-public.feed') }}">RSS</a>
             <a href="{{ route('aiku-public.sitemap') }}">Sitemap</a>
+            <a href="{{ route('aiku-public.privacy') }}">Privacy</a>
+            <a href="{{ route('aiku-public.terms') }}">Terms</a>
             <a href="mailto:hello@aiku.io">hello@aiku.io</a>
         </div>
         <div class="footer-license">

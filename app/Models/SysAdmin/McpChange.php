@@ -94,7 +94,7 @@ class McpChange extends Model
             $stockDelivery  = StockDelivery::find(data_get($this->data, 'target.stock_delivery_id'));
 
             if ($organisationId && Arr::has($stockDelivery?->data ?? [], 'costing_reopened')) {
-                return $user->authTo("org-supervisor.$organisationId.accounting");
+                return $stockDelivery->canUpdateCosting($user);
             }
 
             return $organisationId && $user->authTo(["procurement.$organisationId.edit", "accounting.$organisationId.edit"]);

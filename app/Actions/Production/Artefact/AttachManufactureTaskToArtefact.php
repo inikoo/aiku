@@ -10,12 +10,15 @@ namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\Artefact;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachManufactureTaskToArtefact extends OrgAction
@@ -40,6 +43,10 @@ class AttachManufactureTaskToArtefact extends OrgAction
 
         $artefact->manufactureTasks()->syncWithoutDetaching([$modelData['manufacture_task_id'] => $step]);
 
+        if (!empty($step['standard_rate'])) {
+            RecalculateUntargetedManufactureTaskSessions::run($artefact);
+        }
+
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
             ->each(fn (JobOrderItem $jobOrderItem) => GenerateJobOrderItemTasks::run($jobOrderItem, [], $previousUnits));
@@ -60,7 +67,37 @@ class AttachManufactureTaskToArtefact extends OrgAction
             'units_per_artefact'  => ['sometimes', 'numeric', 'gt:0'],
             'standard_rate'       => ['sometimes', 'nullable', 'numeric', 'gt:0'],
             'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in([25, 50])],
+            'confirm_open_jobs'   => ['sometimes', 'boolean'],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->asAction || $validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $manufactureTask = ManufactureTask::find($this->get('manufacture_task_id'));
+        $unitsPerArtefact = $this->get('units_per_artefact', 1);
+        $currentUnits     = $this->artefact->manufactureTasks()->find($manufactureTask->id)?->pivot->units_per_artefact;
+
+        if ((float) $currentUnits !== (float) $unitsPerArtefact && ArtefactManufactureTask::countsSkoPackAgain($this->artefact, (bool) $manufactureTask->is_recorded_in_kg, $unitsPerArtefact)) {
+            $validator->errors()->add('units_per_artefact', ArtefactManufactureTask::skoPackCountedAgainMessage(collect([$this->artefact])));
+
+            return;
+        }
+
+        if (filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
+        $message = GenerateJobOrderItemTasks::openJobsConfirmationMessage([
+            GenerateJobOrderItemTasks::make()->openJobsAffectedBy($this->artefact, [(int) $this->get('manufacture_task_id') => $this->get('units_per_artefact', 1)]),
+        ]);
+
+        if ($message) {
+            $validator->errors()->add('confirm_open_jobs', $message);
+        }
     }
 
     public function authorize(ActionRequest $request): bool

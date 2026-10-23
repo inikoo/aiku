@@ -13,7 +13,6 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\WithChatNavigation;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -124,7 +123,10 @@ class GetOrganisationNavigation
         $navigation = $this->getWarehouseNavs($user, $organisation, $navigation);
 
         $navigation['productions_navigation'] = [];
-        foreach ($user->authorisedProductions->where('organisation_id', $organisation->id) as $production) {
+        $productions = $user->authTo(["human-resources.$organisation->id.view", "accounting.$organisation->id.view"])
+            ? $organisation->productions
+            : $user->authorisedProductions->where('organisation_id', $organisation->id);
+        foreach ($productions as $production) {
             $navigation['productions_navigation'][$production->slug] = GetProductionNavigation::run($production, $user);
         }
 
@@ -386,13 +388,22 @@ class GetOrganisationNavigation
             'icon'    => ['fal', 'fa-life-ring'],
             'root'    => 'grp.org.tickets.',
             'route'   => [
-                'name'       => $user->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value) ? 'grp.org.tickets.board' : 'grp.org.tickets.index',
+                'name'       => 'grp.org.tickets.board',
                 'parameters' => [$organisation->slug],
             ],
             'topMenu' => [
                 'subSections' => [
                     [
-                        'label' => __('Dashboard'),
+                        'label' => __('Board'),
+                        'icon'  => ['fal', 'fa-columns'],
+                        'root'  => 'grp.org.tickets.board',
+                        'route' => [
+                            'name'       => 'grp.org.tickets.board',
+                            'parameters' => [$organisation->slug],
+                        ],
+                    ],
+                    [
+                        'label' => __('Overview'),
                         'icon'  => ['fal', 'fa-tachometer-alt'],
                         'root'  => 'grp.org.tickets.index',
                         'route' => [
@@ -418,15 +429,6 @@ class GetOrganisationNavigation
                             'parameters' => [$organisation->slug],
                         ],
                     ]] : []),
-                    [
-                        'label' => __('Board'),
-                        'icon'  => ['fal', 'fa-columns'],
-                        'root'  => 'grp.org.tickets.board',
-                        'route' => [
-                            'name'       => 'grp.org.tickets.board',
-                            'parameters' => [$organisation->slug],
-                        ],
-                    ],
                     [
                         'label' => __('Reports'),
                         'icon'  => ['fal', 'fa-chart-line'],

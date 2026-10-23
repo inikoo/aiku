@@ -21,6 +21,10 @@ use Illuminate\Support\Sleep;
  * at 31% in POEditor after t:up, and the next t:down wipes the local work. /translations/add
  * is the endpoint that fills the empty terms, and it leaves the translated ones alone.
  *
+ * Only the translations POEditor holds empty are sent, read from an export filtered to
+ * untranslated terms, so a seed of a few new strings takes seconds instead of sending
+ * every string of the file in paced batches.
+ *
  * Run t:up --skip-download first so the terms exist, then this.
  */
 class TranslationsSeed extends Command
@@ -55,13 +59,28 @@ class TranslationsSeed extends Command
 
     private function seed(string $locale, string $path): bool
     {
-        $entries = collect(json_decode(file_get_contents($path), true))
-            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+        $untranslatedTerms = $this->untranslatedTerms($locale);
+
+        if ($untranslatedTerms === null) {
+            return false;
+        }
+
+        $local = collect(json_decode(file_get_contents($path), true))
+            ->filter(fn ($value) => is_string($value) && trim($value) !== '');
+
+        $entries = $local
+            ->filter(fn ($value, $term) => isset($untranslatedTerms[(string) $term]) || isset($untranslatedTerms[trim((string) $term)]))
             ->map(fn ($value, $term) => ['term' => (string) $term, 'translation' => ['content' => $value]])
             ->values();
 
+        if ($entries->isEmpty()) {
+            $this->info("→ {$locale}: nothing to seed, POEditor holds every translation of the ".number_format($local->count())." local strings");
+
+            return true;
+        }
+
         $batches = $entries->chunk(self::BATCH)->values();
-        $this->info("→ {$locale}: {$entries->count()} translations in {$batches->count()} batches");
+        $this->info("→ {$locale}: {$entries->count()} translations POEditor holds empty, in {$batches->count()} batches");
 
         $added = 0;
         $succeeded = true;
@@ -89,8 +108,40 @@ class TranslationsSeed extends Command
         }
 
         $this->info("{$locale}: {$added} translations added to POEditor");
-        $this->line('Translations POEditor already held are not counted. A shortfall beyond that is usually whitespace-variant keys POEditor normalised away.');
+        $this->line('A shortfall is usually whitespace-variant keys POEditor normalised away.');
 
         return $succeeded;
+    }
+
+    /**
+     * @return array<string, true>|null
+     */
+    private function untranslatedTerms(string $locale): ?array
+    {
+        $response = Http::asForm()->timeout(120)->post('https://api.poeditor.com/v2/projects/export', [
+            'api_token' => config('translation.api_key'),
+            'id' => config('translation.project_id'),
+            'language' => $locale,
+            'type' => 'key_value_json',
+            'filters' => 'untranslated',
+        ]);
+
+        if ($response->json('response.status') !== 'success') {
+            $this->error("{$locale}: could not list the terms POEditor holds empty: ".($response->json('response.message') ?? $response->status()));
+
+            return null;
+        }
+
+        $export = Http::timeout(120)->get($response->json('result.url'))->json();
+
+        if (!is_array($export)) {
+            $this->error("{$locale}: the export of the terms POEditor holds empty could not be read");
+
+            return null;
+        }
+
+        return collect($export)
+            ->mapWithKeys(fn ($entry, $term) => [(string) (is_array($entry) ? array_key_first($entry) : $term) => true])
+            ->all();
     }
 }

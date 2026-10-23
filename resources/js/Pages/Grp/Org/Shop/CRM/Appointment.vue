@@ -12,10 +12,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {
     faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone,
-    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe,
+    faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe, faBell,
 } from "@fal"
 
-library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe)
+library.add(faCalendar, faCalendarCheck, faClock, faMapMarkerAlt, faStoreAlt, faVideo, faUser, faEnvelope, faPhone, faUsers, faStickyNote, faHourglassHalf, faBan, faCheckCircle, faUserSlash, faTimesCircle, faCheck, faTimes, faCalendarEdit, faCalendarPlus, faGlobe, faBell)
 
 type RouteDefinition = { name: string, parameters: Record<string, string | number> }
 
@@ -36,12 +36,15 @@ const props = defineProps<{
         date_label: string
         is_past: boolean
         timezone: string
-        appointment_type: { name: string, meeting_mode: string, meeting_mode_label: string, location: string | null, duration_minutes: number }
+        appointment_type: { name: string, meeting_mode: string, meeting_mode_label: string, media: string | null, location: string | null, duration_minutes: number }
         staff_name: string | null
         contact_name: string
         email: string | null
+        reminder_sent_at: string | null
         phone: string | null
         whatsapp_url: string | null
+        zoom_join_url: string | null
+        google_meet_join_url: string | null
         number_visitors: number
         notes: string | null
         visitor: { type: string, label: string, name: string, route: RouteDefinition } | null
@@ -149,6 +152,11 @@ const statusMessage = computed(() => ({
                             <FontAwesomeIcon icon="fal fa-envelope" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
                             <a :href="`mailto:${appointment.email}`" class="text-[--app-accent] hover:underline">{{ appointment.email }}</a>
                         </li>
+                        <li v-if="appointment.email && (appointment.reminder_sent_at || (appointment.state === 'accepted' && !appointment.is_past))" class="flex gap-2 text-gray-500">
+                            <FontAwesomeIcon icon="fal fa-bell" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />
+                            <span v-if="appointment.reminder_sent_at">{{ ctrans("Reminder emailed :time", { time: useFormatTime(appointment.reminder_sent_at, { formatTime: "hm" }) }) }}</span>
+                            <span v-else>{{ ctrans("A reminder is emailed 12 hours before") }}</span>
+                        </li>
                         <li v-if="appointment.phone" class="flex flex-wrap items-center gap-2">
                             <FontAwesomeIcon icon="fal fa-phone" class="text-gray-400" fixed-width aria-hidden="true" />
                             <a :href="`tel:${appointment.phone}`" class="text-[--app-accent] hover:underline">{{ appointment.phone }}</a>
@@ -156,6 +164,16 @@ const statusMessage = computed(() => ({
                                 class="inline-flex items-center gap-1 rounded-md border border-green-500 px-2 py-0.5 text-xs font-medium text-green-700 hover:bg-green-50">
                                 <FontAwesomeIcon :icon="faWhatsapp" fixed-width aria-hidden="true" /> {{ ctrans("Call on WhatsApp") }}
                             </a>
+                        </li>
+                        <li v-if="appointment.appointment_type.media === 'zoom'" class="flex flex-wrap items-center gap-2">
+                            <FontAwesomeIcon icon="fal fa-video" class="text-gray-400" fixed-width aria-hidden="true" />
+                            <a v-if="appointment.zoom_join_url" :href="appointment.zoom_join_url" target="_blank" rel="noopener" class="break-all text-[--app-accent] hover:underline">{{ appointment.zoom_join_url }}</a>
+                            <span v-else class="text-gray-500">{{ ctrans("The Zoom meeting is created when the appointment is accepted") }}</span>
+                        </li>
+                        <li v-if="appointment.appointment_type.media === 'google_meet'" class="flex flex-wrap items-center gap-2">
+                            <FontAwesomeIcon icon="fal fa-video" class="text-gray-400" fixed-width aria-hidden="true" />
+                            <a v-if="appointment.google_meet_join_url" :href="appointment.google_meet_join_url" target="_blank" rel="noopener" class="break-all text-[--app-accent] hover:underline">{{ appointment.google_meet_join_url }}</a>
+                            <span v-else class="text-gray-500">{{ ctrans("The Google Meet is created when the appointment is written into the shop's Google Calendar") }}</span>
                         </li>
                         <li v-if="appointment.appointment_type.meeting_mode === 'store_visit'" class="flex gap-2">
                             <FontAwesomeIcon icon="fal fa-users" class="mt-0.5 text-gray-400" fixed-width aria-hidden="true" />

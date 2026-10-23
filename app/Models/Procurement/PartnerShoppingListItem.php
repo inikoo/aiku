@@ -251,6 +251,52 @@ class PartnerShoppingListItem extends Model
         return $this->partner_organisation_id ? min($toProduce, ceil((float) $this->quantity)) : $toProduce;
     }
 
+    /**
+     * Keeps on this line what the made goods cover and moves the rest to another job order, or
+     * back to To Produce when $jobOrderId is null; a partly covered line splits in two.
+     */
+    public function moveUncoveredTo(float $coveredSkos, ?int $jobOrderId): void
+    {
+        $wantedSkos = $this->claimedSkos();
+
+        if ($coveredSkos <= 0) {
+            $this->update(['job_order_id' => $jobOrderId] + ($jobOrderId ? [] : ['preparing_at' => null, 'quantity_to_produce' => null, 'batch_code' => null, 'expiry_date' => null]));
+
+            return;
+        }
+
+        if ($coveredSkos >= $wantedSkos) {
+            return;
+        }
+
+        self::create([
+            ...$this->only([
+                'group_id',
+                'organisation_id',
+                'org_partner_id',
+                'partner_organisation_id',
+                'stock_id',
+                'org_stock_id',
+                'priority',
+                'needed_by',
+                'notes',
+                'transaction_id',
+                'added_by_user_id',
+                'state',
+            ]),
+            'parent_id'           => $this->id,
+            'quantity'            => round($wantedSkos - $coveredSkos, 3),
+            'quantity_to_produce' => round($wantedSkos - $coveredSkos, 3),
+            'job_order_id'        => $jobOrderId,
+            'created_at'          => $this->created_at,
+        ]);
+
+        $this->update([
+            'quantity'            => min((float) $this->quantity, $coveredSkos),
+            'quantity_to_produce' => $coveredSkos,
+        ]);
+    }
+
     public function jobOrder(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Production\JobOrder::class);

@@ -8,6 +8,8 @@
 
 namespace App\Actions\Catalogue\ProductCategory;
 
+use App\Models\Catalogue\Product;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCategoryOffersData;
 use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\Hydrators\SubDepartmentHydrateProducts;
@@ -51,6 +53,10 @@ class UpdateFamilySubDepartment extends OrgAction
                 'department_id'     => $family->department_id,
                 'sub_department_id' => $family->sub_department_id,
             ]);
+
+        if (Arr::hasAny($changes, ['department_id', 'sub_department_id'])) {
+            Product::where('family_id', $family->id)->each(fn (Product $product) => ProductHydrateCategoryOffersData::dispatch($product));
+        }
 
 
         if (Arr::has($changes, 'department_id')) {

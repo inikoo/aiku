@@ -15,9 +15,6 @@
 
 <p align="center">
   <a href="https://github.com/Inikoo-Ltd/aiku/actions/workflows/testing.yml"><img src="https://github.com/Inikoo-Ltd/aiku/actions/workflows/testing.yml/badge.svg?branch=main" alt="Tests"></a>
-  <a href="https://codecov.io/gh/Inikoo-Ltd/aiku"><img src="https://codecov.io/gh/Inikoo-Ltd/aiku/branch/main/graph/badge.svg?token=12HMR5XCOW" alt="codecov"></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=Inikoo-Ltd_aiku"><img src="https://sonarcloud.io/api/project_badges/measure?project=Inikoo-Ltd_aiku&metric=alert_status" alt="Quality gate"></a>
-  <a href="https://app.codacy.com/gh/Inikoo-Ltd/aiku/dashboard"><img src="https://app.codacy.com/project/badge/Grade/0b5334200ff14749b5fce8288e545abb" alt="Codacy"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL-3.0"></a>
 </p>
 

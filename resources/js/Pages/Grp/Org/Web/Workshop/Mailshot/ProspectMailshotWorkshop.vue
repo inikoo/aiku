@@ -37,6 +37,7 @@ import TemplateGallery from "@/Components/Mailshot/TemplateGallery.vue"
 import { faThLarge, faList } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { usePage } from "@inertiajs/vue3"
+import { useFreshAfterHistoryRestore } from "@/Composables/useFreshAfterHistoryRestore"
 
 library.add(faThLarge, faList, faUserCog, faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow, faExclamationTriangle)
 
@@ -321,6 +322,13 @@ const schedulePublish = async () => {
 const isModalCloneTemplateEmail = ref(false)
 const activeSnapshot = ref(props.snapshot)
 
+const isRefreshingLayout = useFreshAfterHistoryRestore(['unpublished_layout', 'snapshot', 'compiledLayout', 'mailshot', 'pageHead'], () => {
+    mailshotSavedSubject.value = props.mailshot.subject
+    activeSnapshot.value = props.snapshot
+    compiledLayout.value = props.compiledLayout ?? ''
+    isPublished.value = !!props.compiledLayout
+})
+
 const page = usePage()
 const tabs = computed(() => page.props.tabs)
 const currentTab = ref<string>(tabs.value.current)
@@ -367,10 +375,6 @@ watch(
 )
 
 onMounted(() => {
-  window.addEventListener('popstate', () => {
-    router.reload()
-  });
-
   if (props.openTemplateSelector) {
     isModalCloneTemplateEmail.value = true
   }
@@ -449,7 +453,8 @@ onMounted(() => {
 
     </Modal>
 
-    <Beetree v-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
+    <div v-if="isRefreshingLayout" />
+    <Beetree v-else-if="builder == 'beefree' && emailEditor === 'beefree'" :updateRoute="updateRoute" :imagesUploadRoute="imagesUploadRoute"
         :snapshot="activeSnapshot" :mergeTags="mergeTags" :organisationSlug="organisationSlug" @onSave="onSendPublish"
         @sendTest="openSendTest" @auto-save="autoSave" @saveTemplate="onSaveTemplate" ref="_beefree"
         :unpublished_layout="unpublished_layout" @ready="isBeefreeReady = $event" />

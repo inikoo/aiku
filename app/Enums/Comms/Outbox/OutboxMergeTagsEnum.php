@@ -51,6 +51,13 @@ enum OutboxMergeTagsEnum: string
     case FAVOURITES_ON_OFFER_ITEMS = 'Favourites on Offer Items';
     case VOUCHER = 'Voucher';
     case VOUCHER_END_DATE = 'Voucher End Date';
+    case SHOP_NAME = 'Shop Name';
+    case APPOINTMENT_DATE = 'Appointment Date';
+    case APPOINTMENT_TIME = 'Appointment Time';
+    case APPOINTMENT_DETAILS = 'Appointment Details';
+    case PREVIOUS_APPOINTMENT_DATE = 'Previous Appointment Date';
+    case DECLINE_REASON = 'Decline Reason';
+    case MANAGE_APPOINTMENT_LINK = 'Manage Appointment Link';
 
 
     public static function tags(): array
@@ -207,6 +214,34 @@ enum OutboxMergeTagsEnum: string
             [
                 'name' => __('Voucher End Date'),
                 'value' => '[Voucher End Date]'
+            ],
+            [
+                'name' => __('Shop Name'),
+                'value' => '[Shop Name]'
+            ],
+            [
+                'name' => __('Appointment Date'),
+                'value' => '[Appointment Date]'
+            ],
+            [
+                'name' => __('Appointment Time'),
+                'value' => '[Appointment Time]'
+            ],
+            [
+                'name' => __('Appointment Details'),
+                'value' => '[Appointment Details]'
+            ],
+            [
+                'name' => __('Previous Appointment Date'),
+                'value' => '[Previous Appointment Date]'
+            ],
+            [
+                'name' => __('Decline Reason'),
+                'value' => '[Decline Reason]'
+            ],
+            [
+                'name' => __('Manage Appointment Link'),
+                'value' => '[Manage Appointment Link]'
             ],
 
         ];

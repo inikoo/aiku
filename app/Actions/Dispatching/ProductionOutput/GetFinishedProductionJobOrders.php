@@ -28,6 +28,9 @@ class GetFinishedProductionJobOrders
      * everything every artisan has finished for it. Quantities come from the to-produce lines
      * behind each job order, filled whole and biggest first.
      *
+     * A product is ready once all its own steps are done, so one soap still being sliced never
+     * holds back the four finished beside it on the same job order.
+     *
      * A job carried to another day is one job, not two: every part of the chain is grouped under
      * the job it came from, so goods in read one making with one full amount, and a chain still
      * being worked says what is made against what the whole job asks for.
@@ -38,8 +41,9 @@ class GetFinishedProductionJobOrders
     {
         $jobOrders = JobOrder::where('organisation_id', $warehouse->organisation_id)
             ->where('state', JobOrderStateEnum::CONFIRMED)
-            ->whereExists(fn ($query) => $query->selectRaw('1')->from('job_order_item_tasks')->whereColumn('job_order_item_tasks.job_order_id', 'job_orders.id'))
-            ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('job_order_item_tasks')->whereColumn('job_order_item_tasks.job_order_id', 'job_orders.id')->where('job_order_item_tasks.state', '!=', 'done'))
+            ->whereExists(fn ($query) => $query->selectRaw('1')->from('job_order_items')->whereColumn('job_order_items.job_order_id', 'job_orders.id')
+                ->whereExists(fn ($query) => $query->selectRaw('1')->from('job_order_item_tasks')->whereColumn('job_order_item_tasks.job_order_item_id', 'job_order_items.id'))
+                ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('job_order_item_tasks')->whereColumn('job_order_item_tasks.job_order_item_id', 'job_order_items.id')->where('job_order_item_tasks.state', '!=', 'done')))
             ->with(['employee', 'jobOrderItems.artefact.orgStock.locations','jobOrderItems.tasks'])
             ->orderBy('confirmed_at')
             ->get();
@@ -62,6 +66,10 @@ class GetFinishedProductionJobOrders
             foreach (GetJobOrderDestinationAllocation::make()->outstanding($jobOrder) as $allocation) {
                 $item     = $allocation['item'];
                 $quantity = $allocation['quantity'];
+
+                if (!$item->isFinished()) {
+                    continue;
+                }
 
                 $locationId = $allocation['location_id'];
                 $key        = $locationId ?? 'stock';
@@ -173,7 +181,6 @@ class GetFinishedProductionJobOrders
         return JobOrder::whereIn('state', [
             JobOrderStateEnum::CONFIRMED,
             JobOrderStateEnum::RECEIVED,
-            JobOrderStateEnum::NOT_RECEIVED,
             JobOrderStateEnum::BOOKING_IN,
             JobOrderStateEnum::BOOKED_IN,
         ])

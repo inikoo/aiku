@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\Catalogue\Shop\Hydrators\HasDeliveryNoteHydrators;
+use App\Actions\Dispatching\PickedBay\DetachDeliveryNoteFromPickedBays;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\DeliveryNote;
@@ -30,7 +31,7 @@ class DeleteDeliveryNote extends OrgAction
             $deliveryNote = $this->update($deliveryNote, $modelData);
 
             DB::table('delivery_note_has_trolleys')->where('delivery_note_id', $deliveryNote->id)->delete();
-            DB::table('picked_bay_has_delivery_notes')->where('delivery_note_id', $deliveryNote->id)->delete();
+            DetachDeliveryNoteFromPickedBays::run($deliveryNote);
             DB::table('picking_session_has_delivery_notes')->where('delivery_note_id', $deliveryNote->id)->delete();
 
 

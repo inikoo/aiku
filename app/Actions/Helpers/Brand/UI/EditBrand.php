@@ -2,6 +2,7 @@
 
 namespace App\Actions\Helpers\Brand\UI;
 
+use App\Actions\Traits\Authorisations\WithGoodsEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Helpers\Brand;
 use Inertia\Inertia;
@@ -10,6 +11,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditBrand extends OrgAction
 {
+    use WithGoodsEditAuthorisation;
+
     public function asController(Brand $brand, ActionRequest $request): Response
     {
         $this->initialisationFromGroup(group(), $request);

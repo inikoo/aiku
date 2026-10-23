@@ -50,8 +50,17 @@ class ImportArtefact extends OrgAction
         return $upload;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $production = $request->route('production');
+
+        return $production instanceof Production
+            && $request->user()->authTo(["org-supervisor.{$production->organisation_id}", "productions_rd.{$production->id}.edit"]);
+    }
+
     public function asController(Production $production, ActionRequest $request): Upload
     {
+        abort_unless($this->authorize($request), 403);
         $request->validate();
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);

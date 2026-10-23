@@ -34,7 +34,7 @@ enum JobOrderStateEnum: string
             'submitted'    => __('Submitted'),
             'confirmed'    => __('Confirmed'),
             'received'     => __('Received'),
-            'not_received' => __('Not Received'),
+            'not_received' => __('Cancelled'),
             'booking_in'   => __('Booking In'),
             'booked_in'    => __('Booked In')
         ];
@@ -85,7 +85,7 @@ enum JobOrderStateEnum: string
                 ]
             ],
             'not_received' => [
-                'tooltip' => __('Not Received'),
+                'tooltip' => __('Cancelled'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
                 'color'   => 'slate',

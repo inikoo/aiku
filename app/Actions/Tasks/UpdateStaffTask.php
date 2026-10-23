@@ -8,6 +8,7 @@
 
 namespace App\Actions\Tasks;
 
+use App\Actions\Goods\ProductDevelopment\FollowUpProductDevelopmentTask;
 use App\Actions\Chat\Staff\SendStaffMessage;
 use App\Enums\Tasks\StaffTaskStatusEnum;
 use App\Enums\CRM\Livechat\ChatPriorityEnum;
@@ -77,6 +78,10 @@ class UpdateStaffTask
                 $task->conversation->addParticipants([$actor->id]);
             }
             SendStaffMessage::run($task->conversation, $actor, ['body' => implode(': ', $lines)]);
+        }
+
+        if ($task->wasChanged('status')) {
+            FollowUpProductDevelopmentTask::run($task, $actor);
         }
 
         $this->notify($task, $actor);

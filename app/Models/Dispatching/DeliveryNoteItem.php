@@ -12,6 +12,7 @@ use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemCancelStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemSalesTypeEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Models\GoodsIn\ReturnDeliveryNoteItem;
 use App\Models\GoodsIn\Sowing;
 use App\Models\Inventory\OrgStock;
@@ -176,6 +177,21 @@ class DeliveryNoteItem extends Model
                     $deliveryNoteItem->original_quantity_required = $deliveryNoteItem->quantity_required;
                 }
             }
+        );
+
+        static::saved(
+            function (DeliveryNoteItem $deliveryNoteItem) {
+                if ($deliveryNoteItem->wasRecentlyCreated || $deliveryNoteItem->wasChanged(['state', 'org_stock_id', 'quantity_required', 'quantity_picked', 'quantity_not_picked'])) {
+                    OrgStockHydrateQuantityInLocations::dispatch($deliveryNoteItem->org_stock_id)->delay(2);
+                    if ($deliveryNoteItem->wasChanged('org_stock_id')) {
+                        OrgStockHydrateQuantityInLocations::dispatch($deliveryNoteItem->getOriginal('org_stock_id'))->delay(2);
+                    }
+                }
+            }
+        );
+
+        static::deleted(
+            fn (DeliveryNoteItem $deliveryNoteItem) => OrgStockHydrateQuantityInLocations::dispatch($deliveryNoteItem->org_stock_id)->delay(2)
         );
     }
 

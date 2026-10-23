@@ -11,6 +11,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
+use App\Actions\SupplyChain\PackingSpec\GetPurchaseOrderPackingSpecGaps;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent;
 use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
@@ -18,6 +19,7 @@ use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Events\BroadcastAgentIncomingPurchaseOrdersChanged;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\RedirectResponse;
@@ -61,6 +63,11 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
             $validator->errors()->add('agreed_terms', __('This order differs from what was agreed with the supplier. Accept each difference with a reason before submitting.'));
         }
 
+        $packingSpecGaps = GetPurchaseOrderPackingSpecGaps::run($this->purchaseOrder);
+        if ($packingSpecGaps && $packingSpecGaps['blocking']) {
+            $validator->errors()->add('packing_specs', GetPurchaseOrderPackingSpecGaps::make()->blockingMessage($packingSpecGaps));
+        }
+
         if (SendPartnerPurchaseOrderToSeller::appliesTo($this->purchaseOrder)) {
             foreach (SendPartnerPurchaseOrderToSeller::make()->problems($this->purchaseOrder) as $problem) {
                 $validator->errors()->add('purchase_order', $problem);
@@ -71,6 +78,17 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     public function handle(PurchaseOrder $purchaseOrder, ?string $sendVia = null): PurchaseOrder
     {
         $purchaseOrder = DB::transaction(fn () => $this->submit($purchaseOrder, $sendVia));
+
+        if ($agentOrganisation = $purchaseOrder->agent?->organisation) {
+            BroadcastAgentIncomingPurchaseOrdersChanged::dispatch($agentOrganisation->id, [
+                'purchase_order_id' => $purchaseOrder->id,
+                'reference'         => $purchaseOrder->reference,
+                'client'            => $purchaseOrder->organisation->name,
+                'amount'            => (float) $purchaseOrder->cost_total,
+                'currency'          => $purchaseOrder->currency->code,
+                'url'               => route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $purchaseOrder->slug]),
+            ]);
+        }
 
         if (SendPartnerPurchaseOrderToSeller::appliesTo($purchaseOrder)) {
             SendPartnerPurchaseOrderToSeller::dispatch($purchaseOrder);

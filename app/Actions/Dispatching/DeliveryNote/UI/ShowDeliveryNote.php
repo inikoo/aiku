@@ -22,6 +22,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\WithDeliveryNoteItemPickingCounts;
 use App\Actions\Dispatching\Picking\Picker\Json\GetPickerUsers;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Ordering\Order\UI\IndexDispatchedEmailsInOrder;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteLeaflets;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNotePackaging;
@@ -51,6 +52,7 @@ use App\Exports\Dispatching\DeliveryNoteTariffCodesExport;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Ordering\DispatchedEmailsInOrderResource;
 use App\Http\Resources\Ordering\PickersResource;
 use App\Http\Resources\Procurement\ReturnDeliveryNoteResource;
 use App\Models\Catalogue\Shop;
@@ -93,6 +95,19 @@ class ShowDeliveryNote extends OrgAction
     private bool $allowAction = true;
 
     private bool $hasPickingScanTabs = false;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $deliveryNote = $request->route('deliveryNote');
+        $warehouse    = $request->route('warehouse');
+        $shop         = $request->route('shop');
+
+        abort_unless($deliveryNote instanceof DeliveryNote, 404);
+        abort_if($warehouse instanceof Warehouse && $deliveryNote->warehouse_id !== $warehouse->id, 404);
+        abort_if($shop instanceof Shop && $deliveryNote->shop_id !== $shop->id, 404);
+
+        return $deliveryNote->canBeViewedBy($request->user());
+    }
 
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
@@ -239,6 +254,18 @@ class ShowDeliveryNote extends OrgAction
         }
 
         if ($deliveryNote->hasBlockingItems()) {
+            if ($this->allowAction
+                && $deliveryNote->shop->type != ShopTypeEnum::DROPSHIPPING
+                && !$deliveryNote->pickedBays()->exists()
+            ) {
+                return [
+                    [
+                        'type' => 'button',
+                        'key'  => 'trigger-set-as-picked-or-packed',
+                    ]
+                ];
+            }
+
             return [];
         }
 
@@ -927,7 +954,7 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ],
                 ];
-            } elseif ($order->platform->type == PlatformTypeEnum::TIKTOK) {
+            } elseif ($order->platform?->type == PlatformTypeEnum::TIKTOK) {
                 $additionalShipmentRoutes = [
                     'get_external_shipment_route' => [
                         'label'      => __('Get shipment from Tiktok'),
@@ -938,7 +965,9 @@ class ShowDeliveryNote extends OrgAction
                     ]
                 ];
             }
-        } else {
+        }
+
+        if (!$additionalShipmentRoutes) {
             $additionalShipmentRoutes = [
                 'submit_route' => [
                     'name'       => 'grp.models.delivery_note.shipment.store',
@@ -1379,6 +1408,12 @@ class ShowDeliveryNote extends OrgAction
             ],
             'warning'       => $warning,
             'aurora_notice' => $lockedInAurora ? __('This delivery note belongs to an order submitted in Aurora. Pick, pack and dispatch it in Aurora, not here.') : null,
+            'read_only_notice' => $this->parent instanceof Warehouse
+                && !$lockedInAurora
+                && !$isEditable
+                && !in_array($deliveryNote->state, [DeliveryNoteStateEnum::DISPATCHED, DeliveryNoteStateEnum::CANCELLED], true)
+                ? __('You can see this delivery note but not pick, pack or dispatch it: that needs a dispatching, fulfilment or returns position in this warehouse.')
+                : null,
             'is_editable'   => $isEditable,
             'packaging'     => $this->getDeliveryNotePackagingProp($deliveryNote),
             'inserts'       => $this->getDeliveryNoteInsertsProp($deliveryNote),
@@ -1485,6 +1520,10 @@ class ShowDeliveryNote extends OrgAction
                 fn () => HistoryResource::collection(IndexHistory::run($deliveryNote, DeliveryNoteTabsEnum::HISTORY->value))
                 : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($deliveryNote, DeliveryNoteTabsEnum::HISTORY->value))),
 
+            DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value => $this->tab == DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value ?
+                fn () => DispatchedEmailsInOrderResource::collection(IndexDispatchedEmailsInOrder::run(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value))
+                : Inertia::optional(fn () => DispatchedEmailsInOrderResource::collection(IndexDispatchedEmailsInOrder::run(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value))),
+
             DeliveryNoteTabsEnum::TARIFF_CODES->value => $this->tab == DeliveryNoteTabsEnum::TARIFF_CODES->value ?
                 fn () => DeliveryNoteTariffCodeResource::collection(IndexDeliveryNoteTariffCodes::run($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value))
                 : Inertia::optional(fn () => DeliveryNoteTariffCodeResource::collection(IndexDeliveryNoteTariffCodes::run($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value))),
@@ -1554,6 +1593,7 @@ class ShowDeliveryNote extends OrgAction
 
         $inertiaResponse->table(IndexHistory::make()->tableStructure(DeliveryNoteTabsEnum::HISTORY->value));
         $inertiaResponse->table(IndexDeliveryNoteTariffCodes::make()->tableStructure($deliveryNote, DeliveryNoteTabsEnum::TARIFF_CODES->value));
+        $inertiaResponse->table(IndexDispatchedEmailsInOrder::make()->tableStructure(DeliveryNoteTabsEnum::DISPATCHED_EMAILS->value));
 
         return $inertiaResponse;
     }

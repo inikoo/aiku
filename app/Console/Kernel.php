@@ -15,6 +15,7 @@ use App\Actions\Accounting\Payment\CheckoutCom\SweepStuckCheckoutComPaymentApiPo
 use App\Actions\Catalogue\Shop\NotifyShopStockArrivals;
 use App\Actions\Catalogue\RebuildCatalogueRankings;
 use App\Actions\Dispatching\DeliveryNote\SweepStrandedDeliveryNotes;
+use App\Actions\Dispatching\Shipment\ApiCalls\TrackGlsEsShipments;
 use App\Actions\Inventory\OrgStock\ApplyScheduledOrgStockStateChanges;
 use App\Actions\Catalogue\Shop\External\Faire\GetFaireOrdersAllShops;
 use App\Actions\Catalogue\Shop\External\Faire\GetFaireProductsAllShops;
@@ -26,6 +27,7 @@ use App\Actions\Catalogue\Shop\External\Wix\GetWixOrdersAllShops;
 use App\Actions\Catalogue\Shop\External\Wix\GetWixProductsAllShops;
 use App\Actions\Comms\Mailshot\RunMailshotScheduled;
 use App\Actions\Comms\WhatsappCampaign\RunWhatsappCampaignScheduled;
+use App\Actions\Comms\Mailshot\RunMailshotAbTestVariants;
 use App\Actions\Comms\Mailshot\RunMailshotSecondWave;
 use App\Actions\Comms\Mailshot\RunMailshotTrackingUpdates;
 use App\Actions\Comms\Mailshot\RunNewsletterScheduled;
@@ -112,9 +114,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('server-metrics:aggregate')->hourlyAt(5)->onOneServer()->withoutOverlapping();
         $schedule->command('tickets:cancel_stale')->everyFifteenMinutes()->onOneServer();
         $schedule->command('staff-tasks:nudge')->hourly()->onOneServer();
+        $schedule->command('accounting:refresh-payment-methods-dashboard')->everySixHours()->onOneServer()->withoutOverlapping()->runInBackground();
+        $schedule->command('accounting:refresh-invoice-countries-dashboard')->everySixHours()->onOneServer()->withoutOverlapping()->runInBackground();
         $schedule->command('procurement:send-minimum-poke-digests')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('staff-tasks:remind-due')->hourly()->onOneServer();
+        $schedule->command('product-developments:remind')->dailyAt('08:00')->timezone('Europe/London')->onOneServer();
         $schedule->command('appointments:close-past')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
+        $schedule->command('appointments:remind')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
+        $schedule->command('appointments:reconcile-google-calendar')->everyTwoHours()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:sync-leave-cover-roles')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:add-leave-cover-collaborators')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('currency:warm')->everyFourHours()->onOneServer()->withoutOverlapping(30);
@@ -131,6 +138,7 @@ class Kernel extends ConsoleKernel
            and re-sending a day replaces its figure instead of adding to it, so the later, better
            number wins and a missed night repairs itself. */
         $schedule->command('traffic-source:fetch-meta-costs --days=2')->dailyAt('06:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
+        $schedule->command('social-media:fetch-meta --days=28')->dailyAt('06:15')->timezone('UTC')->onOneServer()->withoutOverlapping();
         $schedule->command('sync:customers-to-google-ads --all')->dailyAt('04:45')->timezone('UTC')->onOneServer()->withoutOverlapping(120);
         $schedule->command('google-ads:fetch-campaigns')->dailyAt('05:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
         /* Three days rather than one: an account's own time zone can still be on the previous day at
@@ -198,6 +206,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'SweepStrandedDeliveryNotes',
                 ),
                 name: 'SweepStrandedDeliveryNotes',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(TrackGlsEsShipments::makeJob())->hourlyAt(40)->withoutOverlapping()->onOneServer()->sentryMonitor(
+                    monitorSlug: 'TrackGlsEsShipments',
+                ),
+                name: 'TrackGlsEsShipments',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );
@@ -385,6 +402,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'RunWhatsappCampaignScheduled',
                 ),
                 name: 'RunWhatsappCampaignScheduled',
+                type: 'job',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->job(RunMailshotAbTestVariants::makeJob())->everyMinute()->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'RunMailshotAbTestVariants',
+                ),
+                name: 'RunMailshotAbTestVariants',
                 type: 'job',
                 scheduledAt: now()->format('H:i')
             );
@@ -1235,6 +1261,15 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('hydrate:shop-customer-value-curve')->monthlyOn(1, '04:00')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'HydrateShopCustomerValueCurve',
+                ),
+                name: 'HydrateShopCustomerValueCurve',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('hydrate:shop-sales-forecast')->dailyAt('00:40')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
                     monitorSlug: 'ForecastShopSales',
                 ),
@@ -1617,15 +1652,6 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
-                $schedule->command('chat:hydrate-reply-examples')->dailyAt('03:50')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
-                    monitorSlug: 'HydrateChatReplyExamples',
-                ),
-                name: 'HydrateChatReplyExamples',
-                type: 'command',
-                scheduledAt: now()->format('H:i')
-            );
-
-            $this->logSchedule(
                 $schedule->command('chat:score-suggestions')->dailyAt('04:30')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
                     monitorSlug: 'ScoreChatSuggestions',
                 ),
@@ -1684,6 +1710,15 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'ReleaseFullyStockedPrePickLines',
                 ),
                 name: 'ReleaseFullyStockedPrePickLines',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
+                $schedule->command('production:stop_sessions_after_shift')->everyFifteenMinutes()->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'StopManufactureTaskSessionsAfterShift',
+                ),
+                name: 'StopManufactureTaskSessionsAfterShift',
                 type: 'command',
                 scheduledAt: now()->format('H:i')
             );

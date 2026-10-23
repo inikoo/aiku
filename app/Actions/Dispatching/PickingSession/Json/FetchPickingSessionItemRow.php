@@ -12,6 +12,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsInPickingS
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsInPickingSessionGrouped;
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItemsInPickingSessionStateActive;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingAuthorisation;
 use App\Http\Resources\Dispatching\PickingSessionDeliveryNoteItemsGroupedResource;
 use App\Http\Resources\Dispatching\PickingSessionDeliveryNoteItemsStateHandlingResource;
 use App\Http\Resources\Dispatching\PickingSessionDeliveryNoteItemsStateUnassignedResource;
@@ -28,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class FetchPickingSessionItemRow extends OrgAction
 {
+    use WithDispatchingAuthorisation;
     public function handle(PickingSession $pickingSession, ?string $tab, int $rowId): ?JsonResource
     {
         if ($tab == 'grouped') {

@@ -65,6 +65,9 @@ class EditVariant extends OrgAction
      */
     public function handle(Variant $variant): Variant
     {
+        abort_unless($variant->shop_id === $this->shop->id, 404);
+        abort_unless($this->canEdit, 403);
+
         return $variant;
     }
 

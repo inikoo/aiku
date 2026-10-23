@@ -11,6 +11,7 @@ namespace App\Models\GoodsIn;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\AgentInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Models\SupplyChain\AgentPayment;
 use App\Models\SupplyChain\SupplierPayment;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryCostTypeEnum;
@@ -20,6 +21,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\User;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
@@ -28,6 +30,7 @@ use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasSearch;
 use App\Models\Traits\HasStageMarks;
 use Eloquent;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -314,6 +317,19 @@ class StockDelivery extends Model implements HasMedia, Auditable
     }
 
     /**
+     * An accounting manager updates a costed delivery, or the person they named when they reopened it, until it is finished.
+     */
+    public function canUpdateCosting(User $user): bool
+    {
+        if ($user->authTo("org-supervisor.{$this->organisation_id}.accounting")) {
+            return true;
+        }
+
+        return !$this->is_costed
+            && (int) Arr::get($this->data, 'costing_reopened.assignee_id') === $user->id;
+    }
+
+    /**
      * Strips what Aurora knows about placement from a fetched delivery or item payload, so a
      * re-fetch can never regress what aiku booked in. The state is dropped from checked onwards
      * because aiku derives it from its own sowings.
@@ -448,7 +464,18 @@ class StockDelivery extends Model implements HasMedia, Auditable
         return $this->belongsTo(Agent::class);
     }
 
+    /**
+     * Transfers the client sent the agent against this container, the ones taken off its invoice.
+     */
     public function agentPayments(): HasMany
+    {
+        return $this->hasMany(AgentPayment::class)->where('type', AgentPaymentTypeEnum::TRANSFER_RECEIVED);
+    }
+
+    /**
+     * Every line of the agent's ledger tagged with this container, money in and out.
+     */
+    public function agentLedgerEntries(): HasMany
     {
         return $this->hasMany(AgentPayment::class);
     }

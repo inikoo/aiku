@@ -250,7 +250,7 @@ class StoreProductToAllegro extends RetinaAction
             $portfolio->refresh();
 
             if ($portfolio->platform_status) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             } else {
@@ -258,7 +258,7 @@ class StoreProductToAllegro extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse($allegroOffer)
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => json_encode($allegroOffer)
                 ]);
@@ -266,7 +266,7 @@ class StoreProductToAllegro extends RetinaAction
 
             return $portfolio;
         } catch (\Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $e->getMessage()
             ]);

@@ -16,6 +16,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasPalletDocumentReaders;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Collection;
@@ -110,6 +111,7 @@ class PalletDelivery extends Model implements HasMedia, Auditable
     use SoftDeletes;
     use InFulfilmentCustomer;
     use HasAttachments;
+    use HasPalletDocumentReaders;
     use HasHistory;
 
     protected $guarded = [];

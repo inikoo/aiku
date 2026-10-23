@@ -8,21 +8,22 @@
 
 namespace App\Actions\Accounting\UI;
 
-use App\Actions\Accounting\Payment\UI\GetPaymentMethodsSummary;
+use App\Actions\Accounting\Invoice\UI\GetInvoiceCountriesPeriods;
+use App\Actions\Accounting\Payment\UI\GetPaymentMethodsPeriods;
 use App\Actions\Procurement\GetUncostedStockDeliveriesCard;
-use App\Actions\Traits\Dashboards\WithMarketingPeriod;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithAccountingAuthorisation;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Models\SysAdmin\Organisation;
+use App\Enums\DateIntervals\DateIntervalEnum;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowAccountingDashboard extends OrgAction
 {
-    use WithMarketingPeriod;
     use WithAccountingAuthorisation;
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation
@@ -35,7 +36,10 @@ class ShowAccountingDashboard extends OrgAction
 
     public function htmlResponse(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->setMarketingPeriod($request->user()->settings);
+        $userSettings = $request->user()->settings;
+        if (!in_array(DateIntervalEnum::tryFrom((string) Arr::get($userSettings, 'selected_interval')), GetPaymentMethodsPeriods::PERIODS)) {
+            $userSettings['selected_interval'] = DateIntervalEnum::ONE_MONTH->value;
+        }
         $parameters = $request->route()->originalParameters();
 
         return Inertia::render(
@@ -60,15 +64,21 @@ class ShowAccountingDashboard extends OrgAction
 
 
                 'payment_methods' => [
-                    'summary' => GetPaymentMethodsSummary::run($organisation, $this->periodFrom, $this->periodTo),
+                    'periods' => GetPaymentMethodsPeriods::run($organisation),
                     'route'   => [
                         'name'       => 'grp.org.accounting.payments.methods.index',
                         'parameters' => [$organisation->slug],
                     ],
-                    'period_label' => $this->periodFrom ? $this->periodLabels()['period_label'] : __('All time'),
+                ],
+                'invoice_countries' => [
+                    'periods' => GetInvoiceCountriesPeriods::run($organisation),
+                    'route'   => [
+                        'name'       => 'grp.org.accounting.invoices_by_country.index',
+                        'parameters' => [$organisation->slug],
+                    ],
                 ],
                 'uncostedStockDeliveries' => GetUncostedStockDeliveriesCard::run($organisation),
-                'intervals' => $this->intervalsProp($request->user()->settings),
+                'intervals' => ['value' => $userSettings['selected_interval']],
                 'settings'  => [],
                 'flatTreeMaps' => [
                     [

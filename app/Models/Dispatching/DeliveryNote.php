@@ -8,6 +8,7 @@
 
 namespace App\Models\Dispatching;
 
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
@@ -16,6 +17,7 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Helpers\NaturalLanguage;
 use App\Models\Billables\Packaging;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\DispatchedEmail;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\CustomerSalesChannel;
@@ -174,6 +176,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read CustomerSalesChannel|null $customerSalesChannel
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, \App\Models\Dispatching\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, Feedback> $feedbacks
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group|null $group
@@ -333,6 +336,23 @@ class DeliveryNote extends Model implements Auditable
         return 'slug';
     }
 
+    protected static function booted(): void
+    {
+        $hydrateOrgStocksToBePicked = function (DeliveryNote $deliveryNote) {
+            foreach ($deliveryNote->deliveryNoteItems()->whereNotNull('org_stock_id')->distinct()->pluck('org_stock_id') as $orgStockId) {
+                OrgStockHydrateQuantityInLocations::dispatch($orgStockId)->delay(2);
+            }
+        };
+
+        static::updated(function (DeliveryNote $deliveryNote) use ($hydrateOrgStocksToBePicked) {
+            if ($deliveryNote->wasChanged('state')) {
+                $hydrateOrgStocksToBePicked($deliveryNote);
+            }
+        });
+        static::deleted($hydrateOrgStocksToBePicked);
+        static::restored($hydrateOrgStocksToBePicked);
+    }
+
     public function orders(): BelongsToMany
     {
         return $this->belongsToMany(Order::class, 'delivery_note_order')->withTimestamps();
@@ -480,6 +500,11 @@ class DeliveryNote extends Model implements Auditable
         return $this->morphToMany(Shipment::class, 'model', 'model_has_shipments');
     }
 
+    public function dispatchedEmails(): MorphToMany
+    {
+        return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
+    }
+
     public function pickings(): HasMany
     {
         return $this->hasMany(Picking::class);
@@ -579,6 +604,37 @@ class DeliveryNote extends Model implements Auditable
     public function isLockedInAurora(): bool
     {
         return $this->handled_in_aurora && !in_array($this->state, [DeliveryNoteStateEnum::DISPATCHED, DeliveryNoteStateEnum::CANCELLED]);
+    }
+
+    /**
+     * The note, its PDFs and its lines are read by the staff of its warehouse (dispatching,
+     * fulfilment, returns, goods in), the order and CRM staff of its shop, the fulfilment staff of
+     * a fulfilment shop, and the organisation's admins, warehouse viewers and accountants, who open
+     * it from orders and invoices.
+     */
+    public function canBeViewedBy(User $user): bool
+    {
+        $permissions = [
+            "dispatching.$this->warehouse_id.view",
+            "supervisor-dispatching.$this->warehouse_id",
+            "fulfilment.$this->warehouse_id.view",
+            "supervisor-fulfilment.$this->warehouse_id",
+            "returns.$this->warehouse_id",
+            "incoming.$this->warehouse_id.view",
+            "supervisor-incoming.$this->warehouse_id",
+            "orders.$this->shop_id.view",
+            "orders.$this->shop_id.edit",
+            "crm.$this->shop_id.view",
+            "org-admin.$this->organisation_id",
+            "warehouses-view.$this->organisation_id",
+            "accounting.$this->organisation_id.view",
+        ];
+
+        if ($this->shop?->fulfilment) {
+            $permissions[] = "fulfilment-shop.{$this->shop->fulfilment->id}.view";
+        }
+
+        return $user->authTo($permissions);
     }
 
     /**

@@ -35,6 +35,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
+use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -62,6 +64,8 @@ use App\Models\Traits\HasSearch;
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
  * @property ArtisanPayTypeEnum $artisan_pay_type
+ * @property \Illuminate\Support\Carbon|null $guru_since
+ * @property \Illuminate\Support\Carbon|null $guru_until
  * @property \Illuminate\Support\Carbon|null $employment_start_at
  * @property \Illuminate\Support\Carbon|null $employment_end_at
  * @property array<array-key, mixed>|null $emergency_contact
@@ -169,6 +173,8 @@ class Employee extends Model implements HasMedia, Auditable
         'religion' => 'string',
         'emergency_contact' => 'array',
         'artisan_pay_type' => ArtisanPayTypeEnum::class,
+        'guru_since' => 'date',
+        'guru_until' => 'date',
     ];
     //ss
 
@@ -213,6 +219,7 @@ class Employee extends Model implements HasMedia, Auditable
         'insurance_number',
         'religion',
         'probation_period_days',
+        'artisan_pay_type',
     ];
 
     protected array $attributeModifiers = [
@@ -385,6 +392,80 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->organisation?->getDefaultWorkSchedule();
     }
 
+    /**
+     * The shift this employee was working at the moment given, in the schedule's own time zone: the shift of that
+     * day, or the night shift of the day before while it is still running. Null when no schedule says anything
+     * about that day; an empty window for a day off.
+     *
+     * @return array{0: Carbon, 1: Carbon}|array{}|null
+     */
+    public function shiftWindowOn(Carbon $moment, ?WorkSchedule $schedule = null): ?array
+    {
+        $schedule ??= $this->getEffectiveWorkSchedule();
+        if (!$schedule) {
+            return null;
+        }
+
+        $timezone = $schedule->timezone?->name ?? $this->organisation?->timezone?->name ?? config('app.timezone');
+        $local    = $moment->copy()->setTimezone($timezone);
+
+        $previousNight = $this->scheduledShift($schedule, $local->copy()->subDay(), $timezone);
+        if ($previousNight && $local->lessThan($previousNight[1])) {
+            return $previousNight;
+        }
+
+        $day = $schedule->days->firstWhere('day_of_week', $local->dayOfWeekIso);
+        if (!$day) {
+            return null;
+        }
+
+        return $this->scheduledShift($schedule, $local, $timezone) ?? [];
+    }
+
+    /**
+     * The shift scheduled for a calendar day and its unpaid breaks: null when no schedule says anything, an empty array for a day off.
+     *
+     * @return array{start: Carbon, end: Carbon, unpaid_break_minutes: int}|array{}|null
+     */
+    public function scheduledShiftOn(string $date, ?WorkSchedule $schedule = null): ?array
+    {
+        $schedule ??= $this->getEffectiveWorkSchedule();
+        if (!$schedule) {
+            return null;
+        }
+
+        $timezone = $schedule->timezone?->name ?? $this->organisation?->timezone?->name ?? config('app.timezone');
+        $shift    = $this->scheduledShift($schedule, Carbon::parse($date, $timezone), $timezone);
+        if (!$shift) {
+            return [];
+        }
+
+        $unpaidBreakMinutes = $schedule->days->firstWhere('day_of_week', $shift[0]->dayOfWeekIso)->breaks
+            ->where('is_paid', false)
+            ->sum(fn (WorkScheduleBreak $break) => abs($break->end_time->diffInMinutes($break->start_time)));
+
+        return ['start' => $shift[0], 'end' => $shift[1], 'unpaid_break_minutes' => (int) $unpaidBreakMinutes];
+    }
+
+    /**
+     * @return array{0: Carbon, 1: Carbon}|null
+     */
+    private function scheduledShift(WorkSchedule $schedule, Carbon $localDay, string $timezone): ?array
+    {
+        $day = $schedule->days->firstWhere('day_of_week', $localDay->dayOfWeekIso);
+        if (!$day || !$day->is_working_day || !$day->start_time || !$day->end_time) {
+            return null;
+        }
+
+        $start = Carbon::parse($localDay->toDateString().' '.$day->start_time, $timezone);
+        $end   = Carbon::parse($localDay->toDateString().' '.$day->end_time, $timezone);
+        if ($end->lessThanOrEqualTo($start)) {
+            $end->addDay();
+        }
+
+        return [$start, $end];
+    }
+
     public function hrAnnouncements(): MorphMany
     {
         return $this->morphMany(HRAnnouncement::class, 'employee');
@@ -456,6 +537,17 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->getCurrentDepartment();
     }
 
+    public function isGuruOn(?DateTimeInterface $moment): bool
+    {
+        if (!$moment || !$this->guru_since) {
+            return false;
+        }
+
+        $day = Carbon::parse($moment)->utc()->toDateString();
+
+        return $day >= $this->guru_since->toDateString()
+            && (!$this->guru_until || $day <= $this->guru_until->toDateString());
+    }
 
     public function toSearchableArray(): array
     {

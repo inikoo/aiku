@@ -12,6 +12,7 @@ use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteShipmentAuthorisation;
 use App\Actions\Catalogue\Shop\Hydrators\HasDeliveryNoteHydrators;
 use App\Actions\Comms\Email\SendDispatchedReplacementOrderEmailToCustomer;
 use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydrateDispatchTotals;
+use App\Actions\Dispatching\PickedBay\DetachDeliveryNoteFromPickedBays;
 use App\Actions\Ordering\Order\UpdateState\DispatchOrderFromDeliveryNote;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PartnerShoppingListItem\SyncPartnerStockDeliveryOnDispatch;
@@ -58,6 +59,7 @@ class DispatchDeliveryNote extends OrgAction
             }
 
             $deliveryNote = $this->update($deliveryNote, $modelData);
+            DetachDeliveryNoteFromPickedBays::run($deliveryNote);
 
             $deliveryNote->refresh();
             if ($deliveryNote->type != DeliveryNoteTypeEnum::REPLACEMENT) {

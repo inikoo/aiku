@@ -31,6 +31,7 @@
 /public/shopify/manifest.json
 /public/pupil/manifest.json
 /public/chat-widget
+/public/appointment-widget
 /storage/*.key
 /vendor
 .env
@@ -42,6 +43,7 @@ pull_stagging_db.sh
 .env.*
 .vite
 .phpunit.result.cache
+/phpunit.ci.xml
 Homestead.json
 Homestead.yaml
 auth.json
@@ -61,7 +63,6 @@ load_aurora_db.sh
 /dump_aurora_db.sh
 .phpstorm.meta.php
 _ide_helper.php
-/codecov
 /upload_coverage.sh
 /private
 /clover.xml
@@ -138,3 +139,7 @@ lang/texts_to_translate.json
 # third-party Claude skills installed locally
 .claude/skills/archify/
 skills-lock.json
+
+# editor swap files
+*.swp
+*.swo

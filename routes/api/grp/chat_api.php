@@ -20,13 +20,12 @@ use App\Actions\Chat\ChatSession\HandleChatRead;
 use App\Actions\Chat\ChatSession\HandleChatTyping;
 use App\Actions\Chat\ChatSession\SendChatMessage;
 use App\Actions\Chat\ChatSession\ShareChatSessionToSlack;
-use App\Actions\Chat\ChatSession\StoreChatAgent;
 use App\Actions\Chat\ChatSession\StoreChatSession;
 use App\Actions\Chat\ChatSession\StoreGuestProfile;
 use App\Actions\Chat\ChatSession\StoreOfflineMessage;
 use App\Actions\Chat\ChatSession\ConfirmSuggestedChatCustomer;
 use App\Actions\Chat\ChatSession\HandleChatAiDraft;
-use App\Actions\Chat\ChatSession\RaiseChatEngineerTicket;
+use App\Actions\Chat\ChatSession\RunChatAiDraftAction;
 use App\Actions\Chat\ChatSession\LinkChatSessionCustomer;
 use App\Actions\Chat\ChatSession\SyncChatSessionByEmail;
 use App\Actions\Chat\ChatSession\ToggleChatMessageReaction;
@@ -47,7 +46,6 @@ use App\Actions\Chat\MetaChatSession\GetMetaChatActivity;
 use App\Actions\Chat\MetaChatSession\GetMetaChatCustomerProfile;
 use App\Actions\Chat\MetaChatSession\GetMetaChatCustomerTimeline;
 use App\Actions\Chat\MetaChatSession\SyncMetaChatSessionByPhone;
-use App\Actions\Chat\MetaChatSession\UpdateMetaChatSession;
 use App\Actions\Chat\MetaChatSession\UI\GetMetaChatSessions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use Illuminate\Support\Facades\Route;
@@ -62,7 +60,6 @@ Route::post('/offline-message', StoreOfflineMessage::class)->name('offline-messa
 Route::post('/messages/{chatSession:ulid}/send', SendChatMessage::class)->name('messages.send');
 Route::put('/sessions/{chatSession:ulid}/update', UpdateChatSession::class)->name('sessions.update');
 Route::put('/sessions/{chatSession:ulid}/close', [CloseChatSession::class, 'asApiController'])->name('sessions.close');
-Route::post('/sessions/{chatSession:ulid}/typing', HandleChatTyping::class)->name('sessions.typing');
 Route::get('/sessions/{chatSession:ulid}/messages', GetChatMessages::class)->name('sessions.messages')->withTrashed();
 Route::post('/sessions/{chatSession:ulid}/guest-profile', StoreGuestProfile::class)->name('sessions.guest_profile');
 Route::post('/typing', HandleChatTyping::class)->name('typing');
@@ -85,7 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/meta/sessions', StoreMetaChatSession::class)->name('meta.sessions.store');
     Route::get('/meta/sessions/{metaChatSession:ulid}/messages', GetMetaChatMessages::class)->name('meta.sessions.messages')->withTrashed();
     Route::post('/meta/sessions/{metaChatSession:ulid}/read', MarkMetaChatMessagesAsRead::class)->name('meta.sessions.read');
-    Route::put('/meta/sessions/{metaChatSession:ulid}/update', UpdateMetaChatSession::class)->name('meta.sessions.update')->withTrashed();
     Route::get('/meta/templates', GetMetaMessageTemplates::class)->name('meta.templates.index');
     Route::post('/meta/messages/{metaChatMessage}/reactions', SendWhatsappReaction::class)->name('meta.messages.reactions');
     Route::post('/meta/messages/{metaChatMessage}/translate', TranslateSingleMetaChatMessage::class)->name('meta.messages.translate');
@@ -105,15 +101,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/meta/sessions/{metaChatSession:ulid}/suggested-customer', [ConfirmSuggestedChatCustomer::class, 'rejectInMetaChatSession'])->name('meta.sessions.suggested_customer.reject');
     Route::get('/sessions/{chatSession:ulid}/ai-draft', HandleChatAiDraft::class)->name('sessions.ai_draft.show');
     Route::get('/meta/sessions/{metaChatSession:ulid}/ai-draft', [HandleChatAiDraft::class, 'inMetaChatSession'])->name('meta.sessions.ai_draft.show');
-    Route::post('/sessions/{chatSession:ulid}/suggestion-used', [HandleChatAiDraft::class, 'suggestionUsed'])->name('sessions.suggestion_used');
-    Route::post('/meta/sessions/{metaChatSession:ulid}/suggestion-used', [HandleChatAiDraft::class, 'suggestionUsedInMetaChatSession'])->name('meta.sessions.suggestion_used');
-    Route::post('/sessions/{chatSession:ulid}/goodbye', [HandleChatAiDraft::class, 'goodbye'])->name('sessions.goodbye');
-    Route::post('/meta/sessions/{metaChatSession:ulid}/goodbye', [HandleChatAiDraft::class, 'goodbyeInMetaChatSession'])->name('meta.sessions.goodbye');
-    Route::post('/sessions/{chatSession:ulid}/engineer-ticket', RaiseChatEngineerTicket::class)->name('sessions.engineer_ticket');
-    Route::post('/meta/sessions/{metaChatSession:ulid}/engineer-ticket', [RaiseChatEngineerTicket::class, 'inMetaChatSession'])->name('meta.sessions.engineer_ticket');
     Route::post('/ai-drafts/{chatAiDraft}/take', [HandleChatAiDraft::class, 'take'])->name('ai_drafts.take');
     Route::post('/ai-drafts/{chatAiDraft}/discard', [HandleChatAiDraft::class, 'discard'])->name('ai_drafts.discard');
     Route::post('/ai-drafts/{chatAiDraft}/rate', [HandleChatAiDraft::class, 'rate'])->name('ai_drafts.rate');
+    Route::post('/ai-drafts/{chatAiDraft}/actions/{index}', RunChatAiDraftAction::class)->whereNumber('index')->name('ai_drafts.action');
+    Route::post('/ai-drafts/{chatAiDraft}/translate', [HandleChatAiDraft::class, 'translateForStaff'])->name('ai_drafts.translate');
     Route::get('/meta/sessions/{metaChatSession:ulid}/customer-profile', GetMetaChatCustomerProfile::class)->name('meta.sessions.customer_profile')->withTrashed();
     Route::get('/meta/sessions/{metaChatSession:ulid}/customer-timeline', GetMetaChatCustomerTimeline::class)->name('meta.sessions.customer_timeline')->withTrashed();
     Route::get('/meta/sessions/{metaChatSession:ulid}/tickets', [GetChatSessionTickets::class, 'inMetaChatSession'])->name('meta.sessions.tickets')->withTrashed();
@@ -121,7 +113,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/agents', GetChatAgents::class)->name('agents.index');
     Route::get('/agents/specializations', GetChatAgentSpecializations::class)->name('agent.specializations');
-    Route::post('/agents/store', StoreChatAgent::class)->name('agents.store');
     Route::put('/agents/{id}/update', UpdateChatAgent::class)->name('agents.update');
     Route::get('/agents/{id}', GetChatAgentByUserId::class)->name('agent.show');
 

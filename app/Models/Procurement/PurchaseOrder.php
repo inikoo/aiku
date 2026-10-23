@@ -10,6 +10,8 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Address;
 use App\Models\SupplyChain\Agent;
@@ -135,7 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $chs_excluded
  * @property string|null $chs_exclusion_reason
  * @property int|null $agent_supplier_purchase_order_id legacy agent supplier purchase order this order was split from
- * @property string|null $agent_order_reference the agent order this supplier order belongs to: the orders of one agent sharing it were placed together
+ * @property string|null $agent_order_reference legacy agent order number shared by supplier orders placed together through an agent before Oct 2026
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
@@ -171,6 +173,8 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     use HasAttachments;
     use HasSearch;
     use HasStageMarks;
+
+    public const string AGENT_TRACKING_STARTED_AT = '2026-10-08';
 
     protected $casts = [
         'data'            => 'array',
@@ -338,9 +342,49 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         return $this->hasMany(PurchaseOrderChase::class);
     }
 
+    /**
+     * Supplier orders through an agent whose money Aiku follows: those created since agent supplier orders were
+     * split on 8 Oct 2026, and the older ones the split numbered. Earlier unsplit orders were paid outside Aiku.
+     */
+    public function scopeTrackedThroughAgent(Builder $query): void
+    {
+        $query->where('purchase_orders.parent_type', 'OrgSupplier')
+            ->where(fn (Builder $query) => $query
+                ->whereNotNull('purchase_orders.agent_order_reference')
+                ->orWhere('purchase_orders.created_at', '>=', self::AGENT_TRACKING_STARTED_AT));
+    }
+
     public function isAgentOrder(): bool
     {
         return $this->agent_id !== null && $this->parent_type === 'OrgSupplier';
+    }
+
+    /**
+     * The supplier is making the goods: a stage from production start on is recorded.
+     */
+    public function hasProductionStarted(): bool
+    {
+        return $this->production_started_at !== null || $this->sample_approved_at !== null || $this->produced_at !== null;
+    }
+
+    /**
+     * An order through an agent can no longer lose lines once its supplier is making the goods: the agent receives them
+     * in batches against those lines.
+     */
+    public function areLinesLockedByProduction(): bool
+    {
+        return $this->isAgentOrder() && $this->hasProductionStarted();
+    }
+
+    /**
+     * Lines whose new supplier price the agent asked about and the organisation has not answered yet.
+     */
+    public function numberPendingPriceChanges(): int
+    {
+        return $this->purchaseOrderTransactions()
+            ->where('state', PurchaseOrderTransactionStateEnum::SUBMITTED)
+            ->where('price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING)
+            ->count();
     }
 
     /**
@@ -354,35 +398,6 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         }
 
         return OrgAgent::where('organisation_id', $this->organisation_id)->where('agent_id', $this->agent_id)->first();
-    }
-
-    /**
-     * The supplier orders placed together with this one through the same agent.
-     */
-    public function agentOrderPurchaseOrders(): Builder
-    {
-        return self::inAgentOrder($this->organisation_id, (int) $this->agent_id, (string) $this->agent_order_reference);
-    }
-
-    public static function inAgentOrder(int $organisationId, int $agentId, string $agentOrderReference): Builder
-    {
-        return self::query()
-            ->where('organisation_id', $organisationId)
-            ->where('agent_id', $agentId)
-            ->where('parent_type', 'OrgSupplier')
-            ->where('agent_order_reference', $agentOrderReference);
-    }
-
-    /**
-     * This order and the orders to the agent's other suppliers that went out with it, under the same agent order reference.
-     */
-    public function wholeAgentOrder(): Builder
-    {
-        if (!$this->isAgentOrder() || !$this->agent_order_reference) {
-            return self::query()->whereKey($this->id);
-        }
-
-        return self::inAgentOrder($this->organisation_id, $this->agent_id, $this->agent_order_reference);
     }
 
     public function deposits(): HasMany

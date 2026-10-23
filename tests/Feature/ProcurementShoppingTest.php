@@ -12,6 +12,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDelivery;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLeadTime;
+use App\Actions\SupplyChain\SupplierProduct\Hydrators\SupplierProductHydrateLeadTime;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
@@ -44,11 +45,13 @@ use App\Models\Catalogue\Shop;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\MergeSupplierProducts;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\Goods\Stock;
+use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\GoodsIn\StockDelivery;
@@ -434,9 +437,21 @@ describe('partner browse', function () {
                 ->component('Procurement/PartnerCoverBucketItems')
                 ->where('bucket', 'out')
                 ->where('bucketLabel', 'Out of stock')
+                ->where('perPage', 25)
+                ->where('perPageOptions', [25, 100, 500])
+                ->where('items.data', fn ($rows) => collect($rows)->every(fn ($row) => collect(['quarterly_usage', 'stock_cover', 'stock_deliveries', 'units_per_pack', 'quantity_ordered', 'other_open_purchase_orders'])
+                    ->every(fn ($key) => array_key_exists($key, (array) $row))))
                 ->has('items.data')
                 ->has('addRoute.name');
         });
+
+        $route = route('grp.org.procurement.org_partners.show.shopping.items.index', [$this->organisation->slug, $this->orgPartner->id]);
+
+        $this->get($route.'?cover=out&per_page=500')
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('perPage', 500)->where('items.per_page', 500));
+
+        $this->get($route.'?cover=out&per_page=9999')
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('perPage', 25)->where('items.per_page', 25));
     });
 });
 
@@ -924,6 +939,50 @@ test('org stock lead time hydrator measures from delivery history', function () 
     expect($orgStock->refresh()->estimated_lead_time_days)->toBe(21);
 });
 
+test('lead time of a supplier ordered from once a year is measured from its last 3 orders, not the estimate, each order counted once at its first delivery', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['estimated_lead_time_days' => 45]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+
+    $order = function (int $submittedDaysAgo, int ...$leadDaysPerDelivery) use ($orgSupplier, $supplierProduct, $orgStock): void {
+        $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+        StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $orgStock, [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 10]);
+        $purchaseOrder->update(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays($submittedDaysAgo)]);
+
+        foreach ($leadDaysPerDelivery as $leadDays) {
+            $stockDelivery = StoreStockDelivery::make()->action($orgSupplier, ['reference' => 'LEAD-'.uniqid(), 'date' => date('Y-m-d')], strict: false);
+            DB::table('stock_deliveries')->where('id', $stockDelivery->id)->update(['booked_in_at' => null, 'placed_at' => now()->subDays($submittedDaysAgo - $leadDays)]);
+            DB::table('purchase_order_stock_delivery')->insert(['purchase_order_id' => $purchaseOrder->id, 'stock_delivery_id' => $stockDelivery->id, 'created_at' => now(), 'updated_at' => now()]);
+        }
+    };
+
+    $order(1800, 400);
+    $order(1400, 220);
+    $order(1000, 200);
+    $order(600, 180, 500, 520);
+
+    SupplierProductHydrateLeadTime::run($supplierProduct);
+    OrgStockHydrateLeadTime::run($orgStock);
+
+    expect($supplierProduct->refresh()->measured_lead_time_days)->toBe(200)
+        ->and($supplierProduct->lead_time_samples)->toBe(3)
+        ->and($orgStock->refresh()->measured_lead_time_days)->toBe(200);
+
+    $order(300, 30);
+    $order(200, 30);
+    $order(100, 30);
+
+    SupplierProductHydrateLeadTime::run($supplierProduct);
+
+    expect($supplierProduct->refresh()->measured_lead_time_days)->toBe(30)
+        ->and($supplierProduct->lead_time_samples)->toBe(3);
+});
+
 test('agent lead times roll up per sub-supplier', function () {
     $leadTimes = App\Actions\Procurement\OrgAgent\GetAgentLeadTimes::run($this->orgAgent);
 
@@ -1199,6 +1258,262 @@ test('agent shopping list proposal orders whole cartons and respects the carton 
     expect(collect($proposal['lines'])->sum('cost'))->toBeLessThanOrEqual($proposal['budget']);
 });
 
+test('agent shopping list converts the SKO recommendation to units before rounding to cartons and sends the SKO size to the page', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $orgSupplierProduct->supplierProduct->update([
+        'currency_id'          => $this->organisation->currency_id,
+        'cost'                 => 1,
+        'units_per_pack'       => 70,
+        'units_per_carton'     => 2,
+        'minimum_carton_order' => 1,
+    ]);
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+    $orgStock  = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'quantity_available' => 0, 'packed_in' => 2, 'is_excluded_from_auto_ordering' => false]);
+    $orgStock->stats()->updateOrCreate([], ['days_of_cover' => 0, 'predicted_daily_usage' => 1, 'stock_value' => 0, 'recommended_order_quantity' => 19.16, 'on_the_way_po_count' => 0]);
+    OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $orgStock->id,
+        'org_supplier_product_id'       => $orgSupplierProduct->id,
+        'stock_has_supplier_product_id' => $stockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+    DB::table('shopping_list_items')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+
+    $suggest = App\Actions\Procurement\OrgAgent\SuggestAgentShoppingList::make();
+    $lineFor = fn () => collect($suggest->lines($this->orgAgent, 'out'))->firstWhere('org_supplier_product_id', $orgSupplierProduct->id);
+
+    expect($lineFor()['cartons'])->toBe(20)
+        ->and($lineFor()['quantity_units'])->toBe(40);
+
+    $orgStock->update(['packed_in' => 3]);
+    expect($lineFor())->toBeNull();
+
+    $orgStock->update(['packed_in' => 2]);
+    $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.items.index', [$this->organisation->slug, $this->orgAgent->slug]).'?cover=out');
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('items.data', fn ($items) => (float) collect($items)->firstWhere('id', $orgSupplierProduct->id)['units_per_pack'] === 2.0));
+});
+
+test('supplier shopping list suggestion rounds the SKO recommendation, in units, to cartons and skips a carton smaller than one SKO', function () {
+    $fill = fn (array $candidate) => (fn () => $this->greedyFill([array_merge([
+        'org_supplier_product_id' => 1,
+        'code'                    => 'ABC',
+        'name'                    => 'A thing',
+        'cost'                    => 1.0,
+        'units_per_carton'        => 2,
+        'packed_in'               => 2,
+        'minimum_carton_order'    => 1,
+        'never_stocked'           => false,
+        'health_rank'             => 'B',
+        'cap_exempt'              => false,
+        'our_stock'               => 0.0,
+        'days_of_cover'           => 0.0,
+        'recommended'             => 19.16,
+        'quarterly_usage'         => 40.0,
+    ], $candidate)], 10000))->call(new App\Actions\Procurement\ShoppingListItem\SuggestSupplierShoppingList());
+
+    $lines = $fill([]);
+    expect($lines[0]['quantity'])->toBe(40.0)
+        ->and($lines[0]['cartons'])->toBe(20.0)
+        ->and($lines[0]['cost'])->toBe(40.0);
+
+    $usageOnly = $fill(['recommended' => null, 'quarterly_usage' => 10.0, 'our_stock' => 4.0]);
+    expect($usageOnly[0]['quantity'])->toBe(12.0);
+
+    expect($fill(['packed_in' => 3]))->toBeEmpty();
+});
+
+test('pages count SKOs with the org stock packed_in, not the supplier pack, and fall back to the supplier pack only without an org stock', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_pack' => 70, 'units_per_carton' => 140]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+    $unitsPerSko = fn (int $organisationId) => (float) DB::selectOne('select '.OrgStock::unitsPerSkoSql((string) $organisationId, (string) $supplierProduct->id).' as units')->units;
+
+    expect($unitsPerSko($this->organisation->id))->toBe(70.0);
+
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 1]);
+
+    expect($unitsPerSko($this->organisation->id))->toBe(1.0)
+        ->and($unitsPerSko(0))->toBe(70.0);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line  = StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $orgStock, [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 140]);
+
+    $draftLine = collect(App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::make()->lines($this->orgAgent)[$draft->id] ?? [])->firstWhere('id', $line->id);
+    expect($draftLine['skos'])->toBe(140.0);
+
+    $resource = (new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request());
+    expect((float) $resource['units_per_pack'])->toBe(1.0)
+        ->and((float) $resource['units_per_carton'])->toBe(140.0);
+
+    $orgStock->update(['packed_in' => null]);
+    expect($unitsPerSko($this->organisation->id))->toBe(70.0)
+        ->and((float) (new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request())['units_per_pack'])->toBe(70.0);
+});
+
+test('agent drafts to send flag the products still short of the supplier minimum carton order', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_carton' => 10, 'minimum_carton_order' => 5]);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line  = StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 30]);
+
+    $card = fn () => collect(App\Actions\Procurement\OrgAgent\UI\ShowAgentDraftsToSend::make()->handle($this->orgAgent))->firstWhere('supplier_id', $supplierProduct->supplier_id);
+
+    expect($card()['below_minimum'])->toBe([[
+        'code'          => $supplierProduct->code,
+        'name'          => $supplierProduct->name,
+        'cartons'       => 3.0,
+        'minimum'       => 5,
+        'organisations' => [$this->organisation->code => 3.0],
+    ]]);
+
+    $line->update(['quantity_ordered' => 50]);
+    expect($card()['below_minimum'])->toBe([]);
+});
+
+test('agent warehouse pages and the goods receipt count SKOs with the org stock packed_in', function () {
+    $stock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+
+    [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $supplierProduct->update(['units_per_pack' => 70]);
+    StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+    $orgStock->update(['state' => OrgStockStateEnum::ACTIVE, 'packed_in' => 1]);
+
+    $receipt = App\Models\Procurement\AgentGoodsReceipt::create([
+        'group_id'    => $this->agent->group_id,
+        'agent_id'    => $this->agent->id,
+        'supplier_id' => $supplierProduct->supplier_id,
+        'number'      => (int) App\Models\Procurement\AgentGoodsReceipt::where('agent_id', $this->agent->id)->max('number') + 1,
+        'reference'   => 'GR-'.Str::upper(Str::random(6)),
+        'state'       => App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum::RECEIVED,
+        'received_at' => now()->toDateString(),
+        'quantity'    => 140,
+    ]);
+    $receipt->items()->create(['group_id' => $this->agent->group_id, 'organisation_id' => $this->organisation->id, 'supplier_product_id' => $supplierProduct->id, 'quantity' => 140]);
+    App\Models\Procurement\AgentWarehouseStock::create([
+        'group_id'               => $this->agent->group_id,
+        'agent_id'               => $this->agent->id,
+        'organisation_id'        => $this->organisation->id,
+        'supplier_product_id'    => $supplierProduct->id,
+        'agent_goods_receipt_id' => $receipt->id,
+        'state'                  => App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum::RECEIVED,
+        'quantity'               => 140,
+    ]);
+
+    $rows = App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentReceivedProducts::make()->handle($this->agent);
+    $row  = collect($rows->items())->firstWhere('code', $supplierProduct->code);
+    expect($row['units_per_sko'])->toBe(1.0)
+        ->and($row['skos'])->toBe(140.0);
+
+    expect(App\Actions\Procurement\AgentWarehouseStock\UI\GetAgentProductsInProductionToReceive::make()->handle($this->agent, ['supplier' => $supplierProduct->supplier_id]))->toBeArray();
+
+    $this->get(route('grp.org.agent.warehouse.received.goods_receipts.show', [$this->agent->organisation->slug, $receipt->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.0.units_per_sko', 1));
+});
+
+test('agent receives a purchase order line in batches and rejected units go back to production', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 100]);
+    $purchaseOrder->updateQuietly([
+        'state'              => App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state'     => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS,
+        'submitted_at'       => now(),
+        'sample_approved_at' => now(),
+    ]);
+    $line->updateQuietly(['state' => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::SUBMITTED]);
+
+    $remaining = fn () => (float) App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction::inProductionLines($this->agent)
+        ->where('purchase_order_transactions.id', $line->id)
+        ->selectRaw(App\Actions\Procurement\AgentWarehouseStock\UI\IndexAgentProductsInProduction::remainingQuantitySql().' as remaining')
+        ->value('remaining');
+    $receive = fn (float $quantity) => App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt::make()->action($this->agent, [
+        'lines' => [['purchase_order_transaction_id' => $line->id, 'quantity' => $quantity]],
+    ]);
+    $check = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
+
+    $item = $receive(100)->items()->sole();
+    expect($purchaseOrder->refresh()->production_started_at)->not->toBeNull()
+        ->and($purchaseOrder->areLinesLockedByProduction())->toBeTrue()
+        ->and((new App\Http\Resources\Procurement\PurchaseOrderTransactionResource($line->fresh()))->toArray(request())['cancelRoute'])->toBeNull();
+
+    $check->handle($item, ['quantity_rejected' => 10]);
+    expect((float) $item->agentWarehouseStock->refresh()->quantity)->toBe(90.0)
+        ->and($remaining())->toBe(10.0);
+
+    $purchaseOrder->updateQuietly(['qc_passed_at' => now()]);
+    $receivingLine = collect(App\Actions\Procurement\AgentGoodsReceipt\UI\GetPurchaseOrderGoodsReceipts::run($purchaseOrder->refresh(), true)['lines'])->firstWhere('id', $line->id);
+    expect($remaining())->toBe(10.0)
+        ->and($receivingLine['outstanding'])->toBe(10.0);
+
+    expect(fn () => $receive(0.0004))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    $replacement = $receive(10);
+    expect(fn () => $check->handle($item->refresh(), ['quantity_rejected' => 0]))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt::make()->handle($replacement);
+    expect($replacement->warehouseStocks()->count())->toBe(0)
+        ->and($remaining())->toBe(10.0);
+
+    expect((new PurchaseOrder(['production_started_at' => now()]))->areLinesLockedByProduction())->toBeFalse();
+});
+
+test('agent order in warehouse stage follows its goods receipts, checks and packing', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 100]);
+    $purchaseOrder->updateQuietly([
+        'state'              => App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state'     => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS,
+        'submitted_at'       => now(),
+        'sample_approved_at' => now(),
+    ]);
+    $line->updateQuietly(['state' => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::SUBMITTED]);
+
+    $stage = fn () => collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder->refresh(), []))->firstWhere('key', 'in_warehouse');
+    $steps = fn () => collect($stage()['steps'])->pluck('date', 'key')->map(fn ($date) => $date !== null)->all();
+    $receive = fn (float $quantity) => App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt::make()->action($this->agent, [
+        'lines' => [['purchase_order_transaction_id' => $line->id, 'quantity' => $quantity]],
+    ]);
+
+    $first = $receive(60)->items()->sole();
+    expect($stage()['number'])->toBe(4)
+        ->and($stage()['reached'])->toBeTrue()
+        ->and($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => false, 'warehouse_packed_at' => false]);
+
+    $second = $receive(40)->items()->sole();
+    $check  = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
+    $check->handle($first, ['quantity_rejected' => 0]);
+    expect($steps()['warehouse_checked_at'])->toBeFalse();
+
+    $check->handle($second, ['quantity_rejected' => 0]);
+    expect($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => true, 'warehouse_packed_at' => false]);
+
+    App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction::make()->action($line);
+    expect($steps()['warehouse_packed_at'])->toBeTrue()
+        ->and(collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'ready')['number'])->toBe(5);
+});
+
 test('UI agent shopping dashboard renders', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]));
     $response->assertOk();
@@ -1338,7 +1653,11 @@ test('agent prepare order puts the lines on draft purchase orders per supplier a
 
         expect($setLine->handle($this->orgAgent, $orgSupplierProduct, 0))->toBeNull()
             ->and($purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->exists())->toBeFalse()
-            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
+            ->and($purchaseOrder->fresh()->data['removed_org_supplier_product_ids'])->toContain($orgSupplierProduct->id)
+            ->and(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->toBeNull();
+
+        $purchaseOrder->update(['data' => []]);
+        expect(collect($prepare->linesByBucket($this->orgAgent)['out'])->firstWhere('org_supplier_product_id', $orgSupplierProduct->id))->not->toBeNull();
 
         $item = StoreShoppingListItem::make()->action($orgSupplierProduct, ['quantity_units' => 200]);
 
@@ -1422,6 +1741,7 @@ test('agent drafts are sent once every organisation is ready, or early with a re
         ->and($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
 
     expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady($ours))->toBe([$otherOrganisation->code]);
+    expect(App\Actions\Procurement\OrgAgent\SendAgentDraftsToAgent::organisationsNotReady((clone $ours)->forceFill(['data' => ['from_upload_id' => 1]])))->toBe([]);
 
     $this->patch(route('grp.models.purchase-order.submit', $ours->id))->assertSessionHasErrors('purchase_order');
     expect($ours->fresh()->state)->toBe(PurchaseOrderStateEnum::IN_PROCESS);
@@ -1484,7 +1804,10 @@ test('UI agent drafts to send', function () {
 test('UI agent drafts to send remembers the view the user picked', function () {
     $url = route('grp.org.procurement.org_agents.show.shopping.drafts.index', [$this->organisation->slug, $this->orgAgent->slug]);
 
-    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page->where('tabs.current', 'cards')->where('lines', []));
+    $this->get($url.'?view=cards')->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('tabs.current', 'cards')
+        ->missing('lines')
+        ->reloadOnly('lines', fn (AssertableInertia $reload) => $reload->has('lines')));
 
     $this->get($url.'?view=orders')->assertInertia(fn (AssertableInertia $page) => $page
         ->where('tabs.current', 'orders')
@@ -1733,6 +2056,100 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->etc());
 });
 
+test('agent draft purchase order items show our SKO code next to the supplier code', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $orgStock        = $this->orgStocks[0];
+
+    $originalLinks   = DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->get()->map(fn ($link) => (array) $link)->all();
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert([
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $orgStock->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
+            ?? DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id]),
+        'org_stock_id'            => $orgStock->id,
+        'org_supplier_product_id' => $orgSupplierProduct->id,
+        'status'                  => true,
+        'local_priority'          => 100,
+        'created_at'              => now(),
+        'updated_at'              => now(),
+    ]);
+
+    expect($orgStock->code)->not->toBe($supplierProduct->code);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $orgStock, PurchaseOrderTransaction::factory()->definition());
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $draft->slug]).'?tab=items')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.0.code', $supplierProduct->code)
+            ->where('items.data.0.org_stock_code', $orgStock->code)
+            ->etc());
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert($originalLinks);
+});
+
+test('agent purchase order products tab hides products whose SKO is discontinued or the supplier no longer has, unless already on the draft', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $orgStockId = DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->where('status', true)->value('org_stock_id');
+    if (!$orgStockId) {
+        $orgStockId = $this->orgStocks[0]->id;
+        DB::table('org_stock_has_org_supplier_products')->insert([
+            'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $this->orgStocks[0]->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
+                ?? DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $this->orgStocks[0]->stock_id, 'supplier_product_id' => $supplierProduct->id]),
+            'org_stock_id'            => $orgStockId,
+            'org_supplier_product_id' => $orgSupplierProduct->id,
+            'status'                  => true,
+            'local_priority'          => 100,
+            'created_at'              => now(),
+            'updated_at'              => now(),
+        ]);
+    }
+    $originalState = DB::table('org_stocks')->where('id', $orgStockId)->value('state');
+
+    $draft       = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    $productsUrl = route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $draft->slug]).'?'.http_build_query(['tab' => 'products', 'products_filter' => ['global' => $supplierProduct->code]]);
+    $listed      = fn () => collect($this->get($productsUrl)->viewData('page')['props']['products']['data'])->pluck('code')->contains($supplierProduct->code);
+
+    try {
+        DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => OrgStockStateEnum::ACTIVE->value]);
+        expect($listed())->toBeTrue();
+
+        $supplierProduct->updateQuietly(['is_available' => false]);
+        expect($listed())->toBeFalse();
+        $supplierProduct->updateQuietly(['is_available' => true]);
+
+        foreach ([OrgStockStateEnum::DISCONTINUING, OrgStockStateEnum::DISCONTINUED] as $state) {
+            DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => $state->value]);
+            expect($listed())->toBeFalse();
+        }
+
+        DB::table('purchase_order_transactions')->insert([
+            'group_id'                => $draft->group_id,
+            'organisation_id'         => $draft->organisation_id,
+            'purchase_order_id'       => $draft->id,
+            'supplier_product_id'     => $supplierProduct->id,
+            'org_supplier_product_id' => $orgSupplierProduct->id,
+            'org_stock_id'            => $orgStockId,
+            'state'                   => PurchaseOrderTransactionStateEnum::IN_PROCESS->value,
+            'delivery_state'          => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum::IN_PROCESS->value,
+            'quantity_ordered'        => 100,
+            'net_amount'              => 100,
+            'data'                    => '{}',
+            'created_at'              => now(),
+            'updated_at'              => now(),
+        ]);
+        expect($listed())->toBeTrue();
+    } finally {
+        DB::table('org_stocks')->where('id', $orgStockId)->update(['state' => $originalState]);
+    }
+});
+
 test('a buyer short of a supplier minimum asks the other organisations, who see it at once and get email and Slack grouped', function () {
     $otherOrganisation = Organisation::where('code', 'prc2')->first()
         ?? StoreOrganisation::make()->action($this->group, array_merge(Organisation::factory()->definition(), ['code' => 'prc2', 'type' => OrganisationTypeEnum::SHOP]));
@@ -1772,6 +2189,12 @@ test('a buyer short of a supplier minimum asks the other organisations, who see 
         App\Notifications\PurchaseOrderMinimumPokeDigestNotification::class,
         fn ($notification) => count($notification->requests) === 1 && str_contains($notification->requests[0]['line'], $supplierProduct->code)
     );
+
+    app()->detectEnvironment(fn () => 'production');
+    $productionMail = (new App\Notifications\PurchaseOrderMinimumPokeDigestNotification([['line' => 'x', 'url' => '']]))->toMail($theirBuyer);
+    app()->detectEnvironment(fn () => 'testing');
+
+    expect($productionMail->mailer)->toBe('ses');
 });
 
 test('agent misplaced shopping list cleanup only accepts non-orderable buckets', function () {
@@ -2349,6 +2772,161 @@ test('repair supplier drift moves open purchase order lines to the twin and disc
         ->and($twin->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value);
 });
 
+test('repair supplier drift only treats a drifted row as a redundant copy when its org supplier keeps the product live through a same code copy', function () {
+    $supplierA = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $supplierB = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+
+    $orgSupplierA = $supplierA->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+
+    $productData = [
+        'code'             => 'DRIFT-COPY-'.Str::random(4),
+        'name'             => 'Drifted Copy',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100
+    ];
+
+    $copyUnderA = StoreSupplierProduct::make()->action($supplierA, $productData);
+    $copyUnderB = StoreSupplierProduct::make()->action($supplierB, $productData);
+
+    $twin = OrgSupplierProduct::where('org_supplier_id', $orgSupplierA->id)
+        ->where('supplier_product_id', $copyUnderA->id)
+        ->firstOrFail();
+
+    $drifted = $twin->replicate()->fill([
+        'supplier_product_id' => $copyUnderB->id,
+        'slug'                => 'drift-copy-'.Str::random(6),
+        'state'               => OrgSupplierProductStateEnum::ACTIVE->value,
+    ]);
+    $drifted->saveQuietly();
+
+    $repair = RepairOrgSupplierProductsSupplierDrift::make();
+
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeTrue();
+
+    $twin->updateQuietly(['state' => OrgSupplierProductStateEnum::DISCONTINUED->value]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $twin->updateQuietly(['state' => OrgSupplierProductStateEnum::ACTIVE->value]);
+
+    $copyUnderA->updateQuietly(['is_available' => false]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $copyUnderA->updateQuietly(['is_available' => true]);
+
+    $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $copyUnderB->id], ['available' => true]);
+    $link      = OrgStockHasOrgSupplierProduct::create([
+        'org_stock_id'                  => $this->orgStocks[0]->id,
+        'org_supplier_product_id'       => $drifted->id,
+        'stock_has_supplier_product_id' => $stockLink->id,
+        'status'                        => true,
+        'local_priority'                => 0,
+    ]);
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeFalse();
+    $link->delete();
+
+    expect($repair->isRedundantCopy($drifted->refresh()))->toBeTrue();
+});
+
+test('merging duplicate supplier products keeps every organisation on the product and frees the duplicate code', function () {
+    $duplicateSupplier = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $keptSupplier      = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+
+    $productData = fn (string $code, int $unitsPerPack = 10) => [
+        'code'             => $code,
+        'name'             => 'Duplicated '.$code,
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[0]->id,
+        'units_per_pack'   => $unitsPerPack,
+        'units_per_carton' => 100
+    ];
+
+    $suffix         = Str::random(4);
+    $withTwin       = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-A-$suffix"));
+    $keptWithTwin   = StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-A-$suffix"));
+    $withoutTwin    = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-B-$suffix"));
+    $keptNoTwin     = StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-B-$suffix"));
+    $otherPack      = StoreSupplierProduct::make()->action($duplicateSupplier, $productData("DUP-C-$suffix"));
+    StoreSupplierProduct::make()->action($keptSupplier, $productData("DUP-C-$suffix", 12));
+
+    $duplicateRow = OrgSupplierProduct::where('supplier_product_id', $withTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $twinRow      = OrgSupplierProduct::where('supplier_product_id', $keptWithTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $twinRow->updateQuietly(['state' => OrgSupplierProductStateEnum::DISCONTINUED->value]);
+
+    $loneRow = OrgSupplierProduct::where('supplier_product_id', $withoutTwin->id)->where('organisation_id', $this->organisation->id)->firstOrFail();
+    OrgSupplierProduct::where('supplier_product_id', $keptNoTwin->id)->get()->each(function (OrgSupplierProduct $row) {
+        $row->stats()->delete();
+        $row->delete();
+    });
+
+    $linkTo = function (OrgSupplierProduct $row, SupplierProduct $supplierProduct, int $priority) {
+        $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $supplierProduct->id], ['available' => true]);
+
+        return OrgStockHasOrgSupplierProduct::create([
+            'org_stock_id'                  => $this->orgStocks[0]->id,
+            'org_supplier_product_id'       => $row->id,
+            'stock_has_supplier_product_id' => $stockLink->id,
+            'status'                        => true,
+            'local_priority'                => $priority,
+        ]);
+    };
+    foreach ([$keptWithTwin, $keptNoTwin] as $keptProduct) {
+        StockHasSupplierProduct::firstOrCreate(['stock_id' => $this->stocks[0]->id, 'supplier_product_id' => $keptProduct->id], ['available' => true]);
+    }
+    $linkTo($duplicateRow, $withTwin, 100);
+    $loneLink = $linkTo($loneRow, $withoutTwin, 0);
+
+    $dryRun = MergeSupplierProducts::make()->mergeSupplier($duplicateSupplier, $keptSupplier);
+    expect($dryRun['merged'])->toBe(2)
+        ->and($dryRun['refused'])->toHaveKey("DUP-C-$suffix")
+        ->and($withTwin->refresh()->code)->toBe("DUP-A-$suffix");
+
+    $duplicateOrgSupplier = $duplicateSupplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $openOrder            = StorePurchaseOrder::make()->action($duplicateOrgSupplier, PurchaseOrder::factory()->definition());
+    $openLine             = StorePurchaseOrderTransaction::make()->action($openOrder, $withTwin->historicSupplierProduct, $this->orgStocks[0], PurchaseOrderTransaction::factory()->definition());
+    $openOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    MergeSupplierProducts::make()->mergeSupplier($duplicateSupplier, $keptSupplier, fix: true);
+
+    expect($openLine->refresh()->supplier_product_id)->toBe($keptWithTwin->id)
+        ->and($openLine->org_supplier_product_id)->toBe($twinRow->id);
+
+    $twinLink = OrgStockHasOrgSupplierProduct::where('org_supplier_product_id', $twinRow->id)->where('org_stock_id', $this->orgStocks[0]->id)->firstOrFail();
+
+    expect($twinRow->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($twinLink->local_priority)->toBe(100)
+        ->and(StockHasSupplierProduct::find($twinLink->stock_has_supplier_product_id)->supplier_product_id)->toBe($keptWithTwin->id)
+        ->and(OrgSupplierProduct::find($duplicateRow->id))->toBeNull()
+        ->and($loneRow->refresh()->supplier_product_id)->toBe($keptNoTwin->id)
+        ->and(StockHasSupplierProduct::find($loneLink->refresh()->stock_has_supplier_product_id)->supplier_product_id)->toBe($keptNoTwin->id)
+        ->and($withTwin->refresh()->code)->toBe("DUP-A-$suffix-merged")
+        ->and($withTwin->state)->toBe(SupplierProductStateEnum::DISCONTINUED)
+        ->and($otherPack->refresh()->code)->toBe("DUP-C-$suffix")
+        ->and(StockHasSupplierProduct::where('supplier_product_id', $withTwin->id)->exists())->toBeFalse();
+});
+
+test('merging a duplicate supplier that an organisation buys from alone moves that org supplier to the supplier kept', function () {
+    $duplicate = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $kept      = StoreSupplier::make()->action(parent: $this->group, modelData: Supplier::factory()->definition());
+    $kept->update(['currency_id' => $duplicate->currency_id]);
+
+    $duplicateOrgSupplier = $duplicate->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
+    $keptOrgSupplierId    = $kept->orgSuppliers()->where('organisation_id', $this->organisation->id)->value('id');
+    DB::table('org_supplier_stats')->where('org_supplier_id', $keptOrgSupplierId)->delete();
+    DB::table('org_suppliers')->where('id', $keptOrgSupplierId)->delete();
+
+    App\Actions\SupplyChain\Supplier\MergeSuppliers::run($duplicate, $kept);
+
+    expect($duplicateOrgSupplier->refresh()->supplier_id)->toBe($kept->id)
+        ->and($duplicateOrgSupplier->status)->toBeTrue()
+        ->and($duplicate->refresh()->status)->toBeFalse();
+});
+
 test('storing an org supplier product for a moved supplier product repoints the organisation row instead of adding a second one', function () {
     $supplierA = StoreSupplier::make()->action(
         parent: $this->group,
@@ -2409,4 +2987,143 @@ test('storing an org supplier product twice for the same org supplier returns th
         ->and(OrgSupplierProduct::where('org_supplier_id', $orgSupplier->id)->where('supplier_product_id', $supplierProduct->id)->count())->toBe(1)
         ->and($first->refresh()->source_id)->toBe('1:999999')
         ->and($first->stats()->count())->toBe(1);
+});
+
+test('agent repairs products filed under AWChina: moves them to the real supplier, or retires them into the twin it already has', function () {
+    [$awcOrgSupplier, $toMove] = createAgentOrgSupplierWithProduct($this);
+    $awc = $awcOrgSupplier->supplier;
+    $awc->update(['code' => 'AWC2']);
+
+    [$realOrgSupplier, $twinOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $realSupplier = $realOrgSupplier->supplier;
+
+    $duplicate = StoreOrgSupplierProduct::make()->action($awcOrgSupplier, StoreSupplierProduct::make()->action($awc, [
+        'code'             => mb_strtolower($twinOrgSupplierProduct->supplierProduct->code),
+        'name'             => 'Duplicate under AWChina',
+        'cost'             => 100,
+        'stock_id'         => $this->stocks[1]->id,
+        'units_per_pack'   => 10,
+        'units_per_carton' => 100,
+    ]));
+    $duplicateStock = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $duplicateOrgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($duplicate->organisation, $duplicateStock, OrgStock::factory()->definition());
+    $duplicateLink = App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock::make()->action($duplicateOrgStock, $duplicate);
+    $twinOrgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::DISCONTINUED, 'is_available' => false]);
+    $twinOrgSupplierProduct->supplierProduct->update(['state' => App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum::DISCONTINUED]);
+
+    $toMoveOrgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action(
+        $toMove->organisation,
+        StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE])),
+        OrgStock::factory()->definition()
+    );
+    App\Actions\Inventory\OrgStockHasOrgSupplierProduct\AttachOrgSupplierProductToOrgStock::make()->action($toMoveOrgStock, $toMove);
+
+    $awcDraft = StorePurchaseOrder::make()->action($awcOrgSupplier, [], strict: false);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($awcDraft, $toMove, ['quantity_ordered' => 5]);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($awcDraft, $duplicate, ['quantity_ordered' => 3]);
+
+    $sentToAwc = StorePurchaseOrder::make()->action($awcOrgSupplier, [], strict: false);
+    App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction::make()->addOrgSupplierProduct($sentToAwc, $toMove, ['quantity_ordered' => 1]);
+    $sentToAwc->update(['state' => PurchaseOrderStateEnum::CONFIRMED]);
+
+    $this->withoutVite()
+        ->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('id', $toMove->supplier_product_id)['sent_purchase_orders'][0]['reference'] === $sentToAwc->reference
+                && collect($rows)->firstWhere('id', $toMove->supplier_product_id)['sent_purchase_orders'][0]['state'] === PurchaseOrderStateEnum::CONFIRMED->value
+                && (float) collect($rows)->firstWhere('id', $toMove->supplier_product_id)['draft_purchase_orders'][0]['quantity'] === 5.0));
+
+    DB::table('org_supplier_products')->where('id', $toMove->id)->update(['org_agent_id' => null]);
+
+    $repair = App\Actions\SupplyChain\SupplierProduct\RepairSupplierProductsSupplier::make();
+
+    expect(fn () => $repair->action($realSupplier, collect([$toMove->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class, $toMove->supplierProduct->code);
+
+    $sentToAwc->update(['state' => PurchaseOrderStateEnum::SUBMITTED]);
+
+    expect(fn () => $repair->action($realSupplier, collect([$twinOrgSupplierProduct->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class)
+        ->and(fn () => $repair->action($awc, collect([$toMove->supplierProduct])))->toThrow(Illuminate\Validation\ValidationException::class);
+
+    $repaired = $repair->action($realSupplier, Supplier::find($awc->id)->supplierProducts()->with('supplier', 'orgSupplierProducts.orgSupplier')->get());
+
+    $realDraftLines = App\Models\Procurement\PurchaseOrderTransaction::whereHas('purchaseOrder', fn ($query) => $query
+        ->where('state', PurchaseOrderStateEnum::IN_PROCESS)->where('parent_type', 'OrgSupplier')->where('parent_id', $realOrgSupplier->id))
+        ->pluck('quantity_ordered', 'org_supplier_product_id');
+
+    expect($awcDraft->purchaseOrderTransactions()->count())->toBe(0)
+        ->and($sentToAwc->purchaseOrderTransactions()->count())->toBe(0)
+        ->and((float) $realDraftLines[$toMove->id])->toBe(6.0)
+        ->and((float) $realDraftLines[$twinOrgSupplierProduct->id])->toBe(3.0);
+
+    $twinLink = OrgStockHasOrgSupplierProduct::where('org_stock_id', $duplicateLink->org_stock_id)->where('org_supplier_product_id', $twinOrgSupplierProduct->id)->first();
+
+    expect($repaired)->toBe(['moved' => 1, 'merged' => 1])
+        ->and($toMove->supplierProduct->refresh()->supplier_id)->toBe($realSupplier->id)
+        ->and($toMove->refresh()->org_supplier_id)->toBe($realOrgSupplier->id)
+        ->and($twinLink?->local_priority)->toBe(10)
+        ->and($duplicateLink->refresh()->local_priority)->toBe(0)
+        ->and($duplicate->refresh()->state)->toBe(OrgSupplierProductStateEnum::DISCONTINUED->value)
+        ->and($duplicate->is_available)->toBeFalse()
+        ->and($duplicate->supplierProduct->refresh()->state->value)->toBe('discontinued')
+        ->and($twinOrgSupplierProduct->refresh()->state)->toBe(OrgSupplierProductStateEnum::ACTIVE->value)
+        ->and($twinOrgSupplierProduct->is_available)->toBeTrue()
+        ->and($twinOrgSupplierProduct->supplierProduct->refresh()->state->value)->toBe('active');
+
+    $agentOrganisation = $this->agent->organisation;
+    $awcInAgent        = OrgSupplier::where('supplier_id', $awc->id)->where('organisation_id', $agentOrganisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($agentOrganisation, $awc);
+    $realInAgent       = OrgSupplier::where('supplier_id', $realSupplier->id)->where('organisation_id', $agentOrganisation->id)->first()
+        ?? StoreOrgSupplier::make()->action($agentOrganisation, $realSupplier);
+
+    $this->withoutVite()
+        ->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $awcInAgent->slug]))
+        ->assertInertia(fn ($page) => $page
+            ->component('Procurement/RepairSupplierProducts')
+            ->where('data.meta.total', 0)
+            ->where('active.state', 'active')
+            ->where('suppliers', fn ($suppliers) => collect($suppliers)->pluck('id')->contains($realSupplier->id)));
+
+    $this->get(route('grp.org.agent.org_suppliers.show.repair_supplier_products.index', [$agentOrganisation->slug, $realInAgent->slug]))->assertNotFound();
+    $this->get(route('grp.org.procurement.org_suppliers.show.repair_supplier_products.index', [$awcOrgSupplier->organisation->slug, $awcOrgSupplier->slug]))
+        ->assertInertia(fn ($page) => $page->component('Procurement/RepairSupplierProducts'));
+});
+
+test('a preferred supplier set on the master SKO becomes the preferred supplier of that SKO in every organisation', function () {
+    $stock    = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    $orgStock = App\Actions\Inventory\OrgStock\StoreOrgStock::make()->action($this->organisation, $stock, OrgStock::factory()->definition());
+
+    $links = collect([10, 0])->map(function (int $localPriority) use ($stock, $orgStock) {
+        [, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+        DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+        $stockLink = StockHasSupplierProduct::firstOrCreate(['stock_id' => $stock->id, 'supplier_product_id' => $orgSupplierProduct->supplier_product_id], ['available' => true]);
+        $orgLink   = OrgStockHasOrgSupplierProduct::create([
+            'org_stock_id'                  => $orgStock->id,
+            'org_supplier_product_id'       => $orgSupplierProduct->id,
+            'stock_has_supplier_product_id' => $stockLink->id,
+            'status'                        => true,
+            'local_priority'                => $localPriority,
+        ]);
+
+        return [$stockLink, $orgLink];
+    });
+    [[$wasPreferredStockLink, $wasPreferredOrgLink], [$backupStockLink, $backupOrgLink]] = $links->all();
+
+    actingAs($this->adminGuest->getUser());
+    $this->withoutVite()
+        ->get(route('grp.goods.stocks.show', ['stock' => $stock->slug, 'tab' => StockTabsEnum::SUPPLIER_PRODUCTS->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Goods/Stock')
+            ->has('supplier_products.data', 2)
+            ->where('supplier_products.data', fn ($rows) => collect($rows)->firstWhere('supplier_product_id', $wasPreferredStockLink->supplier_product_id)['preferred_in'] === $this->organisation->code
+                && collect($rows)->every(fn ($row) => $row['is_preferred'] === false)));
+
+    $this->patch(route('grp.models.stock.supplier_product.set_preferred', [$stock->id, $backupStockLink->supplier_product_id]))->assertRedirect();
+
+    expect($backupStockLink->refresh()->priority)->toBe(10)
+        ->and($wasPreferredStockLink->refresh()->priority)->toBe(0)
+        ->and($backupOrgLink->refresh()->local_priority)->toBe(10)
+        ->and($wasPreferredOrgLink->refresh()->local_priority)->toBe(0);
+
+    $notLinked = SupplierProduct::whereNotIn('id', [$backupStockLink->supplier_product_id, $wasPreferredStockLink->supplier_product_id])->firstOrFail();
+    expect(fn () => App\Actions\Goods\StockHasSupplierProduct\SetStockPreferredSupplierProduct::make()->action($stock, $notLinked))->toThrow(ValidationException::class);
 });

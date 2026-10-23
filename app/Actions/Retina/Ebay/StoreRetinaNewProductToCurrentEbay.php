@@ -9,6 +9,7 @@
 namespace App\Actions\Retina\Ebay;
 
 use App\Actions\Dropshipping\Ebay\Product\StoreNewProductToCurrentEbay;
+use App\Actions\Dropshipping\WithSingleUploadProgress;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithRetinaCustomerOwnedRouteModels;
 use App\Models\Dropshipping\Portfolio;
@@ -19,10 +20,11 @@ class StoreRetinaNewProductToCurrentEbay extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
     use AsAction;
+    use WithSingleUploadProgress;
 
     public function handle(Portfolio $portfolio): void
     {
-        StoreNewProductToCurrentEbay::run($portfolio->customerSalesChannel->user, $portfolio);
+        StoreNewProductToCurrentEbay::dispatch($portfolio->customerSalesChannel->user, $portfolio, $this->singleUploadProgress($portfolio));
     }
 
     public function asController(Portfolio $portfolio, ActionRequest $request): void

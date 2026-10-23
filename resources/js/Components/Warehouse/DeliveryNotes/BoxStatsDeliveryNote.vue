@@ -674,7 +674,7 @@ function returnNoteRoute(returnDeliveryNote) {
                     />
                     
                     <!-- Section: Picked Bays -->
-                    <div v-if="[ 'picked'].includes(deliveryNote.state) || boxStats?.picked_bays?.length" class="!mt-1.5 flex gap-x-2 items-center">
+                    <div v-if="['picked', 'handling_blocked'].includes(deliveryNote.state) || boxStats?.picked_bays?.length" class="!mt-1.5 flex gap-x-2 items-center">
                         <dl class=" border-l-4 border-pink-300 bg-pink-100 pl-1 flex items-center w-fit pr-3 flex-none gap-x-1.5">
                             <dt class="flex-none">
                                 {{ ctrans("Picked bays") }}:
@@ -695,7 +695,7 @@ function returnNoteRoute(returnDeliveryNote) {
                         </dl>
 
                         <ChangePickedBays
-                            v-if="isEditable && ['picked'].includes(deliveryNote.state)"
+                            v-if="isEditable && ['picked', 'handling_blocked'].includes(deliveryNote.state)"
                             :warehouse="warehouse"
                             :deliveryNote="deliveryNote"
                             :pickedBays="boxStats?.picked_bays"

@@ -149,6 +149,8 @@ class IndexProductsInProductCategory extends OrgAction
             'products.is_variant_leader as is_variant_leader',
             'products.master_product_id',
             'assets.health_rank',
+            'products.webpage_id',
+            'products.has_live_webpage',
         ];
 
         $hasListingsColumns = $this->hasListingsColumns($productCategory);
@@ -302,10 +304,66 @@ class IndexProductsInProductCategory extends OrgAction
                 $table->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                     ->column(key: 'price', label: __('Price/outer'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
                     ->column(key: $isDropshipping ? 'rrp' : 'rrp_per_unit', label: $isDropshipping ? __('RRP/outer') : __('RRP/unit'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
-                    ->column(key: 'available_quantity', label: __('Stock'), canBeHidden: false, sortable: true, searchable: true, align: 'right')
-                    ->column(key: 'actions', label: __('Actions'), canBeHidden: false, searchable: true, align: 'right');
+                    ->column(key: 'available_quantity', label: __('Stock'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
+
+                if ($prefix === ProductsTabsEnum::INDEX->value) {
+                    $table->column(key: 'workflow', label: __('Workflow'))
+                        ->column(key: 'checklist', label: __('Checklist'));
+                }
+
+                $table->column(key: 'actions', label: __('Actions'), canBeHidden: false, searchable: true, align: 'right');
             }
         };
+    }
+
+    /**
+     * The summary cards over the list: every product of the category and how many are missing
+     * product information, counted like the checklist of each row.
+     *
+     * @return array{total: int, active: int, discontinued: int, incomplete: int}
+     */
+    public function getProductStats(ProductCategory $productCategory): array
+    {
+        $query = Product::query()
+            ->where('products.is_main', true)
+            ->whereNull('products.exclusive_for_customer_id')
+            ->where(match ($productCategory->type) {
+                ProductCategoryTypeEnum::DEPARTMENT => 'products.department_id',
+                ProductCategoryTypeEnum::FAMILY     => 'products.family_id',
+                default                             => 'products.sub_department_id',
+            }, $productCategory->id);
+
+        $counts = (clone $query)
+            ->selectRaw('count(*) as total')
+            ->selectRaw('count(*) filter (where products.state = ?) as active', [ProductStateEnum::ACTIVE->value])
+            ->selectRaw('count(*) filter (where products.state in (?, ?)) as discontinued', [ProductStateEnum::DISCONTINUING->value, ProductStateEnum::DISCONTINUED->value])
+            ->first();
+
+        GetProductChecklist::make()->whereIncomplete($query);
+
+        return [
+            'total'        => (int)$counts->total,
+            'active'       => (int)$counts->active,
+            'discontinued' => (int)$counts->discontinued,
+            'incomplete'   => $query->count(),
+        ];
+    }
+
+    /**
+     * The SEO workflow and checklist of each product on the page, read for the whole page at once.
+     */
+    private function withSeoProgress(LengthAwarePaginator $products): LengthAwarePaginator
+    {
+        $rows       = $products->getCollection();
+        $workflows  = GetProductWorkflow::make()->forProducts($rows);
+        $checklists = GetProductChecklist::make()->forProducts($rows);
+
+        $rows->each(function (Product $product) use ($workflows, $checklists) {
+            $product->setAttribute('seo_workflow', $workflows[$product->id] ?? null);
+            $product->setAttribute('seo_checklist', $checklists[$product->id] ?? null);
+        });
+
+        return $products;
     }
 
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
@@ -316,6 +374,10 @@ class IndexProductsInProductCategory extends OrgAction
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
         $productCategory = $this->parent;
+
+        if ($this->tab == ProductsTabsEnum::INDEX->value) {
+            $this->withSeoProgress($products);
+        }
 
         $exception  = [ProductsTabsEnum::INDEX_ORDERING, ProductsTabsEnum::EDIT, ProductsTabsEnum::BULK_UNIT];
 
@@ -445,6 +507,7 @@ class IndexProductsInProductCategory extends OrgAction
                 ],
                 'editable_table'               => true,
                 'shop_id'                      => $this->shop->id,
+                'shop_code'                    => $this->shop->code,
                 'currencies'                   => $productCategory->shop->currency,
                 'data'                         => ProductsResource::collection($products),
                 'familyId'                      => $productCategory->type === ProductCategoryTypeEnum::FAMILY ? $productCategory->id : null,
@@ -464,6 +527,7 @@ class IndexProductsInProductCategory extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => $navigation,
                 ],
+                'productStats'                 => fn () => $this->getProductStats($productCategory),
                 ProductsTabsEnum::INDEX->value => $this->tab == ProductsTabsEnum::INDEX->value ?
                     fn () => ProductsResource::collection($products)
                     : Inertia::optional(fn () => ProductsResource::collection($products)),

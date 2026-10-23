@@ -25,6 +25,7 @@ trait WithDispatchingEquipmentAuthorisation
         $this->canDelete = $this->canEdit;
 
         return $request->user()->authTo([
+            "org-admin.{$this->organisation->id}",
             "dispatching.{$this->warehouse->id}.view",
             "fulfilment.{$this->warehouse->id}.view",
             "supervisor-locations.{$this->warehouse->id}",

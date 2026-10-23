@@ -57,6 +57,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
@@ -66,6 +67,7 @@ class ShowOutbox extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 
@@ -76,6 +78,7 @@ class ShowOutbox extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
 
+        abort_unless($outbox->shop_id === $fulfilment->shop_id, 404);
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(OutboxTabsEnum::values());
 
@@ -176,8 +179,8 @@ class ShowOutbox extends OrgAction
 
 
                 OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
-                    fn () => GetOutboxShowcase::run($outbox)
-                    : Inertia::optional(fn () => GetOutboxShowcase::run($outbox)),
+                    fn () => GetOutboxShowcase::run($outbox, $this->canEdit)
+                    : Inertia::optional(fn () => GetOutboxShowcase::run($outbox, $this->canEdit)),
 
                 OutboxTabsEnum::EMAIL_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_RUNS->value ?
                     fn () => OutboxEmailBulkRunsResource::collection(IndexOutboxEmailBulkRuns::run($outbox, OutboxTabsEnum::EMAIL_RUNS->value))

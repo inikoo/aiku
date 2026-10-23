@@ -8,6 +8,8 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDeliveryItem\SetStockDeliveryItemCbmInContainer;
 use App\Enums\GoodsIn\Sowing\SowingTypeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\Sowing;
@@ -80,6 +82,8 @@ class StockDeliveryItemResource extends JsonResource
             && $item->stockDelivery?->isInGoodsIn();
 
         $isManagedByPartner = (bool) $item->stockDelivery?->isManagedByPartner();
+        $canChangeShippingState = !$isManagedByPartner && $item->stockDelivery && $request->user()
+            && AddPurchaseOrdersToStockDelivery::userCanAdd($item->stockDelivery, $request->user());
 
         $canPlace = $isEditable && $checked >= 1 && $placed < $checked;
         $canCheck = in_array($item->state, [
@@ -93,7 +97,7 @@ class StockDeliveryItemResource extends JsonResource
             'slug'                  => $supplierProduct?->slug,
             'code'                  => $supplierProduct?->code ?? $item->org_stock_code,
             'name'                  => $supplierProduct?->name ?? $item->org_stock_name,
-            'units_per_pack'        => $supplierProduct?->units_per_pack ?? $unitsPerSko,
+            'units_per_pack'        => $item->orgStock?->packed_in ?: ($supplierProduct?->units_per_pack ?? $unitsPerSko),
             'units_per_carton'      => $supplierProduct?->units_per_carton ?? $unitsPerSko,
             'supplier_unit'         => $supplierProduct?->supplier_unit?->value,
             'units_per_supplier_unit' => $supplierProduct?->supplier_unit ? $supplierProduct->unitsPerSupplierUnit() : null,
@@ -111,6 +115,19 @@ class StockDeliveryItemResource extends JsonResource
             'org_exchange'          => $item->org_exchange,
             'weight'                => $item->weight === null ? null : (float) $item->weight,
             'volume'                => $item->volume === null ? null : (float) $item->volume,
+            'cbm_in_container'      => $item->cbm_in_container === null ? ($item->volume === null ? null : (float) $item->volume) : (float) $item->cbm_in_container,
+            'is_cbm_in_container_set' => $item->cbm_in_container !== null,
+            'cbmInContainerRoute'   => SetStockDeliveryItemCbmInContainer::canBeEdited($item) ? [
+                'name'       => 'grp.models.stock-delivery-item.cbm-in-container',
+                'parameters' => ['stockDeliveryItem' => $item->id],
+                'method'     => 'patch',
+            ] : null,
+            'packed_inside_stock_delivery_item_id' => $item->packed_inside_stock_delivery_item_id,
+            'packedInsideRoute'     => SetStockDeliveryItemCbmInContainer::canBeEdited($item) ? [
+                'name'       => 'grp.models.stock-delivery-item.packed-inside',
+                'parameters' => ['stockDeliveryItem' => $item->id],
+                'method'     => 'patch',
+            ] : null,
             'state'                 => $item->state->value,
             'state_label'           => StockDeliveryItemStateEnum::labels()[$item->state->value],
             'state_icon'            => StockDeliveryItemStateEnum::stateIcon()[$item->state->value],
@@ -119,12 +136,12 @@ class StockDeliveryItemResource extends JsonResource
             'org_stock_code'        => $item->org_stock_code,
             'org_stock_name'        => $item->org_stock_name,
             'is_new_org_stock'      => $item->org_stock_id && $item->has_been_in_warehouse === false,
-            'confirmRoute'          => !$isManagedByPartner && $item->state === StockDeliveryItemStateEnum::IN_PROCESS ? [
+            'confirmRoute'          => $canChangeShippingState && $item->state === StockDeliveryItemStateEnum::IN_PROCESS ? [
                 'name'       => 'grp.models.stock-delivery-item.confirm',
                 'parameters' => ['stockDeliveryItem' => $item->id],
                 'method'     => 'patch',
             ] : null,
-            'readyToShipRoute'      => !$isManagedByPartner && $item->state === StockDeliveryItemStateEnum::CONFIRMED ? [
+            'readyToShipRoute'      => $canChangeShippingState && $item->state === StockDeliveryItemStateEnum::CONFIRMED ? [
                 'name'       => 'grp.models.stock-delivery-item.ready-to-ship',
                 'parameters' => ['stockDeliveryItem' => $item->id],
                 'method'     => 'patch',

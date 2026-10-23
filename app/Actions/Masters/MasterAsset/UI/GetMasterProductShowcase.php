@@ -10,6 +10,7 @@
 
 namespace App\Actions\Masters\MasterAsset\UI;
 
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Masters\MasterAsset\Json\GetPriceRebelProducts;
 use App\Actions\Masters\MasterShop\GetMasterShopCurrenciesRate;
@@ -87,7 +88,7 @@ class GetMasterProductShowcase
             ->filter(fn ($item) => $item->shop->state->value !== 'closed');
 
         $parentLink = null;
-        if ($masterAsset->not_for_sale_from_trade_unit) {
+        if ($masterAsset->not_for_sale_from_trade_unit && request()->user()?->authTo(['goods.edit', 'compliance.edit'])) {
             $parentLink = [
                 'url'    => "grp.trade_units.units.edit",
                 'params' => [
@@ -108,6 +109,7 @@ class GetMasterProductShowcase
             'masterProduct'       => MasterProductResource::make($masterAsset)->resolve(),
             'properties'          => $properties,
             'trade_units'         => $dataTradeUnits,
+            'supplier_products'   => GetSupplierProductsShowcaseData::run($masterAsset->tradeUnits->load('supplierProducts')->flatMap->supplierProducts->unique('id')),
             'rebel_prices'        => GetPriceRebelProducts::run($masterAsset, ['type' => 'price']),
             'rebel_rrp'           => GetPriceRebelProducts::run($masterAsset, ['type' => 'rrp']),
             'gpsr'                => $gpsr,

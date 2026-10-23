@@ -76,6 +76,8 @@ class ShowUpload
 
     public function asController(Upload $upload, ActionRequest $request): Upload
     {
+        abort_unless($upload->canBeViewedBy($request->user()), 403);
+
         return $this->handle($upload);
     }
 }

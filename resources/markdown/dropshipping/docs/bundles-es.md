@@ -51,7 +51,7 @@ El botón de paquete solo aparece en productos que tienen stock. Mientras un paq
 
 El paquete ya está en <b>My Bundles</b>. Funciona como una fila de <b>Mis productos</b>: pulsa <b>Crear nuevo producto</b> para crearlo en tu tienda, o emparéjalo con un artículo que ya tengas. Consulta [Usar My Products](/docs/my-products).
 
-Un paquete tiene su propio código de producto, que es el SKU que se envía a tu tienda.
+El SKU que se envía a tu tienda no es el código de producto del paquete. Se forma con los códigos de stock de los productos que contiene, en minúsculas y unidos con guiones: un paquete de GJC-04, GJC-05 y GJC-06 se envía como <b>gjc-04-gjc-05-gjc-06</b>. Si el paquete lleva más de una unidad de un mismo stock, la cantidad se añade después, por ejemplo <b>gjc-04-x2</b>.
 
 ## Cambiar o eliminar un paquete
 

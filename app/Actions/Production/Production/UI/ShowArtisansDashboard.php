@@ -19,6 +19,7 @@ use App\Models\Production\JobOrderItem;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
+use App\Models\SysAdmin\User;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -33,14 +34,30 @@ class ShowArtisansDashboard extends OrgAction
         return $production;
     }
 
+    /**
+     * The Artisans section (performance, hours, units, targets) is for production supervisors, HR, accounting and admins.
+     */
+    public static function canSeeArtisans(User $user, Production $production): bool
+    {
+        return $user->authTo([
+            'org-supervisor.'.$production->organisation_id,
+            "productions_operations.$production->id.orchestrate",
+            "human-resources.$production->organisation_id.view",
+            "accounting.$production->organisation_id.view",
+        ]);
+    }
+
+    /**
+     * Money (earned, rewards, payroll) is for the production manager (an organisation admin) and accounting only, never floor supervisors.
+     */
+    public static function canSeeArtisanPay(User $user, Production $production): bool
+    {
+        return $user->authTo("accounting.$production->organisation_id.view");
+    }
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            'productions-view.'.$this->organisation->id,
-            "productions_operations.{$this->production->id}.view",
-            "productions_operations.{$this->production->id}.orchestrate",
-        ]);
+        return self::canSeeArtisans($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production
@@ -109,14 +126,16 @@ class ShowArtisansDashboard extends OrgAction
             ->selectRaw(JobOrderItemTask::ASSIGNEE_SQL.' as employee_id, count(*) as queued')
             ->pluck('queued', 'employee_id');
 
-        $assigned = JobOrderItem::join('job_orders', 'job_orders.id', '=', 'job_order_items.job_order_id')
-            ->where('job_orders.production_id', $production->id)
+        $assigned = JobOrderItemTask::where('job_order_item_tasks.production_id', $production->id)
+            ->where('job_order_item_tasks.state', '!=', JobOrderItemTaskStateEnum::DONE)
+            ->join('job_orders', 'job_orders.id', '=', 'job_order_item_tasks.job_order_id')
+            ->join('job_order_items', 'job_order_items.id', '=', 'job_order_item_tasks.job_order_item_id')
             ->whereNull('job_orders.deleted_at')
             ->whereNull('job_order_items.deleted_at')
             ->whereIn('job_orders.state', [JobOrderStateEnum::IN_PROCESS, JobOrderStateEnum::SUBMITTED])
-            ->whereRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) is not null')
-            ->groupByRaw('coalesce(job_order_items.employee_id, job_orders.employee_id)')
-            ->selectRaw('coalesce(job_order_items.employee_id, job_orders.employee_id) as employee_id, count(distinct job_orders.id) as assigned')
+            ->whereRaw(JobOrderItemTask::ASSIGNEE_SQL.' is not null')
+            ->groupByRaw(JobOrderItemTask::ASSIGNEE_SQL)
+            ->selectRaw(JobOrderItemTask::ASSIGNEE_SQL.' as employee_id, count(distinct job_orders.id) as assigned')
             ->pluck('assigned', 'employee_id');
 
         $workingNow = ManufactureTaskSession::where('production_id', $production->id)

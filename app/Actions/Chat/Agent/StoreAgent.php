@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\Agent;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Chat\ChatAgent;
 use App\Models\SysAdmin\Organisation;
@@ -19,6 +20,17 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreAgent extends OrgAction
 {
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $this->userSupervisesChatOnOrganisation($request->user(), $this->organisation);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): ?ChatAgent
     {
         $this->initialisation($organisation, $request);

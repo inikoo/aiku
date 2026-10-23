@@ -1,8 +1,8 @@
 ---
 title: Registrar el progreso de un pedido como agente
 summary: Para agentes — las fechas que registras en cada pedido a un proveedor (depósito pagado, producción iniciada, producción terminada, fecha de listo propuesta, entregado) y tu propio número de pedido, cuándo y dónde registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
-date: 2026-10-15
-source_date: 2026-10-15
+date: 2026-10-19
+source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
 series: PO journey
@@ -44,6 +44,12 @@ Hay fechas que no puedes introducir tú, y es intencionado:
 - **Compliance pack complete.**
 
 Tu <a href="/docs/your-clean-handover-score-es">Clean Handover Score</a> se calcula a partir de estas fechas y de la fecha de entrega que registras. La fecha de entrega la registras tú, así que registra el día en que la mercancía llegó realmente al agente de transporte. El comprador ve quién la registró y cuándo, puede contrastarla con el recibo del agente de transporte y puede corregirla; una corrección queda guardada en el historial del pedido con su motivo.
+
+## Cuando el proveedor cambia un precio
+
+Si un proveedor pide un precio nuevo antes de que confirmes un pedido, no confirmes al precio antiguo. Abre el pedido, busca el producto en **Items** y pulsa **Supplier changed the price** en su línea. Introduce el precio que pide el proveedor, por caja tal como se muestra, y una nota breve si ayuda, y después **Ask the organisation**.
+
+La empresa compradora recibe una notificación y responde en la línea: acepta el precio nuevo, mantiene el antiguo o fija otro precio. Tú recibes una notificación con la respuesta. Mientras quede sin responder alguna pregunta de precio del pedido, **Confirm** queda en gris. Si la empresa compradora mantiene el precio antiguo y el proveedor no quiere vender a ese precio, cancela esa línea antes de confirmar.
 
 ## Buenos hábitos
 

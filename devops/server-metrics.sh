@@ -138,6 +138,7 @@ full_previous=$previous
 full_previous_ms=$previous_ms
 full_previous_processes=$(process_ticks)
 tick=0
+full_readings=0
 while true; do
     sleep "$INTERVAL"
     current=$(counters)
@@ -154,6 +155,10 @@ while true; do
         full_previous_processes=$current_processes
         full_previous_ms=$previous_ms
         tick=0
+        full_readings=$((full_readings + 1))
+        # Bash keeps a little memory for every process it forks and never gives it back: ~4 forks a second
+        # grew it to 58 MB in two weeks, past MemoryMax, and paging it through swap wrote ~4 TB a day. A fresh bash every hour.
+        [ "$full_readings" -ge 60 ] && exec "$0"
     fi
 
     previous=$current

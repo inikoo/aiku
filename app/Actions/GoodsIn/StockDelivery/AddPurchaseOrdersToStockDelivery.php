@@ -74,7 +74,6 @@ class AddPurchaseOrdersToStockDelivery extends OrgAction
                     StockDeliveryStateEnum::NOT_RECEIVED,
                 ]))
             ->withCount(['purchaseOrderTransactions as number_items_awaiting_delivery' => $itemsAwaitingDelivery])
-            ->orderBy('agent_order_reference')
             ->orderBy('reference');
     }
 

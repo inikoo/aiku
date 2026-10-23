@@ -1,7 +1,7 @@
 ---
 title: Your Shopify orders and their status
 summary: How orders from your Shopify store reach us, how they are paid, what each status means, why an order can wait as Submitted or not arrive at all, and what we send back to Shopify.
-date: 2026-09-25
+date: 2026-10-21
 tags: shopify, orders, status, payment, submitted, unpaid, fulfilment request
 category: orders
 series: shopify
@@ -59,6 +59,7 @@ For more about the order page, see [Reviewing your orders](/docs/reviewing-order
 ## What we send back to Shopify
 
 - When the order is dispatched, we mark it fulfilled in Shopify with the tracking number and link. Shopify tells your customer.
+- When a parcel we sent with GLS from Spain is delivered, we also mark it <b>Delivered</b> in Shopify, usually within an hour of GLS delivering it. You cannot set this yourself in Shopify; it comes from us.
 - When an order is cancelled, we close the request in Shopify. On a cancelled order you can press the sync button (<b>Sync order state</b>) to send the cancellation to Shopify again. If Shopify is already up to date you see <b>The order state on Shopify is up-to-date</b>.
 
 ## An order is not in my Orders

@@ -28,7 +28,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Decorators\JobDecorator;
 
 /**
  * A message that arrives while the shop is closed is answered with when it opens again, from
@@ -44,9 +43,7 @@ use Lorisleiva\Actions\Decorators\JobDecorator;
  * Email answers only a person (RFC 3834): never mail that says it was generated, came from a
  * list or a machine address, one of our own staff, or anything put aside as noise, it is
  * marked Auto-Submitted so the other side's auto-responder stays quiet, and one address gets
- * at most one automatic email a day, this or an AI answer, whatever conversation it writes in.
- * While AI answers may go out on their own, this one waits a few minutes so the answer goes
- * instead of it, never after it.
+ * at most one automatic email a day, whatever conversation it writes in.
  */
 class SendOutOfHoursReply implements ShouldBeUnique
 {
@@ -54,20 +51,6 @@ class SendOutOfHoursReply implements ShouldBeUnique
 
     public const string SENT_KEY = 'out_of_hours_replied_at';
     public const string CLAIM_KEY = 'claim_details_asked_at';
-
-    public function configureJob(JobDecorator $job): void
-    {
-        $chatSession = $job->getParameters()[0] ?? null;
-
-        // ponytail: a fixed head start for the AI answer; an answer slower than this is dropped
-        // (never sent twice), chain the two jobs if that shows up in the AI tab.
-        if ($chatSession instanceof ChatSession
-            && $chatSession->channel === ChatChannelEnum::EMAIL
-            && config('chat.ai_drafts')
-            && config('chat.ai_auto_send.enabled')) {
-            $job->delay(now()->addMinutes(5));
-        }
-    }
 
     public function getJobUniqueId(ChatSession|MetaChatSession $chatSession, ?ChatMessage $trigger = null): string
     {
@@ -211,8 +194,7 @@ class SendOutOfHoursReply implements ShouldBeUnique
     }
 
     /**
-     * The one automatic email an address may get today, the closed-now reply or an AI answer:
-     * whichever takes it first goes, the other stays quiet.
+     * The one automatic email an address may get today, whichever conversation takes it first.
      */
     public static function takeTodaysEmailTo(ChatSession $chatSession): bool
     {

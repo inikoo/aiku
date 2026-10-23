@@ -19,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetChatSessionTickets
 {
+    use WithChatSessionReadAuthorisation;
     use AsAction;
 
     public function handle(ChatSession|MetaChatSession $session): AnonymousResourceCollection
@@ -36,6 +37,7 @@ class GetChatSessionTickets
                     $query->orWhere('customer_id', $customer->id);
                 }
             })
+            ->with(TicketResource::eagerLoads())
             ->orderByDesc('created_at')
             ->limit(30)
             ->get();

@@ -9,6 +9,7 @@
 
 namespace App\Actions\Accounting\StandaloneFulfilmentInvoiceTransaction;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\Accounting\InvoiceTransaction\DeleteInProcessInvoiceTransaction;
 use App\Actions\OrgAction;
 use App\Models\Accounting\InvoiceTransaction;
@@ -16,6 +17,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
+
     public function handle(InvoiceTransaction $invoiceTransaction): void
     {
         DeleteInProcessInvoiceTransaction::make()->action($invoiceTransaction);
@@ -31,6 +34,7 @@ class DeleteStandaloneFulfilmentInvoiceTransaction extends OrgAction
 
     public function action(InvoiceTransaction $invoiceTransaction): void
     {
+        $this->asAction = true;
         $this->initialisationFromShop($invoiceTransaction->shop, []);
 
         $this->handle($invoiceTransaction);

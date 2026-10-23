@@ -8,6 +8,7 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
+use App\Actions\Traits\Authorisations\Inventory\WithInventoryAuthorisation;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Inventory\Warehouse;
@@ -23,6 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
 class PdfOrgStockLabel
 {
     use AsAction;
+    use WithInventoryAuthorisation {
+        authorize as authorizeInventory;
+    }
+
+    private Organisation $organisation;
+    private bool $canEdit = false;
 
     /**
      * The label stocks Aurora offered, kept to the millimetre so a roll bought for the old system
@@ -206,6 +213,10 @@ class PdfOrgStockLabel
     private const SHEET_ROW_SPACING = 3.0;
 
     private const WIDE_RATIO = 2.75;
+
+    private const POINT_MM = 0.3528;
+
+    private const SKO_BARCODE_CLEARANCE = 1.0;
 
     private const CODE128_MODULE_MM = 0.3804;
 
@@ -476,14 +487,23 @@ class PdfOrgStockLabel
                the full width underneath both, which is how Aurora lays the outer packing label out. */
             $imageWidth = $withImage ? 100 / 3 : 0.0;
             $imageMm    = $width * $imageWidth / 100;
+            $nameSize   = 5.0 * $factor;
+            $gap        = 0.7 * $factor;
+
+            /* The picture shares the height with the barcode and its number underneath, so it is held
+               to what they leave, or the cell cuts the number off at the bottom of the label. */
+            $barcodeBlockMm = $withBarcode
+                ? $this->getSkoBarcodeHeightMm($height) + 2 * $gap + $nameSize * self::POINT_MM + self::SKO_BARCODE_CLEARANCE
+                : 0.0;
+            $imageHeightMm = $height - self::TOP_PADDING - self::CELL_PADDING - $barcodeBlockMm;
 
             return [
                 'code'               => round(9.0 * $factor, 2),
-                'name'               => round(5.0 * $factor, 2),
+                'name'               => round($nameSize, 2),
                 'text_width'         => round(100 - $imageWidth, 2),
                 'image_width'        => round($imageWidth, 2),
-                'image'              => round(min($imageMm * 0.92, $height * 0.62) * 3.78).'px',
-                'gap'                => round(0.7 * $factor, 2),
+                'image'              => round(max(min($imageMm * 0.92, $height * 0.62, $imageHeightMm), 0.0) * 3.78).'px',
+                'gap'                => round($gap, 2),
                 'code_padding_y'     => round(max(0.8 * $factor, 1.0), 2),
                 'code_padding_x'     => round(max(2.0 * $factor, 1.5), 2),
             ];
@@ -570,6 +590,10 @@ class PdfOrgStockLabel
      * no row height for either the tag or an SVG: the number underneath ended up printed across the
      * bars. It measures a raster image correctly, which is what keeps the two apart.
      *
+     * The width is rounded down to the pixel: a fraction of a millimetre over the cell and mPDF
+     * shrinks the picture to fit keeping its own proportions, so the height asked for is lost and
+     * the bars grow tall enough to push the number off a small label.
+     *
      * @param  array<string, mixed>  $label
      * @return array{uri: string, width: string, height: string}|null
      */
@@ -593,9 +617,14 @@ class PdfOrgStockLabel
 
         return [
             'uri'    => 'data:image/png;base64,'.base64_encode($png),
-            'width'  => round(($width - 2 * self::CELL_PADDING) * 3.78).'px',
-            'height' => round(min($height * 0.26, 20.0) * 3.78).'px',
+            'width'  => floor(($width - 2 * self::CELL_PADDING) * 3.78).'px',
+            'height' => round($this->getSkoBarcodeHeightMm($height) * 3.78).'px',
         ];
+    }
+
+    private function getSkoBarcodeHeightMm(float $height): float
+    {
+        return min($height * 0.26, 20.0);
     }
 
     /**
@@ -650,11 +679,19 @@ class PdfOrgStockLabel
         ];
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->organisation = $request->route('organisation');
+
+        return $this->authorizeInventory($request);
+    }
+
     /**
      * @throws \Mpdf\MpdfException
      */
     public function asController(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): Response
     {
+        abort_unless($warehouse->organisation_id === $organisation->id && $orgStock->organisation_id === $organisation->id, 404);
         $request->validate($this->rules());
 
         return $this->handle($orgStock, $request->input('level', 'unit'), $request->all());

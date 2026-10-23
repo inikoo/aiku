@@ -8,12 +8,15 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use App\Models\Procurement\OrgSupplierProduct;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SupplierProductAvailabilityChangedNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     public bool $byEmail = true;
 
     public function __construct(public OrgSupplierProduct $orgSupplierProduct, public string $title, public string $body)
@@ -38,7 +41,7 @@ class SupplierProductAvailabilityChangedNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage())
+        return $this->newMailMessage()
             ->subject($this->title)
             ->line($this->body)
             ->action(__('Open the product'), route($this->route()['name'], $this->route()['parameters']))

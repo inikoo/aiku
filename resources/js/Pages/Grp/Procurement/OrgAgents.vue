@@ -43,12 +43,11 @@ library.add(
 )
 
 interface CurrentItem {
-	type: "agent_order" | "next_container" | "stock_delivery"
+	type: "purchase_order" | "next_container" | "stock_delivery"
 	reference: string
 	state: string
 	state_label: string
 	lines: number
-	supplier_orders?: number
 	value?: number
 	date: string
 	url: string
@@ -159,7 +158,7 @@ const groups: { type: CurrentItem["type"]; title: string; icon: string }[] = [
 ]
 
 const openOrdersValue = (agent: AgentCard) =>
-	itemsOf(agent, "agent_order").reduce((total, item) => total + (item.value ?? 0), 0)
+	itemsOf(agent, "purchase_order").reduce((total, item) => total + (item.value ?? 0), 0)
 
 const readyToShip = (agent: AgentCard) =>
 	agent.pipeline.stages.find((stage) => stage.stage === "ready_to_ship")
@@ -375,10 +374,10 @@ const toggle = (agent: AgentCard, section: string) => {
 								ctrans("Open purchase orders")
 							}}</span>
 							<span class="tabular-nums text-gray-700">{{
-								locale.number(itemsOf(agent, "agent_order").length)
+								locale.number(itemsOf(agent, "purchase_order").length)
 							}}</span>
 							<span
-								v-if="itemsOf(agent, 'agent_order').length"
+								v-if="itemsOf(agent, 'purchase_order').length"
 								class="tabular-nums text-gray-500"
 								>· {{ wholeMoney(openOrdersValue(agent)) }}</span
 							>
@@ -480,17 +479,6 @@ const toggle = (agent: AgentCard, section: string) => {
 											{{ item.reference }}
 										</div>
 										<div class="text-xs tabular-nums text-gray-500">
-											<template
-												v-if="
-													item.supplier_orders && item.supplier_orders > 1
-												">
-												{{
-													ctrans(":count suppliers", {
-														count: item.supplier_orders,
-													})
-												}}
-												·
-											</template>
 											{{
 												item.lines
 													? ctrans(":count lines", { count: item.lines })

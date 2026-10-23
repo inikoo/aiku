@@ -329,6 +329,11 @@ class ShowOrgChatInbox extends OrgAction
                 // A shop with no mailbox connected can send nothing, so the inbox does not offer
                 // to write from it. The customer still has to have an address of their own.
                 'can_start_email' => GmailClient::isShopMailboxUsable($shop),
+                'can_create_template' => $user->authTo([
+                    "chat-m.{$shop->id}",
+                    "crm.{$shop->id}.edit",
+                    "org-admin.{$shop->organisation_id}",
+                ]),
             ];
         })->values()->all();
     }

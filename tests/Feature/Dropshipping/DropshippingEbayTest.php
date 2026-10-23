@@ -34,7 +34,11 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUserData;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
+use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\Retina\Ebay\PublishRetinaEbayPortfolio;
+use App\Actions\Retina\Ebay\StoreRetinaNewProductToCurrentEbay;
+use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -48,6 +52,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\EbayUser;
@@ -63,6 +68,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use App\Actions\Catalogue\Shop\Seeders\SeedShopOutboxes;
 use App\Actions\Comms\Email\RemindChannelOrdersOnHold;
@@ -73,6 +79,7 @@ use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\Queue;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -504,7 +511,7 @@ test('an eBay orders page that answers with an error imports nothing and does no
         ->and($ebayUser->debugWebhooks()->count())->toBe(0);
 });
 
-function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true): Order
+function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true, string $shipperName = 'Royal Mail', string $tradeAs = 'Royal Mail'): Order
 {
     $ebayOrder = ebayOrder();
     fakeEbay($ctx, [
@@ -526,7 +533,7 @@ function dispatchedEbayOrder($ctx, EbayUser $ebayUser, bool $withShipment = true
     ]);
 
     if ($withShipment) {
-        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => 'Royal Mail', 'trade_as' => 'Royal Mail']);
+        $shipper = StoreShipper::make()->action($ctx->organisation, ['code' => 'RM'.Str::random(4), 'name' => $shipperName, 'trade_as' => $tradeAs]);
         StoreShipment::make()->action($deliveryNote, $shipper, ['tracking' => 'RM123456789GB']);
     }
 
@@ -558,6 +565,26 @@ test('dispatching an eBay order uploads the tracking number and dispatched line 
             && filled($body['shippedDate']);
     });
 });
+
+test('the eBay carrier code comes from the carrier the parcel travels with, not the shipper integration name', function (string $shipperName, string $tradeAs, string $carrierCode) {
+    $ebayUser = ebayChannel($this);
+    listedEbayPortfolio($this, $ebayUser);
+    $order = dispatchedEbayOrder($this, $ebayUser, shipperName: $shipperName, tradeAs: $tradeAs);
+
+    fakeEbay($this, [
+        '/shipping_fulfillment' => fn () => Http::response('', 201),
+    ]);
+
+    FulfillOrderToEbay::run($order);
+
+    Http::assertSent(fn (Request $request) => str_contains($request->url(), '/shipping_fulfillment')
+        && $request->data()['shippingCarrierCode'] === $carrierCode);
+})->with([
+    'Royal Mail through ITD' => ['ITD (api)', 'Royal Mail', 'RoyalMail'],
+    'APC overnight'          => ['APC (API)', 'APC overnight', 'APC'],
+    'GLS'                    => ['GLS General Logistics Systems Slovakia s.r.o.', 'GLS', 'GLS'],
+    'carrier eBay has no code for' => ['Paketa', 'Packeta', 'Packeta'],
+]);
 
 test('an eBay order dispatched without a shipment is fulfilled without tracking instead of crashing the dispatch', function () {
     $ebayUser = ebayChannel($this);
@@ -606,6 +633,29 @@ test('an eBay fulfilment rejected by eBay hands the error back to the caller', f
     $result = FulfillOrderToEbay::run($order);
 
     expect(Arr::get($result, 'errors.0.errorId'))->toBe(32100);
+});
+
+test('an eBay fulfilment eBay rejects is tried again later, and given up after the last attempt', function () {
+    Queue::fake();
+    $ebayUser = ebayChannel($this);
+    listedEbayPortfolio($this, $ebayUser);
+    $order = dispatchedEbayOrder($this, $ebayUser);
+
+    fakeEbay($this, [
+        '/shipping_fulfillment' => fn () => Http::response(['errors' => [['errorId' => 30500, 'message' => 'System error.']]], 500),
+    ]);
+
+    FulfillOrderToEbay::run($order);
+
+    Queue::assertPushedOn('ebay', JobDecorator::class, fn (JobDecorator $job) => $job->getAction() instanceof FulfillOrderToEbay
+        && $job->getParameters()[0]->is($order)
+        && $job->getParameters()[1] === 2);
+
+    Queue::fake();
+
+    FulfillOrderToEbay::run($order, 4);
+
+    Queue::assertNothingPushed();
 });
 
 /**
@@ -1079,8 +1129,8 @@ test('bulk upload queues one upload job per selected active portfolio and counts
     StoreBulkNewProductToCurrentEbay::run($ebayUser, ['portfolios' => [$portfolio->id, $inactive->id]]);
 
     StoreNewProductToCurrentEbay::assertPushed(1);
-    StoreNewProductToCurrentEbay::assertPushed(function ($job, $arguments) use ($portfolio) {
-        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1;
+    StoreNewProductToCurrentEbay::assertPushedOn('ebay-upload', function ($action, $arguments, $job) use ($portfolio) {
+        return $arguments[1]->id === $portfolio->id && $arguments[2]['total'] === 1 && $job->deleteWhenMissingModels === true;
     });
 });
 
@@ -1735,6 +1785,136 @@ test('saving postage and return settings from the channel page updates both eBay
         ->and(Arr::get($channel->settings, 'return.within'))->toBe(30);
 });
 
+test('choosing the customer\'s own eBay postage and return policies links them without sending anything to eBay and shows what they hold, even with fields filled', function () {
+    $ebayUser = ebayChannel($this, ['fulfillment_policy_id' => null, 'return_policy_id' => null]);
+    $ebayUser->customerSalesChannel->update(['settings' => [
+        'shipping' => ['price' => '3', 'max_dispatch_time' => '2', 'service_code' => 'UK_RoyalMailNextDay'],
+        'return'   => ['accepted' => true, 'payer' => 'SELLER', 'within' => 60],
+    ]]);
+
+    fakeEbay($this, ebayAccountRoutes([]));
+
+    $channel = UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, [
+        'fulfillment_policy_id'      => 'fp-1',
+        'return_policy_id'           => 'rp-list',
+        'shipping_price'             => '0',
+        'shipping_max_dispatch_time' => '4',
+        'return_accepted'            => true,
+    ]);
+
+    Http::assertNotSent(fn ($request) => $request->method() === 'PUT' && str_contains($request->url(), '_policy/'));
+
+    expect($ebayUser->refresh()->fulfillment_policy_id)->toBe('fp-1')
+        ->and($ebayUser->return_policy_id)->toBe('rp-list')
+        ->and(Arr::get($channel->refresh()->settings, 'shipping.price'))->toBe('1.00')
+        ->and(Arr::get($channel->settings, 'shipping.max_dispatch_time'))->toBe('1')
+        ->and(Arr::get($channel->settings, 'return.accepted'))->toBeFalse();
+});
+
+test('turning returns on by itself sends eBay a complete return policy', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => ['returnPolicyId' => 'rp-1', 'returnsAccepted' => true],
+    ]));
+
+    $channel = UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true]);
+
+    $body = sentEbayRequest('PUT', '/sell/account/v1/return_policy/rp-1')->data();
+    expect($body['returnsAccepted'])->toBeTrue()
+        ->and($body['returnShippingCostPayer'])->toBe('BUYER')
+        ->and($body['returnPeriod'])->toBe(['value' => 30, 'unit' => 'DAY'])
+        ->and(Arr::get($channel->refresh()->settings, 'return'))->toMatchArray(['accepted' => true, 'payer' => 'BUYER', 'within' => 30]);
+});
+
+test('a return policy eBay refuses is reported and the channel keeps its previous returns settings', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['return' => ['accepted' => false]]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy/rp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid return period.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['return_accepted' => true, 'return_payer' => 'BUYER', 'return_within' => 30]))
+        ->toThrow(ValidationException::class, 'Invalid return period.');
+
+    expect(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeFalse();
+});
+
+test('an eBay refusal shows the customer eBay\'s full reason, not just its one-word message', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [[
+            'errorId'     => 20403,
+            'message'     => 'Invalid.',
+            'longMessage' => 'A policy with the name Shipping already exists.',
+            'parameters'  => [['name' => 'name', 'value' => 'Shipping']],
+        ]]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid. A policy with the name Shipping already exists. (name Shipping)');
+});
+
+test('a postage policy eBay refuses is reported and the channel keeps its previous postage', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => ['shipping' => ['price' => '3', 'carrier_code' => 'RoyalMail', 'service_code' => 'UK_RoyalMailNextDay']]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/fulfillment_policy/fp-1' => fn () => Http::response(['errors' => [['errorId' => 20403, 'message' => 'Invalid shipping service.']]], 400),
+    ]));
+
+    expect(fn () => UpdateEbayCustomerSalesChannel::run($ebayUser->customerSalesChannel, ['shipping_price' => '4.50']))
+        ->toThrow(ValidationException::class, 'Invalid shipping service.');
+
+    expect(sentEbayRequest('PUT', '/sell/account/v1/fulfillment_policy/fp-1')->data()['shippingOptions'][0]['shippingServices'][0]['shippingCost']['value'])->toBe('4.50')
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'shipping.price'))->toBe('3');
+});
+
+test('a channel whose returns and postage differ from eBay takes what eBay holds, only with apply, and nothing is sent to eBay', function () {
+    $ebayUser = ebayChannel($this);
+    $ebayUser->customerSalesChannel->update(['settings' => [
+        'return'   => ['accepted' => true, 'payer' => 'SELLER', 'within' => 60],
+        'shipping' => ['price' => '4', 'max_dispatch_time' => '1', 'service_code' => 'UK_RoyalMailNextDay', 'service_name' => 'Royal Mail', 'carrier_code' => 'RoyalMail', 'carrier_name' => 'Royal Mail'],
+        'upload_as_draft' => true,
+    ]]);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy' => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => false]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect($differences['returns'])->toBe(['accepted' => ['aw' => true, 'ebay' => false]])
+        ->and($differences['shipping'])->toBe(['price' => ['aw' => '4', 'ebay' => '1.00']])
+        ->and(Arr::get($ebayUser->customerSalesChannel->refresh()->settings, 'return.accepted'))->toBeTrue();
+
+    SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), true);
+
+    $settings = $ebayUser->customerSalesChannel->refresh()->settings;
+    expect($settings['return']['accepted'])->toBeFalse()
+        ->and($settings['shipping']['price'])->toBe('1.00')
+        ->and($settings['shipping']['service_code'])->toBe('UK_RoyalMailNextDay')
+        ->and($settings['upload_as_draft'])->toBeTrue()
+        ->and(SyncEbayChannelPoliciesFromEbay::run($ebayUser->refresh(), false))->toBe(['returns' => [], 'shipping' => []])
+        ->and(collect(Http::recorded())->map(fn ($pair) => $pair[0]->method())->unique()->values()->all())->toBe(['GET']);
+});
+
+test('an eBay postage policy without a service code does not put the list of services into the channel settings', function () {
+    $ebayUser = ebayChannel($this);
+
+    fakeEbay($this, ebayAccountRoutes([
+        '/sell/account/v1/return_policy'      => ['returnPolicies' => [['returnPolicyId' => 'rp-1', 'returnsAccepted' => true, 'returnShippingCostPayer' => 'BUYER', 'returnPeriod' => ['value' => 30, 'unit' => 'DAY']]]],
+        '/sell/account/v1/fulfillment_policy' => ['fulfillmentPolicies' => [['fulfillmentPolicyId' => 'fp-1', 'handlingTime' => ['value' => 2, 'unit' => 'DAY'], 'shippingOptions' => []]]],
+    ]));
+
+    $differences = SyncEbayChannelPoliciesFromEbay::run($ebayUser, false);
+
+    expect(array_keys($differences['shipping']))->toBe(['max_dispatch_time']);
+});
+
 test('deleting an eBay user closes its channel and soft deletes the user', function () {
     $ebayUser = ebayChannel($this);
     $channel  = $ebayUser->customerSalesChannel;
@@ -1848,4 +2028,133 @@ test('a channel order still unpaid a week later is reminded once, on the day it 
     ]);
     expect(RemindChannelOrdersOnHold::run())->toBe([]);
     SendChannelOrderOnHoldEmail::assertPushed(2);
+});
+
+test('creating one product from retina queues the upload and the job reports the eBay refusal on the row', function () {
+    Queue::fake();
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+
+    fakeEbay($this, ebayCatalogueRoutes() + [
+        '/identity/v1/oauth2/token' => fn () => Http::response(['error' => 'invalid_grant', 'error_description' => 'the provided authorization refresh token is invalid'], 400),
+        '/sell/inventory/v1/offer'  => fn () => Http::response(['errors' => [['errorId' => 1001, 'domain' => 'OAuth', 'category' => 'REQUEST', 'message' => 'Invalid access token']]], 401),
+    ]);
+
+    StoreRetinaNewProductToCurrentEbay::make()->handle($portfolio);
+
+    Http::assertNothingSent();
+
+    $arguments = null;
+    StoreNewProductToCurrentEbay::assertPushed(function ($job, array $pushed) use ($portfolio, &$arguments) {
+        $arguments = $pushed;
+
+        return $pushed[1]->id === $portfolio->id && $pushed[2]['total'] === 1;
+    });
+
+    StoreNewProductToCurrentEbay::make()->handle($ebayUser, $portfolio, $arguments[2]);
+
+    expect($portfolio->refresh()->platform_status)->toBeFalse()
+        ->and($portfolio->upload_warning)->toBe('Invalid access token');
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('the hourly eBay stock check probes every channel in parallel with the same outcome per channel as one at a time', function () {
+    Queue::fake();
+
+    $tokens = ['tok-a' => 'ok', 'tok-b' => 'expired', 'tok-b-new' => 'ok', 'tok-c' => 'down', 'tok-d' => 'timeout'];
+    $routes = [
+        '/identity/v1/oauth2/token'   => fn (Request $request) => $request['refresh_token'] === 'refresh-b'
+            ? Http::response(['access_token' => 'tok-b-new', 'expires_in' => 7200])
+            : Http::response(['error' => 'invalid_grant'], 400),
+        '/commerce/identity/v1/user/' => fn (Request $request) => match ($tokens[Str::after($request->header('Authorization')[0], 'Bearer ')] ?? 'down') {
+            'ok'      => Http::response(['userId' => 'u-1', 'username' => 'aw_seller']),
+            'expired' => Http::response(['errors' => [['message' => 'Invalid access token']]], 401),
+            'timeout' => throw new ConnectionException('cURL error 28: timed out'),
+            default   => Http::response(['errors' => [['message' => 'down']]], 500),
+        },
+    ];
+
+    $channels = collect(['a', 'b', 'c', 'd'])->mapWithKeys(function (string $name) {
+        $ebayUser = ebayChannel($this, ['settings' => ['credentials' => [
+            'ebay_access_token'     => 'tok-'.$name,
+            'ebay_refresh_token'    => 'refresh-'.$name,
+            'ebay_token_expires_at' => now()->addHour()->toIso8601String(),
+        ]]]);
+        $ebayUser->customerSalesChannel->update(['stock_update' => true, 'status' => CustomerSalesChannelStatusEnum::OPEN, 'ban_stock_update_util' => now()->subMinute()]);
+
+        return [$name => [$ebayUser, listedEbayPortfolio($this, $ebayUser, '1234567890'.$name, 'offer-'.$name)]];
+    });
+
+    fakeEbay($this, $routes);
+    UpdateInventoryInEbayPortfolio::make()->handle();
+
+    $pushedPortfolioIds = [];
+    UpdateEbayPortfolio::assertPushed(function ($job, array $arguments) use (&$pushedPortfolioIds) {
+        $pushedPortfolioIds[] = $arguments[0];
+
+        return true;
+    });
+
+    $bannedUntil = fn (string $name) => $channels[$name][0]->customerSalesChannel->refresh()->ban_stock_update_util;
+
+    expect(array_intersect($channels->map(fn ($channel) => $channel[1]->id)->all(), $pushedPortfolioIds))->toBe(['a' => $channels['a'][1]->id, 'b' => $channels['b'][1]->id])
+        ->and($bannedUntil('a'))->toBeNull()
+        ->and($bannedUntil('b'))->toBeNull()
+        ->and($bannedUntil('c')->isFuture())->toBeTrue()
+        ->and($bannedUntil('d')->isFuture())->toBeTrue()
+        ->and(Arr::get($channels['b'][0]->refresh()->settings, 'credentials.ebay_access_token'))->toBe('tok-b-new');
+
+    $ebayUsers = $channels->map(fn ($channel) => $channel[0]->refresh())->all();
+    fakeEbay($this, $routes);
+    $pooled = EbayUser::getUsers($ebayUsers);
+
+    expect($pooled)->toBe(array_map(fn (EbayUser $ebayUser) => $ebayUser->getUser(), $ebayUsers))
+        ->and($pooled['a'])->toBe(['userId' => 'u-1', 'username' => 'aw_seller'])
+        ->and($pooled['c'])->toBeNull()
+        ->and($pooled['d'])->toBeNull();
+});
+
+test('a queued upload the queue kills still reports its failure so the waiting page completes', function () {
+    Event::fake([UploadProductToSalesChannelProgressEvent::class]);
+
+    $ebayUser  = ebayChannel($this);
+    $portfolio = StorePortfolio::make()->action($ebayUser->customerSalesChannel, $this->product, []);
+    Cache::put('upload_progress_ebay_killed_fail', 0, now()->addHour());
+
+    StoreNewProductToCurrentEbay::make()->jobFailed(new \Illuminate\Queue\TimeoutExceededException('killed'), $ebayUser, $portfolio, ['cache_key' => 'upload_progress_ebay_killed', 'total' => 1]);
+
+    expect($portfolio->refresh()->errors_response)->not->toBeNull();
+    Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('a bundle family is not used to find the eBay category, so bundles are not suggested into car cleaning kits', function () {
+    $department = new ProductCategory(['code' => 'aroma', 'name' => 'Aromatherapy']);
+
+    $bundle = new Product(['code' => 'BNDL-18', 'name' => 'Scented Home Bundle']);
+    $bundle->setRelation('family', new ProductCategory(['code' => 'bundles', 'name' => 'Product Bundles']));
+    $bundle->setRelation('subDepartment', null);
+    $bundle->setRelation('department', $department);
+
+    $oil = new Product(['code' => 'EO-01', 'name' => 'Lavender Oil']);
+    $oil->setRelation('family', new ProductCategory(['code' => 'EO', 'name' => 'Essential Oils']));
+    $oil->setRelation('subDepartment', null);
+    $oil->setRelation('department', $department);
+
+    $orphan = new Product(['code' => 'X-1', 'name' => 'Loose Item']);
+    $orphan->setRelation('family', null);
+    $orphan->setRelation('subDepartment', null);
+    $orphan->setRelation('department', null);
+
+    $unnamedFamily = new Product(['code' => 'X-2', 'name' => 'Loose Candle']);
+    $unnamedFamily->setRelation('family', new ProductCategory(['code' => 'X', 'name' => null]));
+    $unnamedFamily->setRelation('subDepartment', null);
+    $unnamedFamily->setRelation('department', null);
+
+    expect(StoreEbayProduct::categoryKeywords($bundle))->toBe(['Aromatherapy'])
+        ->and(StoreEbayProduct::categoryKeywords($unnamedFamily))->toBe(['Loose Candle'])
+        ->and(StoreEbayProduct::describingFamilyName($bundle))->toBeNull()
+        ->and(StoreEbayProduct::categoryKeywords($oil))->toBe(['Essential Oils', 'Aromatherapy'])
+        ->and(StoreEbayProduct::categoryKeywords($orphan))->toBe(['Loose Item']);
 });

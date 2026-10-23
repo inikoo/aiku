@@ -20,7 +20,7 @@ import { notify } from "@kyvg/vue3-notification";
 import { ctrans } from "@/Composables/useTrans";
 import {
   useWorkshopShortcuts, formatShortcutCombo,
-  WorkshopShortcut, CopiedWebBlock,
+  WorkshopShortcut, CopiedWebBlock, DraggedWebBlock,
 } from "@/Composables/useWorkshopShortcuts";
 import { getCopyPermissions, getDeletePermissions, getHiddenPermissions, getLockedBlockIds } from "@/Composables/getBlueprintWorkshop";
 import { useConfirm } from "primevue/useconfirm";
@@ -135,7 +135,7 @@ const TEMPLATE_DELETE_ROUTE = "grp.models.web_layout_template.delete";
 const TEMPLATES_PER_PAGE = 10;
 const templates = ref<WebLayoutTemplateList>({ data: [] });
 const templatesSearch = ref("");
-const templatesFilter = ref<WebLayoutTemplateFilter>("all");
+const templatesFilter = ref<WebLayoutTemplateFilter>(props.webpage.type === 'storefront' ? "matching" : "all");
 const isLoadingTemplates = ref(false);
 const templatesErrorMessage = ref<string | null>(null);
 const applyingTemplateId = ref<number | null>(null);
@@ -153,7 +153,8 @@ const COPIED_BLOCK_STORAGE_KEY = "webpageWorkshop.copiedBlock";
 const canUndo = computed(() => history.value.length > 1);
 const canRedo = computed(() => future.value.length > 0);
 
-const WEBPAGE_TYPES_WITHOUT_TEMPLATE = ['storefront', 'blog', 'system_page'];
+const WEBPAGE_TYPES_WITHOUT_TEMPLATE = ['blog', 'system_page'];
+const showsMatchingTemplatesOnly = props.webpage.type === 'storefront';
 const canUseTemplate = computed(() => !WEBPAGE_TYPES_WITHOUT_TEMPLATE.includes(props.webpage.type));
 
 
@@ -921,7 +922,7 @@ const copyBlock = (block: Daum) => {
     return;
   }
 
-  copiedBlock.value = { id: block.id, name: getBlockName(block), webpageId: data.value.id };
+  copiedBlock.value = { id: block.id, name: getBlockName(block), webpageId: data.value.id, type: block.type };
   try {
     localStorage.setItem(COPIED_BLOCK_STORAGE_KEY, JSON.stringify(copiedBlock.value));
   } catch (error) {
@@ -955,6 +956,47 @@ const pasteBlock = (position?: number) => {
   duplicateBlock(copiedBlock.value.id, position ?? insertAfterSelected);
 };
 
+const canReplaceBlockContent = (block: Daum | null) =>
+  props.editable && !!block && !!copiedBlock.value && copiedBlock.value.id !== block.id && copiedBlock.value.type === block.type;
+
+const replaceBlockContent = (block: Daum) => {
+  if (!canReplaceBlockContent(block)) return;
+  const source = copiedBlock.value!;
+
+  confirm.require({
+    group: "workshop-shortcut",
+    header: ctrans("Paste content and style"),
+    message: ctrans("Replace the text, images, links and style of :block with :source?", {
+      block: getBlockName(block),
+      source: source.name,
+    }),
+    rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
+    acceptProps: { label: ctrans("Yes, replace") },
+    accept: () => router.post(
+      route('grp.models.model_has_web_block.replace_content', { modelHasWebBlocks: block.id, source: source.id }),
+      {},
+      {
+        preserveScroll: true,
+        onStart: () => isLoadingBlock.value = block.id,
+        onFinish: () => {
+          isLoadingBlock.value = null;
+          saveState();
+        },
+        onSuccess: e => {
+          data.value = e.props.webpage;
+          renameDuplicatedRevealKeys();
+          sendToIframe({ key: 'reload', value: {} });
+        },
+        onError: error => notify({
+          title: ctrans("Something went wrong"),
+          text: Object.values(error).join(" "),
+          type: "error"
+        })
+      }
+    ),
+  });
+};
+
 const onCopiedBlockChangedInOtherTab = (event: StorageEvent) => {
   if (event.key === COPIED_BLOCK_STORAGE_KEY) copiedBlock.value = readCopiedBlock();
 };
@@ -962,6 +1004,12 @@ const onCopiedBlockChangedInOtherTab = (event: StorageEvent) => {
 provide('copiedWebBlock', copiedBlock);
 provide('copyWebBlock', copyBlock);
 provide('pasteWebBlock', pasteBlock);
+provide('canReplaceWebBlockContent', canReplaceBlockContent);
+provide('dropWebBlock', (block: DraggedWebBlock, position: number) => {
+  if (!props.editable || !Number.isInteger(block?.id)) return;
+  duplicateBlock(block.id, position);
+});
+provide('replaceWebBlockContent', replaceBlockContent);
 
 const confirmDeleteSelectedBlock = () => {
   const block = selectedBlock.value;
@@ -1265,6 +1313,7 @@ const openWebsite = () => {
           :applyingTemplateId="applyingTemplateId"
           :deletingTemplateId="deletingTemplateId"
           :templatesFilter="templatesFilter"
+          :matchingTemplatesOnly="showsMatchingTemplatesOnly"
           @fetchTemplates="fetchTemplates()"
           @searchTemplates="onSearchTemplates"
           @filterTemplates="onFilterTemplates"

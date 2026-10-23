@@ -27,7 +27,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 
-#[Description('Change a ticket or create a help ticket. With a reference: add a comment (posted as you, optionally with attachments as base64 files; internal=true keeps it visible to the help desk only, for technical notes: ids repaired, commands run, root cause), correct a comment you already posted by passing its comment_id with the rewritten comment instead of posting a follow-up, rewrite subject or description, change status (open, in_progress, waiting with optional waiting_hours, resolved, cancelled), priority, assignee (username), kind, module or tags, or ask QA to check it (ask_qa with QA usernames, comma separated, or anyone, comment as the note). Without a reference: creates a new HELP ticket (or an INI engineer ticket with type=engineer) with subject, and optional description, kind, module, priority. Every change is recorded as the authenticated user, or as the user named in acting_as when a help desk supervisor passes it. Anyone can raise a HELP ticket and comment on tickets they raised; every other change is for engineers, lead engineers and QA.')]
+#[Description('Change a ticket or create a help ticket. With a reference: add a comment (posted as you, optionally with attachments as base64 files; internal=true keeps it visible to the help desk only, for technical notes: ids repaired, commands run, root cause), correct a comment you already posted by passing its comment_id with the rewritten comment instead of posting a follow-up, rewrite subject or description, change status (open, in_progress, waiting with optional waiting_hours, resolved, cancelled), priority, assignee (username), kind, module or tags, or ask QA to check it (ask_qa with QA usernames, comma separated, or anyone, comment as the note). Without a reference: creates a new HELP ticket (or an INI engineer ticket with type=engineer, or a PRE premonition ticket with type=premonition for something found broken in aiku while serving customers) with subject, and optional description, kind, module, priority. Every change is recorded as the authenticated user, or as the user named in acting_as when a help desk supervisor passes it. Anyone can raise a HELP ticket and comment on tickets they raised; every other change is for engineers, lead engineers and QA.')]
 class TicketWriteTool extends Tool
 {
     public function shouldRegister(Request $request): bool
@@ -49,7 +49,7 @@ class TicketWriteTool extends Tool
             'priority'    => ['sometimes', 'in:low,normal,high,urgent'],
             'assignee'    => ['sometimes', 'nullable', 'string'],
             'kind'        => ['sometimes', 'nullable', Rule::enum(TicketKindEnum::class)],
-            'type'        => ['sometimes', 'nullable', 'in:help,engineer'],
+            'type'        => ['sometimes', 'nullable', 'in:help,engineer,premonition'],
             'module'      => ['sometimes', 'nullable', 'string'],
             'tags'        => ['sometimes', 'array'],
             'tags.*'      => ['string', 'max:64'],
@@ -85,8 +85,8 @@ class TicketWriteTool extends Tool
         }
 
         if (!$request->filled('reference')) {
-            if ($request->get('type') === TicketTypeEnum::ENGINEER->value && !Ticket::canChooseType($user)) {
-                return Response::error('Only the help desk and QA can raise engineer (INI) tickets.');
+            if (in_array($request->get('type'), [TicketTypeEnum::ENGINEER->value, TicketTypeEnum::PREMONITION->value], true) && !Ticket::canChooseType($user)) {
+                return Response::error('Only the help desk and QA can raise engineer (INI) or premonition (PRE) tickets.');
             }
 
             $ticket = StoreTicket::make()->action($user->group, array_filter([
@@ -249,7 +249,7 @@ class TicketWriteTool extends Tool
             'status'      => $schema->string()->description('open, in_progress, waiting, resolved, pending_deploy or cancelled. pending_deploy = close after next deployment (fix already on main): the comment is held and posted when the deployment closes the ticket. Pass commit too'),
             'priority'    => $schema->string()->description('low, normal, high or urgent'),
             'assignee'    => $schema->string()->description('Username to assign, empty string to unassign'),
-            'type'        => $schema->string()->description('New tickets only: help (HELP-n, default) or engineer (INI-n, engineering work such as upgrades, refactors and tech debt)'),
+            'type'        => $schema->string()->description('New tickets only: help (HELP-n, default), engineer (INI-n, engineering work such as upgrades, refactors and tech debt) or premonition (PRE-n, aiku found to be wrong while serving customers: records that contradict what happened, stuck statuses, wrong data)'),
             'kind'        => $schema->string()->description('escalation, bug, feature, task (engineer to engineer) or qa (engineer to QA)'),
             'module'      => $schema->string()->description('Aiku module slug, e.g. dispatching'),
             'tags'        => $schema->array()->description('Full tag list to set, e.g. ["not a bug"]')->items($schema->string()),

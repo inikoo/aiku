@@ -18,7 +18,7 @@ import {
   faBoxUsd,
   faTruck,
   faTerminal,
-  faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
+  faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard, faBoxOpen
 } from '@fal';
 import SupplierProductShowcase from "@/Components/Showcases/Grp/SupplierProductShowcase.vue";
 import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
@@ -28,6 +28,8 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import TableSupplierAgreedTerms from '@/Components/Tables/Grp/Org/Procurement/TableSupplierAgreedTerms.vue'
 import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/TableProcurementNotes.vue'
 import AgreementSummary from '@/Components/Procurement/AgreementSummary.vue'
+import MicroStats from '@/Components/DataDisplay/MicroStats.vue'
+import PackingSpecTab from '@/Components/Procurement/PackingSpecTab.vue'
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -51,6 +53,7 @@ const props = defineProps<{
     history?: object
     agreed_terms?: object
     notes?: object
+    packing?: object
     agreement: object
 }>()
 
@@ -67,6 +70,7 @@ library.add(
     faPoop,
     faMoneyBill,
     faClipboard,
+    faBoxOpen,
 );
 
 let currentTab = ref(props.tabs.current);
@@ -80,6 +84,7 @@ const component = computed(() => {
         details: ModelDetails,
         agreed_terms: TableSupplierAgreedTerms,
         notes: TableProcurementNotes,
+        packing: PackingSpecTab,
         history: TableHistories
     };
     return components[currentTab.value];
@@ -93,8 +98,9 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <div v-if="currentTab === 'showcase'" class="px-4 pt-4 max-w-4xl">
-        <AgreementSummary :agreement="agreement" showLevel />
+    <div v-if="currentTab === 'showcase'" class="grid items-start gap-6 px-6 pt-6 md:grid-cols-3">
+        <AgreementSummary :agreement="agreement" showLevel :costs="showcase?.costs" class="min-w-0 md:col-span-2" />
+        <MicroStats v-if="showcase?.stats?.length" :stats="showcase.stats" />
     </div>
     <component :is="component" :data="props[currentTab]" :tab="currentTab" v-bind="['agreed_terms', 'notes'].includes(currentTab) ? { agreement } : {}"></component>
 </template>

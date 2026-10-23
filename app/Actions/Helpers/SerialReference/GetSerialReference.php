@@ -45,7 +45,9 @@ class GetSerialReference
             return $serial;
         });
 
-        return sprintf($serialReference->format, $serial);
+        $reference = sprintf($serialReference->format, $serial);
+
+        return app()->environment('staging') ? $reference.'-test' : $reference;
     }
 
 

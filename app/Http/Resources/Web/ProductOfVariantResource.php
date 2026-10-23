@@ -9,6 +9,7 @@
 namespace App\Http\Resources\Web;
 
 use App\Actions\Helpers\Images\GetPictureSources;
+use App\Actions\Ordering\PreOrder\GetProductPreOrder;
 use App\Actions\Traits\HasBucketImages;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Helpers\NaturalLanguage;
@@ -124,6 +125,7 @@ class ProductOfVariantResource extends JsonResource
             'is_on_demand'      => $product->is_on_demand,
             'is_back_in_stock'  => $back_in_stock,
             'back_in_stock'     => $back_in_stock,
+            'pre_order'         => GetProductPreOrder::make()->forWebsite(GetProductPreOrder::make()->handle($product)),
 
 
             'discounted_price'           => round($product->price * $bestPercentageOffOfferFactor, 2),

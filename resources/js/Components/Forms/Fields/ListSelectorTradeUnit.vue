@@ -42,7 +42,7 @@ const props = defineProps<{
             routeFetch: routeType
         }[]
         is_dropship: boolean
-        priceContext?: {
+        priceContext?: null | {
             price: number
             rrp: number
             currency: string

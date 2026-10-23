@@ -341,6 +341,27 @@ function placedStockDeliveryWithTwoLines($test, string $code): StockDelivery
     return $stockDelivery->fresh();
 }
 
+function agentOrganisationAdmin(Organisation $agentOrganisation, string $username): User
+{
+    $orgAdmin = JobPosition::where('organisation_id', $agentOrganisation->id)->where('code', 'org-admin')->firstOrFail();
+    $employee = StoreEmployee::make()->action($agentOrganisation, [
+        'worker_number'   => $username,
+        'alias'           => $username,
+        'contact_name'    => $username,
+        'state'           => EmployeeStateEnum::WORKING,
+        'type'            => EmployeeTypeEnum::EMPLOYEE,
+        'employment_type' => EmploymentTypeEnum::FULL_TIME,
+        'positions'       => [['slug' => $orgAdmin->slug, 'scopes' => []]],
+    ]);
+
+    return StoreUser::make()->action($employee, [
+        'username'       => $username,
+        'password'       => Str::random(32),
+        'status'         => true,
+        'reset_password' => false,
+    ]);
+}
+
 function userWithJobPosition($test, string $jobPositionCode, string $username): User
 {
     setPermissionsTeamId($test->group->id);
@@ -435,6 +456,7 @@ function stockDeliveryWithInvoiceInAnotherCurrency($test, string $token): array
         'grp_exchange'   => 0.02,
         'org_net_amount' => 90,
         'grp_net_amount' => 180,
+        'unit_quantity_checked' => 10,
     ]);
 
     $path = tempnam(sys_get_temp_dir(), 'invoice');
@@ -447,22 +469,60 @@ function stockDeliveryWithInvoiceInAnotherCurrency($test, string $token): array
     ]);
     @unlink($path);
 
+    \Illuminate\Support\Facades\Cache::put('current-currency-exchange:'.$organisationCurrency->code.'-'.$deliveryCurrency->code, 100, now()->addHour());
+
     \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::storeReading($stockDelivery, $media, [
         'state'          => 'read',
+        'kind'           => \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::KIND,
         'read_at'        => now()->toIso8601String(),
         'is_invoice'     => true,
+        'issuer'         => 'Supplier Test',
         'invoice_number' => "INV-$token",
         'invoice_date'   => '2026-09-20',
         'currency'       => $organisationCurrency->code,
+        'references'     => [],
         'lines'          => [
             ['code' => "invcur $token", 'description' => 'Goods', 'quantity' => 10, 'unit_price' => 9.5, 'amount' => 95],
             ['code' => 'SAMPLE-1', 'description' => 'Sample', 'quantity' => 1, 'unit_price' => 5, 'amount' => 5],
         ],
         'charges'        => [],
         'total'          => 100,
+        'checks'         => ['disagreements' => [], 'text_available' => true, 'amounts_missing' => [], 'mentions_delivery' => true, 'currency_printed' => true, 'number_printed' => true, 'other_deliveries' => []],
     ]);
 
     return [$stockDelivery->fresh(), $media, $stockDelivery->items()->first(), $deliveryCurrency, $organisationCurrency];
+}
+
+function readSupplierInvoiceDocument($test, StockDelivery $stockDelivery, string $document, array ...$readings): array
+{
+    $reply = fn (array $reading) => \Illuminate\Support\Facades\Http::response(['choices' => [['message' => ['content' => json_encode([
+        'is_invoice'   => true,
+        'issuer'       => 'Supplier Test',
+        'invoice_date' => '2026-09-20',
+        'currency'     => $stockDelivery->currency->code,
+        'references'   => [],
+        'charges'      => [],
+        ...$reading,
+    ])]]]]);
+    $replies = array_map($reply, count($readings) === 1 ? [$readings[0], $readings[0]] : $readings);
+
+    \Illuminate\Support\Facades\Http::fake(function () use (&$replies) {
+        return array_shift($replies);
+    });
+
+    $path = tempnam(sys_get_temp_dir(), 'invoice').'.csv';
+    file_put_contents($path, $document);
+    $media = \App\Actions\Helpers\Media\SaveModelAttachment::make()->action($stockDelivery, [
+        'path'         => $path,
+        'originalName' => 'invoice-'.Str::random(8).'.csv',
+        'extension'    => 'csv',
+        'scope'        => 'Invoice',
+    ]);
+    @unlink($path);
+
+    $test->post(route('grp.models.stock-delivery.invoice.read', [$stockDelivery->id, $media->id]))->assertRedirect();
+
+    return [$media, \App\Actions\GoodsIn\StockDelivery\GetStockDeliveryInvoiceCosting::make()->review($stockDelivery->fresh(), \App\Actions\GoodsIn\StockDelivery\ReadStockDeliveryInvoice::reading($stockDelivery, $media), $media)];
 }
 
 function readServiceInvoiceDocument($test, StockDelivery $stockDelivery, string $document, array ...$readings): array
@@ -494,7 +554,7 @@ function readServiceInvoiceDocument($test, StockDelivery $stockDelivery, string 
 /**
  * @return array<int, PurchaseOrder>
  */
-function createAgentOrderToSend(object $test, OrgAgent $orgAgent, int $numberOfOrders): array
+function createAgentPurchaseOrders(object $test, OrgAgent $orgAgent, int $numberOfOrders): array
 {
     $orders = [];
 

@@ -12,6 +12,7 @@ use App\Actions\Procurement\OrgPartner\GetPartnerLeadTime;
 use App\Actions\Procurement\OrgPartner\GetPartnerSupplyDurations;
 use App\Actions\Production\PartnerShippingList\GetPartnerOrdersInTheMaking;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -22,6 +23,7 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -32,8 +34,9 @@ use Lorisleiva\Actions\Concerns\AsObject;
  * counted while no stock delivery past its draft holds that same org stock, so nothing is listed
  * twice and the rest of a partly delivered order stays visible.
  *
- * A supplier date is only ever one staff typed: the delivery's estimated receiving date, else its
- * purchase orders'. Goods from a partner organisation are dated from how far they got in the
+ * A supplier date is the delivery's estimated receiving date, else its purchase orders'. A purchase
+ * order nobody typed a date on carries the one worked out from lead times when it was submitted, and
+ * that line is flagged is_estimate. Goods from a partner organisation are dated from how far they got in the
  * partner (in stock, being made, not scheduled, picked, dispatched) plus the measured medians of
  * the legs still ahead, and are flagged is_estimate.
  */
@@ -54,6 +57,8 @@ class GetProductIncomingStock
     ];
 
     private const string PURCHASE_ORDER_TYPED_DATE = "coalesce(purchase_orders.estimated_received_at::date, nullif(purchase_orders.data->>'estimated_receiving_date', '')::date)";
+
+    private const string PURCHASE_ORDER_STAFF_DATE = "nullif(purchase_orders.data->>'estimated_receiving_date', '')::date";
 
     /**
      * @return array<int, array{type: string, supplier_name: string|null, supplier_code: string|null, supplier_type: string, reference: string, slug: string, org_stock_id: int, org_stock_code: string, org_stock_name: string, state: string, state_label: string, quantity: float, eta: string|null, organisation_slug: string}>
@@ -119,13 +124,30 @@ class GetProductIncomingStock
      */
     public function earliestEta(Product $product): ?string
     {
-        foreach ($this->handle($product) as $line) {
-            if ($line['eta']) {
-                return $line['eta'];
-            }
-        }
+        return $this->earliestIncoming($product)['eta'] ?? null;
+    }
 
-        return null;
+    /**
+     * The earliest date and whether it is only estimated; a typed date wins a tie with an estimate.
+     *
+     * @return array{eta: string, is_estimate: bool}|null
+     */
+    public function earliestIncoming(Product $product): ?array
+    {
+        return $this->earliest(collect($this->handle($product)));
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>> $lines
+     * @return array{eta: string, is_estimate: bool}|null
+     */
+    private function earliest(Collection $lines): ?array
+    {
+        $line = $lines->filter(fn ($line) => $line['eta'])
+            ->sortBy([['eta', 'asc'], ['is_estimate', 'asc']])
+            ->first();
+
+        return $line ? ['eta' => $line['eta'], 'is_estimate' => (bool) $line['is_estimate']] : null;
     }
 
     /**
@@ -136,6 +158,15 @@ class GetProductIncomingStock
      * @return array<int, string>
      */
     public function earliestEtaByProduct(array $productIds): array
+    {
+        return array_map(fn (array $incoming) => $incoming['eta'], $this->earliestIncomingByProduct($productIds));
+    }
+
+    /**
+     * @param  array<int, int> $productIds
+     * @return array<int, array{eta: string, is_estimate: bool}>
+     */
+    public function earliestIncomingByProduct(array $productIds): array
     {
         if (!$productIds) {
             return [];
@@ -153,13 +184,10 @@ class GetProductIncomingStock
             return [];
         }
 
-        $earliestEtaByOrgStock = collect($this->lines($orgStockIds))
-            ->filter(fn ($line) => $line['eta'])
-            ->groupBy('org_stock_id')
-            ->map(fn ($lines) => $lines->min('eta'));
+        $linesByOrgStock = collect($this->lines($orgStockIds))->groupBy('org_stock_id');
 
         return $orgStockIdsByProduct
-            ->map(fn ($productOrgStockIds) => $earliestEtaByOrgStock->only($productOrgStockIds)->min())
+            ->map(fn ($productOrgStockIds) => $this->earliest($linesByOrgStock->only($productOrgStockIds)->flatten(1)))
             ->filter()
             ->all();
     }
@@ -199,6 +227,14 @@ class GetProductIncomingStock
                         join purchase_orders on purchase_orders.id = purchase_order_stock_delivery.purchase_order_id
                         where purchase_order_stock_delivery.stock_delivery_id = stock_deliveries.id)
                 ) as typed_eta"),
+                DB::raw("nullif(stock_deliveries.data->>'estimated_receiving_date', '') is null and (select min(".self::PURCHASE_ORDER_STAFF_DATE.")
+                        from purchase_order_stock_delivery
+                        join purchase_orders on purchase_orders.id = purchase_order_stock_delivery.purchase_order_id
+                        where purchase_order_stock_delivery.stock_delivery_id = stock_deliveries.id)
+                    is distinct from (select min(".self::PURCHASE_ORDER_TYPED_DATE.")
+                        from purchase_order_stock_delivery
+                        join purchase_orders on purchase_orders.id = purchase_order_stock_delivery.purchase_order_id
+                        where purchase_order_stock_delivery.stock_delivery_id = stock_deliveries.id) as is_lead_time_eta"),
                 'org_stocks.id as org_stock_id',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
@@ -223,7 +259,7 @@ class GetProductIncomingStock
                 'eta'               => $row->typed_eta || $row->parent_type !== 'OrgPartner'
                     ? $this->eta($row->typed_eta)
                     : $this->partnerDeliveryEta($row),
-                'is_estimate'       => !$row->typed_eta && $row->parent_type === 'OrgPartner',
+                'is_estimate'       => $row->typed_eta ? (bool) $row->is_lead_time_eta : $row->parent_type === 'OrgPartner',
                 'organisation_slug' => $row->organisation_slug,
             ])
             ->values()
@@ -246,6 +282,7 @@ class GetProductIncomingStock
                 fn ($query) => $query->whereIn('purchase_order_transactions.org_stock_id', $orgStockIds)
             )
             ->whereNull('purchase_order_transactions.deleted_at')
+            ->whereNotIn('purchase_order_transactions.state', [PurchaseOrderTransactionStateEnum::CANCELLED->value, PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value])
             ->whereNull('purchase_orders.deleted_at')
             ->whereNotIn('purchase_orders.state', [
                 PurchaseOrderStateEnum::IN_PROCESS->value,
@@ -281,6 +318,7 @@ class GetProductIncomingStock
                 'purchase_orders.agent_id',
                 'purchase_orders.delivery_state',
                 DB::raw(self::PURCHASE_ORDER_TYPED_DATE.' as typed_eta'),
+                DB::raw(self::PURCHASE_ORDER_STAFF_DATE.' as staff_eta'),
                 'org_stocks.id as org_stock_id',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
@@ -303,7 +341,7 @@ class GetProductIncomingStock
                 'state_label'       => PurchaseOrderDeliveryStateEnum::labels()[$row->delivery_state],
                 'quantity'          => (float) $row->quantity,
                 'eta'               => $this->eta($row->typed_eta),
-                'is_estimate'       => false,
+                'is_estimate'       => $row->typed_eta !== null && $row->staff_eta === null,
                 'organisation_slug' => $row->organisation_slug,
             ])
             ->values()

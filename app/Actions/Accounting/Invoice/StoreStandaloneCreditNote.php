@@ -46,6 +46,7 @@ class StoreStandaloneCreditNote extends OrgAction
                 'gross_amount' => 0,
                 'tax_amount'   => 0,
                 'footer'       => Arr::get($modelData, 'reason', ''),
+                'data'         => ['credit_note_amount' => $grossAmount],
             ], hydratorsDelay: $this->hydratorsDelay);
 
             $netAmount = $this->netForGross($grossAmount, (float)$creditNote->taxCategory->rate);
@@ -69,19 +70,26 @@ class StoreStandaloneCreditNote extends OrgAction
     /**
      * The staff member types what the customer gets back, tax included. The net is found so that
      * net + rounded tax lands exactly on that figure, nudging by a penny when plain division does not.
+     * When no penny net lands on it (£13.65 at 20%), the net whose total is a penny over is taken and
+     * CalculateInvoiceTotals takes that penny off the tax, which is the tax rounded down (HMRC Notice 700 s17.5).
      */
-    private function netForGross(float $grossAmount, float $rate): float
+    public function netForGross(float $grossAmount, float $rate): float
     {
         $netAmount = round($grossAmount / (1 + $rate), 2);
+        $pennyOver = $netAmount;
 
         foreach ([0, 0.01, -0.01] as $delta) {
             $candidate = round($netAmount + $delta, 2);
-            if (round($candidate + round($candidate * $rate, 2), 2) == $grossAmount) {
+            $total     = round($candidate + round($candidate * $rate, 2), 2);
+            if ($total == $grossAmount) {
                 return $candidate;
+            }
+            if (round($total - $grossAmount, 2) == 0.01) {
+                $pennyOver = $candidate;
             }
         }
 
-        return $netAmount;
+        return $pennyOver;
     }
 
     public function rules(): array

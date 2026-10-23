@@ -13,7 +13,6 @@ use App\Actions\Production\JobOrder\GetJobOrderDestinationAllocation;
 use App\Actions\Production\JobOrder\StoreJobOrder;
 use App\Actions\Production\JobOrderItem\StoreJobOrderItem;
 use App\Models\Procurement\PartnerShoppingListItem;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\JobOrderItemTask;
@@ -34,9 +33,7 @@ class SettleShortJobOrderItemTask
     {
         return DB::transaction(function () use ($jobOrderItemTask, $carryOver) {
             $item             = $jobOrderItemTask->jobOrderItem;
-            $unitsPerArtefact = $this->unitsPerArtefact($item, $jobOrderItemTask);
-
-            $madeArtefacts      = (int) ArtefactManufactureTask::artefactsIn($jobOrderItemTask->quantity_made, $unitsPerArtefact);
+            $madeArtefacts      = (int) $jobOrderItemTask->artefactsIn();
             $remainingArtefacts = max(0, $item->quantity - $madeArtefacts);
 
             if ($madeArtefacts < 1) {
@@ -51,10 +48,8 @@ class SettleShortJobOrderItemTask
             $excessUnitsByTask = [];
             $item->update(['quantity' => $madeArtefacts]);
             foreach ($item->tasks as $task) {
-                $units    = $this->unitsPerArtefact($item, $task);
-                $required = min((float) $task->quantity_required, ArtefactManufactureTask::stepQuantity($madeArtefacts, $units));
-                $task->update(['quantity_required' => $required]);
-                CalculateJobOrderItemTaskQuantities::run($task);
+                $required = min((float) $task->quantity_required, $task->requiredFor($madeArtefacts));
+                $task->setRequiredQuantity($required);
                 $excessUnitsByTask[$task->manufacture_task_id] = max(0, (float) $task->quantity_made - $required);
             }
 
@@ -110,7 +105,7 @@ class SettleShortJobOrderItemTask
     {
         return [
             'reference'          => $this->carriedReference($jobOrderItemTask->jobOrder),
-            'units_per_artefact' => $this->unitsPerArtefact($jobOrderItemTask->jobOrderItem, $jobOrderItemTask),
+            'units_per_artefact' => $jobOrderItemTask->unitsPerArtefact(),
             'quantity'           => (int) $jobOrderItemTask->jobOrderItem->quantity,
         ];
     }
@@ -145,7 +140,7 @@ class SettleShortJobOrderItemTask
      */
     private function carryLines(JobOrder $original, JobOrder $carried, JobOrderItem $item, int $madeArtefacts): void
     {
-        $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+        $packedIn = $item->artefact->packedIn();
 
         $plannedByItem = $original->jobOrderItems()
             ->where('artefact_id', $item->artefact_id)
@@ -166,51 +161,7 @@ class SettleShortJobOrderItemTask
             ->get();
 
         foreach ($lines as $line) {
-            $wantedSkos  = $line->claimedSkos();
-            $coveredSkos = round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3);
-
-            if ($coveredSkos <= 0) {
-                $line->update(['job_order_id' => $carried->id]);
-                continue;
-            }
-
-            if ($coveredSkos >= $wantedSkos) {
-                continue;
-            }
-
-            PartnerShoppingListItem::create([
-                ...$line->only([
-                    'group_id',
-                    'organisation_id',
-                    'org_partner_id',
-                    'partner_organisation_id',
-                    'stock_id',
-                    'org_stock_id',
-                    'priority',
-                    'needed_by',
-                    'notes',
-                    'transaction_id',
-                    'added_by_user_id',
-                    'state',
-                ]),
-                'parent_id'           => $line->id,
-                'quantity'            => round($wantedSkos - $coveredSkos, 3),
-                'quantity_to_produce' => round($wantedSkos - $coveredSkos, 3),
-                'job_order_id'        => $carried->id,
-                'created_at'          => $line->created_at,
-            ]);
-
-            $line->update([
-                'quantity'            => min((float) $line->quantity, $coveredSkos),
-                'quantity_to_produce' => $coveredSkos,
-            ]);
+            $line->moveUncoveredTo(round(($coveredUnits[$line->id] ?? 0) / $packedIn, 3), $carried->id);
         }
-    }
-
-    public function unitsPerArtefact(JobOrderItem $item, JobOrderItemTask $task): float
-    {
-        return ArtefactManufactureTask::exactUnits(ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->where('manufacture_task_id', $task->manufacture_task_id)
-            ->value('units_per_artefact')) ?: 1;
     }
 }

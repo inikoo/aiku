@@ -24,6 +24,7 @@ enum DeliveryNoteTabsEnum: string
     case PENDING_ITEMS = 'pending_items';
     case DONE_ITEMS = 'done_items';
     case TARIFF_CODES = 'tariff_codes';
+    case DISPATCHED_EMAILS = 'dispatched_emails';
     case HISTORY = 'history';
     // case PICKINGS = 'pickings';
 
@@ -71,6 +72,12 @@ enum DeliveryNoteTabsEnum: string
             //     'align'     => 'right',
             //     'indicator' => $indicator
             // ],
+            DeliveryNoteTabsEnum::DISPATCHED_EMAILS => [
+                'title' => __('Dispatched emails'),
+                'icon'  => 'fal fa-envelope',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
             DeliveryNoteTabsEnum::HISTORY => [
                 'title' => __('History'),
                 'icon'  => 'fal fa-clock',

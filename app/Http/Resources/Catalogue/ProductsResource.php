@@ -40,6 +40,7 @@ use Carbon\Carbon;
  * @property mixed $current_historic_asset_id
  * @property mixed $asset_id
  * @property mixed $available_quantity
+ * @property mixed $shelf_quantity
  * @property mixed $customers_invoiced_all
  * @property mixed $invoices_all
  * @property mixed $sales_all
@@ -140,6 +141,8 @@ class ProductsResource extends JsonResource
             'current_historic_asset_id'         => $this->current_historic_asset_id,
             'asset_id'                          => $this->asset_id,
             'available_quantity'                => trimDecimalZeros($this->available_quantity),
+            'is_on_demand'                      => $this->is_on_demand,
+            'shelf_quantity'                    => $this->shelf_quantity === null ? null : (int) $this->shelf_quantity,
             'gross_weight'                      => $this->gross_weight,
             'rrp'                               => $this->rrp,
             'rrp_per_unit'                      => $this->units != 0 ? $this->rrp / $this->units : '',
@@ -165,6 +168,8 @@ class ProductsResource extends JsonResource
             'is_for_sale'                       => $this->is_for_sale,
             'health_rank'                       => $this->health_rank ? HealthRankEnum::from($this->health_rank)->stateIcon()[HealthRankEnum::from($this->health_rank)->value] : null,
             'index_under_family'                => $product->index_under_family ?? null,
+            'workflow'                          => $this->when($this->resource->getAttribute('seo_workflow') !== null, fn () => $this->resource->getAttribute('seo_workflow')),
+            'checklist'                         => $this->when($this->resource->getAttribute('seo_checklist') !== null, fn () => $this->resource->getAttribute('seo_checklist')),
             ...$extraField
         ];
     }

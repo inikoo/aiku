@@ -9,18 +9,22 @@ import { router, useForm } from "@inertiajs/vue3"
 import { route } from "ziggy-js"
 import Table from "@/Components/Table/Table.vue"
 import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
+import SeoKeywordFilters from "@/Components/Seo/SeoKeywordFilters.vue"
+import SeoKeywordTagsManager from "@/Components/Seo/SeoKeywordTagsManager.vue"
+import SeoKeywordBulkImport from "@/Components/Seo/SeoKeywordBulkImport.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faChevronDown, faChevronRight } from "@fal"
+import { faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt, faTasks, faTrashAlt } from "@fal"
 import InputText from "primevue/inputtext"
+import Menu from "primevue/menu"
 import MultiSelect from "primevue/multiselect"
 import Select from "primevue/select"
 import ToggleSwitch from "primevue/toggleswitch"
 import { ctrans } from "@/Composables/useTrans"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
-import type { SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
+import type { SeoCheckNow, SeoKeywordFilterOptions, SeoKeywordOptions, SeoKeywordRoutes, SeoResearchQuery } from "@/Components/Seo/types"
 
 type TrackedCountry = {
     id: number
@@ -41,12 +45,15 @@ type TrackedKeywordRow = {
     has_mixed_frequency: boolean
     is_active: boolean
     avg_monthly_searches: number | null
+    tags: { id: number, name: string }[]
     countries: TrackedCountry[]
+    check_ids: number[]
+    check_cost: number
     update_route: routeType & { method: string }
     delete_route: routeType & { method: string }
 }
 
-library.add(faChevronDown, faChevronRight)
+library.add(faChevronDown, faChevronRight, faListUl, faPlus, faTags, faMinus, faSyncAlt, faTasks, faTrashAlt)
 
 defineOptions({ inheritAttrs: false })
 
@@ -57,6 +64,7 @@ const props = defineProps<{
     routes: SeoKeywordRoutes
     options: SeoKeywordOptions
     query: SeoResearchQuery
+    filterOptions: SeoKeywordFilterOptions
 }>()
 
 const locale = useLocaleStore()
@@ -120,6 +128,104 @@ const removeCountry = (trackedKeyword: TrackedKeywordRow, country: TrackedCountr
     })
 }
 
+const total = computed(() => (props.data as { meta?: { total?: number } } | undefined)?.meta?.total ?? null)
+
+const isImporting = ref(false)
+const isManagingTags = ref(false)
+
+const table = ref<InstanceType<typeof Table> | null>(null)
+const keywordsById = ref<Record<number, string>>({})
+const selectedIds = ref<number[]>([])
+
+const onSelectRow = (selection: Record<string, boolean>) => {
+    records.value.forEach((row) => keywordsById.value[row.id] = row.keyword)
+    selectedIds.value = Object.entries(selection).filter(([, isSelected]) => isSelected).map(([id]) => Number(id))
+}
+
+const selectedKeywords = computed(() => selectedIds.value.map((id) => keywordsById.value[id]).filter(Boolean))
+
+const bulkTagIds = ref<number[]>([])
+const isTagging = ref(false)
+const tagError = ref<string | null>(null)
+const isRemoving = ref(false)
+const actionsMenu = ref<InstanceType<typeof Menu> | null>(null)
+
+const removeSelected = () => {
+    if (!window.confirm(ctrans("Stop tracking :count keywords in every country?", { count: selectedKeywords.value.length }))) {
+        return
+    }
+
+    router.delete(route(props.routes.bulkDelete.name, props.routes.bulkDelete.parameters), {
+        data: { keywords: selectedKeywords.value },
+        preserveScroll: true,
+        preserveState: true,
+        only: [props.tab, "keywordFilters", "flash"],
+        onStart: () => {
+            isRemoving.value = true
+            tagError.value = null
+        },
+        onError: (errors) => tagError.value = Object.values(errors)[0] ?? null,
+        onSuccess: () => table.value?.clearSelection(),
+        onFinish: () => isRemoving.value = false,
+    })
+}
+
+const bulkActions = computed(() => [
+    { label: ctrans("Remove keywords"), icon: faTrashAlt, iconClass: "text-red-500", command: removeSelected },
+])
+
+const tagSelected = (action: "add" | "remove") => {
+    router.post(route(props.routes.assignTags.name, props.routes.assignTags.parameters), {
+        keywords: selectedKeywords.value,
+        [action === "add" ? "add_tag_ids" : "remove_tag_ids"]: bulkTagIds.value,
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        only: [props.tab, "keywordFilters"],
+        onStart: () => {
+            isTagging.value = true
+            tagError.value = null
+        },
+        onError: (errors) => tagError.value = Object.values(errors)[0] ?? null,
+        onSuccess: () => {
+            bulkTagIds.value = []
+            table.value?.clearSelection()
+        },
+        onFinish: () => isTagging.value = false,
+    })
+}
+
+const CONFIRM_FROM_USD = 1
+
+const usd = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: amount < 1 ? 4 : 2 }).format(amount)
+
+const checkNowData = computed<SeoCheckNow | null>(() => (props.data as { checkNow?: SeoCheckNow | null } | undefined)?.checkNow ?? null)
+
+const checking = ref<number | "all" | null>(null)
+const checkError = ref<string | null>(null)
+
+const checkNow = (trackedKeyword?: TrackedKeywordRow) => {
+    if (!checkNowData.value) {
+        return
+    }
+
+    if (!trackedKeyword && checkNowData.value.cost >= CONFIRM_FROM_USD && !window.confirm(ctrans("Check :count keywords in Google now? It costs about :cost of DataForSEO credit.", { count: locale.number(checkNowData.value.keywords), cost: usd(checkNowData.value.cost) }))) {
+        return
+    }
+
+    router.post(route(checkNowData.value.route.name, checkNowData.value.route.parameters), trackedKeyword ? { tracked_keyword_ids: trackedKeyword.check_ids } : {}, {
+        preserveScroll: true,
+        preserveState: true,
+        only: [props.tab, "flash"],
+        onStart: () => {
+            checking.value = trackedKeyword ? trackedKeyword.id : "all"
+            checkError.value = null
+        },
+        onError: (errors) => checkError.value = Object.values(errors)[0] ?? null,
+        onFinish: () => checking.value = null,
+    })
+}
+
 const labelOf = (options: { value: string, label: string }[], value: string) => options.find((option) => option.value === value)?.label ?? value
 </script>
 
@@ -154,17 +260,78 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
                 <span class="font-medium text-gray-700">{{ ctrans("Check") }}</span>
                 <Select v-model="form.frequency" class="h-10 w-full items-center" :options="options.frequencies" optionLabel="label" optionValue="value" />
             </label>
-            <Button class="h-10 justify-center" type="create" :label="ctrans('Track keyword')" :loading="form.processing" @click="addKeyword" />
+            <Button class="h-10 justify-center" type="tertiary" icon="fal fa-plus" :label="ctrans('Track keyword')" :loading="form.processing" @click="addKeyword" />
             <p class="text-xs text-gray-500 lg:col-span-5">{{ ctrans("Each keyword is tracked in every selected country, in the preferred language or else the language of that country, on both mobile and desktop. A check costs twice as much for each country.") }}</p>
             <p v-if="Object.keys(form.errors).length" role="alert" class="text-sm text-red-600 lg:col-span-5">
                 {{ Object.values(form.errors)[0] }}
             </p>
         </form>
 
-        <div v-if="data" class="mx-4 mb-2 flex justify-end">
+        <div v-if="data" class="mx-4 mb-2 flex flex-wrap items-center justify-end gap-2">
+            <span v-if="checkError" role="alert" class="mr-auto text-sm text-red-600">{{ checkError }}</span>
+            <Button
+                v-if="checkNowData"
+                type="tertiary"
+                size="s"
+                icon="fal fa-sync-alt"
+                :label="checkNowData.keywords ? ctrans('Check :count keywords now', { count: locale.number(checkNowData.keywords) }) : ctrans('Check now')"
+                :loading="checking === 'all'"
+                :disabled="!checkNowData.keywords || checking !== null"
+                v-tooltip="checkNowData.keywords
+                    ? ctrans('Reads the Google position of every active keyword not checked today, about :cost of DataForSEO credit. Results arrive in the Rankings tab within minutes to an hour.', { cost: usd(checkNowData.cost) })
+                    : ctrans('Every active keyword was checked today or is waiting for its result.')"
+                @click="checkNow()" />
+            <Button v-if="canEdit" type="tertiary" size="s" icon="fal fa-list-ul" :label="ctrans('Add in bulk')" @click="isImporting = true" />
+            <Button v-if="canEdit" type="tertiary" size="s" icon="fal fa-tags" :label="ctrans('Manage tags')" @click="isManagingTags = true" />
             <SeoExportButton table="tracked_keywords" />
         </div>
-        <Table v-if="data" :resource="data" :name="tab" :useExpandTable="true">
+
+        <SeoKeywordFilters v-if="data" :tab="tab" :filterOptions="filterOptions" :total="total" />
+
+        <div v-if="canEdit && selectedKeywords.length" class="mx-4 mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm ring-1 ring-gray-200">
+            <span class="font-medium text-gray-900">{{ ctrans(":count keywords selected", { count: selectedKeywords.length }) }}</span>
+            <Button
+                type="tertiary"
+                size="xs"
+                icon="fal fa-tasks"
+                iconRight="fal fa-chevron-down"
+                :label="ctrans('Actions')"
+                :loading="isRemoving"
+                aria-haspopup="true"
+                @click="(event: Event) => actionsMenu?.toggle(event)" />
+            <Menu ref="actionsMenu" :model="bulkActions" popup>
+                <template #item="{ item, props: itemProps }">
+                    <a v-bind="itemProps.action" class="flex items-center gap-2">
+                        <FontAwesomeIcon :icon="item.icon" :class="item.iconClass" fixed-width aria-hidden="true" />
+                        <span>{{ item.label }}</span>
+                    </a>
+                </template>
+            </Menu>
+            <MultiSelect
+                v-model="bulkTagIds"
+                :options="filterOptions.tags"
+                optionLabel="name"
+                optionValue="id"
+                display="chip"
+                filter
+                size="small"
+                :placeholder="filterOptions.tags.length ? ctrans('Choose tags') : ctrans('Create a tag first')"
+                :disabled="!filterOptions.tags.length"
+                class="min-w-56" />
+            <Button type="tertiary" size="xs" icon="fal fa-plus" :label="ctrans('Add tags')" :loading="isTagging" :disabled="!bulkTagIds.length" @click="tagSelected('add')" />
+            <Button type="tertiary" size="xs" icon="fal fa-minus" :label="ctrans('Remove tags')" :loading="isTagging" :disabled="!bulkTagIds.length" @click="tagSelected('remove')" />
+            <button type="button" class="text-xs text-gray-600 underline underline-offset-2 hover:text-gray-900" @click="table?.clearSelection()">{{ ctrans("Clear selection") }}</button>
+            <span v-if="tagError" role="alert" class="text-xs text-red-600">{{ tagError }}</span>
+        </div>
+
+        <Table v-if="data" ref="table" :resource="data" :name="tab" :useExpandTable="true" :isCheckBox="canEdit" @onSelectRow="onSelectRow">
+            <template #cell(tags)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
+                <div v-if="trackedKeyword.tags.length" class="flex max-w-xs flex-wrap gap-1">
+                    <span v-for="keywordTag in trackedKeyword.tags" :key="keywordTag.id" class="whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">{{ keywordTag.name }}</span>
+                </div>
+                <span v-else class="text-gray-400">-</span>
+            </template>
+
             <template #cell(country_code)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
                 <button
                     v-if="trackedKeyword.countries.length > 1"
@@ -215,7 +382,22 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
             </template>
 
             <template #cell(actions)="{ item: trackedKeyword }: { item: TrackedKeywordRow }">
-                <Button v-if="canEdit" type="tertiary" size="xs" :label="ctrans('Remove')" @click="remove(trackedKeyword)" />
+                <div class="flex items-center justify-end gap-2">
+                    <Button
+                        v-if="checkNowData"
+                        type="tertiary"
+                        size="xs"
+                        icon="fal fa-sync-alt"
+                        :label="ctrans('Check now')"
+                        :loading="checking === trackedKeyword.id"
+                        :disabled="!trackedKeyword.check_ids.length || checking !== null"
+                        :aria-label="ctrans('Check :keyword now', { keyword: trackedKeyword.keyword })"
+                        v-tooltip="trackedKeyword.check_ids.length
+                            ? ctrans('Reads its Google position in :count checks now, about :cost of DataForSEO credit', { count: trackedKeyword.check_ids.length, cost: usd(trackedKeyword.check_cost) })
+                            : ctrans('Already checked today, waiting for the Google result, or not active')"
+                        @click="checkNow(trackedKeyword)" />
+                    <Button v-if="canEdit" type="tertiary" size="xs" :label="ctrans('Remove')" @click="remove(trackedKeyword)" />
+                </div>
             </template>
 
             <template #expandRow="{ item }">
@@ -258,5 +440,8 @@ const labelOf = (options: { value: string, label: string }[], value: string) => 
                 </div>
             </template>
         </Table>
+
+        <SeoKeywordTagsManager v-if="canEdit" v-model:visible="isManagingTags" :tags="filterOptions.tags" :routes="routes" :tab="tab" />
+        <SeoKeywordBulkImport v-if="canEdit" v-model:visible="isImporting" :routes="routes" :options="options" :query="query" :tags="filterOptions.tags" :tab="tab" />
     </div>
 </template>

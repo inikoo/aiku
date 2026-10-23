@@ -11,6 +11,7 @@
 namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\OrgAction;
+use Lorisleiva\Actions\ActionRequest;
 use App\Actions\Traits\WithExportData;
 use App\Models\Dispatching\DeliveryNote;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
@@ -51,8 +52,10 @@ class PdfDeliveryNote extends OrgAction
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(DeliveryNote $deliveryNote): Response
+    public function asController(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
+        abort_unless($deliveryNote->canBeViewedBy($request->user()), 403);
+
         return $this->handle($deliveryNote);
     }
 }

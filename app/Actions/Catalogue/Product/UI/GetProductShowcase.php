@@ -8,7 +8,9 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Catalogue\Product\GetProductIncomingStock;
+use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Actions\Traits\HasBucketImages;
 use App\Actions\Traits\WithSearchInWebsiteAvailabilityChecklist;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -34,6 +36,7 @@ class GetProductShowcase
     use HasBucketImages;
     use HasBucketAttachment;
     use WithSearchInWebsiteAvailabilityChecklist;
+    use WithShopPpcPermissions;
 
     public function handle(Product $product): array
     {
@@ -89,7 +92,7 @@ class GetProductShowcase
                         'masterProduct' => $product->masterProduct->slug,
                     ]
                 ];
-            } else {
+            } elseif (request()->user()?->authTo(['goods.edit', 'compliance.edit'])) {
                 $parentLink = [
                     'url'    => "grp.trade_units.units.edit",
                     'params' => [
@@ -119,6 +122,7 @@ class GetProductShowcase
             'org_stocks'                   => OrgStocksResource::collection(GetOrgStocksInProduct::run($product))->resolve(),
             'stock_locations'              => $this->getStockLocations($product),
             'incoming_stock'               => GetProductIncomingStock::run($product),
+            'supplier_products'            => GetSupplierProductsShowcaseData::make()->forOrgSupplierProducts($product->orgStocks->load('orgSupplierProducts')->flatMap->orgSupplierProducts->unique('id')),
             'stats'                        => $product->stats,
             'images'                       => $this->getImagesData($product, true),
             'brand'                        => $product->brand(),
@@ -135,6 +139,42 @@ class GetProductShowcase
                 'parentLink'         => $parentLink,
             ],
             'search_in_website_availability' => $product->webpage ? $this->getSearchInWebsiteAvailabilityChecklist($product) : null,
+            'completeness'                 => $product->shop->type == ShopTypeEnum::EXTERNAL ? null : $this->getCompleteness($product),
+        ];
+    }
+
+    /**
+     * The product information and the SEO checks of its webpage in one checklist, with where the
+     * product is in its SEO workflow.
+     *
+     * @return array<string, mixed>
+     */
+    private function getCompleteness(Product $product): array
+    {
+        $webpage = $product->webpage;
+        $audit   = $webpage ? GetProductWebpageAudit::run($webpage) : null;
+        $user    = request()->user();
+
+        $settingRoute = [
+            'name'       => 'grp.org.shops.show.catalogue.products.all_products.setting',
+            'parameters' => [
+                'organisation' => $product->organisation->slug,
+                'shop'         => $product->shop->slug,
+                'product'      => $product->slug,
+            ],
+        ];
+
+        return [
+            'workflow'      => GetProductWorkflow::run($product),
+            'checklist'     => GetProductChecklist::run($product, $audit['checks'] ?? null),
+            'setting_route' => $settingRoute,
+            'issues_route'  => [...$settingRoute, 'parameters' => [...$settingRoute['parameters'], 'tab' => 'issues']],
+            'last_crawl_at' => $audit['last_crawl_at'] ?? null,
+            'crawl_route'   => $webpage?->website && $user && $this->canEditSeo($user, $product->shop) ? [
+                'name'       => 'grp.models.product.webpage_check.store',
+                'parameters' => ['product' => $product->id],
+                'method'     => 'post',
+            ] : null,
         ];
     }
 

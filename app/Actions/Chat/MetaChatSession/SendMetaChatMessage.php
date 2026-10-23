@@ -258,6 +258,9 @@ class SendMetaChatMessage
             ];
         }
 
+        unset($payload['to']);
+        $payload = array_merge($payload, $metaChatSession->whatsappRecipient());
+
         $repliedTo = $this->resolveRepliedTo($metaChatSession, $modelData['replied_to_id'] ?? null);
 
         if ($repliedTo) {

@@ -12,7 +12,6 @@ use App\Models\Helpers\Ticket;
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\WithChatNavigation;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Dashboards\ShopDashboardSectionsEnum;
 use App\Models\SysAdmin\User;
@@ -901,13 +900,22 @@ class GetShopNavigation
             "icon"    => ["fal", "fa-life-ring"],
             "root"    => "grp.org.shops.show.tickets.",
             "route"   => [
-                "name"       => $user->hasRole(RolesEnum::HELP_DESK_SUPERVISOR->value) ? "grp.org.shops.show.tickets.board" : "grp.org.shops.show.tickets.index",
+                "name"       => "grp.org.shops.show.tickets.board",
                 "parameters" => [$shop->organisation->slug, $shop->slug],
             ],
             "topMenu" => [
                 "subSections" => [
                     [
-                        "label" => __("Dashboard"),
+                        "label" => __("Board"),
+                        "icon"  => ["fal", "fa-columns"],
+                        "root"  => "grp.org.shops.show.tickets.board",
+                        "route" => [
+                            "name"       => "grp.org.shops.show.tickets.board",
+                            "parameters" => [$shop->organisation->slug, $shop->slug],
+                        ],
+                    ],
+                    [
+                        "label" => __("Overview"),
                         "icon"  => ["fal", "fa-tachometer-alt"],
                         "root"  => "grp.org.shops.show.tickets.index",
                         "route" => [
@@ -933,15 +941,6 @@ class GetShopNavigation
                             "parameters" => [$shop->organisation->slug, $shop->slug],
                         ],
                     ]] : []),
-                    [
-                        "label" => __("Board"),
-                        "icon"  => ["fal", "fa-columns"],
-                        "root"  => "grp.org.shops.show.tickets.board",
-                        "route" => [
-                            "name"       => "grp.org.shops.show.tickets.board",
-                            "parameters" => [$shop->organisation->slug, $shop->slug],
-                        ],
-                    ],
                     [
                         "label" => __("Reports"),
                         "icon"  => ["fal", "fa-chart-line"],

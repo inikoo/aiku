@@ -159,6 +159,10 @@
             </h1>
         </td>
         <td style="text-align: right">
+            @if($return->customer_reference)
+                <div style="font-size: 9pt; color: #555555">{{ __("Customer's Reference") }}</div>
+                <div style="font-size: 14pt; font-weight: bold">{{ $return->customer_reference }}</div>
+            @endif
             @if($return->state == \App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum::DISPATCHED)
                 <div>
                     {{ __('Dispatched Date') }}: <b>{{ $return->dispatched_at->format('j F Y') }}</b>

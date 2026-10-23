@@ -8,6 +8,7 @@
 
 namespace App\Actions\Billables\Service;
 
+use App\Actions\Traits\Authorisations\WithFulfilmentShopEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Billables\Service;
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFulfilmentService extends OrgAction
 {
+    use WithFulfilmentShopEditAuthorisation;
     use WithActionUpdate;
     use WithControllerUpdateServiceRules;
 

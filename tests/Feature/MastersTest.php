@@ -441,6 +441,39 @@ test('create master sub department', function (MasterProductCategory $masterDepa
     return $masterSubDepartment;
 })->depends('create master department');
 
+test('a master sub department is created under a department picked on the create page', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, ['code' => 'DEPT-'.uniqid(), 'name' => 'Picked Department']);
+    $otherShopDepartment = StoreMasterDepartment::make()->action(createFreshMasterShop(), ['code' => 'DEPT-'.uniqid(), 'name' => 'Other Shop Department']);
+
+    get(route('grp.masters.master_shops.show.master_sub_departments.create', [$masterShop->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('formData.blueprint.0.fields.master_department_id.required', true)
+            ->where('formData.blueprint.0.fields.master_department_id.readonly', false)
+            ->where('formData.blueprint.0.fields.master_department_id.value', null)
+            ->where('formData.blueprint.0.fields.master_department_id.noAutoSelect', true)
+            ->where('formData.blueprint.0.fields.master_department_id.blockSubmitWhenEmpty', true)
+            ->where('formData.blueprint.0.fields.master_department_id.options', [['value' => $masterDepartment->id, 'label' => $masterDepartment->code.' - Picked Department']]));
+
+    get(route('grp.masters.master_shops.show.master_departments.show.master_sub_departments.create', [$masterShop->slug, $masterDepartment->slug]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('formData.blueprint.0.fields.master_department_id.readonly', true)
+            ->where('formData.blueprint.0.fields.master_department_id.value', $masterDepartment->id));
+
+    $store = fn (array $data) => post(route('grp.models.master_shops.master_sub_department.store', [$masterShop->id]), array_merge(['code' => 'SUB-'.uniqid(), 'name' => 'Picked Sub'], $data));
+
+    $store([])->assertSessionHasErrors('master_department_id');
+    $store(['master_department_id' => $otherShopDepartment->id])->assertSessionHasErrors('master_department_id');
+    $store(['master_department_id' => $masterDepartment->id])->assertSessionHasNoErrors()->assertRedirect();
+
+    $masterSubDepartment = MasterProductCategory::where('master_shop_id', $masterShop->id)->where('type', MasterProductCategoryTypeEnum::SUB_DEPARTMENT)->sole();
+
+    expect($masterSubDepartment->master_department_id)->toBe($masterDepartment->id)
+        ->and($masterSubDepartment->master_parent_id)->toBe($masterDepartment->id);
+});
+
 test('UI Edit Master SubDepartment', function (MasterProductCategory $masterSubDepartment) {
     $masterDepartment = $masterSubDepartment->parent;
 
@@ -714,8 +747,8 @@ test('update master shop', function (MasterShop $masterShop) {
         ]
     );
     $group = $masterShop->group;
-    expect($group->goodsStats->number_master_shops)->toBe(1)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(0);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 })->depends('create master shop');
 
 test('create master shop from command', function () {
@@ -729,8 +762,8 @@ test('create master shop from command', function () {
 
     $group = $this->group->refresh();
 
-    expect($group->goodsStats->number_master_shops)->toBe(2)
-        ->and($group->goodsStats->number_current_master_shops)->toBe(1);
+    expect($group->goodsStats->number_master_shops)->toBe($group->masterShops()->count())
+        ->and($group->goodsStats->number_current_master_shops)->toBe($group->masterShops()->where('status', true)->count());
 });
 
 test('assign master shop to shop', function () {
@@ -1460,78 +1493,6 @@ test('attach master collection to department', function (MasterProductCategory $
     expect($attached)->toBeTrue();
 })->depends('create master department', 'create master collection');
 
-
-test('create master product page loads for family in master shop', function () {
-    $group = $this->group;
-
-    $masterShop = StoreMasterShop::make()->action($group, [
-        'code' => 'MSH-'.uniqid(),
-        'name' => 'Master Shop',
-        'type' => ShopTypeEnum::B2B,
-    ]);
-
-    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
-        'code' => 'DEPT-'.uniqid(),
-        'name' => 'Dept',
-    ]);
-
-    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
-        'code' => 'FAM-'.uniqid(),
-        'name' => 'Family',
-    ]);
-
-    $response = get(
-        route(
-            'grp.masters.master_shops.show.master_families.master_products.create',
-            [
-                $masterShop,
-                'masterFamily' => $masterFamily,
-            ]
-        )
-    );
-
-    $response->assertInertia(function (AssertableInertia $page) use ($masterFamily) {
-        $page->component('CreateModel')
-            ->where('title', __('New master product'))
-            ->where('pageHead.title', __('New master product'))
-            ->has('breadcrumbs')
-            ->has('formData', function (AssertableInertia $form) use ($masterFamily) {
-                $form->where('route.name', 'grp.models.master_family.store-assets')
-                    ->where('route.parameters.masterFamily', $masterFamily->id)
-                    ->has('blueprint', function (AssertableInertia $bp) use ($masterFamily) {
-                        $bp->has(0, function (AssertableInertia $section) use ($masterFamily) {
-                            $section->where('title', __('Create Master Product'))
-                                ->has('fields.trade_units', function (AssertableInertia $field) use ($masterFamily) {
-                                    $field->where('type', 'list-selector')
-                                        ->where('label', __(key: 'Trade units'))
-                                        ->where('routeFetch.name', 'grp.json.master-product-category.recommended-trade-units')
-                                        ->where('routeFetch.parameters.masterProductCategory', $masterFamily->id)
-                                        ->etc();
-                                })
-                                ->has('fields.code', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Code'))
-                                        ->where('required', true)
-                                        ->etc();
-                                })
-                                ->has('fields.name', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Name'))
-                                        ->where('required', true)
-                                        ->etc();
-                                })
-                                ->has('fields.price', function (AssertableInertia $field) {
-                                    $field->where('type', 'input')
-                                        ->where('label', __('Price'))
-                                        ->where('required', true)
-                                        ->etc();
-                                });
-                        });
-                    })
-                    ->etc();
-            });
-    });
-});
 
 test('attach master collection to sub department', function (MasterProductCategory $masterSubDepartment, MasterCollection $masterCollection) {
     Bus::fake();
@@ -2385,6 +2346,50 @@ test('bulk trade unit quantity sets units through the master update and reports 
         ->assertExactJson([(string) $masterAsset->id => 0]);
 });
 
+test('handing units back to the composition reads them off a single trade unit and reaches the products, HELP-4190', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'HBU-DEPT-'.uniqid(),
+        'name' => 'Hand Back Units Department',
+    ]);
+    $masterFamily = StoreMasterFamily::make()->action($masterDepartment, [
+        'code' => 'HBU-FAM-'.uniqid(),
+        'name' => 'Hand Back Units Family',
+    ]);
+    $storeMaster = fn (string $code) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'    => $code.uniqid(),
+        'name'    => 'Hand Back Units '.$code,
+        'is_main' => true,
+        'type'    => MasterAssetTypeEnum::PRODUCT,
+        'price'   => 10,
+        'unit'    => 'piece',
+        'stocks'  => [],
+    ]);
+    $giftSet   = $storeMaster('HBU-ST-');
+    $tenMl     = $storeMaster('HBU-10ml-');
+    $tradeUnit = StoreTradeUnit::make()->action(group(), TradeUnit::factory()->definition());
+    $bulkOil   = StoreTradeUnit::make()->action(group(), TradeUnit::factory()->definition());
+    $bulkOil->updateQuietly(['is_divisible' => true]);
+    UpdateMasterAsset::make()->action($giftSet, ['trade_units' => [['id' => $tradeUnit->id, 'quantity' => 3]]]);
+    UpdateMasterAsset::make()->action($tenMl, ['trade_units' => [['id' => $bulkOil->id, 'quantity' => 0.01]]]);
+
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['master_product_id' => $giftSet->id, 'units' => 1, 'has_independent_units' => true, 'not_follow_master_trade_units' => false]);
+    $giftSet->refresh()->updateQuietly(['units' => 1, 'has_independent_units' => true]);
+    $tenMl->refresh()->updateQuietly(['units' => 1, 'has_independent_units' => true]);
+
+    UpdateMasterAsset::make()->action($tenMl, ['trade_units' => [['id' => $bulkOil->id, 'quantity' => 0.01]]]);
+    expect((float) $tenMl->refresh()->units)->toBe(1.0)
+        ->and($tenMl->has_independent_units)->toBeTrue();
+
+    UpdateMasterAsset::make()->action($giftSet, ['units' => 1, 'has_independent_units' => false]);
+
+    expect((float) $giftSet->refresh()->units)->toBe(3.0)
+        ->and($giftSet->has_independent_units)->toBeFalse()
+        ->and((float) $product->refresh()->units)->toBe(3.0)
+        ->and($product->has_independent_units)->toBeFalse();
+});
+
 test('changing the composition flags the master price for review until prices are saved, HELP-3496', function () {
     Queue::fake();
     $masterShop       = createFreshMasterShop();
@@ -2454,6 +2459,43 @@ test('UpdateMultipleMasterProductsFamily moves master assets to a new family', f
     ]);
 
     expect($masterAsset->refresh()->master_family_id)->toBe($masterFamilyNew->id);
+});
+
+test('pre-order settings saved on a master family apply to every master product in it', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, ['code' => 'PREFAM-DEPT-'.uniqid(), 'name' => 'Pre-order Department']);
+    $masterFamily     = StoreMasterFamily::make()->action($masterDepartment, ['code' => 'PREFAM-'.uniqid(), 'name' => 'Pre-order Family']);
+
+    $masterAssets = collect([1, 2])->map(fn (int $index) => StoreMasterAsset::make()->action($masterFamily, [
+        'code'    => 'PREFAM-AST-'.$index.'-'.uniqid(),
+        'name'    => 'Pre-order asset '.$index,
+        'is_main' => true,
+        'type'    => MasterAssetTypeEnum::RENTAL,
+        'price'   => 10,
+        'stocks'  => [],
+    ]));
+    UpdateMasterAsset::make()->action($masterAssets[0], ['pre_order_lead_time_days' => 7, 'is_back_order' => true]);
+
+    $editRoute = route('grp.masters.master_shops.show.master_families.edit', [$masterShop->slug, $masterFamily->slug]);
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days') !== null
+                && data_get($section, 'fields.pre_order_lead_time_days.value') === null
+                && data_get($section, 'fields.is_back_order.value') === false
+        )));
+
+    UpdateMasterProductCategory::make()->action($masterFamily, ['is_back_order' => true, 'pre_order_lead_time_days' => 14]);
+
+    $masterAssets->each(fn (MasterAsset $masterAsset) => expect($masterAsset->refresh())
+        ->is_back_order->toBeTrue()
+        ->pre_order_lead_time_days->toBe(14));
+
+    get($editRoute)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('extraSections', fn ($sections) => collect($sections)->contains(
+            fn ($section) => data_get($section, 'fields.pre_order_lead_time_days.value') === 14
+                && data_get($section, 'fields.is_back_order.value') === true
+        )));
 });
 
 
@@ -3963,6 +4005,25 @@ test('recommended trade units follow the linked trade unit family, not the famil
         ->and($recommended)->toContain($prefixOnlyTradeUnit->id);
 });
 
+test('master family trade unit family is read-only on edit and cannot be changed by an update', function () {
+    $masterFamily = ensureMasterProductCategory();
+
+    $linked = \App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily::make()->action(group(), ['code' => 'TUF-'.uniqid(), 'name' => 'Linked']);
+    $other  = \App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily::make()->action(group(), ['code' => 'TUF-'.uniqid(), 'name' => 'Other']);
+    $masterFamily->update(['trade_unit_family_id' => $linked->id]);
+
+    get(route('grp.masters.master_shops.show.master_families.edit', [$masterFamily->masterShop->slug, $masterFamily->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('masterFamily.trade_unit_family', $linked->code.' (Linked)')
+            ->missing('tradeUnitFamilies'));
+
+    UpdateMasterProductCategory::make()->action($masterFamily, ['trade_unit_family_id' => $other->id, 'name' => 'Renamed']);
+
+    expect($masterFamily->refresh())
+        ->trade_unit_family_id->toBe($linked->id)
+        ->name->toBe('Renamed');
+});
+
 test('store master variant is blocked while a product waits for its cutover retirement decision', function () {
     $masterShop   = createFreshMasterShop();
     $masterFamily = StoreMasterFamily::make()->action(
@@ -5134,4 +5195,147 @@ test('a copied variant goes into a shop leader first: a member is refused before
         $shopFamily->updateQuietly(['master_product_category_id' => $originalMasterFamilyId]);
         $this->shop->updateQuietly(['master_shop_id' => $originalMasterShopId]);
     }
+});
+
+test('a master collection stores its image', function () {
+    $masterShop       = createFreshMasterShop();
+    $masterDepartment = StoreMasterDepartment::make()->action($masterShop, [
+        'code' => 'MCI-DEPT-'.uniqid(),
+        'name' => 'Image Department',
+    ]);
+    $masterCollection = StoreMasterCollection::make()->action($masterDepartment, [
+        'code' => 'MCI-COL-'.uniqid(),
+        'name' => 'Image Collection',
+    ]);
+
+    $path = tempnam(sys_get_temp_dir(), 'mci').'.png';
+    file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+
+    $masterCollection = \App\Actions\Helpers\Media\SaveModelImage::run(
+        $masterCollection,
+        ['path' => $path, 'originalName' => 'mci.png', 'extension' => 'png'],
+        'catalogue'
+    );
+
+    expect($masterCollection->image_id)->not->toBeNull();
+});
+
+test('trade unit pickers json refuse crm staff and serve shop product editors and masters viewers', function () {
+    $masterProductCategory = ensureMasterProductCategory();
+    $allTradeUnitsRoute    = route('grp.json.master_product_category.all_trade_units');
+    $recommendedRoute      = route('grp.json.master-product-category.recommended-trade-units', $masterProductCategory->id);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["crm.{$this->shop->id}.view"]);
+    getJson($allTradeUnitsRoute)->assertForbidden();
+    getJson($recommendedRoute)->assertForbidden();
+
+    foreach (["products.{$this->shop->id}.edit", 'masters.view'] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        getJson($allTradeUnitsRoute)->assertOk();
+        getJson($recommendedRoute)->assertOk();
+    }
+});
+
+test('masters json lookups answer only masters staff, INI-076', function () {
+    $masterFamily = createMasterFamilyInFreshMasterShop('JSNPERM');
+    $masterShop   = $masterFamily->masterShop;
+    $department   = ensureMasterProductCategory();
+    [, $masterAsset] = createMasterVariantOfTwo($masterFamily, 'JSNPERM');
+    $masterCollection = StoreMasterCollection::make()->action($masterFamily, ['code' => 'JSNPERM'.substr(uniqid(), -5), 'name' => 'json permissions'], createChildren: false);
+
+    $getRoutes = [
+        route('grp.json.master_product_category.products_by_codes', [$masterFamily->id, 'codes' => $masterAsset->code]),
+        route('grp.json.master_shop.products_by_codes', [$masterShop->id, 'codes' => $masterAsset->code]),
+        route('grp.json.master_shop.product_categories_by_codes', [$masterShop->id, 'codes' => $masterFamily->code]),
+        route('grp.json.master_product_category.shops_content.index', $masterFamily->id),
+        route('grp.json.master-product-category.taken-trade-units', $masterFamily->id),
+        route('grp.json.master_shop.master_departments_and_sub_departments', $masterShop),
+        route('grp.json.master-family.all-master-family', $masterShop),
+        route('grp.json.master_product_category.families.index', $department),
+        route('grp.json.master_shop.master_departments', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_sub_departments', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_families_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_collections_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+        route('grp.json.master_shop.master_products_not_attached_to_master_collection', [$masterShop, $masterCollection]),
+    ];
+    $postRoutes = [
+        [route('grp.json.master_products.get_price_rebels', $masterAsset->id), ['type' => 'price']],
+        [route('grp.json.master_product.check_org_stock_existence', $masterAsset), ['trade_units' => []]],
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    foreach ($getRoutes as $url) {
+        getJson($url)->assertForbidden();
+    }
+    foreach ($postRoutes as [$url, $data]) {
+        $this->postJson($url, $data)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+    foreach ($getRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+    foreach ($postRoutes as [$url, $data]) {
+        $this->postJson($url, $data)->assertOk();
+    }
+});
+
+test('master collection, product in shop, gold reward and composition pages answer only masters staff, composition is read only without masters edit, INI-076', function () {
+    $masterFamily     = createMasterFamilyInFreshMasterShop('PGPERM');
+    $masterShop       = $masterFamily->masterShop;
+    [, $masterAsset]  = createMasterVariantOfTwo($masterFamily, 'PGPERM');
+    $masterCollection = StoreMasterCollection::make()->action($masterFamily, ['code' => 'PGPERM'.substr(uniqid(), -5), 'name' => 'page permissions'], createChildren: false);
+
+    $pages = [
+        route('grp.masters.master_shops.show.master_collections.collections', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_collections.families', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_collections.products', [$masterShop, $masterCollection]),
+        route('grp.masters.master_shops.show.master_products.products', [$masterShop, $masterAsset]),
+        route('grp.masters.master_shops.show.master_gr.index', $masterShop),
+    ];
+    $compositionUrl = route('grp.masters.master_shops.show.master_products.composition', [$masterShop, $masterAsset]);
+    $readonlyFlags  = fn ($response) => collect($response->viewData('page')['props']['formData']['blueprint'])
+        ->flatMap(fn (array $section) => collect($section['fields'] ?? [])->pluck('readonly'))
+        ->unique()->values()->all();
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.edit"]);
+    foreach ([...$pages, $compositionUrl] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view']);
+    foreach ($pages as $url) {
+        get($url)->assertOk();
+    }
+    expect($readonlyFlags(get($compositionUrl)->assertOk()))->toBe([true]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', 'masters.edit']);
+    expect($readonlyFlags(get($compositionUrl)->assertOk()))->toBe([null]);
+});
+
+test('creating a shop from a master needs org admin of the organisation and the Add Shop list holds only those organisations, INI-076', function () {
+    $masterShop = createFreshMasterShop();
+    $createUrl  = route('grp.masters.master_shops.show.shop.create', [$masterShop, $this->organisation]);
+    $showUrl    = route('grp.masters.master_shops.show', $masterShop);
+    $listedOrgs = fn () => array_keys(get($showUrl)->assertOk()->viewData('page')['props']['organisations_list']);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $storeUrl   = route('grp.masters.master_shops.show.shop.store', [$masterShop, $this->organisation->id]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', 'masters.edit']);
+    get($createUrl)->assertForbidden();
+    $this->postJson($storeUrl, [])->assertForbidden();
+    expect($listedOrgs())->toBe([]);
+
+    actingAsUserWithOnlyPermissions($user, ['masters.view', "org-admin.{$this->organisation->id}"]);
+    get($createUrl)->assertOk();
+    $this->postJson($storeUrl, [])->assertUnprocessable();
+    expect($listedOrgs())->toBe([$this->organisation->slug]);
 });

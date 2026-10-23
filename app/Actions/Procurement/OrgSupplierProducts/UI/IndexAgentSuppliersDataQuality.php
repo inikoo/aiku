@@ -62,7 +62,6 @@ class IndexAgentSuppliersDataQuality
 
         $focus = AllowedFilter::callback('focus', function ($query, $value) {
             match ($value) {
-                'generic'        => $query->where('suppliers.is_generic', true),
                 'cbm_gaps'       => $query->whereRaw('totals.number_missing_cbm > totals.number_products * 0.5'),
                 'lead_time_gaps' => $query->whereRaw('totals.number_missing_lead_time > totals.number_products * 0.2'),
                 'no_email'       => $query->whereRaw("coalesce(suppliers.email, '') = ''"),
@@ -90,7 +89,6 @@ class IndexAgentSuppliersDataQuality
                 'suppliers.id',
                 'suppliers.code',
                 'suppliers.name',
-                'suppliers.is_generic',
                 'suppliers.contact_name',
                 'suppliers.phone',
                 'suppliers.email',
@@ -124,7 +122,7 @@ class IndexAgentSuppliersDataQuality
 
                 return $family;
             })->all());
-            $supplier->setAttribute('contacts_update_route', $supplier->is_generic ? null : [
+            $supplier->setAttribute('contacts_update_route', [
                 'name'       => 'grp.models.org.agent_supplier.contacts.update',
                 'parameters' => ['organisation' => $agentOrganisation->id, 'supplier' => $supplier->id],
             ]);
@@ -170,7 +168,6 @@ class IndexAgentSuppliersDataQuality
                 ->withGlobalSearch(__('Supplier, internal code or family'))
                 ->withLabelRecord([__('Supplier'), __('Suppliers')])
                 ->selectFilter('focus', [
-                    'generic'        => __('Generic records'),
                     'cbm_gaps'       => __('CBM missing on over half'),
                     'lead_time_gaps' => __('Lead time missing on over 20%'),
                     'no_email'       => __('No email'),

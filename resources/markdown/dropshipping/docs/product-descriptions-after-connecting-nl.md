@@ -41,7 +41,7 @@ Wij wijzigen wel de variant, omdat we deze nodig hebben om voorraad te sturen en
 - Wij vervangen de enige variant van het product door één met onze SKU, streepjescode, gewicht en kostprijs, en zetten de voorraad op de locatie <b>aiku-</b>.
 - Wij behouden uw verkoopprijs als de variant een prijs boven nul had. Zo niet, dan gebruiken wij uw verkoopprijs uit <b>My Products</b>.
 
-Verkoopt u onze producten als de varianten van één Shopify-product, vraag het ons dan in de chat op onze website om koppeling aan bestaande varianten voor uw kanaal in te schakelen. Dan koppelen wij alleen de variant die onze SKU draagt en wijzigen we verder niets: niet de prijs, niet de SKU, niet de streepjescode.
+Verkoopt u onze producten als de varianten van één Shopify-product, geef dan elke variant de SKU van zijn product. Bij het matchen koppelen wij alleen de variant die onze SKU draagt en wijzigen we verder niets: niet de prijs, niet de SKU, niet de streepjescode. Er hoeft niets aangezet te worden.
 
 ## Wat wij daarna bijwerken
 

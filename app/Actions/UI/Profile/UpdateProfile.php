@@ -31,9 +31,9 @@ class UpdateProfile extends OrgAction
     use WithActionUpdate;
     use WithProfile;
 
-    private const array ALERT_SOUND_KINDS = ['chat', 'whatsapp', 'email', 'colleague', 'waiting', 'ticket'];
+    private const array ALERT_SOUND_KINDS = ['chat', 'whatsapp', 'email', 'colleague', 'waiting', 'ticket', 'ticket_new', 'ticket_answered', 'ticket_qa'];
 
-    public const array RAIL_BADGES = ['tickets_queue', 'tickets_mine', 'tasks', 'tasks_created', 'dispatching_waiting', 'crm_waiting', 'crm_return', 'faire_skipped', 'master_updated', 'products_need_review'];
+    public const array RAIL_BADGES = ['tickets_queue', 'tickets_mine', 'tasks', 'tasks_created', 'developments', 'dispatching_waiting', 'crm_waiting', 'crm_return', 'faire_skipped', 'master_updated', 'products_need_review'];
 
     public function handle(User $user, array $modelData): User
     {

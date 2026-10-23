@@ -75,7 +75,6 @@ class GetAgentProductsDashboard
             ->selectRaw('count(*) filter (where f.moq is not null and f.carton_weight > 0 and f.carton_net_weight > 0) as with_moq_and_weights')
             ->selectRaw("count(*) filter (where f.availability_status <> 'available') as not_available")
             ->selectRaw("count(*) filter (where f.availability_status = 'unavailable' and f.unavailable_reason is null) as not_available_without_reason")
-            ->selectRaw('count(*) filter (where f.is_generic) as under_generic')
             ->selectRaw('count(*) filter (where f.stock_family_id is null) as without_family')
             ->selectRaw('count(*) filter (where f.lead_time_days is not null and f.measured_lead_time_days is not null) as with_both_lead_times')
             ->selectRaw('round(avg(f.lead_time_days) filter (where f.measured_lead_time_days is not null)) as average_estimated_lead_time')
@@ -89,7 +88,6 @@ class GetAgentProductsDashboard
             ->selectRaw("count(*) filter (where coalesce(s.phone, '') <> '') as with_phone")
             ->selectRaw("count(*) filter (where coalesce(s.email, '') <> '') as with_email")
             ->selectRaw("count(*) filter (where coalesce(s.wechat, '') <> '' or coalesce(s.whatsapp, '') <> '') as with_wechat_or_whatsapp")
-            ->selectRaw('count(*) filter (where s.is_generic) as generic')
             ->first();
 
         $total = (int) $products->total;
@@ -106,10 +104,8 @@ class GetAgentProductsDashboard
                 'missing_moq_or_weights'       => $total - (int) $products->with_moq_and_weights,
                 'not_available'                => (int) $products->not_available,
                 'not_available_without_reason' => (int) $products->not_available_without_reason,
-                'under_generic'                => (int) $products->under_generic,
                 'without_family'               => (int) $products->without_family,
                 'suppliers'                    => (int) $suppliers->total,
-                'generic_suppliers'            => (int) $suppliers->generic,
                 'lead_time'                    => [
                     'products'           => (int) $products->with_both_lead_times,
                     'average_estimated'  => $products->average_estimated_lead_time !== null ? (int) $products->average_estimated_lead_time : null,

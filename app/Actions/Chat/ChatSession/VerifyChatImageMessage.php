@@ -8,6 +8,9 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Models\Catalogue\Shop;
+use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Helpers\AI\Traits\WithAICreditErrorHandler;
 use App\Actions\Helpers\AI\Traits\WithAIGateway;
 use App\Actions\Helpers\AI\Traits\WithPromptAI;
@@ -27,6 +30,7 @@ use Throwable;
 class VerifyChatImageMessage
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
     use WithPromptAI;
     use WithAICreditErrorHandler;
     use WithAIGateway;
@@ -134,6 +138,13 @@ class VerifyChatImageMessage
             'confidence' => max(0, min(100, (int) ($decoded['confidence'] ?? 0))),
             'reasoning' => (string) ($decoded['reasoning'] ?? ''),
         ];
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('chatMessage')?->chatSession?->shop;
+
+        return $shop instanceof Shop && $this->userCanActOnChatOnShop($request->user(), $shop);
     }
 
     public function asController(string $organisation, ChatMessage $chatMessage): JsonResponse

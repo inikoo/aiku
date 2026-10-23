@@ -302,7 +302,7 @@ class ShowGroupChatAutomation extends OrgAction
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function subNavigation(Group $group): array
+    public function subNavigation(Group $group): array
     {
         $tab = fn (string $label, string $routeName, string $bucket) => [
             'label'  => $label,
@@ -319,6 +319,11 @@ class ShowGroupChatAutomation extends OrgAction
             ],
             $tab(__('Sent to customers'), 'grp.chat.ai.sent', self::SENT),
             $tab(__('Noise checks'), 'grp.chat.ai.noise_checks', self::NOISE_CHECKS),
+            ...(request()->user() && IndexChatAikuDrafts::make()->shopIdsFor(request()->user())->isNotEmpty() ? [[
+                'label' => __('Drafts by Aiku'),
+                'root'  => 'grp.chat.ai.aiku_drafts',
+                'route' => ['name' => 'grp.chat.ai.aiku_drafts', 'parameters' => []],
+            ]] : []),
         ];
     }
 

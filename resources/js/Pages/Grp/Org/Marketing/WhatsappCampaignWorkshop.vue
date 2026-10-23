@@ -37,7 +37,7 @@ const props = defineProps<{
     updateRoute: routeType
     recipientsRoute: routeType
     clearRecipientsRoute: routeType
-    createTemplateRoute: routeType
+    createTemplateRoute: routeType | null
     templates: TemplateOption[]
     mergeTags: { value: string }[]
     businessName: string
@@ -270,6 +270,7 @@ const confirmTemplateChange = async () => {
                         </p>
 
                         <ButtonWithLink
+                            v-if="createTemplateRoute"
                             :routeTarget="createTemplateRoute"
                             :label="ctrans('Create Template')"
                             type="tertiary"

@@ -17,6 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property mixed $agent_slug
  * @property mixed $supplier_slug
+ * @property mixed $supplier_name
  * @property string $description
  * @property mixed $cost
  * @property string $currency_code
@@ -34,6 +35,7 @@ class SupplierProductsResource extends JsonResource
             'slug'          => $this->slug,
             'agent_slug'    => $this->whenHas('agent_slug'),
             'supplier_slug' => $this->whenHas('supplier_slug'),
+            'supplier_name' => $this->whenHas('supplier_name'),
             'description'   => $this->description,
             'cost'          => $this->cost,
             'currency_code' => $this->currency_code,

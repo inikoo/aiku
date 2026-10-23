@@ -117,9 +117,6 @@ class WebBlockFamilyResource extends JsonResource
         if (in_array('avif', config('img-proxy.formats')) && !$media->is_animated) {
             $formats['avif'] = GetImgProxyUrl::run($media->getImage()->resize(1440, 1440)->extension('avif'));
         }
-        if (in_array('webp', config('img-proxy.formats'))) {
-            $formats['webp'] = GetImgProxyUrl::run($media->getImage()->resize(1440, 1440)->extension('webp'));
-        }
 
         $resized = [
             'original' => $formats,

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Ebay\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
@@ -27,6 +28,7 @@ use Throwable;
 
 class MatchPortfolioToCurrentEbayProduct extends OrgAction
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
     use WithPortfolioErrorResponse;
 
@@ -63,12 +65,13 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
         $categoryId = Arr::get($listing, 'offers.0.categoryId');
 
         if (! $categoryId) {
-            $categoryKeyword = $product->family?->name ?: $product->name;
+            $categoryKeyword = Arr::first(StoreEbayProduct::categoryKeywords($product)) ?: $product->name;
+            $searchKeyword = StoreEbayProduct::describingFamilyName($product) ?: $product->name;
             $categories = $ebayUser->getCategorySuggestions($categoryKeyword);
             $categoryId = Arr::get($categories, 'categorySuggestions.0.category.categoryId');
 
             if (! $categoryId) {
-                $categories = $ebayUser->searchAvailableProducts($categoryKeyword);
+                $categories = $ebayUser->searchAvailableProducts($searchKeyword);
                 $categoryId = Arr::get($categories, 'itemSummaries.0.categories.0.categoryId');
             }
         }
@@ -106,7 +109,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
                     'platform_status'               => false
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
 
@@ -132,7 +135,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
                 'data'            => ['is_platform_draft' => false]
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::OK
             ]);
         }
@@ -140,7 +143,7 @@ class MatchPortfolioToCurrentEbayProduct extends OrgAction
         if ($errorMessage = Arr::get($publishedOffer, 'errors')) {
             $displayError = $ebayUser->getDisplayErrors($errorMessage) ?? $errorMessage;
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $displayError
             ]);

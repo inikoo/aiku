@@ -84,13 +84,14 @@ class SendAgentDraftsToAgent extends OrgAction
 
     /**
      * The organisations still stacking on the same supplier that have not marked their draft ready.
-     * An order sent any other way than from POs to submit must not go past them unnoticed.
+     * An order sent any other way than from POs to submit must not go past them unnoticed, except one the
+     * supplier product sheet made: the sheet already ordered for every organisation at once.
      *
      * @return array<int, string> organisation codes
      */
     public static function organisationsNotReady(PurchaseOrder $purchaseOrder): array
     {
-        if ($purchaseOrder->parent_type !== 'OrgSupplier' || !$purchaseOrder->agent_id) {
+        if ($purchaseOrder->parent_type !== 'OrgSupplier' || !$purchaseOrder->agent_id || isset($purchaseOrder->data['from_upload_id'])) {
             return [];
         }
 

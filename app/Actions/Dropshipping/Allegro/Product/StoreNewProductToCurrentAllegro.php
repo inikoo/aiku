@@ -8,6 +8,7 @@
 
 namespace App\Actions\Dropshipping\Allegro\Product;
 
+use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\OrgAction;
 use App\Models\Dropshipping\Portfolio;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreNewProductToCurrentAllegro extends OrgAction implements ShouldBeUnique
 {
+    use WithCustomerSalesChannelEditAuthorisation;
     use AsAction;
 
     public string $jobQueue = 'allegro';

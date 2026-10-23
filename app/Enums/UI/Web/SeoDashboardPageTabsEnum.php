@@ -24,6 +24,7 @@ enum SeoDashboardPageTabsEnum: string
     case OVERVIEW      = 'overview';
     case VISITORS      = 'visitors';
     case PAGE_VIEWS    = 'page_views';
+    case JOURNEY       = 'journey';
     case MISSING_PAGES = 'missing_pages';
 
     public function blueprint(): array
@@ -43,6 +44,11 @@ enum SeoDashboardPageTabsEnum: string
                 'title'   => __('Page views'),
                 'icon'    => 'fal fa-eye',
                 'tooltip' => __('Every page view of the last :days days, from Aiku tracking.', ['days' => PruneWebsitePageViews::RETENTION_DAYS]),
+            ],
+            SeoDashboardPageTabsEnum::JOURNEY => [
+                'title'   => __('Customer journey'),
+                'icon'    => 'fal fa-route',
+                'tooltip' => __('The last pages a customer opened before each order placed on the website, step by step, from Aiku tracking.'),
             ],
             SeoDashboardPageTabsEnum::MISSING_PAGES => [
                 'title'   => __('Missing pages'),

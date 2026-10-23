@@ -8,11 +8,16 @@
 
 namespace App\Actions\Ordering\Transaction\Traits;
 
+use App\Actions\Ordering\Transaction\DestroyTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Models\Billables\Charge;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Reusable helpers to create or update a charge transaction on an order.
@@ -57,5 +62,47 @@ trait WithChargeTransactions
             ],
             false
         );
+    }
+
+    /**
+     * Apply or remove the shop's active charge of the given type, leaving at most one charge
+     * transaction of that type on the order. The order row is locked so concurrent requests
+     * cannot each add the charge.
+     */
+    private function syncOrderOptionCharge(Order $order, ChargeTypeEnum $chargeType, bool $chargeApplies): void
+    {
+        $charge = $order->shop->charges()->where('type', $chargeType)->where('state', ChargeStateEnum::ACTIVE)->first();
+        if (!$charge) {
+            return;
+        }
+
+        DB::transaction(function () use ($order, $charge, $chargeType, $chargeApplies) {
+            Order::whereKey($order->id)->lockForUpdate()->first();
+
+            $chargeTransactions = Transaction::where('transactions.order_id', $order->id)
+                ->where('transactions.model_type', 'Charge')
+                ->join('charges', 'transactions.model_id', '=', 'charges.id')
+                ->where('charges.type', $chargeType->value)
+                ->orderBy('transactions.id')
+                ->select('transactions.*')
+                ->get();
+
+            $chargeTransactionToKeep = $chargeApplies ? $chargeTransactions->shift() : null;
+
+            foreach ($chargeTransactions as $chargeTransaction) {
+                DestroyTransaction::run($chargeTransaction);
+            }
+
+            if (!$chargeApplies) {
+                return;
+            }
+
+            $chargeAmount = Arr::get($charge->settings, 'amount');
+            if ($chargeTransactionToKeep) {
+                $this->updateChargeTransaction($chargeTransactionToKeep, $charge, $chargeAmount);
+            } else {
+                $this->storeChargeTransaction($order, $charge, $chargeAmount);
+            }
+        });
     }
 }

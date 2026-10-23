@@ -126,10 +126,10 @@ class ShowUser extends OrgAction
                     'navigation' => UserTabsEnum::navigation($user)
                 ],
                 'apiRoutes'                   => [
-                    'createToken' => [
+                    'createToken' => $this->canEdit ? [
                         'name'       => 'grp.models.user.access-token.create',
                         'parameters' => ['user' => $user->id]
-                    ],
+                    ] : null,
                 ],
                 'two_fa_status'                => [
                     'has_2fa'                   => (bool) $user->google2fa_secret,

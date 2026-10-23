@@ -3,6 +3,7 @@
 namespace App\Actions\Accounting\CreditTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingReportsAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Exports\Accounting\CustomerCreditExport;
 use App\Models\SysAdmin\Organisation;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportCustomerCredit extends OrgAction
 {
+    use WithAccountingReportsAuthorisation;
     use AsAction;
     use WithExportData;
 

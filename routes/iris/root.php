@@ -30,10 +30,13 @@ use App\Actions\Comms\Unsubscribe\ShowUnsubscribeFromAurora;
 use App\Actions\Accounting\Payment\CheckoutCom\ReceiveCheckoutComPaymentWebhook;
 use App\Actions\Web\Webpage\Iris\ShowIrisCatalogue;
 use App\Actions\Iris\Reviews\ShowIrisFamilyReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReviewPreview;
 use App\Actions\Iris\Reviews\ShowIrisProductReview;
 use App\Actions\Iris\Reviews\ShowIrisReviews;
 use App\Actions\Iris\Docs\ShowIrisDoc;
 use App\Actions\Iris\Docs\ShowIrisDocs;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use Laravel\Nightwatch\Http\Middleware\Sample;
 
 Route::get('robots.txt', ShowIrisRobotsTxt::class)->name('iris_robots');
@@ -73,12 +76,12 @@ Route::middleware(Sample::always())->prefix("unsubscribe")
 
 Route::get('/unsubscribe.php', ShowUnsubscribeFromAurora::class)->name('unsubscribe.aurora')->middleware(Sample::always());
 
-Route::middleware(Sample::always())->prefix("json")
+Route::middleware([Sample::always(), HideRetailPricesFromIrisVisitors::class])->prefix("json")
     ->name("json.")
     ->group(__DIR__."/json.php");
 
 Route::get('audio/{media:ulid}', ShowIrisAudio::class)->name('audio');
-Route::middleware(["iris-relax-auth:retina"])->group(function () {
+Route::middleware(["iris-relax-auth:retina", HideRetailPricesFromIrisVisitors::class])->group(function () {
     Route::middleware(Sample::always())->prefix("models")
         ->name("models.")
         ->group(__DIR__."/models.php");
@@ -128,6 +131,8 @@ Route::middleware(["iris-relax-auth:retina"])->group(function () {
 
         Route::get('/reviews/product/{product}', ShowIrisProductReview::class)->name('reviews.product');
         Route::get('/reviews/family/{family}', ShowIrisFamilyReview::class)->name('reviews.family');
+        Route::get('/review/preview/{token}', ShowIrisOrderReviewPreview::class)->name('order_review.preview');
+        Route::get('/review/{order:id}/{token}', ShowIrisOrderReview::class)->name('order_review')->whereNumber('order');
 
         Route::get('/{path?}', ShowIrisWebpage::class)->name('iris_webpage');
         Route::get('/{parentPath1}/{path}', [ShowIrisWebpage::class, 'deep1'])->name('iris_webpage.deep1');

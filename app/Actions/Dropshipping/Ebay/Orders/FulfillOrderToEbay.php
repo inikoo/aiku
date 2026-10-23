@@ -12,10 +12,12 @@ namespace App\Actions\Dropshipping\Ebay\Orders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Shipment;
 use App\Models\Dropshipping\EbayUser;
 use App\Models\Ordering\Order;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -25,7 +27,20 @@ class FulfillOrderToEbay extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(Order $order): array|null
+    /**
+     * eBay ShippingCarrierCodeType values for the carriers our warehouses hand parcels to, keyed by shipment trade_as.
+     */
+    private const array EBAY_CARRIER_CODES = [
+        'royal mail'    => 'RoyalMail',
+        'apc overnight' => 'APC',
+        'gls'           => 'GLS',
+    ];
+
+    private const int MAX_ATTEMPTS = 4;
+
+    public string $jobQueue = 'ebay';
+
+    public function handle(Order $order, int $attempt = 1): array|null
     {
         $fulfillOrderId = Arr::get($order->data, 'ebay_order.orderId');
 
@@ -55,28 +70,41 @@ class FulfillOrderToEbay extends OrgAction
             }
         }
 
-        return $ebayUser->fulfillOrder($fulfillOrderId, [
+        $result = $ebayUser->fulfillOrder($fulfillOrderId, [
             'line_items'      => $lineItems,
             'tracking_number' => $shipment?->tracking,
-            'carrier_code'    => $this->carrierCode($ebayUser, $shipment?->shipper?->name)
+            'carrier_code'    => $this->carrierCode($ebayUser, $shipment)
         ]);
+
+        if (Arr::get($result, 'errors')) {
+            if ($attempt < self::MAX_ATTEMPTS) {
+                self::dispatch($order, $attempt + 1)->delay(now()->addMinutes(15 * $attempt))->afterCommit();
+            } else {
+                \Sentry::captureMessage('eBay rejected fulfilment of order '.$order->slug.' '.$attempt.' times: '.json_encode(Arr::get($result, 'errors')));
+            }
+        }
+
+        return $result;
     }
 
     /**
-     * eBay links tracking to a carrier only when it gets its own carrier code, so a shipper name that matches
-     * one of the marketplace carriers is translated; anything else is passed through as it was before.
+     * eBay links tracking to a carrier only when it gets its own carrier code. The shipper name is our integration
+     * ("ITD (api)", "APC (API)"), the carrier the parcel travels with is the shipment's trade_as, so that is what is
+     * translated; a carrier eBay has no code for is passed through by name.
      */
-    public function carrierCode(EbayUser $ebayUser, ?string $shipperName): ?string
+    public function carrierCode(EbayUser $ebayUser, ?Shipment $shipment): ?string
     {
-        if (blank($shipperName)) {
+        $carrierName = $shipment?->trade_as ?: $shipment?->shipper?->name;
+
+        if (blank($carrierName)) {
             return null;
         }
 
         $carrier = collect($ebayUser->getServicesWithCarrierInfo())->first(
-            fn ($service) => strcasecmp($service['carrier_name'], $shipperName) === 0 || strcasecmp($service['carrier_code'], $shipperName) === 0
+            fn ($service) => strcasecmp($service['carrier_name'], $carrierName) === 0 || strcasecmp($service['carrier_code'], $carrierName) === 0
         );
 
-        return $carrier['carrier_code'] ?? $shipperName;
+        return $carrier['carrier_code'] ?? self::EBAY_CARRIER_CODES[Str::lower(trim($carrierName))] ?? $carrierName;
     }
 
     public string $commandSignature = 'ebay-order-fulfill {order}';

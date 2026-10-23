@@ -228,7 +228,6 @@ Route::prefix('leaves')->as('leaves.')->group(function () {
     Route::post('{leave}/reject', RejectLeave::class)->name('reject');
     Route::patch('{leave}/admin', UpdateLeave::class)->name('admin.update');
     Route::patch('{leave}/cover', \App\Actions\HumanResources\Leave\UpdateLeaveCover::class)->name('cover.update');
-    Route::post('{leave}', UpdateLeave::class)->name('update');
     Route::delete('{leave}', DeleteLeave::class)->name('delete');
 });
 
@@ -279,7 +278,6 @@ Route::prefix('shift-schedules')->as('shift_schedules.')->group(function () {
 
 Route::prefix('employees')->as('employees.')->group(function () {
     Route::get('birthdays', GetEmployeesByBirthMonth::class)->name('birthdays');
-    Route::get('picker-users', \App\Actions\HumanResources\Leave\GetUsersForDropdown::class)->name('picker_users');
     Route::patch('{employee}/adjust-leave', AdjustEmployeeLeaveBalance::class)->name('adjust-leave');
     Route::get('{employee}/contract', GetEmployeeContract::class)->name('contract');
 });

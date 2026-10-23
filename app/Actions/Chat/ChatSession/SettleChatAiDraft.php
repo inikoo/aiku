@@ -9,12 +9,14 @@
 namespace App\Actions\Chat\ChatSession;
 
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Models\Chat\ChatAgent;
 use App\Models\Chat\ChatAiDraft;
 use App\Models\Chat\ChatMessage;
 use App\Models\Chat\ChatSession;
 use App\Models\Chat\MetaChatMessage;
 use App\Models\Chat\MetaChatSession;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -34,29 +36,71 @@ class SettleChatAiDraft
     {
         ClassifyChatTurn::recordReply($chatSession, $reply);
 
-        $draft = DraftChatReply::pendingDraft($chatSession);
+        $pending = DraftChatReply::pendingDraft($chatSession);
 
-        if (!$draft) {
+        if (!$pending) {
             return null;
         }
 
         $replyText = (string) $reply->message_text;
-        $kept      = self::draftWordsKept($draft->text, $replyText);
-        $status    = match (true) {
+        $decision  = [
+            'reply_message_id'   => $reply->id,
+            'decided_by_user_id' => ChatAgent::find($reply->sender_id)?->user_id,
+            'decided_at'         => now(),
+        ];
+
+        $replaced = self::replacedSinceLastAgentReply($chatSession, $reply, $pending)
+            ->map(fn (ChatAiDraft $draft) => [$draft, self::statusFor($draft, $replyText)])
+            ->reject(fn (array $settled) => $settled[1] === ChatAiDraftStatusEnum::SUPERSEDED)
+            ->sortBy(fn (array $settled) => $settled[1] === ChatAiDraftStatusEnum::USED ? 0 : 1)
+            ->first();
+
+        $pendingStatus = self::statusFor($pending, $replyText);
+
+        if ($replaced && ($pendingStatus === ChatAiDraftStatusEnum::SUPERSEDED || ($pendingStatus === ChatAiDraftStatusEnum::EDITED && $replaced[1] === ChatAiDraftStatusEnum::USED))) {
+            $pending->update(['status' => ChatAiDraftStatusEnum::SUPERSEDED] + $decision);
+            $replaced[0]->update(['status' => $replaced[1]] + $decision);
+
+            return $replaced[0];
+        }
+
+        $pending->update(['status' => $pendingStatus] + $decision);
+
+        return $pending;
+    }
+
+    private static function statusFor(ChatAiDraft $draft, string $replyText): ChatAiDraftStatusEnum
+    {
+        $kept = self::draftWordsKept($draft->text, $replyText);
+
+        return match (true) {
             self::normalised($draft->text) === self::normalised($replyText) => ChatAiDraftStatusEnum::USED,
             $kept >= self::RETYPED && self::wordCount($replyText) <= 1.5 * self::wordCount($draft->text) => ChatAiDraftStatusEnum::USED,
             $draft->taken_at !== null || $kept >= self::REWORDED => ChatAiDraftStatusEnum::EDITED,
             default => ChatAiDraftStatusEnum::SUPERSEDED,
         };
+    }
 
-        $draft->update([
-            'status'             => $status,
-            'reply_message_id'   => $reply->id,
-            'decided_by_user_id' => ChatAgent::find($reply->sender_id)?->user_id,
-            'decided_at'         => now(),
-        ]);
+    /**
+     * Drafts a newer customer message replaced while the agent was still writing: the agent
+     * may be sending one of those rather than the one waiting now.
+     *
+     * @return Collection<int, ChatAiDraft>
+     */
+    private static function replacedSinceLastAgentReply(ChatSession|MetaChatSession $chatSession, ChatMessage|MetaChatMessage $reply, ChatAiDraft $pending): Collection
+    {
+        $lastAgentReplyAt = $chatSession->messages()
+            ->where('sender_type', ChatSenderTypeEnum::AGENT)
+            ->where('id', '<', $reply->id)
+            ->max('created_at');
 
-        return $draft;
+        return ChatAiDraft::where($chatSession instanceof ChatSession ? 'chat_session_id' : 'meta_chat_session_id', $chatSession->id)
+            ->where('status', ChatAiDraftStatusEnum::SUPERSEDED)
+            ->whereNull('reply_message_id')
+            ->where('id', '<', $pending->id)
+            ->when($lastAgentReplyAt, fn ($query) => $query->where('created_at', '>', $lastAgentReplyAt))
+            ->orderByDesc('id')
+            ->get();
     }
 
     /**

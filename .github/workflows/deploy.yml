@@ -29,8 +29,14 @@ jobs:
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Composer install
-        run: php8.4 /usr/local/bin/composer update --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: php8.4 /usr/local/bin/composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get Next Version
         id: semver
         run: |
@@ -94,13 +100,6 @@ jobs:
           commit: 'production'
           tag: ${{ steps.semver.outputs.next }}
           token: ${{ github.token }}
-#      - name: New Relic Application Deployment Marker
-#        uses: newrelic/deployment-marker-action@v2.3.0
-#        with:
-#          apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
-#          guid: ${{ secrets.NEW_RELIC_DEPLOYMENT_ENTITY_GUID }}
-#          version: ${{ steps.semver.outputs.next }}
-#          user: "${{ github.actor }}"
       - name: Create Sentry release
         uses: getsentry/action-release@v3
         continue-on-error: true

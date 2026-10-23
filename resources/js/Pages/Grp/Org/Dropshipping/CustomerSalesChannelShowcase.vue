@@ -360,6 +360,7 @@ const isModalAddress = ref(false)
 
 				<ModalConfirmation
 					v-if="
+						data?.can_edit &&
 						data?.customer_sales_channel?.status === 'closed' &&
 						data?.customer_sales_channel?.platform_id === 3
 					"

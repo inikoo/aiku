@@ -94,7 +94,7 @@ class ShowAgentPurchaseOrdersBoard extends OrgAction
             $cards = $filtered()->where('purchase_orders.state', $state)
                 ->leftJoin('organisations', 'organisations.id', '=', 'purchase_orders.organisation_id')
                 ->selectRaw(
-                    "purchase_orders.id, purchase_orders.slug, purchase_orders.reference, purchase_orders.parent_name, purchase_orders.agent_order_reference,
+                    "purchase_orders.id, purchase_orders.slug, purchase_orders.reference, purchase_orders.parent_name,
                     organisations.name as organisation, purchase_orders.cost_total * {$toAgentCurrency} as amount,
                     purchase_orders.estimated_received_at,
                     floor(extract(epoch from now() - coalesce({$since}, purchase_orders.date)) / 86400)::int as days_waiting"
@@ -107,7 +107,6 @@ class ShowAgentPurchaseOrdersBoard extends OrgAction
                     'reference'    => $row->reference,
                     'supplier'     => $row->parent_name,
                     'organisation' => $row->organisation,
-                    'agent_order'  => $row->agent_order_reference,
                     'amount'       => (float) $row->amount,
                     'days_waiting' => (int) $row->days_waiting,
                     'is_overdue'   => $row->estimated_received_at !== null && $row->estimated_received_at < now(),

@@ -9,7 +9,6 @@
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PickingSession\StartPickFulfilmentPickingSession;
-use App\Actions\Fulfilment\PickingSession\UI\IndexFulfilmentPickingSessions;
 use App\Actions\Fulfilment\PickingSession\UI\ShowFulfilmentPickingSession;
 use App\Actions\Fulfilment\UI\GoodsIn\UI\ShowWarehousePalletDelivery;
 use App\Actions\Inventory\Location\UI\IndexFulfilmentLocations;
@@ -37,11 +36,5 @@ Route::prefix('locations')->as('locations.')->group(function () {
 
 Route::get('deliveries/{palletDelivery}', ShowWarehousePalletDelivery::class)->name('pallet-deliveries.show');
 
-Route::get('picking-sessions', IndexFulfilmentPickingSessions::class)->name('picking_sessions.index');
-Route::get('picking-sessions/in-process', [IndexFulfilmentPickingSessions::class, 'InProcess'])->name('picking_sessions.in_process');
-Route::get('picking-sessions/picking', [IndexFulfilmentPickingSessions::class, 'Picking'])->name('picking_sessions.picking');
-Route::get('picking-sessions/waiting', [IndexFulfilmentPickingSessions::class, 'Waiting'])->name('picking_sessions.waiting');
-Route::get('picking-sessions/picked', [IndexFulfilmentPickingSessions::class, 'Picked'])->name('picking_sessions.picked');
-Route::get('picking-sessions/packed', [IndexFulfilmentPickingSessions::class, 'Packed'])->name('picking_sessions.packed');
 Route::get('picking-sessions/{pickingSession}', ShowFulfilmentPickingSession::class)->name('picking_sessions.show');
 Route::patch('picking-sessions/{pickingSession}/start-picking', StartPickFulfilmentPickingSession::class)->name('picking_sessions.start_picking');

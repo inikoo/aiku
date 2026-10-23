@@ -3,6 +3,7 @@
 namespace App\Actions\CRM\AppointmentStaff;
 
 use App\Actions\OrgAction;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\AppointmentType;
 use App\Models\SysAdmin\User;
@@ -17,13 +18,11 @@ class UpdateAppointmentStaff extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Shop $shop, User $user, array $appointmentTypeIds): User
+    public function handle(Shop $shop, User $user, array $meetingModes): User
     {
-        $appointmentTypeIds = array_map('intval', $appointmentTypeIds);
-
-        DB::transaction(function () use ($shop, $user, $appointmentTypeIds) {
-            $shop->appointmentTypes()->each(function (AppointmentType $appointmentType) use ($user, $appointmentTypeIds) {
-                if (in_array($appointmentType->id, $appointmentTypeIds, true)) {
+        DB::transaction(function () use ($shop, $user, $meetingModes) {
+            $shop->appointmentTypes()->each(function (AppointmentType $appointmentType) use ($user, $meetingModes) {
+                if (in_array($appointmentType->meeting_mode->value, $meetingModes, true)) {
                     $appointmentType->attendees()->syncWithoutDetaching([$user->id]);
                 } else {
                     $appointmentType->attendees()->detach($user->id);
@@ -46,11 +45,8 @@ class UpdateAppointmentStaff extends OrgAction
     public function rules(): array
     {
         return [
-            'appointment_types'   => ['present', 'array'],
-            'appointment_types.*' => [
-                'integer',
-                Rule::exists('appointment_types', 'id')->where('shop_id', $this->shop->id)->whereNull('deleted_at'),
-            ],
+            'meeting_modes'   => ['present', 'array'],
+            'meeting_modes.*' => [Rule::enum(AppointmentTypeMeetingModeEnum::class)],
         ];
     }
 
@@ -61,7 +57,7 @@ class UpdateAppointmentStaff extends OrgAction
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($shop, $user, $this->validatedData['appointment_types']);
+        return $this->handle($shop, $user, $this->validatedData['meeting_modes']);
     }
 
     public function htmlResponse(): RedirectResponse
@@ -80,6 +76,6 @@ class UpdateAppointmentStaff extends OrgAction
         $this->asAction = true;
         $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($shop, $user, $this->validatedData['appointment_types']);
+        return $this->handle($shop, $user, $this->validatedData['meeting_modes']);
     }
 }

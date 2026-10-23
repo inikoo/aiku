@@ -10,6 +10,7 @@ import { computed, inject, ref } from 'vue'
 import type { Component } from 'vue'
 import Popover from '@/Components/Popover.vue'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
+import ServiceSelectOption from '@/Components/Fulfilment/ServiceSelectOption.vue'
 import { get } from 'lodash-es'
 import { notify } from '@kyvg/vue3-notification'
 import PureInput from '@/Components/Pure/PureInput.vue'
@@ -47,6 +48,7 @@ const props = defineProps<{
     pallet_deliveries?: {}
     pallet_returns?: {}
     status_rb: string
+    can_edit: boolean
     updateRoute: routeType
     timeline_rb: {
         start_date: string
@@ -202,12 +204,8 @@ const isLoading = ref(false)
                                         <template #singlelabel="{ value }">
                                             <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ locale.currencyFormat(value.currency_code, value.price) }}/{{ value.unit }})</span></div>
                                         </template>
-                                        <template #option="{ option, isSelected, isPointed }">
-                                            <div class="">
-                                                <FontAwesomeIcon v-if="option?.is_pallet_handling" v-tooltip="ctrans('Special service')" icon="fas fa-diamond" class="text-teal-500 text-sm" fixed-width aria-hidden="true" />
-                                                {{ option.name }}
-                                                <span class="text-sm text-gray-400">({{ locale.currencyFormat(option.currency_code, option.price) }}/{{ option.unit }})</span>
-                                            </div>
+                                        <template #option="{ option }">
+                                            <ServiceSelectOption :option="option" />
                                         </template>
                                     </PureMultiselectInfiniteScroll>
                                     <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
@@ -393,7 +391,7 @@ const isLoading = ref(false)
 
 <!--                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""-->
                 <component
-                    v-if="timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
+                    v-if="can_edit && timeline_rb.is_display_consolidate_button && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
                     :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
                     @start="() => isLoading = true"
@@ -409,7 +407,7 @@ const isLoading = ref(false)
                     :startDate="timeline_rb.start_date"
                     :endDate="timeline_rb.end_date"
                     :updateRoute
-                    :isEndDateNotEditable="status_rb === 'former'"
+                    :isEndDateNotEditable="!can_edit || status_rb === 'former'"
                 />
             </div>
 
@@ -420,5 +418,5 @@ const isLoading = ref(false)
     <BoxStatsRecurringBills :boxStats="box_stats" :currency="currency" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"  :status="status_rb" />
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"  :status="status_rb" :canEdit="can_edit" />
 </template>

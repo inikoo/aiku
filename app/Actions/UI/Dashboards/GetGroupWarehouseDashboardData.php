@@ -72,7 +72,8 @@ class GetGroupWarehouseDashboardData
 
     /**
      * One query for every organisation: the bucket is decided row by row, so grouping by organisation
-     * gives the same counts as asking each one apart.
+     * gives the same counts as asking each one apart. The query takes seconds, so after ten minutes
+     * the last counts are shown while they are recounted after the response, for up to an hour.
      *
      * @param array<int, int> $organisationIds
      *
@@ -80,7 +81,7 @@ class GetGroupWarehouseDashboardData
      */
     private function stockHealth(Group $group, array $organisationIds): array
     {
-        return Cache::remember(self::cacheKey($group, $organisationIds), now()->addMinutes(10), function () use ($organisationIds) {
+        return Cache::flexible(self::cacheKey($group, $organisationIds), [600, 3600], function () use ($organisationIds) {
             $buckets    = GetOrganisationStockCoverBuckets::make();
             $expression = $buckets->bucketExpression();
 

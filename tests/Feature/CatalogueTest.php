@@ -53,6 +53,10 @@ use App\Actions\Catalogue\Product\KeepRetiredProductAsSeparate;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
 use App\Actions\Maintenance\Catalogue\RepairProductsFirstAvailableAt;
+use App\Actions\Accounting\Invoice\StoreInvoice;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Models\Accounting\Invoice;
+use App\Enums\Catalogue\Product\ProductBadgeEnum;
 use App\Enums\Catalogue\Product\ProductStatusEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -1765,7 +1769,21 @@ test('an on-demand stock never caps a product, and the shop products json report
             ->and($product->available_quantity)->toBe(ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY)
             ->and($shelfRow())->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 0]);
 
+        $onDemandStock->update(['quantity_available' => 100]);
+        ProductHydrateAvailableQuantity::run($product->refresh());
+        request()->setRouteResolver(fn () => new \Illuminate\Routing\Route('GET', 'test', []));
+        request()->query->set('filter', ['global' => $product->code]);
+        $catalogueRow = collect(
+            \App\Http\Resources\Catalogue\ProductsResource::collection(
+                \App\Actions\Catalogue\Product\UI\IndexProductsInCatalogue::make()->handle($shop)
+            )->response()->getData(true)['data']
+        )->firstWhere('id', $product->id);
+
+        expect($product->refresh()->available_quantity)->toBe(ProductHydrateAvailableQuantity::ON_DEMAND_QUANTITY)
+            ->and($catalogueRow)->toMatchArray(['is_on_demand' => true, 'shelf_quantity' => 5]);
+
         $product->orgStocks()->sync([$onDemandStock->id => ['quantity' => 1], $stockedStock->id => ['quantity' => 1]]);
+        $onDemandStock->update(['quantity_available' => 0]);
         ProductHydrateAvailableQuantity::run($product->refresh());
         $product->refresh();
 
@@ -1834,6 +1852,62 @@ test('repair backfills first availability on launched products only, and leaves 
         ->and($launchedStock->refresh()->first_available_at->equalTo($firstInStockAt))->toBeTrue()
         ->and($comingSoon->refresh()->first_available_at)->toBeNull()
         ->and($alreadyStamped->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
+});
+
+test('a product sold or live with stock before it is stamped available, or created long before the backfill day, is not new in', function () {
+    $shop = Shop::orderBy('id')->first() ?? StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), ['type' => ShopTypeEnum::B2B->value]));
+    $newProduct = fn (): Product => UpdateProduct::make()->action(
+        StoreProduct::make()->action($shop, array_merge(Product::factory()->definition(), ['trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]], 'price' => 10])),
+        ['state' => ProductStateEnum::ACTIVE]
+    );
+    $soldAt   = now()->subYear()->startOfSecond();
+    $sellOnce = function (Product $product) use ($shop, $soldAt): void {
+        $invoice = StoreInvoice::make()->action(createCustomer($shop), Invoice::factory()->definition());
+        StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+            'date'            => $soldAt,
+            'tax_category_id' => $invoice->tax_category_id,
+            'quantity'        => 1,
+            'gross_amount'    => 10,
+            'net_amount'      => 10,
+        ]);
+    };
+
+    $relaunched     = $newProduct();
+    $wronglyStamped = $newProduct();
+    $neverSold      = $newProduct();
+    $oldNeverSold   = $newProduct();
+    $liveWithStock  = $newProduct();
+    $ranOutBefore   = $newProduct();
+    $sellOnce($relaunched);
+    $sellOnce($wronglyStamped);
+
+    $relaunched->updateQuietly(['is_for_sale' => true, 'has_live_webpage' => true, 'status' => ProductStatusEnum::FOR_SALE, 'first_available_at' => null]);
+    expect(ProductHydrateFirstAvailableAt::run($relaunched->refresh())->first_available_at->equalTo($soldAt))->toBeTrue();
+
+    $stampedAt = now()->subDays(3)->startOfSecond();
+    $wronglyStamped->updateQuietly(['first_available_at' => $stampedAt]);
+    $neverSold->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => null]);
+    $createdLongBefore = now()->subYears(2)->startOfSecond();
+    $oldNeverSold->updateQuietly(['first_available_at' => $stampedAt, 'created_at' => $createdLongBefore, 'back_in_stock_since' => null]);
+
+    $liveSince    = now()->subMonths(4)->startOfSecond();
+    $inStockSince = now()->subMonths(3)->startOfSecond();
+    foreach ([$liveWithStock, $ranOutBefore] as $product) {
+        $webpage = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+        $webpage->updateQuietly(['live_at' => $liveSince]);
+    }
+    $liveWithStock->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => $inStockSince, 'out_of_stock_since' => null]);
+    $ranOutBefore->updateQuietly(['first_available_at' => $stampedAt, 'back_in_stock_since' => now()->subMonths(6), 'out_of_stock_since' => now()->subMonths(5)]);
+
+    $this->artisan('repair:products_first_available_at', ['--stamped-since' => now()->subDays(5)->toDateString(), '--backfill-day' => $stampedAt->toDateString()])->assertExitCode(0);
+
+    expect($wronglyStamped->refresh()->first_available_at->equalTo($soldAt))->toBeTrue()
+        ->and(ProductBadgeEnum::resolve($wronglyStamped->first_available_at, null))->toBeNull()
+        ->and($neverSold->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue()
+        ->and(ProductBadgeEnum::resolve($neverSold->first_available_at, null))->toBe(ProductBadgeEnum::NEW_IN)
+        ->and($oldNeverSold->refresh()->first_available_at->equalTo($createdLongBefore))->toBeTrue()
+        ->and($liveWithStock->refresh()->first_available_at->equalTo($inStockSince))->toBeTrue()
+        ->and($ranOutBefore->refresh()->first_available_at->equalTo($stampedAt))->toBeTrue();
 });
 
 test('the out of stock date is set when stock runs out and is kept while the product stays out', function () {
@@ -2014,6 +2088,25 @@ test('faire discontinue is skipped when faire returns far fewer live products th
 
     expect($discontinued)->toBe(0)
         ->and($products->every(fn ($product) => $product->refresh()->state !== \App\Enums\Catalogue\Product\ProductStateEnum::DISCONTINUED))->toBeTrue();
+});
+
+test('a packing slip faire refuses is retried, and the last refusal is reported without failing the job', function () {
+    $faireShop = StoreShop::make()->action($this->organisation, array_merge(Shop::factory()->definition(), [
+        'type'   => ShopTypeEnum::EXTERNAL->value,
+        'engine' => \App\Enums\Catalogue\Shop\ShopEngineEnum::FAIRE->value,
+    ]));
+    [, $product] = createProduct($faireShop);
+    $order = createOrder(createCustomer($faireShop), $product);
+    $order->update(['external_id' => 'bo_refused_slip']);
+
+    \Illuminate\Support\Facades\Http::fake(['*packing-slip-pdf*' => \Illuminate\Support\Facades\Http::response(['message' => 'Not found'], 404)]);
+
+    expect(fn () => \App\Actions\Catalogue\Shop\External\Faire\DownloadFairePackingPdfSlip::make()->handle($order->id, isLastAttempt: false))
+        ->toThrow(\Exception::class, 'Faire has no packing slip PDF yet');
+
+    \App\Actions\Catalogue\Shop\External\Faire\DownloadFairePackingPdfSlip::run($order->id);
+
+    expect(DB::table('model_has_attachments')->where('model_type', 'Order')->where('model_id', $order->id)->exists())->toBeFalse();
 });
 
 function createRetiredProductSharingReplacementWebpage(Shop $shop, array $tradeUnits): array
@@ -2216,4 +2309,166 @@ test('a shop short name is saved from the edit form and seeded only where it is 
 
     expect($shop->fresh()->short_name)->toBe('Czechia')
         ->and(\App\Http\Resources\Catalogue\ShopResource::make($shop->fresh())->resolve()['short_name'])->toBe('Czechia');
+});
+
+test('catalogue viewers cannot create sub departments or edit variants, and shipping country routes are gone', function () {
+    [$organisation, , $shop] = createOwnShop('catalogue edit permissions');
+    [, $product]             = createProduct($shop);
+    $department              = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->firstOrFail();
+    $family                  = $product->family;
+
+    $masterVariant = \App\Models\Masters\MasterVariant::create([
+        'group_id' => $product->group_id,
+        'code'     => $product->code.'-perm',
+        'data'     => ['products' => []],
+    ]);
+    $variant = \App\Models\Catalogue\Variant::create([
+        'master_variant_id' => $masterVariant->id,
+        'group_id'          => $product->group_id,
+        'organisation_id'   => $product->organisation_id,
+        'shop_id'           => $shop->id,
+        'family_id'         => $family->id,
+        'code'              => $product->code.'-perm',
+        'data'              => ['products' => []],
+    ]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+
+    patch(route('grp.models.variant.update', $variant->id), ['option_translations' => ['Plug' => 'Wtyczka']])->assertForbidden();
+    \Pest\Laravel\post(route('grp.models.department.sub_department.store', $department->id), ['code' => 'permsub', 'name' => 'Perm sub'])->assertForbidden();
+    get(route('grp.org.shops.show.catalogue.departments.show.sub_departments.create', [$organisation->slug, $shop->slug, $department->slug]))->assertForbidden();
+    get(route('grp.org.shops.show.catalogue.families.show.variants.edit', [$organisation->slug, $shop->slug, $family->slug, $variant->slug]))->assertForbidden();
+
+    expect($variant->refresh()->option_translations)->toBeEmpty()
+        ->and(\App\Models\Catalogue\ProductCategory::where('shop_id', $shop->id)->where('code', 'permsub')->exists())->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.store'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.update'))->toBeFalse()
+        ->and(\Illuminate\Support\Facades\Route::has('grp.models.shipping_country.delete'))->toBeFalse();
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.edit", "products.$shop->id.view"]);
+
+    get(route('grp.org.shops.show.catalogue.departments.show.sub_departments.create', [$organisation->slug, $shop->slug, $department->slug]))->assertOk();
+});
+
+test('collection sub collections search filters on the collection name and code', function () {
+    list($organisation, $user, $shop) = createShop();
+
+    $parent = StoreCollection::make()->action($shop, ['code' => 'PARENT-SRCH', 'name' => 'Parent']);
+    $child  = StoreCollection::make()->action($shop, ['code' => 'CHILD-SRCH', 'name' => 'Wanted child']);
+    AttachModelToCollection::make()->action($parent, $child);
+
+    $route = \Mockery::mock(\Illuminate\Routing\Route::class);
+    $route->shouldReceive('getName')->andReturn('grp.org.shops.show.catalogue.collections.show');
+    $request = request()->merge(['filter' => ['global' => 'wanted']]);
+    $request->setRouteResolver(fn () => $route);
+
+    $found = \App\Actions\Catalogue\Collection\UI\IndexCollectionsInCollection::run($parent);
+
+    expect($found->pluck('code')->all())->toBe(['CHILD-SRCH']);
+});
+
+test('a product image is deleted by staff with web edit on its shop', function () {
+    list($organisation, $user, $shop) = createShop();
+    createProduct($shop);
+    $product = $shop->products()->orderBy('id')->first();
+    $product->updateQuietly(['is_single_trade_unit' => false]);
+
+    $path = tempnam(sys_get_temp_dir(), 'pimg').'.png';
+    file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+    $media = \App\Actions\Helpers\Media\StoreMediaFromFile::run($product, ['path' => $path, 'originalName' => 'pimg.png', 'extension' => 'png', 'checksum' => md5_file($path)], 'image');
+    $product->images()->attach($media->id, ['group_id' => $product->group_id, 'organisation_id' => $product->organisation_id, 'scope' => 'image', 'data' => '{}']);
+
+    $staff = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($staff, ["web.$shop->id.edit", "web.$shop->id.view"]);
+
+    \Pest\Laravel\delete(route('grp.models.product.images.delete_images', [$product->id, $media->id]))->assertSuccessful();
+
+    expect($product->images()->where('media.id', $media->id)->exists())->toBeFalse();
+});
+
+test('catalogue json lookups answer only staff with the matching rule on the shop', function () {
+    list($organisation, , $shop) = createShop();
+    [, $product] = createProduct($shop);
+    $family     = $product->family;
+    $department = $product->department;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    $rulesByUrls = [
+        [
+            [
+                route('grp.json.product_category.families.index', $department->slug),
+                route('grp.json.shop.product_categories_by_codes', [$shop->id, 'codes' => $department->code.','.$family->code]),
+                route('grp.json.trade-units.all.under-product', $product->id),
+                route('grp.json.product.external.trade-units-linked', $product->slug),
+                route('grp.json.product_category.products_by_codes', [$family->id, 'codes' => $product->code]),
+                route('grp.json.shop.products_by_codes', [$shop->id, 'codes' => $product->code]),
+            ],
+            "crm.$shop->id.view",
+            "products.$shop->id.view",
+        ],
+        [
+            [route('grp.json.shop.department_and_sub_departments', $shop->slug)],
+            "products.$shop->id.view",
+            "products.$shop->id.edit",
+        ],
+        [
+            [
+                route('grp.json.shop.families.for_related_web_block', $shop->slug),
+                route('grp.json.shop.departments.for_related_web_block', $shop->slug),
+                route('grp.json.shop.sub_departments.for_related_web_block', $shop->slug),
+                route('grp.json.product_category.products.index', $family->id),
+            ],
+            "products.$shop->id.edit",
+            "web.$shop->id.edit",
+        ],
+        [
+            [route('grp.json.product_category.discontinuing_products.index', $family->id)],
+            "products.$shop->id.edit",
+            "discounts.$shop->id.edit",
+        ],
+    ];
+
+    foreach ($rulesByUrls as [$urls, $refusedRule, $allowedRule]) {
+        actingAsUserWithOnlyPermissions($user, [$refusedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(403, $url);
+        }
+
+        actingAsUserWithOnlyPermissions($user, [$allowedRule]);
+        foreach ($urls as $url) {
+            expect(get($url)->status())->toBe(200, $url);
+        }
+    }
+});
+
+test('unused json lookups are removed, INI-076', function () {
+    foreach ([
+        'org_payment_service_providers.index', 'collection.parent.departments.index', 'collection.families.index', 'shop.product_categories',
+        'collection.parent.sub_departments.index', 'variant.products', 'product_category.out_of_stock_products.index', 'collection.products.index',
+        'product_category.see_also_products.index', 'product_category.top_products.index', 'mailshot.convert-to-page',
+        'dashboard_custom-dates.masters_shops_sales', 'dashboard_custom-dates.group.organisation_sales', 'dashboard_custom-dates.group.shops_sales',
+        'dashboard_custom-dates.group.invoice_categories_sales', 'dashboard_custom-dates.organisation.shops_sales', 'dashboard_custom-dates.organisation.invoice_categories_sales',
+        'computers.index', 'printers.index', 'webpage.web_block_histories.index', 'web-block.web_block_histories.index', 'web-block-type.web_block_histories.index',
+    ] as $name) {
+        expect(\Illuminate\Support\Facades\Route::has("grp.json.$name"))->toBeFalse();
+    }
+});
+
+test('invoices of a product answer catalogue staff of its shop, and a product of another shop is not found, INI-076', function () {
+    list($organisation, , $shop) = createShop();
+    list(, $product) = createProduct($shop);
+    $otherShop = StoreShop::make()->action($organisation, Shop::factory()->definition());
+
+    $url = route('grp.org.shops.show.catalogue.products.current_products.invoices', [$organisation->slug, $shop->slug, $product->slug]);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $organisation->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.$organisation->id.view"]);
+    get($url)->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    get($url)->assertOk();
+    get(route('grp.org.shops.show.catalogue.products.current_products.invoices', [$organisation->slug, $otherShop->slug, $product->slug]))->assertNotFound();
 });

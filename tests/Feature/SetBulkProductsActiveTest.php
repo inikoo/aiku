@@ -104,3 +104,16 @@ test('the current products page does not offer the bulk set active route', funct
         fn (AssertableInertia $page) => $page->where('bulk_set_active_route', null)
     );
 });
+
+test('putting an in process product on sale from the edit page launches it', function () {
+    $inProcess = ($this->makeProductInState)(ProductStateEnum::IN_PROCESS);
+    $inProcess->updateQuietly(['is_for_sale' => false]);
+
+    $this->patch(route('grp.models.product.update', ['product' => $inProcess->id]), [
+        'is_for_sale' => true,
+    ])->assertSessionHasNoErrors();
+
+    $inProcess->refresh();
+    expect($inProcess->state)->toBe(ProductStateEnum::ACTIVE)
+        ->and($inProcess->is_for_sale)->toBeTrue();
+});

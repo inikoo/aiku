@@ -21,6 +21,10 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * redirect, which would cost every image a round trip) and lets Cloudflare keep it for a year.
  * Where imgproxy runs beside the app, IMGPROXY_INTERNAL_URL fetches it there instead of out
  * through Cloudflare and back; an image that does not come in time is a short-lived 504.
+ * With IMGPROXY_ACCEL_LOCATION set, nginx fetches the image instead (X-Accel-Redirect to an
+ * internal location proxying imgproxy) and the worker only checks the signature. nginx keeps
+ * this response's Cache-Control on the image, so it carries the short error lifetime and the
+ * internal location's `expires 1y` lengthens it on success only.
  */
 class ServeWebsiteShortImage
 {
@@ -36,15 +40,17 @@ class ServeWebsiteShortImage
         $extension = Str::contains($optionsAndExtension, '.') ? Str::afterLast($optionsAndExtension, '.') : '';
         $options   = ShortenWebsiteImageUrls::expandOptions($extension !== '' ? Str::beforeLast($optionsAndExtension, '.') : $optionsAndExtension);
 
+        $urlExtension = '';
         if (!hash_equals(ShortenWebsiteImageUrls::signature($id, $options, $extension), $signature)) {
             if (!hash_equals(ShortenWebsiteImageUrls::signature($id, $options, ''), $signature)) {
                 return null;
             }
-            $extension = '';
+            $urlExtension = $extension;
+            $extension    = '';
         }
 
         $media = Media::find((int) base_convert($id, 36, 10));
-        if (!$media) {
+        if (!$media || !in_array($urlExtension, ['', strtolower(pathinfo($media->getImgProxyFilename(), PATHINFO_EXTENSION))], true)) {
             return null;
         }
 
@@ -61,6 +67,14 @@ class ServeWebsiteShortImage
     {
         $url = $this->handle($id, $signature, $optionsAndExtension);
         abort_unless($url, 404);
+
+        if ($accelLocation = config('img-proxy.accel_location')) {
+            return response('', 200, [
+                'X-Accel-Redirect' => rtrim($accelLocation, '/').Str::after($url, rtrim(config('img-proxy.base_url'), '/')),
+                'Content-Type'     => 'application/octet-stream',
+                'Cache-Control'    => 'public, max-age=60',
+            ]);
+        }
 
         if ($internalUrl = config('img-proxy.internal_url')) {
             $url = Str::replaceStart(config('img-proxy.base_url'), $internalUrl, $url);

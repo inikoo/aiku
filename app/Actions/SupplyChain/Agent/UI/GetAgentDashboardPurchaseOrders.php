@@ -49,17 +49,17 @@ class GetAgentDashboardPurchaseOrders
 
         $summary = $openPurchaseOrders()->selectRaw(
             "count(*) as open_count,
-            coalesce(sum(cost_total * {$toAgentCurrency}), 0) as open_value,
+            coalesce(sum(cost_items * {$toAgentCurrency}), 0) as open_value,
             count(*) filter (where state = 'submitted') as unconfirmed,
             count(*) filter (where state = 'submitted' and submitted_at < now() - interval '".self::CONFIRMATION_DAYS." days') as unconfirmed_over_week,
             count(*) filter (where state = 'submitted' and submitted_at < now() - interval '".self::STALE_DAYS." days') as unconfirmed_stale,
             count(*) filter (where estimated_received_at < now()) as overdue,
-            coalesce(sum(cost_total * {$toAgentCurrency}) filter (where estimated_received_at < now()), 0) as overdue_value,
+            coalesce(sum(cost_items * {$toAgentCurrency}) filter (where estimated_received_at < now()), 0) as overdue_value,
             count(*) filter (where estimated_received_at >= now() and estimated_received_at < now() + interval '14 days') as due_soon,
             count(*) filter (where {$inProduction}) as in_production,
-            coalesce(sum(cost_total * {$toAgentCurrency}) filter (where {$inProduction}), 0) as in_production_value,
+            coalesce(sum(cost_items * {$toAgentCurrency}) filter (where {$inProduction}), 0) as in_production_value,
             count(*) filter (where state = 'confirmed' and delivery_state = 'in_process') as confirmed_without_container,
-            coalesce(sum(cost_total * {$toAgentCurrency}) filter (where state = 'confirmed' and delivery_state = 'in_process'), 0) as confirmed_without_container_value"
+            coalesce(sum(cost_items * {$toAgentCurrency}) filter (where state = 'confirmed' and delivery_state = 'in_process'), 0) as confirmed_without_container_value"
         )->first();
 
         $inProductionProducts = $openPurchaseOrders()
@@ -131,7 +131,7 @@ class GetAgentDashboardPurchaseOrders
                 })
                 ->selectRaw(
                     'purchase_orders.id, purchase_orders.slug, purchase_orders.reference, purchase_orders.parent_name, purchase_orders.state,
-                    purchase_orders.cost_total * purchase_orders.'.$toAgentCurrency.' as amount, purchase_orders.agent_order_reference, organisations.name as organisation,
+                    purchase_orders.cost_items * purchase_orders.'.$toAgentCurrency.' as amount, organisations.name as organisation,
                     (estimated_received_at < now()) as is_overdue,
                     greatest(0, floor(extract(epoch from now() - estimated_received_at) / 86400))::int as days_late,
                     floor(extract(epoch from now() - submitted_at) / 86400)::int as days_waiting'
@@ -145,7 +145,6 @@ class GetAgentDashboardPurchaseOrders
                     'reference'       => $row->reference,
                     'supplier'        => $row->parent_name,
                     'organisation'    => $row->organisation,
-                    'agent_order'     => $row->agent_order_reference,
                     'state'           => $row->state,
                     'state_label'     => PurchaseOrderStateEnum::labels()[$row->state],
                     'amount'          => (float) $row->amount,
@@ -159,7 +158,7 @@ class GetAgentDashboardPurchaseOrders
                 ->join('org_suppliers', 'org_suppliers.id', '=', 'purchase_orders.parent_id')
                 ->selectRaw(
                     "purchase_orders.parent_id, purchase_orders.parent_name, org_suppliers.slug,
-                    count(*) as open_count, sum(cost_total * {$toAgentCurrency}) as open_value,
+                    count(*) as open_count, sum(cost_items * {$toAgentCurrency}) as open_value,
                     count(*) filter (where state = 'submitted') as unconfirmed,
                     count(*) filter (where estimated_received_at < now()) as overdue,
                     floor(extract(epoch from now() - min(submitted_at) filter (where state = 'submitted')) / 86400)::int as oldest_unconfirmed_days"
@@ -179,37 +178,9 @@ class GetAgentDashboardPurchaseOrders
                     'route'                   => $route('grp.org.procurement.org_suppliers.show', ['orgSupplier' => $row->slug]),
                 ])
                 ->values(),
-            'agent_orders' => $openPurchaseOrders()
-                ->whereNotNull('purchase_orders.agent_order_reference')
-                ->selectRaw(
-                    "agent_order_reference, count(*) as open_count, sum(cost_total * {$toAgentCurrency}) as open_value,
-                    count(*) filter (where state = 'submitted') as unconfirmed,
-                    count(*) filter (where state = 'confirmed') as confirmed,
-                    count(*) filter (where estimated_received_at < now()) as overdue,
-                    count(distinct parent_id) as suppliers,
-                    floor(extract(epoch from now() - min(submitted_at)) / 86400)::int as oldest_days,
-                    min(estimated_received_at) as expected_at"
-                )
-                ->groupBy('agent_order_reference')
-                ->orderByRaw('min(submitted_at) asc')
-                ->limit(10)
-                ->get()
-                ->map(fn ($row) => [
-                    'reference'   => $row->agent_order_reference,
-                    'open_count'  => (int) $row->open_count,
-                    'open_value'  => (float) $row->open_value,
-                    'unconfirmed' => (int) $row->unconfirmed,
-                    'confirmed'   => (int) $row->confirmed,
-                    'overdue'     => (int) $row->overdue,
-                    'suppliers'   => (int) $row->suppliers,
-                    'oldest_days' => (int) $row->oldest_days,
-                    'expected_at' => $row->expected_at,
-                    'route'       => $purchaseOrdersRoute(['filter[global]' => $row->agent_order_reference, 'elements[state]' => implode(',', $sent)]),
-                ])
-                ->values(),
             'organisations' => $openPurchaseOrders()
                 ->join('organisations', 'organisations.id', '=', 'purchase_orders.organisation_id')
-                ->selectRaw('organisations.name, organisations.code, count(*) as open_count, sum(cost_total * '.$toAgentCurrency.') as open_value')
+                ->selectRaw('organisations.name, organisations.code, count(*) as open_count, sum(cost_items * '.$toAgentCurrency.') as open_value')
                 ->groupBy('organisations.id', 'organisations.name', 'organisations.code')
                 ->orderByDesc('open_value')
                 ->get()

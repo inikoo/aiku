@@ -63,6 +63,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->outbox = $outbox;
         $this->initialisationFromShop($shop, $request)->withTab($this->templateTabs());
@@ -76,6 +77,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->outbox = $outbox;
         $this->initialisationFromShop($shop, $request)->withTab($this->templateTabs());
@@ -90,6 +92,7 @@ class ShowOutboxWorkshop extends OrgAction
      */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Outbox $outbox, ActionRequest $request): Email
     {
+        abort_unless($outbox->shop_id === $fulfilment->shop_id, 404);
         $this->parent = $fulfilment;
         $this->outbox = $outbox;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab($this->templateTabs());

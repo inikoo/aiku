@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingEditAuthorisation;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Organisation;
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreatePayment extends OrgAction
 {
+    use WithAccountingEditAuthorisation;
     public function handle(Organisation|PaymentAccount $parent, ActionRequest $request): Response
     {
         return Inertia::render(

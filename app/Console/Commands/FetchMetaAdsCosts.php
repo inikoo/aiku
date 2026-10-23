@@ -8,12 +8,15 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\CRM\SocialMedia\CheckMetaUsage;
 use App\Actions\CRM\TrafficSource\GetTrafficSourceCampaign;
 use App\Actions\CRM\TrafficSource\StoreTrafficSourceCost;
 use App\Enums\CRM\TrafficSource\TrafficSourceCostFetchedViaEnum;
 use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
+use App\Exceptions\MetaUsageLimitReached;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\TrafficSource;
+use App\Models\CRM\TrafficSourceCampaignMetric;
 use App\Models\Helpers\Currency;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -56,6 +59,12 @@ use Illuminate\Support\Facades\Log;
  */
 class FetchMetaAdsCosts extends Command
 {
+    /**
+     * The purchase Meta counts in Ads Manager's Purchases column and its purchase ROAS: every
+     * purchase action type reports the same orders, so only this one is read, never their sum.
+     */
+    public const string PURCHASE_ACTION = 'omni_purchase';
+
     protected $signature = 'traffic-source:fetch-meta-costs
                            {shop? : Shop slug, defaults to every shop configured for Meta Ads}
                            {--date= : Last day to fetch, defaults to yesterday}
@@ -85,6 +94,11 @@ class FetchMetaAdsCosts extends Command
             try {
                 $stored = $this->fetchShop($shop, $since, $until);
                 $this->info("{$shop->slug}: {$stored} channel campaign-day(s) of spend.");
+            } catch (MetaUsageLimitReached $e) {
+                $this->error("{$shop->slug}: ".$e->getMessage());
+                Log::warning('Meta Ads cost fetch stopped at the usage limit', ['shop' => $shop->slug, 'error' => $e->getMessage()]);
+
+                return Command::FAILURE;
             } catch (\Throwable $e) {
                 $failed++;
                 $this->error("{$shop->slug}: ".$e->getMessage());
@@ -156,7 +170,7 @@ class FetchMetaAdsCosts extends Command
 
         $query = [
             'level'          => 'campaign',
-            'fields'         => 'campaign_id,campaign_name,spend,account_currency',
+            'fields'         => 'campaign_id,campaign_name,spend,impressions,inline_link_clicks,account_currency,actions,action_values',
             'breakdowns'     => 'publisher_platform',
             'time_increment' => 1,
             'time_range'     => json_encode(['since' => $since->toDateString(), 'until' => $until->toDateString()]),
@@ -184,6 +198,8 @@ class FetchMetaAdsCosts extends Command
                 : Http::timeout(60)->get($url, $query);
 
             $query = null;
+
+            CheckMetaUsage::run($response);
 
             if ($response->failed()) {
                 throw new \RuntimeException(
@@ -240,7 +256,7 @@ class FetchMetaAdsCosts extends Command
      * they have to be summed here. Storing them one by one would have each overwrite the last and
      * report only whichever platform Meta happened to return last.
      *
-     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float}> $rows
+     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float, impressions: int, clicks: int, purchases: float, purchase_value: float}> $rows
      */
     private function collectRow(array &$rows, array $row): void
     {
@@ -265,14 +281,27 @@ class FetchMetaAdsCosts extends Command
             'date'          => data_get($row, 'date_start'),
             'currency'      => (string) data_get($row, 'account_currency'),
             'amount'        => 0.0,
+            'impressions'    => 0,
+            'clicks'         => 0,
+            'purchases'      => 0.0,
+            'purchase_value' => 0.0,
         ];
 
-        $rows[$key]['amount'] += $amount;
+        $rows[$key]['amount']         += $amount;
+        $rows[$key]['impressions']    += (int) data_get($row, 'impressions', 0);
+        $rows[$key]['clicks']         += (int) data_get($row, 'inline_link_clicks', 0);
+        $rows[$key]['purchases']      += $this->purchaseAction($row, 'actions');
+        $rows[$key]['purchase_value'] += $this->purchaseAction($row, 'action_values');
+    }
+
+    private function purchaseAction(array $row, string $field): float
+    {
+        return (float) data_get(collect(data_get($row, $field, []))->firstWhere('action_type', self::PURCHASE_ACTION), 'value', 0);
     }
 
     /**
      * @param \Illuminate\Support\Collection<string, TrafficSource>                                                          $trafficSources
-     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float}> $rows
+     * @param array<string, array{type: string, campaign_id: ?string, campaign_name: ?string, date: ?string, currency: string, amount: float, impressions: int, clicks: int, purchases: float, purchase_value: float}> $rows
      */
     private function store(\Illuminate\Support\Collection $trafficSources, array $rows): int
     {
@@ -293,17 +322,33 @@ class FetchMetaAdsCosts extends Command
                 continue;
             }
 
+            $campaignId = GetTrafficSourceCampaign::run(
+                $trafficSource,
+                $this->campaignReference($row['type'], $row['campaign_id']),
+                $row['campaign_name']
+            );
+
             StoreTrafficSourceCost::run($trafficSource, [
                 'date'                       => $row['date'],
                 'source_amount'              => $row['amount'],
                 'source_currency_id'         => $currency->id,
                 'fetched_via'                => TrafficSourceCostFetchedViaEnum::API->value,
-                'traffic_source_campaign_id' => GetTrafficSourceCampaign::run(
-                    $trafficSource,
-                    $this->campaignReference($row['type'], $row['campaign_id']),
-                    $row['campaign_name']
-                ),
+                'traffic_source_campaign_id' => $campaignId,
             ]);
+
+            if ($campaignId) {
+                TrafficSourceCampaignMetric::updateOrCreate(
+                    ['traffic_source_campaign_id' => $campaignId, 'date' => $row['date']],
+                    [
+                        'impressions'              => $row['impressions'],
+                        'clicks'                   => $row['clicks'],
+                        'conversions'              => $row['purchases'],
+                        'source_conversions_value' => $row['purchase_value'],
+                        'source_cost'              => $row['amount'],
+                        'source_currency_id'       => $currency->id,
+                    ]
+                );
+            }
         }
 
         return count($rows);

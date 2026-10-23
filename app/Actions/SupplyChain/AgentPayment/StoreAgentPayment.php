@@ -8,6 +8,7 @@
 
 namespace App\Actions\SupplyChain\AgentPayment;
 
+use App\Enums\SupplyChain\AgentPayment\AgentPaymentTypeEnum;
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\SupplierAgreedTerm\CheckAgainstAgreedTerms;
@@ -50,6 +51,7 @@ class StoreAgentPayment extends OrgAction
             'media_id' => $media?->id,
         ]) + [
             'group_id'        => $stockDelivery->group_id,
+            'type'            => AgentPaymentTypeEnum::TRANSFER_RECEIVED,
             'agent_id'        => $stockDelivery->agent_id,
             'organisation_id' => $stockDelivery->organisation_id,
             'currency_id'     => $stockDelivery->currency_id,
@@ -58,7 +60,18 @@ class StoreAgentPayment extends OrgAction
             'reference'       => $modelData['reference'] ?? null,
             'notes'           => $modelData['notes'] ?? null,
             'created_by'      => $this->asAction ? null : request()->user()?->id,
+            'data'            => $this->recordedByClient($stockDelivery) ? ['recorded_by' => AgentPayment::RECORDED_BY_CLIENT] : [],
         ]);
+    }
+
+    /**
+     * Recorded on the client's side when the person recording it is the client's purchaser or accountant.
+     */
+    private function recordedByClient(StockDelivery $stockDelivery): bool
+    {
+        $user = $this->asAction ? null : request()->user();
+
+        return $user !== null && $user->authTo(["procurement.$stockDelivery->organisation_id.edit", "accounting.$stockDelivery->organisation_id.edit"]);
     }
 
     /**

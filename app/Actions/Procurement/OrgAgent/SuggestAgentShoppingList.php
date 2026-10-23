@@ -79,8 +79,14 @@ class SuggestAgentShoppingList extends OrgAction
         foreach ($candidates as $candidate) {
             $cartonUnits = max(1, (int) ($candidate->units_per_carton ?: 1));
             $minCartons  = max(1, (int) ($candidate->minimum_carton_order ?: 1));
-            $needed      = (float) ($candidate->recommended_order_quantity ?: 0);
-            $cartons     = max($minCartons, (int) ceil($needed / $cartonUnits));
+            $packedIn    = max(1, (int) ($candidate->packed_in ?: 1));
+
+            if ($candidate->units_per_carton && $cartonUnits < $packedIn) {
+                continue;
+            }
+
+            $neededUnits = (float) ($candidate->recommended_order_quantity ?: 0) * $packedIn;
+            $cartons     = max($minCartons, (int) ceil($neededUnits / $cartonUnits));
             $units       = $cartons * $cartonUnits;
 
             $rates[$candidate->currency_id] ??= $candidate->currency_id
@@ -190,6 +196,7 @@ class SuggestAgentShoppingList extends OrgAction
                 'sp.estimated_lead_time_days',
                 'sup.code as supplier_code',
                 'os.health_rank',
+                'os.packed_in',
                 's.recommended_order_quantity',
                 's.days_of_cover',
             ])

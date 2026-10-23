@@ -317,7 +317,7 @@ class GetPalletDeliveryActions
             'label'   => __('service'),
             'tooltip' => __('Add service'),
             'route'   => [
-                'name'       => 'grp.models.pallet-delivery.transaction.store',
+                'name'       => 'grp.models.pallet-delivery.transaction.bulk_store',
                 'parameters' => [
                     'palletDelivery' => $palletDelivery->id
                 ]
@@ -335,7 +335,7 @@ class GetPalletDeliveryActions
             'label'   => __('Goods'),
             'tooltip' => __('Add a physical goods'),
             'route'   => [
-                'name'       => 'grp.models.pallet-delivery.transaction.store',
+                'name'       => 'grp.models.pallet-delivery.transaction.bulk_store',
                 'parameters' => [
                     'palletDelivery' => $palletDelivery->id
                 ]

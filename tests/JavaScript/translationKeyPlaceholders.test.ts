@@ -191,3 +191,26 @@ test("a word with two meanings is looked up by a key of its own at each call sit
 	assert.equal(slovak["Gold Reward"], "Gold Reward")
 	assert.notEqual(slovak["Shopping"], slovak["Shopping results"])
 })
+
+test("manufacture floor strings keep their placeholders in the languages artisans use", () => {
+	const floorFiles = [
+		"resources/js/Pages/Grp/Org/Production/ManufactureFloor.vue",
+		"resources/js/Pages/Grp/Org/Production/MyPerformance.vue",
+		"resources/js/Components/ManufactureWorkingCard.vue",
+	]
+	const keys = floorFiles.flatMap((file) =>
+		[...readFileSync(join(root, file), "utf8").matchAll(/ctrans(?:Choice)?\(\s*(['"])((?:(?!\1).)+)\1/g)].map((match) => match[2])
+	)
+	const placeholders = (text: string) => [...new Set(text.match(/:[a-zA-Z_]+\b/g) ?? [])].sort()
+
+	assert.ok(keys.length > 100)
+
+	for (const locale of ["ro", "pl", "sk", "lv"]) {
+		const strings = JSON.parse(readFileSync(join(langDirectory, `${locale}.json`), "utf8"))
+		for (const key of keys.filter((key) => strings[key])) {
+			assert.deepEqual(placeholders(strings[key]), placeholders(key), `${locale}: ${key}`)
+		}
+	}
+
+	assert.equal(JSON.parse(readFileSync(join(langDirectory, "ro.json"), "utf8"))["Show"], "Afișează")
+})

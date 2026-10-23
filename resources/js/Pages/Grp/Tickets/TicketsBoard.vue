@@ -226,7 +226,7 @@ const toggleSubFilter = (columnKey: string, status: string) =>
 	(subFilter[columnKey] = subFilter[columnKey] === status ? null : status)
 
 const columnToggles: Record<string, { order: string[]; labels: Record<string, string> }> = {
-	in_progress: { order: ["in_progress", "pending_deploy"], labels: { in_progress: ctrans("Working"), pending_deploy: ctrans("Deploying") } },
+	in_progress: { order: ["in_progress", "qa", "pending_deploy"], labels: { in_progress: ctrans("Working"), qa: ctrans("QA"), pending_deploy: ctrans("Deploying") } },
 	waiting: { order: ["answered", "waiting"], labels: { answered: ctrans("Replied"), waiting: ctrans("Waiting") } },
 	closed: { order: ["resolved", "cancelled"], labels: { resolved: ctrans("Done"), cancelled: ctrans("Cancelled") } },
 }
@@ -276,13 +276,13 @@ const matchesBoardFilters = (ticket: any, columnKey: string) =>
 	)
 
 const matchesFilters = (ticket: any, columnKey: string) =>
-	(!subFilter[columnKey] || subFilter[columnKey] === ticket.status) && matchesBoardFilters(ticket, columnKey)
+	(!subFilter[columnKey] || subFilter[columnKey] === ticket.board_status) && matchesBoardFilters(ticket, columnKey)
 
 const visibleCount = (column: { key: string; tickets: any[] }) =>
 	column.tickets.filter((ticket) => matchesFilters(ticket, column.key)).length
 
 const subCount = (column: { key: string; tickets: any[] }, status: string) =>
-	column.tickets.filter((ticket) => ticket.status === status && matchesBoardFilters(ticket, column.key))
+	column.tickets.filter((ticket) => ticket.board_status === status && matchesBoardFilters(ticket, column.key))
 		.length
 
 const myAvatar = computed(() => props.assignees.find((assignee) => assignee.is_me)?.avatar?.original ?? null)
@@ -722,9 +722,13 @@ const cancelAssign = () => {
 						type="button"
 						class="flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded px-2 py-1 transition duration-200"
 						:class="subFilter[column.key] === sub.status ? [subActiveClasses[sub.color], 'font-medium shadow-sm'] : 'text-gray-500 hover:bg-white hover:text-gray-800'"
+						:title="columnToggles[column.key].labels[sub.status] ?? sub.label"
 						@click="chooseColumnToggle(column.key, sub.status)">
-						<span class="h-2 w-2 shrink-0 rounded-full" :class="subFilter[column.key] === sub.status ? 'bg-white/80' : subDotClasses[sub.color]" />
-						{{ columnToggles[column.key].labels[sub.status] ?? sub.label }}
+						<FontAwesomeIcon v-if="sub.status === 'pending_deploy'" icon="fal fa-rocket" fixed-width :class="subFilter[column.key] === sub.status ? 'text-white' : 'text-green-600'" />
+						<template v-else>
+							<span class="h-2 w-2 shrink-0 rounded-full" :class="subFilter[column.key] === sub.status ? 'bg-white/80' : subDotClasses[sub.color]" />
+							{{ columnToggles[column.key].labels[sub.status] ?? sub.label }}
+						</template>
 						<span class="tabular-nums" :class="subFilter[column.key] === sub.status ? 'text-white/80' : 'text-gray-400'">{{ subCount(column, sub.status) }}</span>
 					</button>
 				</div>

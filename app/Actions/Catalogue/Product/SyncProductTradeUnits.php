@@ -42,7 +42,7 @@ class SyncProductTradeUnits
         foreach ($tradeUnitsRaw as $tradeUnitData) {
             $tradeUnit                  = TradeUnit::find(Arr::get($tradeUnitData, 'id'));
             $tradeUnits[$tradeUnit->id] = [
-                'quantity' => Arr::get($tradeUnitData, 'quantity')
+                'quantity' => wholeTradeUnitQuantity(Arr::get($tradeUnitData, 'quantity'))
             ];
 
         }

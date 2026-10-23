@@ -75,10 +75,21 @@ it('reports each failing row and column against the DHL rules', function () {
 
     expect(array_keys($rows))->toBe([1, 2, 3, 4])
         ->and(array_keys($rows[1]))->toBe([3])
-        ->and(array_keys($rows[2]))->toBe([2, 3])
+        ->and(array_keys($rows[2]))->toBe([3])
         ->and(array_keys($rows[3]))->toBe([8, 10])
         ->and(array_keys($rows[4]))->toBe([4])
         ->and($rows[4][4][0])->toBe('Quantity must be a whole number above 0.');
+});
+
+it('writes descriptions in plain ASCII so hidden non-breaking spaces, dashes and accents do not block the file', function () {
+    $export = new DhlItemUploadCsvExport([
+        dhlLine(['description' => "Satya Incense 15gm -\u{a0}Karma"]),
+        dhlLine(['description' => 'Essential Oils Starter Pack – 6 of Each']),
+        dhlLine(['description' => 'Bombe de bain à la lavande']),
+    ]);
+
+    expect(array_column($export->rows(), 2))->toBe(['Satya Incense 15gm - Karma', 'Essential Oils Starter Pack - 6 of Each', 'Bombe de bain a la lavande'])
+        ->and($export->validate()['rows'])->toBe([]);
 });
 
 it('checks the file as a whole: not empty, at most 250 items, one currency', function () {
@@ -128,4 +139,37 @@ it('writes rows without quotes unless a text delimiter is given', function () {
 
     expect($csv(new DhlItemUploadCsvExport([dhlLine()])))->toBe("1|INV_ITEM|Jelly bath balls|33073000|2|EA|12.5|EUR|0.48||CN|ABW|JBB-01|N\n")
         ->and($csv(new DhlItemUploadCsvExport([dhlLine()], ';', '"')))->toBe("1;INV_ITEM;\"Jelly bath balls\";33073000;2;EA;12.5;EUR;0.48;;CN;ABW;JBB-01;N\n");
+});
+
+it('uses the values typed in the preview for the file, without touching the generated ones', function () {
+    $export = new DhlItemUploadCsvExport([dhlLine(['tariff_code' => null, 'origin_country_code' => null]), dhlLine()], edits: [
+        0 => [3 => ' 33079000 ', 10 => 'GB'],
+        1 => [99 => 'ignored'],
+        5 => [3 => 'ignored'],
+    ]);
+
+    expect($export->rows()[0][3])->toBe('33079000')
+        ->and($export->rows()[0][10])->toBe('GB')
+        ->and($export->generatedRows()[0][3])->toBe('')
+        ->and($export->rows()[1])->toBe($export->generatedRows()[1])
+        ->and($export->rows())->toHaveCount(2)
+        ->and($export->validate())->toBe(['rows' => [], 'file' => []]);
+});
+
+it('checks the typed values against DHL\'s rules', function () {
+    $errors = (new DhlItemUploadCsvExport([dhlLine()], edits: [0 => [10 => 'gbr', 3 => '']]))->validate();
+
+    expect(array_keys($errors['rows'][0]))->toEqualCanonicalizing([3, 10]);
+});
+
+it('drops floating point noise from the quantity', function () {
+    expect((new DhlItemUploadCsvExport([dhlLine(['quantity' => 90.00000000000001])]))->rows()[0][4])->toBe('90');
+});
+
+it('leaves out of stock and zero value lines out of the customs file, as the invoice does', function () {
+    $items = \App\Actions\Dispatching\DeliveryNote\CustomsExport\GetDeliveryNoteCustomsItems::make();
+
+    expect($items->isDeclared(dhlLine()))->toBeTrue()
+        ->and($items->isDeclared(dhlLine(['quantity' => 0.0, 'unit_value' => null])))->toBeFalse()
+        ->and($items->isDeclared(dhlLine(['unit_value' => 0.0])))->toBeFalse();
 });

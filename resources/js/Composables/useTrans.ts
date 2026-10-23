@@ -4,14 +4,19 @@
  * Github: https://github.com/aqordeon
  * Copyright: 2026
 */
-import { trans, transChoice } from 'laravel-vue-i18n'
-import { ReplacementsInterface } from 'laravel-vue-i18n/interfaces/replacements'
+import { I18n } from 'laravel-vue-i18n'
+import { choose } from 'laravel-vue-i18n/pluralization'
+import type { ReplacementsInterface } from 'laravel-vue-i18n/interfaces/replacements'
 
-// Method: Custom Translation function that falls back to the original text if translation is not found
-export const ctrans = (text: string, replacements: ReplacementsInterface = {}) => {
-    if (!text) return ''
+const findMessage = (text: string): string | null => {
+    const i18n = I18n.getSharedInstance()
+    const message = i18n.findTranslation(text) ?? i18n.findTranslation(text.replace(/\//g, '.'))
 
-    const normalizedReplacements = Object.entries(replacements).reduce(
+    return typeof message === 'string' && message !== '' ? message : null
+}
+
+const normalizeReplacements = (replacements: ReplacementsInterface): ReplacementsInterface =>
+    Object.entries(replacements).reduce(
         (acc, [key, value]) => {
             acc[key] = value ?? ''
             return acc
@@ -19,24 +24,21 @@ export const ctrans = (text: string, replacements: ReplacementsInterface = {}) =
         {} as ReplacementsInterface
     )
 
-    if (trans(text, normalizedReplacements)) {
-        return trans(text, normalizedReplacements)
-    } else {
-        Object.entries(normalizedReplacements).forEach(([key, value]) => {
-            const regex = new RegExp(`:${key}`, 'g')
-            text = text.replace(regex, value.toString())
-        })
+// Method: Custom Translation function that falls back to the original text if translation is not found
+export const ctrans = (text: string, replacements: ReplacementsInterface = {}) => {
+    if (!text) return ''
 
-        return text
-    }
+    return I18n.getSharedInstance().makeReplacements(findMessage(text) ?? text, normalizeReplacements(replacements))
 }
 
 export const ctransChoice = (text: string, count: number | string, replacements: ReplacementsInterface = {}) => {
     const number = Number(count)
-    const translation = trans(text)
+    const translation = findMessage(text)
 
     if (translation && translation !== text) {
-        return transChoice(text, number, { ...replacements })
+        const i18n = I18n.getSharedInstance()
+
+        return i18n.makeReplacements(choose(translation, number, i18n.getActiveLanguage()), normalizeReplacements({ ...replacements, count: number.toString() }))
     }
 
     return ctrans(text.split('|')[number === 1 ? 0 : 1] ?? text, { ...replacements, count: number })

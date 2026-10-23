@@ -12,6 +12,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithSubDepartmentSubNavigation;
+use App\Actions\Masters\MasterProductCategory\UI\GetMasterFamilyShopsStatus;
 use App\Actions\Masters\MasterProductCategory\UI\ShowMasterFamily;
 use App\Actions\Masters\MasterProductCategory\WithMasterFamilySubNavigation;
 use App\Actions\OrgAction;
@@ -19,6 +20,7 @@ use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\UI\Catalogue\ProductCategoryTabsEnum;
+use App\Http\Resources\Catalogue\FamiliesInMasterFamilyResource;
 use App\Http\Resources\Catalogue\FamiliesNeedReviewsResource;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\InertiaTable\InertiaTable;
@@ -47,6 +49,21 @@ class IndexFamiliesInMasterFamilies extends OrgAction
     use WithMasterFamilySubNavigation;
 
     private MasterProductCategory $parent;
+
+    protected function getElementGroups(MasterProductCategory $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('Shop status'),
+                'elements' => collect(GetMasterFamilyShopsStatus::run($parent)['states'])
+                    ->mapWithKeys(fn (array $state) => [$state['state'] => [$state['label'], $state['count']]])
+                    ->all(),
+                'engine'   => function ($query, $elements) {
+                    $query->whereIn('product_categories.state', $elements);
+                }
+            ]
+        ];
+    }
 
     public function asController(MasterShop $masterShop, MasterProductCategory $masterFamily, ActionRequest $request): LengthAwarePaginator
     {
@@ -121,12 +138,26 @@ class IndexFamiliesInMasterFamilies extends OrgAction
             $queryBuilder->where('product_categories.has_gr_vol_discount', false);
         }
 
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
         $selects = [
             'product_categories.id',
             'product_categories.slug',
             'product_categories.code',
             'product_categories.name',
             'product_categories.state',
+            'product_categories.shop_id',
+            'product_categories.organisation_id',
+            'product_categories.webpage_id',
+            'product_categories.faq',
+            'product_categories.description_extra',
             'product_categories.description',
             'product_categories.created_at',
             'product_categories.image_id',
@@ -220,6 +251,14 @@ class IndexFamiliesInMasterFamilies extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->defaultSort('code')
                 ->withEmptyState(
@@ -230,15 +269,17 @@ class IndexFamiliesInMasterFamilies extends OrgAction
                 )
                 ->withLabelRecord([__('family'), __('families')])
                 ->withGlobalSearch()
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->withModelOperations($modelOperations);
 
-            $table->column(key: 'shop_code', label: __('Shop'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'image_thumbnail', label: '', type: 'avatar');
-            $table->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'shop_code', label: __('Shop'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'department_name', label: __('Department'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'sub_department_name', label: __('Sub department'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'sub_department_name', label: __('Sub-department'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'shop_status', label: __('Shop status'), canBeHidden: false)
+                ->column(key: 'workflow', label: __('Workflow'), canBeHidden: false)
+                ->column(key: 'page_score', label: __('Page score'), tooltip: __('Share of the SEO checks the family webpage passes'), canBeHidden: false)
+                ->column(key: 'open_page', label: '', canBeHidden: false);
         };
     }
 
@@ -301,7 +342,6 @@ class IndexFamiliesInMasterFamilies extends OrgAction
                     'subNavigation' => $subNavigation,
                     'actions'       => $actions
                 ],
-                'data'                                => FamiliesResource::collection($families),
                 'tabs'                                => [
                     'current'    => $this->tab,
                     'navigation' => $navigation,
@@ -316,17 +356,18 @@ class IndexFamiliesInMasterFamilies extends OrgAction
                     ])
                     ->get(),
                 'master_product_category_id'    => $this->parent?->id,
+                'shops_status'                  => GetMasterFamilyShopsStatus::run($this->parent),
                 ProductCategoryTabsEnum::INDEX->value => $this->tab == ProductCategoryTabsEnum::INDEX->value ?
-                    fn () => FamiliesResource::collection($families)
-                    : Inertia::optional(fn () => FamiliesResource::collection($families)),
+                    fn () => FamiliesInMasterFamilyResource::collection($families)
+                    : Inertia::optional(fn () => FamiliesInMasterFamilyResource::collection($families)),
 
                 ProductCategoryTabsEnum::NEED_REVIEW->value => $this->tab == ProductCategoryTabsEnum::NEED_REVIEW->value ?
                     fn () => FamiliesNeedReviewsResource::collection(IndexFamiliesNeedReviews::run($this->parent, prefix: ProductCategoryTabsEnum::NEED_REVIEW->value))
                     : Inertia::optional(fn () => FamiliesNeedReviewsResource::collection(IndexFamiliesNeedReviews::run($this->parent, prefix: ProductCategoryTabsEnum::NEED_REVIEW->value))),
 
                 ProductCategoryTabsEnum::MISSING_GR->value => $this->tab == ProductCategoryTabsEnum::MISSING_GR->value
-                    ? fn () => FamiliesResource::collection($this->handle($this->parent, ProductCategoryTabsEnum::MISSING_GR->value, missingGr: true))
-                    : Inertia::optional(fn () => FamiliesResource::collection($this->handle($this->parent, ProductCategoryTabsEnum::MISSING_GR->value, missingGr: true))),
+                    ? fn () => FamiliesInMasterFamilyResource::collection($this->handle($this->parent, ProductCategoryTabsEnum::MISSING_GR->value, missingGr: true))
+                    : Inertia::optional(fn () => FamiliesInMasterFamilyResource::collection($this->handle($this->parent, ProductCategoryTabsEnum::MISSING_GR->value, missingGr: true))),
             ]
         )
         ->table($this->tableStructure(parent: $this->parent, prefix: ProductCategoryTabsEnum::INDEX->value))

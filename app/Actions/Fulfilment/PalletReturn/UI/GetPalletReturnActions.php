@@ -54,7 +54,9 @@ class GetPalletReturnActions
             $actions = [];
         }
 
-        return $this->addCancelButton($palletReturn, $this->addPrintButtons($palletReturn, $this->addPdf($palletReturn, $actions)));
+        $actions = $this->addPrintButtons($palletReturn, $this->addPdf($palletReturn, $actions));
+
+        return $canEdit ? $this->addCancelButton($palletReturn, $actions) : $actions;
     }
 
 
@@ -398,7 +400,7 @@ class GetPalletReturnActions
                             'key'     => 'add-service',
                             'tooltip' => __('Add single service'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'name'       => 'grp.models.pallet-return.transaction.bulk_store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
@@ -412,7 +414,7 @@ class GetPalletReturnActions
                             'label'   => __('Physical good'),
                             'tooltip' => __('Add physical good'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.transaction.store',
+                                'name'       => 'grp.models.pallet-return.transaction.bulk_store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
@@ -483,7 +485,9 @@ class GetPalletReturnActions
 
     public function addPdf(PalletReturn $palletReturn, array $actions): array
     {
-        if (!in_array($palletReturn->state, [
+        $user = request()->user();
+
+        if ($user && $palletReturn->documentsCanBeReadBy($user) && !in_array($palletReturn->state, [
             PalletReturnStateEnum::IN_PROCESS,
             PalletReturnStateEnum::SUBMITTED
         ])) {

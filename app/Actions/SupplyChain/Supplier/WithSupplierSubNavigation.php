@@ -68,6 +68,17 @@ trait WithSupplierSubNavigation
                 "tooltip" => __("Stock Deliveries"),
             ],
         ];
+        $navigation[] = [
+            "label"    => __("Sales"),
+            "route"     => [
+                "name"       => "grp.supply-chain.suppliers.sales",
+                "parameters" => [$parent->slug],
+            ],
+            "leftIcon" => [
+                "icon"    => ["fal", "fa-chart-line"],
+                "tooltip" => __("Sales"),
+            ],
+        ];
 
         return $navigation;
     }

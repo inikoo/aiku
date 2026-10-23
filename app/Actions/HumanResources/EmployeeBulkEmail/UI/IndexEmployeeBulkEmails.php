@@ -31,8 +31,6 @@ class IndexEmployeeBulkEmails extends OrgAction
         $to   = $modelData['to'] ?? null;
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $value = is_array($value) ? implode(',', $value) : (string) $value;
-
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('employee_bulk_emails.subject', $value)
                     ->orWhereRaw(

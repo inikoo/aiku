@@ -35,10 +35,6 @@ class ProcessChatMessageSideEffects
             FlagUrgentChatRequest::dispatch($chatSession);
         }
 
-        if (config('chat.ai_drafts') && in_array($senderType, [ChatSenderTypeEnum::GUEST->value, ChatSenderTypeEnum::USER->value], true)) {
-            DraftChatReply::dispatch($chatSession);
-        }
-
         if ($senderType === ChatSenderTypeEnum::AGENT->value) {
             SettleChatAiDraft::run($chatSession, $chatMessage);
         }

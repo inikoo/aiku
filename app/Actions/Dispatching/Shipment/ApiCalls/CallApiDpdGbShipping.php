@@ -70,7 +70,10 @@ class CallApiDpdGbShipping extends OrgAction
 
     protected function login(Shipper $shipper): void
     {
-        [$username, $password, $accountNumber] = array_values($this->getAccessToken($shipper));
+        $accessToken   = $this->getAccessToken($shipper);
+        $username      = Arr::get($accessToken, 'username');
+        $password      = Arr::get($accessToken, 'password');
+        $accountNumber = (string) Arr::get($accessToken, 'account');
         $headers = [
             "Authorization" => "Basic ".base64_encode($username.':'.$password),
             "Content-Type"  => "application/json",
@@ -184,11 +187,7 @@ class CallApiDpdGbShipping extends OrgAction
             $modelData['tracking_urls']  = [];
             try {
                 $htmlContent = base64_decode($htmlBase64);
-                $pdfContent  = Browsershot::html($htmlContent)
-                    ->setOption('no-stop-slow-scripts', true)
-                    ->setOption('timeout', 5000)
-                    ->margins(10, 10, 10, 10)
-                    ->pdf();
+                $pdfContent  = $this->labelPdf($htmlContent, count($parcels));
 
                 $modelData['label']          = base64_encode($pdfContent);
                 $modelData['label_type']     = ShipmentLabelTypeEnum::PDF;
@@ -214,6 +213,22 @@ class CallApiDpdGbShipping extends OrgAction
         ];
     }
 
+
+    /**
+     * One 102 x 165 mm page per parcel, the size of the APC labels on the same thermal printers.
+     * DPD's HTML renders every parcel label followed by a blank page, so only the odd pages are kept.
+     */
+    public function labelPdf(string $html, int $numberParcels): string
+    {
+        return Browsershot::html($html)
+            ->setOption('no-stop-slow-scripts', true)
+            ->setOption('timeout', 5000)
+            ->paperSize(102, 165)
+            ->margins(2, 2, 2, 2)
+            ->scale(0.95)
+            ->pages(implode(',', range(1, 2 * max($numberParcels, 1) - 1, 2)))
+            ->pdf();
+    }
 
     protected function processError(array $error, array &$errorData): void
     {

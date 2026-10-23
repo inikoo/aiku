@@ -21,6 +21,9 @@ class TwoFAMiddleware
             return $next($request);
         }
 
+        $request->query->remove(config('google2fa.otp_input'));
+        $request->request->remove(config('google2fa.otp_input'));
+
         $authenticator = new Authenticator($request);
         // Allow user to go to where they want to if authenticated
         if ($authenticator->isAuthenticated()) {

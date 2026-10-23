@@ -12,6 +12,7 @@ use App\Actions\GoodsIn\StockDelivery\StoreAgentStockDelivery;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
+use App\Enums\Procurement\OrgAgent\OrgAgentOrderContainerEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -96,11 +97,13 @@ class CreateStockDelivery extends OrgAction
     private function agentContainerForm(Agent $agent, ActionRequest $request): Response
     {
         $organisationOptions = StoreAgentStockDelivery::orgAgentsOfAgent($agent)
-            ->with('organisation:id,name')
+            ->with('organisation:id,name,country_id', 'organisation.country:id,name')
             ->get()
             ->sortBy(fn (OrgAgent $orgAgent) => $orgAgent->organisation->name)
             ->map(fn (OrgAgent $orgAgent) => [
-                'label' => $orgAgent->organisation->name,
+                'label' => $orgAgent->organisation->country
+                    ? $orgAgent->organisation->name.' ('.$orgAgent->organisation->country->name.')'
+                    : $orgAgent->organisation->name,
                 'value' => $orgAgent->id,
             ])
             ->values();
@@ -144,12 +147,13 @@ class CreateStockDelivery extends OrgAction
                                     'options'     => $organisationOptions->all(),
                                     'value'       => $organisationOptions->count() === 1 ? $organisationOptions->first()['value'] : null,
                                 ],
-                                'currency'     => [
-                                    'type'        => 'input',
-                                    'label'       => __('Currency'),
-                                    'information' => __('A container is always in the currency of the agent.'),
-                                    'disabled'    => true,
-                                    'value'       => $agent->organisation->currency->code.' ('.$agent->organisation->currency->name.')',
+                                'container_size' => [
+                                    'type'        => 'select',
+                                    'label'       => __('Container size'),
+                                    'information' => __('It can be changed later.'),
+                                    'required'    => true,
+                                    'options'     => OrgAgentOrderContainerEnum::selectOptions(),
+                                    'value'       => OrgAgentOrderContainerEnum::FORTY_FOOT->value,
                                 ],
                                 'reference'    => [
                                     'type'        => 'input',

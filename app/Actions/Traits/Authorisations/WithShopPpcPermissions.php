@@ -5,6 +5,7 @@ namespace App\Actions\Traits\Authorisations;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 
 trait WithShopPpcPermissions
@@ -52,8 +53,12 @@ trait WithShopPpcPermissions
             ]);
     }
 
-    public function canEditSeo(User $user, Shop $shop): bool
+    public function canEditSeo(?Authenticatable $user, Shop $shop): bool
     {
+        if (!$user instanceof User) {
+            return false;
+        }
+
         return $this->isShopAdmin($user, $shop)
             || $this->isShopPpc($user, $shop)
             || $user->authTo([

@@ -11,10 +11,9 @@
 namespace App\Actions\Comms\OutboxHasSubscribers\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsAuthorisation;
 use App\Http\Resources\Mail\OutboxUsersResource;
-use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\User;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,6 +23,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetOutboxUsers extends OrgAction
 {
+    use WithCommsAuthorisation;
     public function handle(Outbox $parent): LengthAwarePaginator
     {
 
@@ -55,19 +55,6 @@ class GetOutboxUsers extends OrgAction
             ->withPaginator(null)
             ->withQueryString();
     }
-
-    //todo review this
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     if ($request->user() instanceof WebUser) {
-    //         return true;
-    //     }
-
-    //     $this->canEdit   = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    //     $this->canDelete = $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-    //     return $request->user()->authTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    // }
 
     public function asController(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {

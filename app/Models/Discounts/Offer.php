@@ -251,7 +251,6 @@ class Offer extends Model implements Auditable
         }
 
         return $this->offerAllowances()
-            ->where('status', true)
             ->whereNotNull('data->percentage_off')
             ->exists();
     }

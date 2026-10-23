@@ -15,14 +15,6 @@
                 <tr><td style="padding:2px 16px 2px 0;color:#6b7280;">{{ __('Date') }}</td><td style="padding:2px 0;">{{ $date->format('d M Y') }}</td></tr>
                 <tr><td style="padding:2px 16px 2px 0;color:#6b7280;">{{ __('Items') }}</td><td style="padding:2px 0;">{{ $numberItems }}</td></tr>
             </table>
-            @if(!empty($supplierOrders))
-                <p style="margin:0 0 8px;">{{ __('It has one order for each supplier:') }}</p>
-                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;font-size:14px;">
-                    @foreach($supplierOrders as $supplierOrder)
-                        <tr><td style="padding:2px 16px 2px 0;font-weight:600;">{{ $supplierOrder['reference'] }}</td><td style="padding:2px 0;color:#6b7280;">{{ $supplierOrder['supplier'] }}</td></tr>
-                    @endforeach
-                </table>
-            @endif
             @if(!empty($agreedTerms))
                 <p style="margin:0 0 8px;">{{ __('This order is placed on the terms we agreed:') }}</p>
                 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;font-size:14px;">

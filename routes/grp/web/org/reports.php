@@ -8,6 +8,8 @@
 
 use App\Actions\Accounting\CreditTransaction\ExportCustomerCredit;
 use App\Actions\Accounting\CreditTransaction\UI\IndexCustomerCredit;
+use App\Actions\Accounting\Reports\BillingRegionTaxCategory\UI\IndexBillingRegionTaxCategoryInvoices;
+use App\Actions\Accounting\Reports\BillingRegionTaxCategory\UI\IndexBillingRegionTaxCategoryReport;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatAeat;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatExcel;
 use App\Actions\Accounting\Reports\Intrastat\ExportIntrastatImportExcel;
@@ -23,8 +25,10 @@ use App\Actions\Dispatching\Reports\IndexPackerPerformanceReport;
 use App\Actions\Dispatching\Reports\IndexPickerPerformanceReport;
 use App\Actions\Reports\DownloadPackagingReport;
 use App\Actions\Reports\ExportUkManufacturingSurvey;
+use App\Actions\Reports\ExportEprSnapshot;
 use App\Actions\Reports\ExportEuPackagingReturn;
 use App\Actions\Reports\ExportUkPackagingReturn;
+use App\Actions\Reports\GetEprImportCartons;
 use App\Actions\Reports\UI\IndexPackagingReport;
 use App\Actions\Reports\UI\IndexUkManufacturingSurveyReport;
 use App\Actions\UI\Reports\IndexReports;
@@ -44,6 +48,9 @@ Route::get('/intrastat/exports/export-excel', ExportIntrastatExcel::class)->name
 Route::get('/intrastat/imports', IndexIntrastatImportReport::class)->name('intrastat.imports');
 Route::get('/intrastat/imports/export-excel', ExportIntrastatImportExcel::class)->name('intrastat.imports.export-excel');
 
+Route::get('/billing-region-tax-code', IndexBillingRegionTaxCategoryReport::class)->name('billing-region-tax-code');
+Route::get('/billing-region-tax-code/{billingRegion}/{taxCategory:id}', IndexBillingRegionTaxCategoryInvoices::class)->name('billing-region-tax-code.invoices')->withoutScopedBindings();
+
 Route::get('/sage-invoices', IndexSageInvoicesReport::class)->name('sage-invoices');
 Route::get('/sage-invoices/export', ExportSageInvoices::class)->name('sage-invoices.export');
 
@@ -54,6 +61,8 @@ Route::get('/packaging', IndexPackagingReport::class)->name('packaging');
 Route::get('/packaging/download', DownloadPackagingReport::class)->name('packaging.download');
 Route::get('/packaging/uk-return', ExportUkPackagingReturn::class)->name('packaging.uk-return');
 Route::get('/packaging/eu-return', ExportEuPackagingReturn::class)->name('packaging.eu-return');
+Route::get('/packaging/import-cartons', GetEprImportCartons::class)->name('packaging.import-cartons');
+Route::get('/packaging/snapshots/{eprSnapshot:id}', ExportEprSnapshot::class)->name('packaging.snapshot')->withoutScopedBindings();
 
 Route::get('/uk-manufacturing-survey', IndexUkManufacturingSurveyReport::class)->name('uk-manufacturing-survey');
 Route::get('/uk-manufacturing-survey/export', ExportUkManufacturingSurvey::class)->name('uk-manufacturing-survey.export');

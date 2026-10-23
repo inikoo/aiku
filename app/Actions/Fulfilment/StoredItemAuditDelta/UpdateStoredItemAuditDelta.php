@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\StoredItemAuditDelta;
 
+use App\Actions\Traits\Authorisations\WithStoredItemAuditAuthorisation;
 use App\Actions\Fulfilment\StoredItemAudit\Hydrators\StoredItemAuditHydrateDeltas;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -21,6 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStoredItemAuditDelta extends OrgAction
 {
+    use WithStoredItemAuditAuthorisation;
     use WithActionUpdate;
 
 
@@ -69,13 +71,6 @@ class UpdateStoredItemAuditDelta extends OrgAction
         return $storedItemAuditDelta;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-        return $request->user()->authTo("fulfilment.{$this->fulfilment->id}.edit");
-    }
 
 
     public function rules(): array
@@ -100,6 +95,7 @@ class UpdateStoredItemAuditDelta extends OrgAction
 
     public function asController(StoredItemAuditDelta $storedItemAuditDelta, ActionRequest $request): StoredItemAuditDelta
     {
+        $this->warehouse = $storedItemAuditDelta->storedItemAudit->warehouse;
         $this->initialisationFromFulfilment($storedItemAuditDelta->storedItem->fulfilment, $request);
 
         return $this->handle($storedItemAuditDelta, $this->validatedData);

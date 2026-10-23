@@ -61,9 +61,10 @@ const resetQuantities = () => {
 watch(() => props.variants, resetQuantities, { immediate: true })
 
 const isOrderable = (product: ProductResource): boolean =>
-    Number(product.stock) > 0 && !product.is_coming_soon
+    (Number(product.stock) > 0 && !product.is_coming_soon) || Boolean(product.pre_order)
 
-const maxQuantity = (product: ProductResource): number => Number(product.stock) || 0
+const maxQuantity = (product: ProductResource): number =>
+    product.pre_order ? (product.pre_order.max_quantity ?? Infinity) : (Number(product.stock) || 0)
 
 const setQuantity = (product: ProductResource, value: number) => {
     const quantity = Math.round(Number(value))
@@ -425,11 +426,11 @@ const onCancel = () => {
                         <div class="hidden sm:block text-sm text-gray-500 truncate">{{ variant.code }}</div>
 
                         <div v-if="isLoggedIn" class="flex items-center gap-2 text-sm text-gray-600">
-                            <LabelComingSoon v-if="variant.is_coming_soon" :product="variant" />
+                            <LabelComingSoon v-if="variant.is_coming_soon && !variant.pre_order" :product="variant" />
                             <template v-else>
                                 <FontAwesomeIcon :icon="faCircle" class="shrink-0 text-[8px]"
-                                    :class="Number(variant.stock) > 0 ? 'text-green-600' : 'text-red-600'" fixed-width />
-                                <span>{{ Number(variant.stock) > 0 ? stockLabel(variant) : ctrans('Out of stock') }}</span>
+                                    :class="Number(variant.stock) > 0 ? 'text-green-600' : (variant.pre_order ? 'text-amber-500' : 'text-red-600')" fixed-width />
+                                <span>{{ Number(variant.stock) > 0 ? stockLabel(variant) : (variant.pre_order ? `${variant.pre_order.available_label} · ${variant.pre_order.dispatch_label}` : ctrans('Out of stock')) }}</span>
                             </template>
                         </div>
 

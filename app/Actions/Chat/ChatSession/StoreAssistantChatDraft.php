@@ -33,6 +33,7 @@ class StoreAssistantChatDraft
         $trigger = $chatSession->messages()->whereIn('sender_type', [ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::USER])->latest('id')->first();
 
         return DB::transaction(function () use ($chatSession, $shop, $user, $text, $client, $trigger) {
+            ChatSession::lockForUpdate()->find($chatSession->id);
             DraftChatReply::pendingDraft($chatSession)?->update(['status' => ChatAiDraftStatusEnum::SUPERSEDED, 'decided_at' => now()]);
 
             $draft = ChatAiDraft::create([

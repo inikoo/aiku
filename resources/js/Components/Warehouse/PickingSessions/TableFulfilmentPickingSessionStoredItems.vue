@@ -31,6 +31,7 @@ const props = defineProps<{
     tab?: string
     pickingSession: any
     dispatchableReturns?: any[]
+    canWork?: boolean
 }>()
 
 const buildUrl = (name: any, parameters?: any) => String(route(name, parameters))
@@ -1038,6 +1039,7 @@ const onDispatchPalletReturn = async () => {
                                                         />
 
                                                         <NumberWithButtonSave
+                                                            v-if="canWork !== false"
                                                             :key="`picking-action_${storedItem.id}_${palletStoredItem.id}_${getRemainingActionQuantity(palletStoredItem)}`"
                                                             noUndoButton
                                                             :modelValue="getRemainingActionQuantity(palletStoredItem)"
@@ -1101,6 +1103,7 @@ const onDispatchPalletReturn = async () => {
                                                             {{ palletStoredItem.not_picked_quantity ?? 0 }}
                                                         </span>
                                                         <Button
+                                                            v-if="canWork !== false"
                                                             @click="() => onUndoLinePick(palletStoredItem.undoRoute, `undo_${storedItem.id}_${palletStoredItem.id}`)"
                                                             icon="fal fa-undo-alt"
                                                             size="xxs"
@@ -1192,7 +1195,7 @@ const onDispatchPalletReturn = async () => {
                         <span v-if="palletStoredItem.location?.code" class="text-gray-400"> [{{ palletStoredItem.location.code }}]</span>
                     </div>
 
-                    <div v-if="isRowPicking(storedItem)" class="shrink-0">
+                    <div v-if="canWork !== false && isRowPicking(storedItem)" class="shrink-0">
                         <NumberWithButtonSave
                             noUndoButton
                             :modelValue="getRemainingActionQuantity(palletStoredItem)"
@@ -1282,7 +1285,7 @@ const onDispatchPalletReturn = async () => {
 
         <template #cell(actions)="{ item }">
             <div v-if="isFirstReturnRow(item) && (isPickingFinished() || isPackingFinished())" class="flex flex-wrap justify-end items-center gap-2 whitespace-nowrap">
-                <template v-if="item?.pallet_return_state === 'picking'">
+                <template v-if="canWork !== false && item?.pallet_return_state === 'picking'">
                     <Button
                         icon="fal fa-save"
                         :label="ctrans('Set as Picked')"
@@ -1346,7 +1349,7 @@ const onDispatchPalletReturn = async () => {
             <div class="rounded-lg border border-gray-200 bg-white p-4">
                 <div v-if="!selectedDispatchableReturn?.isCollection" class="text-base font-semibold text-gray-800 mb-3">{{ ctrans("Shipping") }}</div>
 
-                <div v-if="selectedDispatchableReturn?.isCollection" class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+                <div v-if="selectedDispatchableReturn?.isCollection" class="border-l-4 border-gray-300 bg-gray-50 px-2 py-0.5">
                     {{ ctrans("For Collection: Yes") }}
                 </div>
                 <div v-else class="space-y-1 text-sm text-gray-700">
@@ -1378,14 +1381,14 @@ const onDispatchPalletReturn = async () => {
                 <!-- <div class="text-base font-semibold text-gray-800 mb-3">{{ ctrans("Pallet Return") }}</div> -->
 
                 <div class="space-y-2 text-sm">
-                    <div class="flex items-center gap-x-2 border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+                    <div class="flex items-center gap-x-2 border-l-4 border-gray-300 bg-gray-50 px-2 py-0.5">
                         <div class="text-gray-500">{{ ctrans("Picker") }}:</div>
                         <div class="font-medium text-gray-800">
                             {{ selectedDispatchableReturn?.picker?.contact_name || "-" }}
                         </div>
                     </div>
 
-                    <div v-if="isStoredItemReturn && isPickedState" class="flex items-center gap-x-2 border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+                    <div v-if="isStoredItemReturn && isPickedState" class="flex items-center gap-x-2 border-l-4 border-gray-300 bg-gray-50 px-2 py-0.5">
                         <div class="text-gray-500">{{ ctrans("Packer") }}:</div>
                         <div class="font-medium text-gray-800">
                             {{ selectedDispatchableReturn?.packer?.contact_name || "-" }}
@@ -1556,7 +1559,7 @@ const onDispatchPalletReturn = async () => {
                     v-for="shipment in optionShippingList.filter(shipment => shipment.api_shipper)"
                     @click="() => formTrackingNumber.shipping_id = shipment"
                     class="relative w-full max-w-52 h-20 border rounded-md px-5 py-3 cursor-pointer"
-                    :class="[formTrackingNumber.shipping_id?.id == shipment.id ? 'bg-indigo-200 border-indigo-300' : 'hover:bg-gray-100 border-gray-300']"
+                    :class="[formTrackingNumber.shipping_id?.id == shipment.id ? 'bg-gray-200 border-gray-400' : 'hover:bg-gray-100 border-gray-300']"
                 >
                     <div class="font-bold text-sm">{{ shipment.name }}</div>
                     <div class="text-xs text-gray-500 italic">{{ shipment.phone }}</div>

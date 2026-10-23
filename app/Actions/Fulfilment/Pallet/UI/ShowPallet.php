@@ -319,7 +319,12 @@ class ShowPallet extends OrgAction
             ]
         ];
 
-        if ($this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer && request()->user()->authTo([
+            "fulfilment-shop.{$this->fulfilment->id}.view",
+            "supervisor-fulfilment-shop.{$this->fulfilment->id}",
+            "accounting.{$this->organisation->id}.view",
+            'group-webmaster.view',
+        ])) {
             $actions[] = [
                 'type'   => 'button',
                 'style'  => 'tertiary',

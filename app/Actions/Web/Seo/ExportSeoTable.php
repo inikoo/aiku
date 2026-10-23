@@ -17,6 +17,7 @@ use App\Actions\Web\Seo\UI\IndexSeoContentSuggestions;
 use App\Actions\Web\Seo\UI\IndexSeoRankings;
 use App\Actions\Web\Seo\UI\IndexSeoReferringDomains;
 use App\Actions\Web\Seo\UI\IndexSeoTrackedKeywords;
+use App\Actions\Web\Seo\UI\ShowSeoKeywords;
 use App\Actions\Web\Webpage\UI\IndexWebpagesPerformance;
 use App\Actions\Web\WebsiteNotFoundPath\UI\IndexWebsiteNotFoundPaths;
 use App\Enums\DateIntervals\DateIntervalEnum;
@@ -49,7 +50,7 @@ class ExportSeoTable extends OrgAction
 
     public const int MAX_ROWS = 20000;
 
-    public const array TABLES = ['rankings', 'tracked_keywords', 'top_pages', 'missing_pages', 'referring_domains', 'backlinks', 'keyword_gap', 'search_queries', 'search_opportunities', 'site_audit_issue_pages', 'content_suggestions'];
+    public const array TABLES = ['research', 'rankings', 'tracked_keywords', 'top_pages', 'missing_pages', 'referring_domains', 'backlinks', 'keyword_gap', 'search_queries', 'search_opportunities', 'site_audit_issue_pages', 'content_suggestions'];
 
     private const int PAGE_SIZE = 2000;
 
@@ -57,9 +58,10 @@ class ExportSeoTable extends OrgAction
     {
         $website = $shop->website;
 
-        abort_unless($website || in_array($table, ['rankings', 'tracked_keywords'], true), 404);
+        abort_unless($website || in_array($table, ['research', 'rankings', 'tracked_keywords'], true), 404);
 
         [$headings, $rows] = match ($table) {
+            'research'          => $this->research($shop, $request),
             'rankings'          => $this->rankings($shop),
             'tracked_keywords'  => $this->trackedKeywords($shop),
             'top_pages'         => $this->topPages($website, $request),
@@ -104,12 +106,48 @@ class ExportSeoTable extends OrgAction
         return $value ? Carbon::parse($value)->toDateString() : null;
     }
 
+    /**
+     * The keyword ideas of the search on screen, repeated from the cache the search filled, so the
+     * export costs no DataForSEO credit within 24 hours of it; the intent filter is applied on
+     * screen, so the button sends it along.
+     */
+    private function research(Shop $shop, ActionRequest $request): array
+    {
+        $research = ShowSeoKeywords::make()->research($shop, ShowSeoKeywords::make()->researchQuery($shop, $request));
+        $intent   = $request->query('intent');
+
+        abort_if(!$research || $research['keyword_data']['error'], 404);
+
+        return [
+            ['Keyword', 'Monthly searches', 'Trend (last 12 months)', 'Competition', 'CPC', 'Low top of page bid', 'High top of page bid', 'KD', 'Intent', 'Secondary intents', 'SERP features', 'SERP updated', 'Tracked'],
+            collect($research['keyword_data']['ideas'])
+                ->filter(fn (array $idea) => !$intent || $idea['intent'] === $intent)
+                ->map(fn (array $idea) => [
+                    $idea['keyword'],
+                    $idea['avg_monthly_searches'],
+                    collect($idea['monthly_searches'])->take(-12)->pluck('searches')->implode(', '),
+                    $idea['competition'],
+                    $idea['cpc'],
+                    $idea['low_top_of_page_bid'],
+                    $idea['high_top_of_page_bid'],
+                    $idea['keyword_difficulty'],
+                    $idea['intent'],
+                    implode(', ', $idea['secondary_intents']),
+                    implode(', ', $idea['serp_features']),
+                    $idea['serp_updated_at'],
+                    $idea['is_tracked'] ? 'yes' : 'no',
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
     private function rankings(Shop $shop): array
     {
         $rows = $this->allRows('rankings', fn () => IndexSeoRankings::make()->variants($shop, 'rankings'));
 
         return [
-            ['Keyword', 'Country', 'Device', 'Check', 'Position', 'Previous position', 'Last checked', 'Ranking page', 'Monthly searches', 'Intent', 'Search Console position (28 days)', 'On the results page', 'In AI Overview', 'Alert', 'Competitors'],
+            ['Keyword', 'Country', 'Device', 'Check', 'Position', 'Previous position', 'Last checked', 'Ranking page', 'Monthly searches', 'KD', 'Intent', 'Tags', 'Search Console position (28 days)', 'On the results page', 'In AI Overview', 'Alert', 'Competitors'],
             $rows->map(fn ($row) => [
                 $row->keyword,
                 $row->country_code,
@@ -120,7 +158,9 @@ class ExportSeoTable extends OrgAction
                 self::date($row->last_checked_at),
                 $row->ranking_url,
                 $row->avg_monthly_searches,
+                $row->keyword_difficulty,
                 $row->intent,
+                collect($row->tags ?? [])->pluck('name')->implode(', '),
                 $row->search_console_position,
                 implode(', ', $row->serp_features ?? []),
                 $row->in_ai_overview ? 'yes' : 'no',
@@ -135,7 +175,7 @@ class ExportSeoTable extends OrgAction
         $rows = $this->allRows('tracked_keywords', fn () => IndexSeoTrackedKeywords::make()->markets($shop, 'tracked_keywords'));
 
         return [
-            ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Target webpage', 'Added'],
+            ['Keyword', 'Country', 'Language', 'Check', 'Active', 'Monthly searches', 'Tags', 'Target webpage', 'Added'],
             $rows->map(fn ($row) => [
                 $row->keyword,
                 $row->country_code,
@@ -143,6 +183,7 @@ class ExportSeoTable extends OrgAction
                 $row->frequency?->value,
                 $row->is_active ? 'yes' : 'no',
                 $row->avg_monthly_searches,
+                collect($row->tags ?? [])->pluck('name')->implode(', '),
                 $row->target_webpage_code,
                 self::date($row->created_at),
             ])->all(),

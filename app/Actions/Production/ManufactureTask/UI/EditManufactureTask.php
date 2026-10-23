@@ -115,6 +115,13 @@ class EditManufactureTask extends OrgAction
                                     'value'       => $manufactureTask->is_recorded_in_kg,
                                     'required'    => true
                                 ],
+                                'is_quantity_only' => [
+                                    'type'        => 'toggle',
+                                    'label'       => __('Quantity only, no timer'),
+                                    'information' => __('Turn on for hourly work such as filling to order: the artisan enters the quantity made and presses Done, with no Start/Stop timer. The session keeps who made it and when, with no hours.'),
+                                    'value'       => $manufactureTask->is_quantity_only,
+                                    'required'    => true
+                                ],
                                 'status' => [
                                     'type'     => 'toggle',
                                     'label'    => __('Active'),

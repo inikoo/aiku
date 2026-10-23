@@ -20,6 +20,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Actions\UI\WithInertia;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum;
 use App\Enums\GoodsIn\ReturnDeliveryNoteItem\ReturnDeliveryNoteItemStateEnum;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
@@ -396,9 +397,9 @@ class ShowReturnDeliveryNote extends OrgAction
                 'current'    => $this->tab,
                 'navigation' => $returnDeliveryNote->state == ReturnDeliveryNoteStateEnum::RETURNING
                     ?
-                    DeliveryNoteTabsEnum::navigationExcept($returnDeliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES])
+                    DeliveryNoteTabsEnum::navigationExcept($returnDeliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES, DeliveryNoteTabsEnum::DISPATCHED_EMAILS])
                     :
-                    DeliveryNoteTabsEnum::navigationExcept($returnDeliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::DONE_ITEMS, DeliveryNoteTabsEnum::PENDING_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES])
+                    DeliveryNoteTabsEnum::navigationExcept($returnDeliveryNote, [DeliveryNoteTabsEnum::PICKING_TODO_ITEMS, DeliveryNoteTabsEnum::PICKING_DONE_ITEMS, DeliveryNoteTabsEnum::DONE_ITEMS, DeliveryNoteTabsEnum::PENDING_ITEMS, DeliveryNoteTabsEnum::TARIFF_CODES, DeliveryNoteTabsEnum::DISPATCHED_EMAILS])
             ],
             'address'             => [
                 'delivery' => AddressResource::make($returnDeliveryNote->deliveryNote->deliveryAddress ?? new Address()),
@@ -426,6 +427,7 @@ class ShowReturnDeliveryNote extends OrgAction
                 'type' => $returnDeliveryNote->shop?->type?->value,
             ],
             'return_delivery_note' => [],
+            'replacement_reasons'  => DeliveryNoteItemReplacementReasonEnum::valuesWithLabels(),
         ];
 
 

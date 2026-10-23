@@ -10,6 +10,7 @@
 
 namespace App\Actions\Goods\TradeUnit\UI;
 
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Goods\TradeUnit\GetLabelInfoLanguages;
 use App\Enums\Goods\TradeUnit\TradeUnitLabelPresenceEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitBestBeforeEnum;
@@ -217,6 +218,7 @@ class GetTradeUnitShowcase
             ],
             'attachment_box' =>  $this->getAttachmentData($tradeUnit),
             'images' => $this->getImagesData($tradeUnit),
+            'supplier_products' => GetSupplierProductsShowcaseData::run($tradeUnit->supplierProducts),
         ];
     }
 

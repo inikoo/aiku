@@ -30,7 +30,7 @@ return [
         'mit_saved_cards', 'fcm_tokens', 'user_push_subscriptions', 'user_failed_log_ins', 'web_user_failed_logins',
         'allegro_users', 'amazon_users', 'ebay_users', 'magento_users', 'shopify_users', 'tiktok_users', 'wix_users', 'woo_commerce_users',
         'shopify_user_has_fulfilments', 'tiktok_user_has_*', 'wc_user_has_products',
-        'supplier_users', 'shipper_accounts', 'staff_messages', 'staff_message_*', 'email_archive_messages',
+        'shipper_accounts', 'staff_messages', 'staff_message_*', 'email_archive_messages',
         'telescope_*', 'migrations', 'pg_stat_statements*',
     ],
 
@@ -119,7 +119,7 @@ return [
          */
         'customers' => [
             'customers', 'customer_*', 'web_users', 'web_user_logins', 'web_user_requests', 'web_user_has_dispatched_emails',
-            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails', 'appointment_types', 'appointment_type_user', 'appointment_type_dates', 'appointments',
+            'addresses', 'model_has_addresses', 'model_has_fixed_addresses', 'email_addresses', 'prospects', 'prospect_has_dispatched_emails', 'appointment_types', 'appointment_type_user', 'appointment_type_dates', 'appointments', 'appointment_blocks',
             'product_has_exclusive_customers', 'product_last_seens', 'fulfilment_customers', 'luna_clients', 'subscriptions', 'subscription_events', 'preferred_shippings', 'tax_numbers',
         ],
 
@@ -141,7 +141,7 @@ return [
         ],
 
         'procurement' => [
-            'suppliers', 'supplier_*', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
+            'suppliers', 'supplier_*', 'packing_spec_lines', 'historic_supplier_product*', 'org_suppliers', 'org_supplier_*',
             'agents', 'agent_*', 'org_agents', 'org_partners', 'partner_shopping_list_items',
             'purchase_order*', 'stock_deliver*', 'aspo_deposits', 'deposit_request*', 'competitor*',
             'org_stock_discontinue_suggestions', 'procurement_notes',
@@ -157,7 +157,7 @@ return [
             'model_has_dispatched_emails', 'meta_tracking_events', 'whatsapp_*', 'traffic_source*', 'model_has_traffic_sources', 'seo_*', 'search_console_*', 'crux_records',
             'crawl*', 'google_ads_media_assets', 'google_tag_manager_*', 'websites', 'website_*', 'webpages', 'webpage_*', 'web_block*', 'web_layout_templates',
             'model_has_web_blocks', 'model_has_contents', 'banners', 'slides', 'snapshots', 'redirects', 'external_links', 'announcement*',
-            'marketing_*', 'customer_interests', 'customer_web_activities', 'customer_product_suggestions', 'ip_geolocations', 'search_logs',
+            'marketing_*', 'customer_interests', 'customer_web_activities', 'customer_product_suggestions', 'ip_geolocations', 'search_logs', 'social_media_*',
         ],
 
         'finance' => [
@@ -177,7 +177,7 @@ return [
         'engineering' => [
             'users', 'user_*', 'admins', 'roles', 'role_*', 'permissions', 'model_has_permissions', 'model_has_roles', 'job_position_role',
             'audits', 'failed_jobs', 'job_exceptions', 'job_statistics', 'queue_statistics', 'queries', 'query_has_models', 'scheduled_task_logs',
-            'deployments', 'app_deployments', 'ci_runs', 'committers', 'servers', 'server_metric*', 'debug_webhooks', 'payment_gateway_logs',
+            'deployments', 'app_deployments', 'ci_runs', 'ci_metric_snapshots', 'committers', 'servers', 'server_metric*', 'debug_webhooks', 'payment_gateway_logs',
             'fetch*', 'chunks', 'uploads', 'upload_records', 'mcp_*', 'ai_usages', 'notifications', 'retina_api_requests', 'aiku_*',
             'staff_conversations', 'staff_conversation_participants',
             'model_has_attachments', 'external_subscriber_*', 'web_vital_samples', 'restricted_country_region_logs', 'subscription_events',

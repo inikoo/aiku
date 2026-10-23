@@ -9,10 +9,14 @@
 use App\Actions\Catalogue\Shop\UI\EditShop;
 use App\Actions\Comms\Mailbox\ConnectShopMailbox;
 use App\Actions\Comms\Mailbox\DisconnectShopMailbox;
-use App\Actions\CRM\Customer\GoogleAds\ConnectShopGoogleAds;
+use App\Actions\CRM\Appointment\GoogleCalendar\ConnectShopGoogleCalendar;
+use App\Actions\CRM\Appointment\GoogleCalendar\DisconnectShopGoogleCalendar;
+use App\Actions\CRM\Appointment\GoogleCalendar\ReconcileShopGoogleCalendar;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', EditShop::class)->name('edit');
-Route::get('google-ads/connect', ConnectShopGoogleAds::class)->name('google_ads.connect');
 Route::get('mailbox/connect', ConnectShopMailbox::class)->name('mailbox.connect');
 Route::post('mailbox/disconnect', DisconnectShopMailbox::class)->name('mailbox.disconnect');
+Route::get('google-calendar/connect', ConnectShopGoogleCalendar::class)->name('google_calendar.connect');
+Route::post('google-calendar/disconnect', DisconnectShopGoogleCalendar::class)->name('google_calendar.disconnect');
+Route::post('google-calendar/sync', ReconcileShopGoogleCalendar::class)->name('google_calendar.sync');

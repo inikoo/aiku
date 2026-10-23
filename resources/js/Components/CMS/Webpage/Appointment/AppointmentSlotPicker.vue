@@ -12,9 +12,10 @@ library.add(faGlobe)
 const props = defineProps<{
     slots: Record<string, string[]>
     timezone?: string
-    confirmLabel: string
+    confirmLabel?: string
     error?: string
     isLoading?: boolean
+    hideTitle?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -119,7 +120,7 @@ const datePickerPt = {
 <template>
     <section class="appointment-pick">
         <div class="min-w-0 flex-1">
-            <h3 class="mb-6 text-xl font-bold text-slate-800">{{ ctrans("Select a Date & Time") }}</h3>
+            <h3 v-if="!hideTitle" class="mb-6 text-xl font-bold text-slate-800">{{ ctrans("Select a Date & Time") }}</h3>
 
             <div v-if="!availableDates.length" class="py-10 text-center text-sm text-slate-500">
                 {{ ctrans("No free times right now. Please check again later.") }}
@@ -160,7 +161,7 @@ const datePickerPt = {
                             {{ time }}
                         </button>
                         <button
-                            v-if="time === selectedTime" type="button"
+                            v-if="confirmLabel && time === selectedTime" type="button"
                             class="appointment-time appointment-time-next"
                             :disabled="isLoading"
                             @click="emits('confirm')">

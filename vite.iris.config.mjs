@@ -12,8 +12,7 @@ import { fileURLToPath, URL } from "node:url";
 import path from "node:path";
 import tailwindcss from 'tailwindcss';
 import { analyzer } from 'vite-bundle-analyzer'
-import { codecov } from "./vite.codecov.mjs";
-import { langFilter, faPerIconImports, FA_COMMONJS_OPTIONS } from "./vite.app-plugins.mjs";
+import { langFilter, faPerIconImports, FA_COMMONJS_OPTIONS, withSharedLangFiles } from "./vite.app-plugins.mjs";
 import { createRequire } from "node:module";
 
 /* A plain import would be inlined by the esbuild pass vite runs over this config, breaking
@@ -49,10 +48,9 @@ export default defineConfig(({ isSsrBuild }) =>
               }
             }
           }),
-      i18n(),
+      withSharedLangFiles(i18n()),
       langFilter(irisModuleGraph),
-      faPerIconImports(),
-      codecov(isSsrBuild ? "iris-ssr" : "iris")
+      faPerIconImports()
      // , analyzer()
     ],
     ssr    : {
@@ -81,6 +79,7 @@ export default defineConfig(({ isSsrBuild }) =>
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       // transpile: ["@fortawesome/vue-fontawesome", "@fortawesome/fontawesome-svg-core"],        
       devSourcemap : true,
       commonjsOptions: FA_COMMONJS_OPTIONS,

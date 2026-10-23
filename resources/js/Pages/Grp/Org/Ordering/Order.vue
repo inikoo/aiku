@@ -111,6 +111,7 @@ import { Icon as IconTS } from "@/types/Utils/Icon"
 import ShipmentSection from "@/Components/Warehouse/DeliveryNotes/ShipmentSection.vue"
 import CustomsExportLink from "@/Components/Warehouse/DeliveryNotes/CustomsExportLink.vue"
 import { ctrans } from "@/Composables/useTrans"
+import { useFormatTime } from "@/Composables/useFormatTime"
 
 library.add(faParachuteBox, faEllipsisH, faSortNumericDown, fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faEdit, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip, faSpinnerThird, faMapMarkerAlt, faUndo, faStar, faShieldAlt, faPlus, faCopy, faMoneyCheckEditAlt, faSackDollar, faInfoCircle)
 
@@ -545,6 +546,14 @@ const onSubmitNote = async (closePopup: Function) => {
         })
     }
 }
+
+const addServiceAction = computed(() => props.pageHead.actions?.find((action: any) => action?.key === 'add-service'))
+const uploadExcelButton = computed(() => props.upload_excel ? props.pageHead.actions?.find((action: any) => action?.key === 'upload-add')?.button?.[0] : undefined)
+const pageHeadWithUploadInAddGroup = computed(() => ({
+    ...props.pageHead,
+    actions: props.pageHead.actions?.filter((action: any) => action?.key !== 'upload-add'),
+}))
+const hasAddProductAction = computed(() => !!props.pageHead.actions?.some((action: any) => action?.key === 'add-product'))
 
 const openModal = (action: any, itemType: string = 'product') => {
     currentAction.value = action
@@ -1710,11 +1719,18 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </template>
     </ConfirmDialog>
 
-    <PageHeading :data="pageHead">
+    <PageHeading :data="pageHeadWithUploadInAddGroup">
         <template #button-add-product="{ action }">
-            <div class="relative">
-                <Button v-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'product')"
-                    :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
+            <div class="contents">
+                <div v-if="!is_shop_external" class="flex items-stretch">
+                    <Button v-if="uploadExcelButton" :style="uploadExcelButton.style" :label="uploadExcelButton.label" :icon="uploadExcelButton.icon"
+                        :tooltip="uploadExcelButton.tooltip" class="!rounded-r-none" @click="() => isModalUploadExcel = true" />
+                    <Button :style="action.style" :label="addServiceAction ? ctrans('Product') : action.label" :icon="addServiceAction ? 'fal fa-plus' : action.icon"
+                        :tooltip="action.tooltip" @click="() => openModal(action, 'product')"
+                        :class="[uploadExcelButton && '!rounded-l-none !border-l-0', addServiceAction && '!rounded-r-none']" />
+                    <Button v-if="addServiceAction" :style="addServiceAction.style" :label="ctrans('Service')" icon="fal fa-plus" :tooltip="addServiceAction.tooltip"
+                        class="!rounded-l-none !border-l-0" @click="() => openModal(addServiceAction, 'service')" />
+                </div>
             </div>
         </template>
 
@@ -1732,8 +1748,8 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </template>
 
         <template #button-add-service="{ action }">
-            <div class="relative">
-                <Button v-if="!is_shop_external" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'service')"
+            <div class="contents">
+                <Button v-if="!is_shop_external && !hasAddProductAction" :style="action.style" :label="action.label" :icon="action.icon" @click="() => openModal(action, 'service')"
                     :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
             </div>
         </template>
@@ -1756,17 +1772,6 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
             </div>
         </template>
 
-        <!-- Button: Upload -->
-        <template #button-group-upload-add="{ action }">
-            <div class="relative"
-                :class="upload_excel && !is_shop_external ? '' : 'hidden'"
-            >
-                <Button v-if="upload_excel && !is_shop_external" :style="action.button[0].style" :label="action.button[0].label"
-                    :icon="action.button[0].icon" @click="() => isModalUploadExcel = true"
-                    :key="`ActionButton${action.button[0].label}${action.button[0].style}`"
-                    :tooltip="action.button[0].tooltip" />
-            </div>
-        </template>
 
 
 
@@ -1784,7 +1789,6 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                 </div>
             </div>
             <Button v-if="email_customer" :label="ctrans('Email customer')" icon="fal fa-envelope" type="tertiary" @click="openEmailCustomer" />
-            <StaffChatContextButtons v-if="staff_chat" :context="staff_chat"/>
             <StaffTaskPanel v-if="staff_task" :model-type="staff_task.model_type" :model-id="staff_task.model_id"/>
         </template>
 
@@ -1812,6 +1816,12 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                     </div>
                 </template>
             </ButtonWithLink>
+        </template>
+
+        <template #wrapped-staff-chat>
+            <div class="contents">
+                <StaffChatContextButtons v-if="staff_chat" :context="staff_chat" full />
+            </div>
         </template>
 
         <template #wrapped-add-note="{ action }">
@@ -1985,7 +1995,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
         </Transition>
     </div>
 
-    <PreOrderPanel v-if="pre_order" :pre_order :canEdit="can_edit" />
+    <PreOrderPanel v-if="pre_order" :pre_order :canEdit="pre_order.can_manage" />
     <div v-if="split_pre_order" class="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">
         {{ ctrans("The pre-order items of this order were split into order :reference, sent when they arrive.", { reference: split_pre_order.reference }) }}
     </div>
@@ -2467,6 +2477,9 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                                         <span v-else-if="shipment.name" class="text-gray-400 italic">
                                             {{ ctrans("No shipment information") }}
                                         </span>
+                                        <div v-if="shipment.delivered_at" class="text-green-600">
+                                            {{ ctrans('Delivered :date', { date: useFormatTime(shipment.delivered_at, { formatTime: 'short-datetime' }) }) }}
+                                        </div>
                                     </li>
                                 </ul>
                             </div>
@@ -2626,7 +2639,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
                             />
                         </div>
 
-                        <div v-if="(can_edit || can_pay) && props.external_shop?.engine_value === 'faire'">
+                        <div v-if="(can_edit || can_pay) && props.external_shop?.engine_value === 'faire' && props.data?.data?.state !== 'cancelled'">
                             <ButtonWithLink
                                 :label="ctrans('Refresh Faire data')"
                                 size="xs"
@@ -3481,8 +3494,7 @@ const getShipmentFromPlatform = (deliveryNote: {}) => {
 
     <UploadExcel v-if="props.upload_excel && !is_shop_external" v-model="isModalUploadExcel" :title="upload_excel.title"
         :progressDescription="upload_excel.progressDescription" :upload_spreadsheet="upload_excel.upload_spreadsheet"
-        :preview_template="upload_excel.preview_template" :propsRefreshAfterFinish="['transactions', 'box_stats']"
-        :xadditionalDataToSend="'interest.pallets_storage' ? ['stored_items'] : undefined" />
+        :preview_template="upload_excel.preview_template" :propsRefreshAfterFinish="['transactions', 'box_stats']" />
 
     <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
         label: 'Upload your file',

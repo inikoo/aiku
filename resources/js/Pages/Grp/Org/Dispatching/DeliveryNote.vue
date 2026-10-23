@@ -65,6 +65,7 @@ import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.
 import ModalConfirmation from "@/Components/Utils/ModalConfirmation.vue"
 import PureCheckbox from "@/Components/Pure/PureCheckbox.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import TableDispatchedEmailsInOrder from "@/Pages/Grp/Org/Ordering/TableDispatchedEmailsInOrder.vue";
 import ButtonSelectTrolleys from "@/Components/DeliveryNote/ButtonSelectTrolleys.vue"
 import ButtonSelectBays from "@/Components/DeliveryNote/ButtonSelectBays.vue"
 import ButtonPutBackIncompleteSets from "@/Components/DeliveryNote/ButtonPutBackIncompleteSets.vue"
@@ -80,6 +81,7 @@ library.add(faSmileWink, faEye, faRecycle, faTired, faFilePdf, faFolder, faBoxCh
 
 const props = defineProps<{
 	aurora_notice?: string | null
+	read_only_notice?: string | null
     title: string,
     pageHead: PageHeadingTypes
     staff_chat?: { context_type: string; context_id: number; audiences: { key: string; label: string }[] }
@@ -190,6 +192,7 @@ const props = defineProps<{
         slug: string
     }
 	history?: {}
+	dispatched_emails?: {}
 	shop: {
 		type: string   // 'b2b', 'dropshipping'
 	}
@@ -225,6 +228,7 @@ const component = computed(() => {
         done_items: TableDeliveryNoteItems,
         tariff_codes: TableDeliveryNoteTariffCodes,
 		history: TableHistories,
+		dispatched_emails: TableDispatchedEmailsInOrder,
         pickings: TablePickings
     };
 
@@ -830,7 +834,7 @@ const stopSocketListener = () => {
 				class="hover:underline cursor-pointer"
 			>
 				<FontAwesomeIcon :icon="faExchange" class="opacity-75" fixed-width />
-				<span class="ml-2 font-normal text-lg leading-none text-indigo-500">
+				<span class="ml-2 font-normal text-lg leading-none text-gray-500">
 					{{ ctrans("Returned") }}
 				</span>
 			</div>
@@ -860,7 +864,7 @@ const stopSocketListener = () => {
 				:href="route(delivery_note.gift_message_print_route.name, delivery_note.gift_message_print_route.parameters)"
 				target="_blank"
 				v-tooltip="ctrans('Print gift message')"
-				class="ml-2 text-sm text-indigo-500 hover:underline"
+				class="ml-2 text-sm font-medium text-gray-700 hover:underline"
 			>
 				{{ ctrans('Print gift message') }}
 			</a>
@@ -1068,6 +1072,11 @@ const stopSocketListener = () => {
             <div class="text-xl font-bold uppercase">{{ ctrans("Process in Aurora") }}</div>
             <div class="text-base">{{ aurora_notice }}</div>
         </div>
+    </div>
+
+    <div v-if="read_only_notice" class="mx-3 mt-3 flex items-center gap-x-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+        <FontAwesomeIcon :icon="faEye" class="text-gray-400" fixed-width aria-hidden="true" />
+        {{ read_only_notice }}
     </div>
 
 	<!-- Section: Consumables the packer must add to the box -->
@@ -1401,7 +1410,7 @@ const stopSocketListener = () => {
 						class="relative isolate w-full max-w-52 h-20 border rounded-md px-5 py-3 cursor-pointer"
 						:class="[
 							formTrackingNumber.shipping_id?.id == shipment.id
-								? 'bg-indigo-200 border-indigo-300'
+								? 'bg-gray-200 border-gray-300'
 								: 'hover:bg-gray-100 border-gray-300',
 						]">
 						<div class="font-bold tesm">{{ shipment.name }}</div>

@@ -2,12 +2,15 @@
 
 namespace App\Actions\CRM\AppointmentType;
 
+use App\Actions\CRM\Appointment\Zoom\ZoomClient;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMediaEnum;
+use App\Services\GoogleCalendar\GoogleCalendarClient;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\CRM\AppointmentType;
 use App\Rules\IUnique;
 use Closure;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -32,7 +35,7 @@ trait WithAppointmentTypeRules
             'description'                   => [...$optional, 'nullable', 'string', 'max:5000'],
             'meeting_mode'                  => [...$required, Rule::enum(AppointmentTypeMeetingModeEnum::class)],
             'location'                      => [...$optional, 'nullable', 'string', 'max:255', $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::STORE_VISIT, $appointmentType)],
-            'media'                         => [...$optional, 'nullable', Rule::enum(AppointmentTypeMediaEnum::class), $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::VIDEO_CALL, $appointmentType)],
+            'media'                         => [...$optional, 'nullable', Rule::enum(AppointmentTypeMediaEnum::class), $this->belongsToMeetingMode(AppointmentTypeMeetingModeEnum::VIDEO_CALL, $appointmentType), $this->zoomIsConfigured(), $this->googleCalendarIsConnected()],
             'duration_minutes'              => [...$required, 'integer', 'min:5', 'max:480'],
             'buffer_minutes'                => [...$optional, 'integer', 'min:0', 'max:240'],
             'min_notice_hours'              => [...$optional, 'integer', 'min:0', 'max:720'],
@@ -109,6 +112,24 @@ trait WithAppointmentTypeRules
      * On the edit page every field saves on its own, so a location or media can arrive while the
      * saved visit type is still the other one. Saving it would silently drop it.
      */
+    private function zoomIsConfigured(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) {
+            if ($value === AppointmentTypeMediaEnum::ZOOM->value && !ZoomClient::make()->isConfigured($this->shop)) {
+                $fail(__('Add the Zoom details in the shop settings first, so each appointment can get its own Zoom meeting.'));
+            }
+        };
+    }
+
+    private function googleCalendarIsConnected(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) {
+            if ($value === AppointmentTypeMediaEnum::GOOGLE_MEET->value && !GoogleCalendarClient::isConnected($this->shop)) {
+                $fail(__('Connect Google Calendar in the shop settings first, so each appointment can get its own Google Meet link.'));
+            }
+        };
+    }
+
     private function belongsToMeetingMode(AppointmentTypeMeetingModeEnum $meetingMode, ?AppointmentType $appointmentType): Closure
     {
         return function (string $attribute, mixed $value, Closure $fail) use ($meetingMode, $appointmentType) {
@@ -179,5 +200,20 @@ trait WithAppointmentTypeRules
                 ['hours' => $this->sortedRanges((array) Arr::get($dateData, 'hours', []))]
             );
         }
+    }
+
+    protected function syncStaffOfMeetingMode(AppointmentType $appointmentType): void
+    {
+        $appointmentType->attendees()->sync(
+            DB::table('appointment_type_user')
+                ->join('appointment_types', 'appointment_types.id', '=', 'appointment_type_user.appointment_type_id')
+                ->where('appointment_types.shop_id', $appointmentType->shop_id)
+                ->where('appointment_types.meeting_mode', $appointmentType->meeting_mode->value)
+                ->where('appointment_types.id', '!=', $appointmentType->id)
+                ->whereNull('appointment_types.deleted_at')
+                ->distinct()
+                ->pluck('appointment_type_user.user_id')
+                ->all()
+        );
     }
 }

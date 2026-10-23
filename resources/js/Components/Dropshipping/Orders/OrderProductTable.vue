@@ -42,7 +42,12 @@ type ProductRow = {
     asset_name: string
     is_discretionary_offer?: boolean
     quantity_ordered: number
+    quantity_bonus?: number
+    is_gift?: boolean
+    amount_modified?: number
     available_quantity?: number
+    is_on_demand?: boolean
+    shelf_quantity?: number | null
     quantity_ordered_fractional: [number, [number, number]]
     product_slug?: string
     updateRoute: routeType
@@ -277,7 +282,9 @@ const addNewProduct = (products) => {
             quantity_ordered: product.quantity_selected,
             net_amount: product.quantity_selected * product.price,
             asset_name: product.name,
-            available_quantity: product.available_quantity
+            available_quantity: product.available_quantity,
+            is_on_demand: product.is_on_demand,
+            shelf_quantity: product.shelf_quantity
         }
 
         if (existingIndex >= 0) {
@@ -305,7 +312,11 @@ defineExpose({
 })
 
 const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
-    let valueToCompare = is_cut_view ? (
+    if (item.is_gift) {
+        is_cut_view = false
+    }
+
+    let valueToCompare = item.is_gift ? Number(item.quantity_bonus) : is_cut_view ? (
             (item.quantity_ordered_fractional[0] * item.quantity_ordered_fractional[1][1]) + item.quantity_ordered_fractional[1][0]
         ) : item.quantity_ordered;
 
@@ -319,7 +330,7 @@ const updateQuantityOrdered = (item: ProductRow, is_cut_view: boolean) => {
         }
     }
 
-    if (valueToCompare == item.amount_modified) {
+    if (item.amount_modified === undefined || item.amount_modified === null || valueToCompare == item.amount_modified) {
         editingIds.value.delete(item.id)
         return
     }
@@ -555,11 +566,13 @@ const isOffersData = (offersData: any): boolean => {
                         <FontAwesomeIcon icon="fas fa-exclamation-triangle" class="text-amber-500 mr-1" fixed-width aria-hidden="true" />
                         {{ ctrans('Repacked since ordered') }}: {{ item.product_units }} → {{ item.units_changed_to }}
                     </div>
-                    <div v-if="item.model_type === 'Product' && item.available_quantity !== undefined && item.available_quantity < 1">
+                    <div v-if="item.model_type === 'Product' && !item.is_on_demand && item.available_quantity !== undefined && item.available_quantity < 1">
                         <Tag label="Out of stock" no-hover-color :theme="7" size="xxs" />
                     </div>
                     <div v-else-if="item.model_type === 'Product'" class="text-gray-500 italic text-xs">
-                        Stock: {{ locale.number(item.available_quantity || 0) }} available
+                        <template v-if="item.is_on_demand && item.shelf_quantity != null">{{ ctrans("Stock: :quantity on the shelf, made on demand", { quantity: locale.number(item.shelf_quantity) }) }}</template>
+                        <template v-else-if="item.is_on_demand">{{ ctrans("Made on demand") }}</template>
+                        <template v-else>Stock: {{ locale.number(item.available_quantity || 0) }} available</template>
                         <span v-if="item.is_follow_on" v-tooltip="ctrans('Follow on from a previous order')">
                             <FontAwesomeIcon icon="fal fa-repeat" class="text-sky-500 not-italic ml-1" fixed-width aria-hidden="true" />
                         </span>
@@ -582,10 +595,34 @@ const isOffersData = (offersData: any): boolean => {
             <!-- Column: Quantity Ordered -->
             <template #cell(quantity_ordered)="{ item, proxyItem }">
                 <div class="flex items-center justify-end gap-2">
-                    <div v-if="item.is_gift">
+                    <div v-if="item.is_gift && !editingIds.has(item.id)">
                         {{ locale.number(item.quantity_bonus) }}
                         <span v-tooltip="ctrans('Quantity of free gift')">
                             <FontAwesomeIcon icon="fal fa-gift" class="" fixed-width aria-hidden="true" />
+                        </span>
+                    </div>
+
+                    <div v-else-if="item.is_gift" class="flex items-center gap-x-2">
+                        <InputNumber
+                            :model-value="createNewQty[item.id].amount_modified ?? Number(item.quantity_bonus)"
+                            @update:modelValue="(e: number) => { createNewQty[item.id].amount_modified = e }"
+                            showButtons
+                            buttonLayout="horizontal"
+                            :step="1"
+                            :min="0"
+                            :max="Number(item.quantity_bonus)"
+                            :inputStyle="{ width: quantityInputWidth(createNewQty[item.id].amount_modified ?? item.quantity_bonus, false), textAlign: 'center' }"
+                            fluid
+                        >
+                            <template #incrementbuttonicon>
+                                <FontAwesomeIcon :icon="faPlus" fixed-width />
+                            </template>
+                            <template #decrementbuttonicon>
+                                <FontAwesomeIcon :icon="faMinus" fixed-width />
+                            </template>
+                        </InputNumber>
+                        <span v-tooltip="ctrans('A free gift can be lowered or removed, not raised')">
+                            <FontAwesomeIcon icon="fal fa-gift" fixed-width aria-hidden="true" />
                         </span>
                     </div>
 
@@ -616,16 +653,13 @@ const isOffersData = (offersData: any): boolean => {
                             showButtons 
                             buttonLayout="horizontal"
                             :step="1" 
-                            min='0'
-                            v-bind="bindToTarget" 
+                            :min="0"
                             :suffix="isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1
                                 ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                 : undefined
                                 " 
                             :inputStyle="{
-                                    width: bindToTarget?.fluid
-                                        ? undefined
-                                        : quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                    width: quantityInputWidth(item.quantity_ordered, isCutView(proxyItem) && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                     textAlign: 'center',
                                 }" 
                             fluid
@@ -717,16 +751,13 @@ const isOffersData = (offersData: any): boolean => {
                                 showButtons 
                                 buttonLayout="horizontal"
                                 :step="1" 
-                                min='0'
-                                v-bind="bindToTarget" 
+                                :min="0"
                                 :suffix="proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1
                                     ? `/${Number(item.quantity_ordered_fractional[1][1])}`
                                     : undefined
                                     " 
                                 :inputStyle="{
-                                        width: bindToTarget?.fluid
-                                            ? undefined
-                                            : quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
+                                        width: quantityInputWidth(createNewQty[item.id].amount_modified ?? createNewQty[item.id].quantity_ordered, proxyItem.is_cut_view && Number(item.quantity_ordered_fractional[1][1]) > 1),
                                         textAlign: 'center',
                                     }" 
                                 fluid

@@ -54,6 +54,17 @@ trait WithAgentSubNavigation
                     "tooltip" => __("Products"),
                 ],
             ],
+            [
+                "label"    => __("Sales"),
+                "route"     => [
+                    "name"       => "grp.supply-chain.agents.show.sales",
+                    "parameters" => [$parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-chart-line"],
+                    "tooltip" => __("Sales"),
+                ],
+            ],
         ];
     }
 }

@@ -30,6 +30,7 @@ import { Checkbox } from 'primevue'
 import { watch } from 'vue'
 import axios from 'axios'
 import Image from "@common/Components/Image.vue"
+import SummaryCards, { type SummaryCard } from "@/Components/DataDisplay/SummaryCards.vue"
 
 const screenType = inject('screenType', ref('desktop'))
 library.add(faSeedling, faPenAlt, faFolder)
@@ -41,7 +42,7 @@ const props = defineProps<{
         current: string
         navigation: {}
     },
-    data: {}
+    data?: {}
     index?: {}
     sales?: {}
     need_review?: {}
@@ -53,7 +54,28 @@ const props = defineProps<{
     is_orphan_families?: boolean
     shops_do_not_have_family?: {}[]
     master_product_category_id?: number
+    shops_status?: {
+        total: number
+        states: Array<{ state: string, label: string, count: number, shops: string[] }>
+    }
 }>()
+
+const shopStatusCards = computed<SummaryCard[]>(() => {
+    if (!props.shops_status) {
+        return []
+    }
+
+    const countByState = Object.fromEntries(props.shops_status.states.map(state => [state.state, state.count]))
+    const cards: Omit<SummaryCard, "value">[] = [
+        { key: "in_process", label: ctrans("In Process"), description: ctrans("Not on sale yet"), tone: "gray" },
+        { key: "active", label: ctrans("Active"), description: ctrans("Shops selling this family"), tone: "green" },
+        { key: "discontinuing", label: ctrans("Discontinuing"), description: ctrans("Selling remaining stock"), tone: "amber" },
+        { key: "discontinued", label: ctrans("Discontinued"), description: ctrans("Pages offline"), tone: "gray" },
+        { key: "inactive", label: ctrans("Not For Sale"), description: ctrans("No product for sale"), tone: "red" },
+    ]
+
+    return cards.map(card => ({ ...card, value: countByState[card.key] ?? 0 }))
+})
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -316,7 +338,8 @@ const submitCloneFromMaster = async () => {
     </PageHeading>
     <Tabs v-if="Object.keys(tabs.navigation ?? {}).length" :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 
-    <!-- <pre>{{ selectedFamiliesId }}</pre> -->
+    <SummaryCards v-if="currentTab === 'index' && shopStatusCards.length" :cards="shopStatusCards" class="px-4 pt-4" />
+
     <component
         :is="component"
         :key="currentTab"

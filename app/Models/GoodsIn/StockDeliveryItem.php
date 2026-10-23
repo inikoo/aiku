@@ -14,6 +14,7 @@ use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemDiscrepancyOutcomeEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementCostStatusEnum;
 use App\Models\Inventory\OrgStock;
+use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
@@ -71,6 +72,10 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property numeric|null $cost_duties
  * @property numeric $cost_tax
  * @property numeric $cost_total
+ * @property numeric|null $cbm_in_container cubic meters the line takes in the container, null means the cbm of its cartons
+ * @property int|null $packed_inside_stock_delivery_item_id the line of the same container this one is packed inside
+ * @property-read StockDeliveryItem|null $packedInside
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StockDeliveryItem> $packedItems
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read OrgStock|null $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -103,6 +108,8 @@ class StockDeliveryItem extends Model implements Auditable
         'net_amount',
         'discrepancy_outcome',
         'stock_delivery_customs_line_id',
+        'cbm_in_container',
+        'packed_inside_stock_delivery_item_id',
     ];
 
     public function generateTags(): array
@@ -119,6 +126,7 @@ class StockDeliveryItem extends Model implements Auditable
         'unit_quantity_checked' => 'decimal:4',
         'unit_quantity_placed'  => 'decimal:4',
         'unit_price'      => 'decimal:4',
+        'cbm_in_container' => 'decimal:4',
         'discrepancy_outcome'     => StockDeliveryItemDiscrepancyOutcomeEnum::class,
         'discrepancy_resolved_at' => 'datetime',
 
@@ -143,9 +151,24 @@ class StockDeliveryItem extends Model implements Auditable
         return $this->belongsTo(StockDelivery::class);
     }
 
+    public function packedInside(): BelongsTo
+    {
+        return $this->belongsTo(StockDeliveryItem::class, 'packed_inside_stock_delivery_item_id');
+    }
+
+    public function packedItems(): HasMany
+    {
+        return $this->hasMany(StockDeliveryItem::class, 'packed_inside_stock_delivery_item_id');
+    }
+
     public function supplierProduct(): BelongsTo
     {
         return $this->belongsTo(SupplierProduct::class);
+    }
+
+    public function historicSupplierProduct(): BelongsTo
+    {
+        return $this->belongsTo(HistoricSupplierProduct::class);
     }
 
     public function orgStock(): BelongsTo

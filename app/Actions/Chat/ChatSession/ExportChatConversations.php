@@ -8,6 +8,7 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
 use App\Models\Catalogue\Shop;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportChatConversations
 {
+    use WithChatAgentAuthorisation;
     use AsAction;
 
     public function handle(Organisation $organisation, array $filters): StreamedResponse
@@ -29,12 +31,16 @@ class ExportChatConversations
         $systemPrompt = Arr::get($filters, 'system_prompt', 'You are a helpful customer service agent. Be professional, concise, and helpful.');
         $minTurns     = (int) Arr::get($filters, 'min_turns', 2);
         $shopId       = Arr::get($filters, 'shop_id');
+        $allowedShops = Arr::get($filters, 'allowed_shop_ids');
 
         $query = ChatSession::query()
-            ->whereHas('shop', function ($q) use ($organisation, $shopId) {
+            ->whereHas('shop', function ($q) use ($organisation, $shopId, $allowedShops) {
                 $q->where('organisation_id', $organisation->id);
                 if ($shopId) {
                     $q->where('id', $shopId);
+                }
+                if (is_array($allowedShops)) {
+                    $q->whereIn('id', $allowedShops);
                 }
             })
             ->with([
@@ -187,6 +193,9 @@ class ExportChatConversations
 
     public function asController(Organisation $organisation, Request $request): StreamedResponse
     {
+        $user = $request->user();
+        abort_unless($this->userSupervisesChatOnOrganisation($user, $organisation), 403);
+
         $filters = $request->all();
 
         if ($shopId = Arr::get($filters, 'shop_id')) {
@@ -196,11 +205,19 @@ class ExportChatConversations
             }
         }
 
+        $filters['allowed_shop_ids'] = $organisation->shops()->with('fulfilment')->get()
+            ->filter(fn (Shop $shop) => $this->userSupervisesChatOnShop($user, $shop))
+            ->pluck('id')
+            ->all();
+        abort_if(Arr::get($filters, 'shop_id') && !in_array((int) $filters['shop_id'], $filters['allowed_shop_ids'], true), 403);
+
         return $this->handle($organisation, $filters);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, Request $request): StreamedResponse
     {
+        abort_unless($this->userSupervisesChatOnShop($request->user(), $shop), 403);
+
         $filters            = $request->all();
         $filters['shop_id'] = $shop->id;
 
@@ -209,6 +226,8 @@ class ExportChatConversations
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Request $request): StreamedResponse
     {
+        abort_unless($this->userSupervisesChatOnShop($request->user(), $fulfilment->shop), 403);
+
         $filters            = $request->all();
         $filters['shop_id'] = $fulfilment->shop_id;
 

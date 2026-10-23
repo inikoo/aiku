@@ -21,6 +21,7 @@ use App\Actions\Dropshipping\Shopify\Fulfilment\CloseFulfillOrderToShopify;
 use App\Actions\Dropshipping\Tiktok\Order\CancelFulfillOrderTiktok;
 use App\Actions\Ordering\Order\AttachPaymentToOrder;
 use App\Actions\Ordering\Order\HasOrderHydrators;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PartnerShoppingListItem\ReopenPartnerShoppingListItemsOfTransactions;
@@ -41,6 +42,7 @@ use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -88,18 +90,7 @@ class CancelOrder extends OrgAction
 
         $this->update($order, $orderData);
 
-        $transactions = $order->transactions()->where('state', TransactionStateEnum::CREATING)->get();
-
-        /** @var Transaction $transaction */
-        foreach ($transactions as $transaction) {
-            $transactionData = [
-                'state' => TransactionStateEnum::CANCELLED,
-                'cancelled_at' => $date
-            ];
-            data_set($transactionData, 'quantity_cancelled', $transaction->quantity_ordered);
-
-            $transaction->update($transactionData);
-        }
+        $this->cancelTransactions($order, $date);
 
         ReopenPartnerShoppingListItemsOfTransactions::run($order->transactions()->pluck('id')->all());
 
@@ -182,6 +173,27 @@ class CancelOrder extends OrgAction
     }
 
     /**
+     * Every line not already gone out goes with the order, whatever stage it had reached (INI-123).
+     */
+    public function cancelTransactions(Order $order, Carbon $date): void
+    {
+        $transactions = $order->transactions()
+            ->whereNotIn('state', [TransactionStateEnum::CANCELLED, TransactionStateEnum::DISPATCHED])
+            ->get();
+
+        /** @var Transaction $transaction */
+        foreach ($transactions as $transaction) {
+            $transaction->update([
+                'state'              => TransactionStateEnum::CANCELLED,
+                'cancelled_at'       => $date,
+                'quantity_cancelled' => $transaction->quantity_ordered,
+            ]);
+        }
+
+        OrderHydrateTransactions::run($order);
+    }
+
+    /**
      * TrafficSourceHydrateCustomers re-sums the orders and invoices of every customer a traffic source
      * is credited with, and cancelling this order changes this customer's totals, so every source
      * crediting either the order or the customer holds a stale figure until it is rehydrated.
@@ -252,6 +264,8 @@ class CancelOrder extends OrgAction
             $validator->errors()->add('messages', "Cannot cancel an order in '{$order->state->value}' state.");
         } elseif ($order->invoices()->count() > 0) {
             $validator->errors()->add('messages', 'Cannot cancel an order with invoices. Please delete the invoices first.');
+        } elseif (!$this->asAction && in_array($order->preOrder?->state, PreOrderStateEnum::open(), true)) {
+            $validator->errors()->add('messages', __('This is a pre-order: cancel it from the pre-order panel, so the refund and any deposit follow the terms the customer accepted.'));
         }
 
         $deliveryNotes = $order->deliveryNotes()->get();

@@ -73,7 +73,7 @@ trait WithProcurementSerialReferences
         $serialReference = $this->parentSerialReference($parent, $model) ?? $parent->serialReferences()->make([
             'model'           => $model,
             'organisation_id' => $parent->organisation_id,
-            'format'          => $this->organisationSerialReference($parent, $model)->format,
+            'format'          => $this->defaultSerialReference($parent, $model)->format,
         ]);
 
         if ($hasFormat) {
@@ -99,6 +99,10 @@ trait WithProcurementSerialReferences
 
     public function newProcurementReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): string
     {
+        if (!$this->parentSerialReference($parent, $model) && $this->isNumberedBySupplier($parent, $model)) {
+            $this->supplierSerialReference($parent)->save();
+        }
+
         $container = $this->parentSerialReference($parent, $model) ? $parent : $parent->organisation;
 
         do {
@@ -110,7 +114,7 @@ trait WithProcurementSerialReferences
 
     private function nextProcurementReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): string
     {
-        $serialReference = $this->parentSerialReference($parent, $model) ?? $this->organisationSerialReference($parent, $model);
+        $serialReference = $this->parentSerialReference($parent, $model) ?? $this->defaultSerialReference($parent, $model);
 
         $serial = $serialReference->serial;
         do {
@@ -122,9 +126,14 @@ trait WithProcurementSerialReferences
 
     private function procurementReferenceIsUsed(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model, string $reference): bool
     {
-        $query = $model === SerialReferenceModelEnum::STOCK_DELIVERY ? StockDelivery::query() : PurchaseOrder::query();
+        if ($model === SerialReferenceModelEnum::STOCK_DELIVERY) {
+            return StockDelivery::query()->where('organisation_id', $parent->organisation_id)->where('reference', $reference)->exists();
+        }
 
-        return $query->where('organisation_id', $parent->organisation_id)->where('reference', $reference)->exists();
+        return PurchaseOrder::withTrashed()
+            ->where('organisation_id', $parent->organisation_id)
+            ->where(fn ($query) => $query->where('reference', $reference)->orWhere('agent_order_reference', $reference))
+            ->exists();
     }
 
     private function parentSerialReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): ?SerialReference
@@ -134,6 +143,42 @@ trait WithProcurementSerialReferences
         }
 
         return $parent->serialReferences()->where('model', $model)->first();
+    }
+
+    private function defaultSerialReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): SerialReference
+    {
+        return $this->isNumberedBySupplier($parent, $model) ? $this->supplierSerialReference($parent) : $this->organisationSerialReference($parent, $model);
+    }
+
+    private function isNumberedBySupplier(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): bool
+    {
+        return $parent instanceof OrgSupplier && !$parent->org_agent_id && $model === SerialReferenceModelEnum::PURCHASE_ORDER;
+    }
+
+    /**
+     * SUPPLIERCODE-0001, carrying on from the supplier's last Aurora number (BrowFarm-003 is followed by Browfarm-0004).
+     */
+    private function supplierSerialReference(OrgSupplier $orgSupplier): SerialReference
+    {
+        $auroraPurchaseOrders = $orgSupplier->purchaseOrders()->withTrashed()->whereNotNull('source_id');
+
+        $lastAuroraReference = (clone $auroraPurchaseOrders)->orderByDesc('created_at')->orderByDesc('id')->value('reference');
+
+        $lastAuroraNumber = preg_match('/(\d+)\D*$/', (string) $lastAuroraReference, $matches) ? (int) $matches[1] : null;
+
+        $serial = $lastAuroraNumber !== null && $lastAuroraNumber <= 9999 ? $lastAuroraNumber : $auroraPurchaseOrders->count();
+
+        return $orgSupplier->serialReferences()->make([
+            'model'           => SerialReferenceModelEnum::PURCHASE_ORDER,
+            'organisation_id' => $orgSupplier->organisation_id,
+            'format'          => $this->referenceSafe($orgSupplier->supplier()->withTrashed()->value('code')).'-%04d',
+            'serial'          => $serial,
+        ]);
+    }
+
+    private function referenceSafe(?string $text): string
+    {
+        return preg_replace('/[^A-Za-z0-9_-]/', '', (string) $text);
     }
 
     private function organisationSerialReference(OrgSupplier|OrgAgent|OrgPartner $parent, SerialReferenceModelEnum $model): SerialReference
@@ -195,7 +240,7 @@ trait WithProcurementSerialReferences
                 $model->value.'_reference_format' => [
                     'type'               => 'input',
                     'label'              => $formatLabel,
-                    'information'        => __('Put %04d where the number goes, e.g. :example. Only letters, numbers, - and _. Leave empty to use the organisation numbers.', ['example' => $example]),
+                    'information'        => __('Put %04d where the number goes, e.g. :example. Only letters, numbers, - and _. Leave empty for the default numbering.', ['example' => $example]),
                     'value'              => $serialReference?->format,
                     'updateRoute'        => $updateRoute,
                     'revisit_after_save' => true,

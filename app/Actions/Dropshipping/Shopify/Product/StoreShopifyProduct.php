@@ -75,9 +75,13 @@ class StoreShopifyProduct extends RetinaAction
             $errorMessage = 'Failed to initialize Shopify GraphQL client';
             Log::error($errorMessage);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $errorMessage
+            ]);
+
+            UpdatePortfolio::run($portfolio, [
+                'errors_response' => $this->portfolioErrorResponse($errorMessage)
             ]);
 
             return [false, $errorMessage];
@@ -101,7 +105,7 @@ class StoreShopifyProduct extends RetinaAction
             }
 
             if ($variantAtLocation['exist']) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
 
@@ -116,7 +120,7 @@ class StoreShopifyProduct extends RetinaAction
             UpdatePortfolio::run($portfolio, [
                 'errors_response' => $this->portfolioErrorResponse($errorMessage)
             ]);
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $errorMessage
             ]);
@@ -135,7 +139,7 @@ class StoreShopifyProduct extends RetinaAction
             UpdatePortfolio::run($portfolio, [
                 'errors_response' => $this->portfolioErrorResponse($errorMessage)
             ]);
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $errorMessage
             ]);
@@ -255,7 +259,7 @@ class StoreShopifyProduct extends RetinaAction
                 ]);
                 Log::error("Product creation failed: ".$errorMessage);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $errorMessage
                 ]);
@@ -274,7 +278,7 @@ class StoreShopifyProduct extends RetinaAction
                 ]);
                 Log::error("Product creation failed: ".$errorMessage);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $errors
                 ]);
@@ -291,7 +295,7 @@ class StoreShopifyProduct extends RetinaAction
                 ]);
                 Log::error("Product creation failed: No product data in response");
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => 'No product data in response'
                 ]);
@@ -307,7 +311,7 @@ class StoreShopifyProduct extends RetinaAction
                     'errors_response' => $this->portfolioErrorResponse($refusal)
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                     'response' => $refusal
                 ]);
@@ -322,7 +326,7 @@ class StoreShopifyProduct extends RetinaAction
                 'errors_response' => $this->portfolioErrorResponse($e->getMessage())
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $e->getMessage()
             ]);
@@ -434,7 +438,7 @@ class StoreShopifyProduct extends RetinaAction
             'errors_response' => $this->portfolioErrorResponse($errorMessage)
         ]);
 
-        UpdatePlatformPortfolioLog::dispatch($logs, [
+        UpdatePlatformPortfolioLog::run($logs, [
             'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
             'response' => $errorMessage
         ]);
@@ -447,7 +451,7 @@ class StoreShopifyProduct extends RetinaAction
         [$variantStored, $variantResult] = StoreShopifyProductVariant::run($portfolio);
 
         if (!$variantStored) {
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $variantResult
             ]);
@@ -455,7 +459,7 @@ class StoreShopifyProduct extends RetinaAction
             return [false, $variantResult];
         }
 
-        UpdatePlatformPortfolioLog::dispatch($logs, [
+        UpdatePlatformPortfolioLog::run($logs, [
             'status' => PlatformPortfolioLogsStatusEnum::OK
         ]);
 

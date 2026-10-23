@@ -2,7 +2,8 @@
     "private": true,
     "scripts": {
         "dev": "npx concurrently -c \"#06b6d4,#6366f1,#a3e635,#fdba74\" \"npm run dev.aiku-public\" \"npm run dev.grp\" \"npm run dev.iris\" \"npm run dev.retina\" --names=public,grp,iris,retina",
-        "build": "npm run build.grp && npm run build.aiku-public && npm run build.iris && npm run build.retina && npm run build.pupil && npm run build.chat-widget",
+        "build": "npm run build.grp && npm run build.aiku-public && npm run build.iris && npm run build.retina && npm run build.pupil && npm run build.chat-widget && npm run build.appointment-widget",
+        "build.parallel": "node build-parallel.mjs",
         "dev.grp": "vite --config vite.grp.config.mjs",
         "build.grp": "vite build --config vite.grp.config.mjs",
         "dev.aiku-public": "vite --config vite.aiku-public.config.js",
@@ -13,6 +14,7 @@
         "dev.retina": "vite --config vite.retina.config.mjs",
         "build.retina": "vite build --config vite.retina.config.mjs",
         "build.chat-widget": "vite build --config vite.chat-widget.config.mjs",
+        "build.appointment-widget": "vite build --config vite.appointment-widget.config.mjs",
         "dev.pupil": "vite --config vite.pupil.config.mjs",
         "build.pupil": "vite build --config vite.pupil.config.mjs",
         "postinstall": "patch-package",
@@ -21,7 +23,6 @@
         "bdev.iris": "bunx --bun vite --config vite.iris.config.mjs"
     },
     "devDependencies": {
-        "@codecov/vite-plugin": "^2.0.1",
         "@prettier/plugin-php": "^0.24.0",
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/line-clamp": "^0.4.4",
@@ -63,7 +64,6 @@
         "@kyvg/vue3-notification": "^3.1.2",
         "@laravel/passkeys": "^0.2.0",
         "@mailupinc/bee-plugin": "^2.3.0",
-        "@newrelic/browser-agent": "^1.313.1",
         "@primevue/themes": "^4.0.4",
         "@sentry/vue": "^7.120.2",
         "@tiptap/extension-bubble-menu": "^2.2.4",

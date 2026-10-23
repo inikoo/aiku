@@ -8,62 +8,25 @@
 
 namespace App\Actions\Chat\ChatSession;
 
+use App\Actions\Ordering\Order\CalculateOrderShipping;
 use App\Actions\Ordering\Order\WithOrderForbiddenCountryCheck;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentAccountShop\PaymentAccountShopStateEnum;
-use App\Enums\Web\Webpage\WebpageStateEnum;
-use App\Enums\Web\Webpage\WebpageSubTypeEnum;
-use App\Models\Accounting\Invoice;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Chat\ChatSession;
-use App\Models\Chat\MetaChatSession;
+use App\Models\Billables\ShippingZone;
 use App\Models\CRM\Customer;
-use App\Models\Web\Webpage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
 use Locale;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * The answer to a general question, looked up by a fixed query for each kind of question Jev
- * can pick (ClassifyChatTurn::ASKS), never by a query a model writes: only this shop's settings
- * and this customer's own records. One line each, for the agent to read before answering.
+ * What the shop's own settings say about delivery, payment and offers, one entry each, for the
+ * knowledge base: read from this shop's settings, never by a query a model writes.
  */
 class GetChatShopFacts
 {
     use AsAction;
     use WithOrderForbiddenCountryCheck;
-
-    /**
-     * @return array<int, string>
-     */
-    public function handle(ChatSession|MetaChatSession $chatSession, string $ask, string $customerWrote): array
-    {
-        $shop     = $chatSession->shop;
-        $customer = DraftChatReply::knownCustomer($chatSession);
-
-        if (!$shop) {
-            return [];
-        }
-
-        return array_values(array_filter(match ($ask) {
-            'ship_to_country'  => [$this->bannedCountries($shop), $this->page($shop, WebpageSubTypeEnum::SHIPPING, __('Delivery'))],
-            'shipping_cost'    => [$this->shippingCost($shop, $customer), $this->freeShipping($shop), $this->page($shop, WebpageSubTypeEnum::SHIPPING, __('Delivery'))],
-            'delivery_time'    => [$this->page($shop, WebpageSubTypeEnum::SHIPPING, __('Delivery'))],
-            'returns_policy'   => [$this->page($shop, WebpageSubTypeEnum::RETURNS, __('Returns'))],
-            'how_to_order'     => [$customer ? null : $this->page($shop, WebpageSubTypeEnum::REGISTER, __('Register'))],
-            'invoice_copy'     => [$customer ? $this->latestInvoice($shop, $customer) : null],
-            'refund_status'    => $customer ? $this->refunds($customer) : [],
-            'balance'          => [$customer ? __('Balance').': '.$this->money($shop, (float) $customer->balance) : null],
-            'payment_methods'  => [$this->paymentMethods($shop)],
-            'vat'              => [],
-            'discount_missing' => [$this->firstOrderBonus($shop, $customer), ...$this->customerOffers($customer)],
-            'product_price'    => $this->prices($shop, $customerWrote),
-            default            => [],
-        }));
-    }
 
     /**
      * What the shop's own settings say, one entry each, for the knowledge base.
@@ -75,9 +38,9 @@ class GetChatShopFacts
         $zones = $shop->currentShippingZoneSchema?->shippingZones()->where('status', true)->orderBy('position')->get() ?? collect();
 
         return array_values(array_filter([
-            ...$zones->map(fn ($zone) => data_get($zone->price, 'type') === 'TBC'
+            ...$zones->map(fn ($zone) => data_get($this->zonePrice($zone), 'type') === 'TBC'
                 ? ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.': '.__('delivery price to be confirmed by customer service')]
-                : ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.' ('.$this->zoneCountries($zone).'): '.$this->steps($shop, $zone->price).' ('.__('goods before VAT').')'])
+                : ['title' => __('Delivery').': '.$zone->name, 'body' => $zone->name.' ('.$this->zoneCountries($zone).'): '.$this->deliveryPrice($shop, $this->zonePrice($zone))])
                 ->all(),
             ($banned = $this->bannedCountries($shop)) ? ['title' => __('Blocked delivery countries'), 'body' => $banned] : null,
             ($free = $this->freeShipping($shop)) ? ['title' => __('Free delivery offer'), 'body' => $free] : null,
@@ -90,21 +53,40 @@ class GetChatShopFacts
     {
         return collect($zone->territories ?? [])
             ->map(fn ($territory) => (Locale::getDisplayRegion('-'.data_get($territory, 'country_code'), 'en') ?: data_get($territory, 'country_code'))
-                .(data_get($territory, 'included_postcodes') ? ' ('.__('some postcodes').')' : ''))
+                .(data_get($territory, 'included_postal_codes') ? ' ('.__('only postcodes matching').' '.data_get($territory, 'included_postal_codes').')' : '')
+                .(data_get($territory, 'excluded_postal_codes') ? ' ('.__('except postcodes matching').' '.data_get($territory, 'excluded_postal_codes').')' : ''))
             ->unique()
             ->join(', ') ?: __('rest of the world');
     }
 
     /**
+     * The price the checkout charges with no shipper picked yet: a shipper price replaces the zone's own.
+     *
+     * @return array<string, mixed>
+     */
+    private function zonePrice(ShippingZone $zone): array
+    {
+        return CalculateOrderShipping::make()->getZonePriceDataForShipper($zone, null);
+    }
+
+    /**
+     * The zone's price steps as the checkout reads them (CalculateOrderShipping): bounds are the
+     * goods amount, or the order's estimated weight in kg for a weight priced zone.
+     *
      * @param  array<string, mixed>|null  $price
      */
-    private function steps(Shop $shop, ?array $price): string
+    public function deliveryPrice(Shop $shop, ?array $price): string
     {
+        $byWeight = data_get($price, 'type') === 'Step Order Estimated Weight';
+        $bound    = fn ($value) => $byWeight ? Number::format((float) $value, maxPrecision: 2).' kg' : $this->money($shop, (float) $value);
+
         return collect(data_get($price, 'steps', []))
-            ->map(fn ($step) => (float) $step['price'] === 0.0
-                ? __('free from').' '.$this->money($shop, (float) $step['from'])
-                : $this->money($shop, (float) $step['price']).($step['to'] !== 'INF' ? ' '.__('up to').' '.$this->money($shop, (float) $step['to']) : ''))
-            ->join(', ');
+            ->map(fn ($step) => match (true) {
+                $step['price'] === 'TBC'           => __('from').' '.$bound($step['from']).': '.__('delivery price to be confirmed by customer service'),
+                (float) $step['price'] === 0.0     => __('free from').' '.$bound($step['from']),
+                default                            => $this->money($shop, (float) $step['price']).($step['to'] !== 'INF' ? ' '.__('up to').' '.$bound($step['to']) : ''),
+            })
+            ->join(', ').' ('.($byWeight ? __('estimated order weight') : __('goods before VAT')).')';
     }
 
     private function bannedCountries(Shop $shop): ?string
@@ -117,28 +99,6 @@ class GetChatShopFacts
         return $countries ? __('Blocked delivery countries').': '.$countries : null;
     }
 
-    /**
-     * The delivery price steps of the zone for the customer's own delivery country, from the
-     * shipping zones the checkout uses. Nothing for somebody we do not know: the shop's own
-     * country is a guess, and a price for the wrong country reads as a fact.
-     */
-    private function shippingCost(Shop $shop, ?Customer $customer): ?string
-    {
-        $country = $customer?->deliveryAddress?->country_code;
-        $zone    = $country ? $shop->currentShippingZoneSchema?->shippingZones()
-            ->where('status', true)
-            ->get()
-            ->first(fn ($zone) => collect($zone->territories ?? [])->contains(fn ($territory) => data_get($territory, 'country_code') === $country && !data_get($territory, 'included_postcodes'))) : null;
-
-        if (!$zone || data_get($zone->price, 'type') === 'TBC') {
-            return null;
-        }
-
-        $steps = $this->steps($shop, $zone->price);
-
-        return __('Delivery to').' '.(Locale::getDisplayRegion('-'.$country, 'en') ?: $country).': '.$steps.' ('.__('goods before VAT').')';
-    }
-
     private function freeShipping(Shop $shop): ?string
     {
         $offer = data_get($shop->offers_data, 'discounted_shipping');
@@ -146,46 +106,6 @@ class GetChatShopFacts
         return data_get($offer, 'active') && data_get($offer, 'min_amount')
             ? __('Free delivery from').' '.$this->money($shop, (float) data_get($offer, 'min_amount')).' '.__('of goods before VAT')
             : null;
-    }
-
-    private function page(Shop $shop, WebpageSubTypeEnum $subType, string $label): ?string
-    {
-        $webpage = $shop->website ? Webpage::where('website_id', $shop->website->id)
-            ->where('sub_type', $subType)
-            ->where('state', WebpageStateEnum::LIVE)
-            ->first() : null;
-
-        return $webpage ? $label.': '.($webpage->canonical_url ?: 'https://'.$shop->website->domain.'/'.$webpage->url) : null;
-    }
-
-    private function latestInvoice(Shop $shop, Customer $customer): ?string
-    {
-        $invoice = Invoice::where('customer_id', $customer->id)
-            ->where('type', InvoiceTypeEnum::INVOICE)
-            ->latest('date')
-            ->first();
-
-        return $invoice && $shop->website?->domain
-            ? __('Latest invoice').' '.$invoice->reference.' ('.$invoice->date?->toDateString().'): https://'.$shop->website->domain.'/invoice/'.$invoice->ulid
-            : null;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function refunds(Customer $customer): array
-    {
-        return Invoice::where('customer_id', $customer->id)
-            ->where('type', InvoiceTypeEnum::REFUND)
-            ->where('date', '>', now()->subDays(90))
-            ->latest('date')
-            ->limit(3)
-            ->get()
-            ->map(fn (Invoice $refund) => __('Refund').' '.$refund->reference.' '.$refund->date?->toDateString().': '
-                .$this->money($customer->shop, abs((float) $refund->total_amount)).', '
-                .($refund->in_process ? __('still being prepared') : ($refund->pay_status?->value === 'paid' ? __('paid') : __('not paid yet'))))
-            ->whenEmpty(fn ($none) => $none->push(__('No refunds in the last 90 days')))
-            ->all();
     }
 
     private function paymentMethods(Shop $shop): ?string
@@ -215,33 +135,6 @@ class GetChatShopFacts
 
         return __('First order bonus').': '.rtrim((string) data_get($bonus, 'percentage_off'), '%').'% '.__('off from').' '.$this->money($shop, (float) data_get($bonus, 'min_amount'))
             .($customer ? ' · '.($ordered ? __('this customer has ordered before, so it no longer applies') : __('this customer has not ordered yet')) : '');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function customerOffers(?Customer $customer): array
-    {
-        return $customer ? DB::table('offers')
-            ->where('trigger_type', 'Customer')
-            ->where('trigger_id', $customer->id)
-            ->where('state', 'active')
-            ->get(['name', 'end_at'])
-            ->map(fn ($offer) => __('Offer for this customer').': '.$offer->name.($offer->end_at ? ' ('.__('until').' '.substr((string) $offer->end_at, 0, 10).')' : ''))
-            ->all() : [];
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function prices(Shop $shop, string $customerWrote): array
-    {
-        $codes = array_column(GetChatProductFacts::run($shop, $customerWrote), 'code');
-
-        return Product::where('shop_id', $shop->id)->whereIn('code', $codes)->get()
-            ->map(fn (Product $product) => $product->code.' '.$product->name.': '.$this->money($shop, (float) $product->price)
-                .((float) $product->units > 1 ? ' '.($product->unit ? __('for').' '.(float) $product->units.' '.$product->unit : trans_choice('for :count unit|for :count units', (float) $product->units)) : '').' '.__('before VAT'))
-            ->all();
     }
 
     private function money(Shop $shop, float $amount): string

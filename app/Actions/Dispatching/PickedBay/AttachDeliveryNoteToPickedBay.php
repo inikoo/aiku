@@ -13,6 +13,7 @@ use App\Actions\Dispatching\PickedBay\Hydrators\PickedBayHydrateNumberDeliveryNo
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Inventory\PickedBay;
 
@@ -24,7 +25,17 @@ class AttachDeliveryNoteToPickedBay extends OrgAction
 
     public function handle(PickedBay $pickedBay, DeliveryNote $deliveryNote): void
     {
-        $pickedBay->deliveryNotes()->attach([
+        if (in_array($deliveryNote->state, [
+            DeliveryNoteStateEnum::PACKING,
+            DeliveryNoteStateEnum::PACKED,
+            DeliveryNoteStateEnum::FINALISED,
+            DeliveryNoteStateEnum::DISPATCHED,
+            DeliveryNoteStateEnum::CANCELLED,
+        ], true)) {
+            abort(422, __('This delivery note has already left picking, it can not be put in a picked bay'));
+        }
+
+        $pickedBay->deliveryNotes()->syncWithoutDetaching([
             $deliveryNote->id => [
                 'group_id'        => $deliveryNote->group_id,
                 'organisation_id' => $deliveryNote->organisation_id

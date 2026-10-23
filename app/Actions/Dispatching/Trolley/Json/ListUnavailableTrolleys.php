@@ -10,6 +10,7 @@
 namespace App\Actions\Dispatching\Trolley\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Enums\UI\Dispatch\TrolleysTabsEnum;
 use App\Http\Resources\Dispatching\TrolleysResource;
 use App\InertiaTable\InertiaTable;
@@ -23,6 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ListUnavailableTrolleys extends OrgAction
 {
+    use WithDispatchingEquipmentAuthorisation;
     public function handle(Warehouse $warehouse, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

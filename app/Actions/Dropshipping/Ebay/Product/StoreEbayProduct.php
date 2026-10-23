@@ -78,7 +78,7 @@ class StoreEbayProduct extends RetinaAction
                     $displayError  = $ebayUser->getDisplayErrors($errorMessage) ?? $errorMessage;
                     $errorResponse = $this->portfolioErrorResponse($displayError) ?? [];
 
-                    UpdatePlatformPortfolioLog::dispatch($logs, [
+                    UpdatePlatformPortfolioLog::run($logs, [
                         'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                         'response' => $displayError
                     ]);
@@ -115,20 +115,12 @@ class StoreEbayProduct extends RetinaAction
 
             // $descriptions = $ebayUser->getFormattedDescriptions($descriptions);
 
-            $family = $product->family?->name;
-
-            if (!$family) {
-                $family = $product->name;
-            }
+            $family = self::describingFamilyName($product) ?: $product->name;
 
             $categoryId = null;
             $categoryName = null;
 
-            $categoryKeywords = array_filter([
-                $family,
-                $product->subDepartment?->name,
-                $product->department?->name
-            ]);
+            $categoryKeywords = self::categoryKeywords($product);
 
             foreach ($categoryKeywords as $categoryKeyword) {
                 $categories = $ebayUser->getCategorySuggestions($categoryKeyword);
@@ -339,7 +331,7 @@ class StoreEbayProduct extends RetinaAction
                     'platform_status'               => false
                 ]);
 
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
 
@@ -379,7 +371,7 @@ class StoreEbayProduct extends RetinaAction
             $portfolio->refresh();
 
             if ($portfolio->platform_status) {
-                UpdatePlatformPortfolioLog::dispatch($logs, [
+                UpdatePlatformPortfolioLog::run($logs, [
                     'status' => PlatformPortfolioLogsStatusEnum::OK
                 ]);
             }
@@ -390,7 +382,7 @@ class StoreEbayProduct extends RetinaAction
                 'errors_response' => $this->portfolioErrorResponse($e->getMessage())
             ]);
 
-            UpdatePlatformPortfolioLog::dispatch($logs, [
+            UpdatePlatformPortfolioLog::run($logs, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => $e->getMessage()
             ]);
@@ -421,6 +413,38 @@ class StoreEbayProduct extends RetinaAction
         $updatedOffer = $ebayUser->refresh()->updateOffer($offerId, ['use_channel_policies' => true]);
 
         return !Arr::hasAny((array) $updatedOffer, ['error', 'errors']);
+    }
+
+    /**
+     * A bundle family ("Product Bundles", "Bundle Sets") names how products are packed, not what they are:
+     * eBay suggests car cleaning kits or trading cards for it, and Parts & Accessories categories refuse the seller's return policy
+     */
+    public static function describingFamilyName(Product $product): ?string
+    {
+        $family = $product->family;
+
+        if (!$family || self::isInBundleFamily($product)) {
+            return null;
+        }
+
+        return $family->name ?: null;
+    }
+
+    public static function isInBundleFamily(Product $product): bool
+    {
+        return $product->family && preg_match('/bndl|bundle/i', $product->family->code);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function categoryKeywords(Product $product): array
+    {
+        return array_values(array_filter([
+            self::isInBundleFamily($product) ? null : (self::describingFamilyName($product) ?: $product->name),
+            $product->subDepartment?->name,
+            $product->department?->name
+        ]));
     }
 
     public static function sendsOurPrice(Portfolio $portfolio): bool

@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Group\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithTradeUnitPickerAuthorisation;
 use App\Enums\Goods\TradeUnit\TradeUnitStatusEnum;
 use App\Http\Resources\Goods\TradeUnitsForMasterResource;
 use App\Models\Goods\TradeUnit;
@@ -23,6 +24,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetAllTradeUnitsInGroup extends OrgAction
 {
+    use WithTradeUnitPickerAuthorisation;
     public function inBrand(Brand $brand, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromGroup(group(), $request);

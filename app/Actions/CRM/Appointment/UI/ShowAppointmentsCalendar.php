@@ -8,6 +8,7 @@ use App\Actions\Traits\Authorisations\WithCRMAuthorisation;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
+use App\Models\CRM\AppointmentBlock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -21,7 +22,8 @@ class ShowAppointmentsCalendar extends OrgAction
 
     /**
      * One month as whole weeks, Monday first, in the shop's timezone. Declined and cancelled
-     * appointments are left out: they no longer take any time.
+     * appointments are left out: they no longer take any time. A block shows on every day it
+     * covers, and an appointment still booked inside one is flagged.
      *
      * @return array{
      *     month: string,
@@ -32,7 +34,7 @@ class ShowAppointmentsCalendar extends OrgAction
      *     timezone: string,
      *     weekdays: array<int, string>,
      *     total: int,
-     *     weeks: array<int, array<int, array{date: string, day: int, in_month: bool, is_today: bool, appointments: array<int, array<string, mixed>>}>>
+     *     weeks: array<int, array<int, array{date: string, day: int, in_month: bool, is_today: bool, blocks: array<int, array<string, mixed>>, appointments: array<int, array<string, mixed>>}>>
      * }
      */
     public function handle(Shop $shop, ?string $month = null): array
@@ -52,6 +54,18 @@ class ShowAppointmentsCalendar extends OrgAction
             ->get()
             ->groupBy(fn (Appointment $appointment) => $appointment->starts_at->copy()->setTimezone($timezone)->toDateString());
 
+        $blocks = $shop->appointmentBlocks()
+            ->overlapping($firstDay->copy()->utc(), $lastDay->copy()->addDay()->utc())
+            ->with(['appointmentType', 'createdBy'])
+            ->orderBy('starts_at')
+            ->get();
+
+        $isBlocked = fn (Appointment $appointment) => $appointment->state->holdsSlot() && $blocks->contains(
+            fn (AppointmentBlock $block) => $block->affects($appointment->appointment_type_id)
+                && $block->starts_at->lt($appointment->ends_at)
+                && $block->ends_at->gt($appointment->starts_at)
+        );
+
         $weeks = [];
         for ($day = $firstDay->copy(), $position = 0; $day->lte($lastDay); $day->addDay(), $position++) {
             $weeks[intdiv($position, 7)][] = [
@@ -59,15 +73,28 @@ class ShowAppointmentsCalendar extends OrgAction
                 'day'          => $day->day,
                 'in_month'     => $day->isSameMonth($monthStart),
                 'is_today'     => $day->isSameDay($today),
+                'blocks'       => $blocks
+                    ->filter(fn (AppointmentBlock $block) => $block->starts_at->lt($day->copy()->addDay()) && $block->ends_at->gt($day))
+                    ->map(fn (AppointmentBlock $block) => $this->blockData($block, $day, $timezone))
+                    ->values()
+                    ->all(),
                 'appointments' => $appointments->get($day->toDateString(), collect())
                     ->map(fn (Appointment $appointment) => [
                         'id'                    => $appointment->id,
                         'time'                  => $appointment->starts_at->copy()->setTimezone($timezone)->format('H:i'),
+                        'ends_time'             => $appointment->ends_at->copy()->setTimezone($timezone)->format('H:i'),
+                        'date_label'            => $appointment->starts_at->copy()->setTimezone($timezone)->translatedFormat('l j F Y'),
                         'contact_name'          => $appointment->contact_name,
+                        'email'                 => $appointment->email,
+                        'phone'                 => $appointment->phone,
                         'appointment_type_name' => $appointment->appointmentType?->name,
                         'staff_name'            => $appointment->user?->contact_name,
                         'state'                 => $appointment->state->value,
                         'state_label'           => $appointment->state->label(),
+                        'is_blocked'            => $isBlocked($appointment),
+                        'can_accept'            => $appointment->state === AppointmentStateEnum::REQUESTED,
+                        'can_decline'           => $appointment->state->holdsSlot(),
+                        'can_reschedule'        => $appointment->state->holdsSlot(),
                     ])
                     ->values()
                     ->all(),
@@ -84,6 +111,29 @@ class ShowAppointmentsCalendar extends OrgAction
             'weekdays' => collect(range(0, 6))->map(fn (int $offset) => $firstDay->copy()->addDays($offset)->translatedFormat('D'))->all(),
             'total'    => $appointments->flatten(1)->filter(fn (Appointment $appointment) => $appointment->starts_at->copy()->setTimezone($timezone)->isSameMonth($monthStart))->count(),
             'weeks'    => $weeks,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function blockData(AppointmentBlock $block, Carbon $day, string $timezone): array
+    {
+        $startsAt = $block->starts_at->copy()->setTimezone($timezone);
+        $endsAt   = $block->ends_at->copy()->setTimezone($timezone);
+
+        $coversWholeDay = $startsAt->lte($day) && $endsAt->gte($day->copy()->addDay());
+
+        return [
+            'id'                    => $block->id,
+            'is_all_day'            => $coversWholeDay,
+            'time'                  => $coversWholeDay ? null : $startsAt->max($day)->format('H:i').'–'.($endsAt->gte($day->copy()->addDay()) ? '24:00' : $endsAt->format('H:i')),
+            'period_label'          => $block->is_all_day
+                ? $startsAt->translatedFormat('D j M Y').($endsAt->copy()->subDay()->isSameDay($startsAt) ? '' : ' – '.$endsAt->copy()->subDay()->translatedFormat('D j M Y'))
+                : $startsAt->translatedFormat('D j M Y H:i').'–'.$endsAt->format('H:i'),
+            'reason'                => $block->reason,
+            'appointment_type_name' => $block->appointmentType?->name,
+            'created_by'            => $block->createdBy?->contact_name,
         ];
     }
 
@@ -137,6 +187,8 @@ class ShowAppointmentsCalendar extends OrgAction
                     'subNavigation' => $this->getAppointmentsSubNavigation($this->shop),
                 ],
                 'calendar'    => $calendar,
+                'canEdit'     => $this->canEdit,
+                'appointmentTypes' => $this->shop->appointmentTypes()->orderBy('name')->get(['id', 'name'])->map(fn ($type) => ['id' => $type->id, 'name' => $type->name])->all(),
                 'routes'      => [
                     'calendar' => [
                         'name'       => 'grp.org.shops.show.crm.appointments.calendar',
@@ -145,6 +197,14 @@ class ShowAppointmentsCalendar extends OrgAction
                     'show'     => [
                         'name'       => 'grp.org.shops.show.crm.appointments.show',
                         'parameters' => $routeParameters,
+                    ],
+                    'store_block'  => [
+                        'name'       => 'grp.models.shop.appointment_block.store',
+                        'parameters' => ['shop' => $this->shop->id],
+                    ],
+                    'delete_block' => [
+                        'name'       => 'grp.models.shop.appointment_block.delete',
+                        'parameters' => ['shop' => $this->shop->id],
                     ],
                 ],
             ]

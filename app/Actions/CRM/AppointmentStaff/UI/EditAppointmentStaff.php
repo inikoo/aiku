@@ -74,7 +74,7 @@ class EditAppointmentStaff extends OrgAction
                             'label'  => __('Appointments'),
                             'icon'   => 'fal fa-calendar',
                             'fields' => [
-                                'appointment_types' => $this->appointmentTypesField($this->shop, $user),
+                                'meeting_modes' => $this->meetingModesField($this->shop, $user),
                             ],
                         ],
                     ],

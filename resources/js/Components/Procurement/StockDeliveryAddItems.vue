@@ -26,7 +26,6 @@ type AddableItem = {
 	purchase_order_id: number
 	purchase_order_reference: string
 	supplier: string | null
-	agent_order_reference: string | null
 	code: string | null
 	name: string | null
 	quantity_ordered: number
@@ -68,13 +67,13 @@ const filteredItems = computed(() => {
 	const term = search.value.trim().toLowerCase()
 
 	return term
-		? items.value.filter(item => [item.code, item.name, item.purchase_order_reference, item.supplier, item.agent_order_reference]
+		? items.value.filter(item => [item.code, item.name, item.purchase_order_reference, item.supplier]
 			.some(value => value?.toLowerCase().includes(term)))
 		: items.value
 })
 
 const purchaseOrders = computed(() => {
-	const groups = new Map<number, { id: number; reference: string; supplier: string | null; agent_order_reference: string | null; items: AddableItem[] }>()
+	const groups = new Map<number, { id: number; reference: string; supplier: string | null; items: AddableItem[] }>()
 
 	for (const item of filteredItems.value) {
 		if (!groups.has(item.purchase_order_id)) {
@@ -82,7 +81,6 @@ const purchaseOrders = computed(() => {
 				id: item.purchase_order_id,
 				reference: item.purchase_order_reference,
 				supplier: item.supplier,
-				agent_order_reference: item.agent_order_reference,
 				items: [],
 			})
 		}
@@ -230,6 +228,8 @@ const submit = () => {
 		return
 	}
 
+	const addedCount = selectedItems.value.length
+
 	router.post(route(props.data.route.name, props.data.route.parameters), {
 		items: selectedItems.value.map(item => ({
 			purchase_order_transaction_id: item.id,
@@ -242,7 +242,7 @@ const submit = () => {
 			visible.value = false
 			notify({
 				title: ctrans("Items added"),
-				text: ctrans(":count items are in this container", { count: selectedItems.value.length }),
+				text: addedCount === 1 ? ctrans("1 item added to this container") : ctrans(":count items added to this container", { count: addedCount }),
 				type: "success",
 			})
 		},
@@ -294,7 +294,7 @@ const submit = () => {
 				<label class="sticky top-0 z-10 flex cursor-pointer items-center gap-3 bg-gray-50 px-3 py-2 text-sm">
 					<Checkbox :modelValue="isPurchaseOrderSelected(purchaseOrder)" binary @update:modelValue="togglePurchaseOrder(purchaseOrder)" />
 					<span class="font-semibold text-gray-800">{{ purchaseOrder.reference }}</span>
-					<span class="truncate text-gray-500">{{ [purchaseOrder.supplier, purchaseOrder.agent_order_reference].filter(Boolean).join(" · ") }}</span>
+					<span class="truncate text-gray-500">{{ purchaseOrder.supplier }}</span>
 					<span class="ml-auto whitespace-nowrap text-xs text-gray-500">{{ ctrans("Select whole purchase order") }}</span>
 				</label>
 
@@ -313,7 +313,7 @@ const submit = () => {
 						<div class="text-xs text-gray-700">
 							{{ ctrans("Awaiting delivery") }}: <span class="font-medium">{{ breakdown(item, item.quantity_awaiting_delivery) }}</span>
 							<span v-if="round(item.quantity_awaiting_delivery) < round(item.quantity_ordered)" class="text-gray-500">
-								({{ ctrans("of :ordered units ordered, the rest is in other containers", { ordered: formatNumber(item.quantity_ordered) }) }})
+								({{ ctrans("of :ordered units ordered, the rest is already in a container", { ordered: formatNumber(item.quantity_ordered) }) }})
 							</span>
 						</div>
 					</div>

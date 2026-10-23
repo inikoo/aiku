@@ -8,6 +8,7 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
+use App\Actions\SupplyChain\SupplierProduct\UI\GetSupplierProductsShowcaseData;
 use App\Actions\Traits\HasBucketImages;
 use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
@@ -44,6 +45,7 @@ class GetStockShowcase
             'sales_data'    => GetStockTimeSeriesData::run($stock),
             'org_stocks'    => $this->getOrgStocksData($stock),
             'barcodes'      => GetStockBarcodes::run($stock),
+            'supplier_products' => GetSupplierProductsShowcaseData::run($stock->supplierProducts),
              'contactCard' => [
                  'id'                 => $stock->id,
                  'slug'               => $stock->slug,
@@ -102,7 +104,7 @@ class GetStockShowcase
                     'value'      => (float)$orgStocks->sum('quantity_in_submitted_orders'),
                 ],
                 'quantity_to_be_picked'        => [
-                    'icon_state' => ['icon' => 'fas fa-shopping-basket', 'tooltip' => __('Parts been picked')],
+                    'icon_state' => ['icon' => 'fas fa-shopping-basket', 'tooltip' => __('Parts to be picked')],
                     'value'      => (float)$orgStocks->sum('quantity_to_be_picked'),
                 ],
             ],

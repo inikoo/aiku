@@ -9,6 +9,7 @@
 namespace App\Actions\Accounting\Reports\SageInvoices;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingReportsAuthorisation;
 use App\Actions\Traits\WithExportData;
 use App\Exports\Accounting\SageInvoicesExport;
 use App\Models\SysAdmin\Organisation;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportSageInvoices extends OrgAction
 {
+    use WithAccountingReportsAuthorisation;
     use WithExportData;
 
     private const STREAM_THRESHOLD = 20000;
@@ -34,8 +36,8 @@ class ExportSageInvoices extends OrgAction
             $raw = $filters['between']['date'];
             [$start, $end] = explode('-', $raw);
 
-            $startDate = Carbon::createFromFormat('Ymd', $start)->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('Ymd', $end)->format('Y-m-d');
+            $startDate = Carbon::createFromFormat('Ymd', $start)->startOfDay()->toDateTimeString();
+            $endDate = Carbon::createFromFormat('Ymd', $end)->endOfDay()->toDateTimeString();
         }
 
         $export = new SageInvoicesExport($organisation, $startDate, $endDate);

@@ -6,6 +6,14 @@ export interface CopiedWebBlock {
     id: number
     name: string
     webpageId: number
+    type?: string
+}
+
+export interface DraggedWebBlock {
+    id: number
+    type: string
+    name: string
+    webpageId: number
 }
 
 export interface WorkshopShortcut {

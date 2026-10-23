@@ -8,6 +8,7 @@
 namespace App\Actions\Masters\MasterProductCategory\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithMastersAuthorisation;
 use App\Http\Resources\Masters\MasterProductCategoryShopContentResource;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Masters\MasterProductCategory;
@@ -17,6 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class GetShopsContentInMasterProductCategory extends OrgAction
 {
+    use WithMastersAuthorisation;
     public function asController(MasterProductCategory $masterProductCategory, ActionRequest $request): Collection
     {
         $this->initialisationFromGroup($masterProductCategory->group, $request);

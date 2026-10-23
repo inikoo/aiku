@@ -9,14 +9,21 @@
 namespace App\Actions\Production\ManufactureTaskSession\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\Artisan\SetArtisanPayType;
+use App\Actions\Production\ManufactureArtisanDay\HydrateManufactureArtisanDays;
 use App\Actions\Production\Production\UI\ShowArtisansDashboard;
 use App\Enums\Production\Artisan\ArtisanPayTypeEnum;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionTimeEditReasonEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTargetReasonEnum;
+use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
+use App\Models\Production\ManufactureArtisanDay;
+use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
+use App\Models\Production\ManufacturePreparationReason;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\Organisation;
@@ -30,18 +37,19 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexArtisans extends OrgAction
 {
+    private bool $canEditClosedPayWeek = false;
+    private bool $canSeePay = false;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->authTo([
             'org-supervisor.'.$this->organisation->id,
             "productions_operations.{$this->production->id}.orchestrate",
         ]);
+        $this->canEditClosedPayWeek = $request->user()->authTo('sysadmin.edit');
+        $this->canSeePay            = ShowArtisansDashboard::canSeeArtisanPay($request->user(), $this->production);
 
-        return $request->user()->authTo([
-            'org-supervisor.'.$this->organisation->id,
-            'productions-view.'.$this->organisation->id,
-            "productions_operations.{$this->production->id}.view",
-        ]);
+        return ShowArtisansDashboard::canSeeArtisans($request->user(), $this->production);
     }
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production
@@ -64,6 +72,9 @@ class IndexArtisans extends OrgAction
             'manufacture_task_id' => ['sometimes', 'integer'],
             'under_target'        => ['sometimes', 'boolean'],
             'artisan_pay_type'    => ['sometimes', 'nullable', Rule::enum(ArtisanPayTypeEnum::class)],
+            'time_edited'         => ['sometimes', 'boolean'],
+            'activity'            => ['sometimes', 'nullable', Rule::in(['production', ManufactureTaskSessionActivityTypeEnum::PREPARATION->value, ManufactureTaskSessionActivityTypeEnum::CLEANING->value])],
+            'preparation_reason'  => ['sometimes', 'nullable', 'string', 'regex:/^(none|\d+)$/'],
         ];
     }
 
@@ -74,6 +85,9 @@ class IndexArtisans extends OrgAction
         $manufactureTaskId = Arr::get($this->validatedData, 'manufacture_task_id');
         $underTargetOnly   = (bool) Arr::get($this->validatedData, 'under_target', false);
         $payType           = Arr::get($this->validatedData, 'artisan_pay_type');
+        $timeEditedOnly    = (bool) Arr::get($this->validatedData, 'time_edited', false);
+        $activity          = Arr::get($this->validatedData, 'activity');
+        $preparationReason = $activity == ManufactureTaskSessionActivityTypeEnum::PREPARATION->value ? Arr::get($this->validatedData, 'preparation_reason') : null;
 
         $sessions = ManufactureTaskSession::where('manufacture_task_sessions.production_id', $production->id)
             ->whereIn('manufacture_task_sessions.state', [
@@ -84,9 +98,16 @@ class IndexArtisans extends OrgAction
             ->when($manufactureTaskId, fn ($query) => $query->where('manufacture_task_id', $manufactureTaskId))
             ->when($underTargetOnly, fn ($query) => $query->where('is_under_target', true))
             ->when($payType, fn ($query) => $query->where('artisan_pay_type', $payType))
-            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrder', 'jobOrder'])
+            ->when($timeEditedOnly, fn ($query) => $query->whereNotNull('time_edited_at'))
+            ->when($activity == 'production', fn ($query) => $query->whereNotNull('job_order_item_task_id'))
+            ->when($activity && $activity != 'production', fn ($query) => $query->whereNull('job_order_item_task_id')->where('activity_type', $activity))
+            ->when($preparationReason == 'none', fn ($query) => $query->whereNull('preparation_reason_id'))
+            ->when($preparationReason && $preparationReason != 'none', fn ($query) => $query->where('preparation_reason_id', (int) $preparationReason))
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder', 'preparationReason'])
             ->orderByDesc('ended_at')
             ->get();
+
+        $payTypeHistory = $this->payTypeHistory($sessions->pluck('employee')->filter()->unique('id'));
 
         $totals = function (Collection $sessions): array {
             $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
@@ -94,9 +115,9 @@ class IndexArtisans extends OrgAction
             return [
                 'number_sessions'   => $closed->count(),
                 'hours'             => round($closed->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
-                'quantity_made'     => (float)$closed->sum('quantity_made'),
-                'quantity_rejected' => (float)$closed->sum('quantity_rejected'),
-                'earned'            => round($closed->sum(fn (ManufactureTaskSession $session) => $session->quantity_made * ($session->task_work_cost ?? 0)), 2),
+                'quantity_made'     => round((float)$closed->sum('quantity_made'), 2),
+                'quantity_rejected' => round((float)$closed->sum('quantity_rejected'), 2),
+                'earned'            => $this->canSeePay ? round((float)$closed->sum('pay'), 2) : null,
             ];
         };
 
@@ -107,7 +128,28 @@ class IndexArtisans extends OrgAction
             && in_array($session->jobOrderItemTask->jobOrder->state, JobOrderStateEnum::open())
             && $session->jobOrderItemTask->jobOrderItem->quantity_received <= 0;
 
-        $serializeSession = fn (ManufactureTaskSession $session) => [
+        $userId       = $request->user()->id;
+        $payWeekStart = now()->startOfWeek();
+        $timeEdit     = fn (ManufactureTaskSession $session) => [
+            'time_edit'                => $session->time_edited_at ? [
+                'reason'              => ManufactureTaskSessionTimeEditReasonEnum::labels()[$session->time_edit_reason?->value] ?? null,
+                'note'                => $session->time_edit_note,
+                'edited_by'           => $session->timeEditor?->contact_name ?: $session->timeEditor?->username,
+                'edited_at'           => $session->time_edited_at,
+                'original_started_at' => $session->original_started_at,
+                'original_ended_at'   => $session->original_ended_at,
+            ] : null,
+            'left_open_after_shift_at' => $session->left_open_after_shift_at,
+            'times_route'              => ($this->canEdit || $this->canEditClosedPayWeek)
+                && $session->state == ManufactureTaskSessionStateEnum::CLOSED
+                && $session->user_id != $userId
+                && ($this->canEditClosedPayWeek || $session->ended_at->greaterThanOrEqualTo($payWeekStart)) ? [
+                    'name'       => 'grp.models.manufacture-task-session.times',
+                    'parameters' => ['manufactureTaskSession' => $session->id],
+                ] : null,
+        ];
+
+        $serializeSession = fn (ManufactureTaskSession $session) => $timeEdit($session) + [
             'id'                  => $session->id,
             'state'               => $session->state,
             'task_name'           => $session->manufactureTask->name,
@@ -122,8 +164,17 @@ class IndexArtisans extends OrgAction
                 'name'       => 'grp.models.manufacture-task-session.correct',
                 'parameters' => ['manufactureTaskSession' => $session->id],
             ] : null,
+            'other_steps'         => $canCorrect($session) ? $session->jobOrderItemTask->jobOrderItem->tasks
+                ->reject(fn (JobOrderItemTask $step) => $step->id == $session->job_order_item_task_id || $step->combined_task_id)
+                ->map(fn (JobOrderItemTask $step) => [
+                    'id'                => $step->id,
+                    'task_name'         => $step->manufactureTask->name,
+                    'unit'              => $step->unit(),
+                    'pack_size'         => $step->packSize(),
+                    'quantity_left'     => max(0, (float)$step->quantity_required - (float)$step->quantity_made),
+                ])->values()->all() : [],
             'quantity_rejected'   => (float)$session->quantity_rejected,
-            'earned'              => round($session->quantity_made * ($session->task_work_cost ?? 0), 2),
+            'earned'              => $this->canSeePay ? round((float)$session->pay, 2) : null,
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,
             'standard_rate'       => $session->standard_rate === null ? null : (float)$session->standard_rate,
             'is_under_target'     => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED,
@@ -146,7 +197,7 @@ class IndexArtisans extends OrgAction
 
         $artisans = $sessions
             ->groupBy('user_id')
-            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession) {
+            ->map(function (Collection $allUserSessions) use ($totals, $serializeSession, $timeEdit, $from, $to, $payTypeHistory) {
                 /** @var ManufactureTaskSession $first */
                 $first         = $allUserSessions->first();
                 $userSessions  = $allUserSessions->reject(fn (ManufactureTaskSession $session) => $session->isNonProductive());
@@ -161,12 +212,20 @@ class IndexArtisans extends OrgAction
                         'name'       => 'grp.org.productions.show.artisans.pay_type.update',
                         'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
                     ] : null,
+                    'pay_type_history'  => $employee ? $payTypeHistory->get($employee->id, []) : [],
+                    'is_guru'           => $employee?->guru_since && $employee->guru_since->lessThanOrEqualTo($to) && (!$employee->guru_until || $employee->guru_until->greaterThanOrEqualTo($from->copy()->startOfDay())),
+                    'guru_since'        => $employee?->guru_since?->toDateString(),
+                    'guru_until'        => $employee?->guru_until?->toDateString(),
+                    'guru_route'        => $this->canEdit && $employee?->organisation_id == $this->organisation->id ? [
+                        'name'       => 'grp.org.productions.show.artisans.guru.update',
+                        'parameters' => ['organisation' => $this->organisation->slug, 'production' => $this->production->slug, 'employee' => $employee->id],
+                    ] : null,
                     'number_sessions'   => $artisanTotals['number_sessions'],
                     'hours_worked'      => $artisanTotals['hours'],
                     'quantity_made'     => $artisanTotals['quantity_made'],
                     'quantity_rejected' => $artisanTotals['quantity_rejected'],
                     'earned'            => $artisanTotals['earned'],
-                    'non_productive'    => $this->nonProductiveSummary($allUserSessions->filter(fn (ManufactureTaskSession $session) => $session->isNonProductive())),
+                    'non_productive'    => $this->nonProductiveSummary($allUserSessions->filter(fn (ManufactureTaskSession $session) => $session->isNonProductive()), $timeEdit),
                     'under_target_open' => $userSessions->filter(fn (ManufactureTaskSession $session) => $session->is_under_target && $session->state == ManufactureTaskSessionStateEnum::CLOSED && !$session->under_target_reviewed_at)->count(),
                     'jobs'              => $userSessions
                         ->groupBy('jobOrderItemTask.job_order_item_id')
@@ -198,12 +257,12 @@ class IndexArtisans extends OrgAction
             'Org/Production/Artisans',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('Artisans'),
+                'title'       => __('Performance'),
                 'pageHead'    => [
-                    'title' => __('Artisans'),
+                    'title' => __('Performance'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-user-hard-hat'],
-                        'title' => __('Artisans'),
+                        'title' => __('Performance'),
                     ],
                 ],
                 'period'   => [
@@ -212,8 +271,18 @@ class IndexArtisans extends OrgAction
                 ],
                 'manufacture_task_id' => $manufactureTaskId ? (int)$manufactureTaskId : null,
                 'under_target'        => $underTargetOnly,
+                'time_edited'         => $timeEditedOnly,
+                'time_edit_reasons'   => array_map(fn (ManufactureTaskSessionTimeEditReasonEnum $reason) => [
+                    'value' => $reason->value,
+                    'label' => ManufactureTaskSessionTimeEditReasonEnum::labels()[$reason->value],
+                ], ManufactureTaskSessionTimeEditReasonEnum::supervisorReasons()),
+                'left_open'           => $this->leftOpenSessions($production),
+                'daily_hours_warnings' => $this->dailyHoursWarnings($production, $from, $to),
                 'artisan_pay_type'    => $payType,
                 'artisan_pay_types'   => ArtisanPayTypeEnum::labels(),
+                'pay_type_effective_from' => SetArtisanPayType::effectiveFrom()->toDateString(),
+                'currency_code'           => $this->organisation->currency->code,
+                'can_see_pay'             => $this->canSeePay,
                 'under_target_reasons' => ManufactureTaskSessionUnderTargetReasonEnum::labels(),
                 'non_productive_activities' => array_map(fn (ManufactureTaskSessionActivityTypeEnum $activity) => [
                     'value' => $activity->value,
@@ -223,6 +292,22 @@ class IndexArtisans extends OrgAction
                     ->where('production_id', $production->id)
                     ->orderBy('name')
                     ->get(['id', 'name']),
+                'activity'                  => $activity,
+                'preparation_reason'        => $preparationReason,
+                'preparation_reasons'       => ManufacturePreparationReason::forProduction($production)->map(fn (ManufacturePreparationReason $reason) => [
+                    'id'       => $reason->id,
+                    'name'     => $reason->name,
+                    'is_other' => $reason->is_other,
+                ])->all(),
+                'retired_preparation_reasons' => ManufacturePreparationReason::onlyTrashed()->where('production_id', $production->id)
+                    ->whereIn('id', ManufactureTaskSession::select('preparation_reason_id')->where('production_id', $production->id)->whereNotNull('preparation_reason_id'))
+                    ->orderBy('name')
+                    ->get(['id', 'name']),
+                'preparation_reasons_route' => $this->canEdit ? [
+                    'name'       => 'grp.models.production.preparation_reasons.update',
+                    'parameters' => ['production' => $production->id],
+                ] : null,
+                'activity_totals'           => $activity && $activity != 'production' ? $this->activityTotals($sessions) : null,
                 'artisans' => $artisans,
             ]
         );
@@ -233,7 +318,7 @@ class IndexArtisans extends OrgAction
      *
      * @param Collection<int, ManufactureTaskSession> $sessions
      */
-    private function nonProductiveSummary(Collection $sessions): array
+    private function nonProductiveSummary(Collection $sessions, callable $timeEdit): array
     {
         $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
 
@@ -254,25 +339,130 @@ class IndexArtisans extends OrgAction
 
         return [
             'hours'      => round($closed->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
-            'pay'        => $closed->whereNotNull('pay')->isEmpty() ? null : round((float) $closed->sum('pay'), 2),
+            'pay'        => !$this->canSeePay || $closed->whereNotNull('pay')->isEmpty() ? null : round((float) $closed->sum('pay'), 2),
             'activities' => $hoursByActivity($closed),
             'days'       => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->toDateString(), fn ($session, string $date) => $date),
             'weeks'      => $groupedHours(fn (ManufactureTaskSession $session) => $session->ended_at->copy()->startOfWeek()->toDateString(), fn ($session, string $date) => $date),
             'job_orders' => $groupedHours(fn (ManufactureTaskSession $session) => (string) ($session->job_order_id ?? ''), fn (ManufactureTaskSession $session) => $session->jobOrder?->reference),
-            'sessions'   => $sessions->map(fn (ManufactureTaskSession $session) => [
+            'sessions'   => $sessions->map(fn (ManufactureTaskSession $session) => $timeEdit($session) + [
                 'id'                  => $session->id,
                 'state'               => $session->state,
                 'activity'            => $session->activityLabel(),
+                'reason'              => $session->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION ? ($session->preparationReason?->name ?? __('No reason recorded')) : null,
+                'reason_note'         => $session->preparation_reason_note ? ($session->preparation_reason_note_en ?? $session->preparation_reason_note) : null,
+                'reason_note_original' => $session->preparation_reason_note && $session->preparation_reason_note_en && $session->preparation_reason_note_en !== $session->preparation_reason_note ? $session->preparation_reason_note : null,
                 'job_order_reference' => $session->jobOrder?->reference,
                 'started_at'          => $session->started_at,
                 'ended_at'            => $session->ended_at,
                 'break_minutes'       => (int) $session->break_minutes,
-                'pay'                 => $session->pay === null ? null : (float) $session->pay,
+                'pay'                 => !$this->canSeePay || $session->pay === null ? null : (float) $session->pay,
                 'void_route'          => $this->canEdit && $session->state == ManufactureTaskSessionStateEnum::CLOSED ? [
                     'name'       => 'grp.models.manufacture-task-session.void',
                     'parameters' => ['manufactureTaskSession' => $session->id],
                 ] : null,
             ])->values(),
+        ];
+    }
+
+    /**
+     * Time and sessions of the chosen activity for the period, per artisan and, for Preparation, per reason:
+     * "Other" is split by the English text typed, and sessions from before reasons were asked count as "No reason recorded".
+     *
+     * @param Collection<int, ManufactureTaskSession> $sessions
+     */
+    private function activityTotals(Collection $sessions): array
+    {
+        $closed = $sessions->where('state', ManufactureTaskSessionStateEnum::CLOSED);
+        $totals = fn (Collection $group) => [
+            'hours'           => round($group->sum(fn (ManufactureTaskSession $session) => $session->paidHours()), 2),
+            'number_sessions' => $group->count(),
+        ];
+
+        $reasonNote = fn (ManufactureTaskSession $session) => trim($session->preparation_reason_note_en ?? $session->preparation_reason_note ?? '');
+
+        return [
+            'total'    => $totals($closed),
+            'reasons'  => $closed->where('activity_type', ManufactureTaskSessionActivityTypeEnum::PREPARATION)
+                ->groupBy(fn (ManufactureTaskSession $session) => (string) ($session->preparation_reason_id ?? 'none'))
+                ->map(fn (Collection $group, string $key) => [
+                    'key'   => $key,
+                    'label' => $group->first()->preparationReason?->name ?? __('No reason recorded'),
+                    'notes' => $group->first()->preparationReason?->is_other ? $group
+                        ->groupBy(fn (ManufactureTaskSession $session) => mb_strtolower($reasonNote($session)))
+                        ->map(fn (Collection $noteGroup) => ['label' => $reasonNote($noteGroup->first())] + $totals($noteGroup))
+                        ->sortByDesc('hours')
+                        ->values()
+                        ->all() : [],
+                ] + $totals($group))
+                ->sortByDesc('hours')
+                ->values()
+                ->all(),
+            'artisans' => $closed->groupBy('user_id')
+                ->map(fn (Collection $group) => ['worker' => $group->first()->user->contact_name ?: $group->first()->user->username] + $totals($group))
+                ->sortByDesc('hours')
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * Production sessions paused or still running when the operator's shift ended, flagged by production:stop_sessions_after_shift,
+     * until the operator says they finished before the end of the shift, carries on after a clock-out over it, or a supervisor sets the times.
+     */
+    private function leftOpenSessions(Production $production): array
+    {
+        return ManufactureTaskSession::where('production_id', $production->id)
+            ->whereIn('state', [ManufactureTaskSessionStateEnum::OPEN, ManufactureTaskSessionStateEnum::CLOSED])
+            ->whereNotNull('job_order_item_task_id')
+            ->whereNotNull('left_open_after_shift_at')
+            ->whereNull('shift_end_resolved_at')
+            ->with(['user', 'manufactureTask', 'jobOrder', 'jobOrderItemTask.jobOrder'])
+            ->orderBy('started_at')
+            ->get()
+            ->map(function (ManufactureTaskSession $session) {
+                $pause = $session->shiftEndPause();
+
+                return [
+                    'id'                       => $session->id,
+                    'worker'                   => $session->user->contact_name ?: $session->user->username,
+                    'task_name'                => $session->manufactureTask?->name ?? $session->activityLabel(),
+                    'job_order_reference'      => $session->jobOrder?->reference ?? $session->jobOrderItemTask?->jobOrder?->reference,
+                    'started_at'               => $session->started_at,
+                    'left_open_after_shift_at' => $session->left_open_after_shift_at,
+                    'paused_at'                => $pause?->started_at,
+                    'ended_at'                 => $session->ended_at,
+                    'status'                   => match (true) {
+                        $session->state == ManufactureTaskSessionStateEnum::CLOSED => 'closed',
+                        $pause && !$pause->ended_at => 'paused',
+                        default => 'running',
+                    },
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @return array{count: int, route: array{name: string, parameters: array<string, mixed>}}
+     */
+    private function dailyHoursWarnings(Production $production, Carbon $from, Carbon $to): array
+    {
+        HydrateManufactureArtisanDays::run($production, $from, $to);
+
+        return [
+            'count' => ManufactureArtisanDay::where('production_id', $production->id)
+                ->whereBetween('date', [$from->toDateString(), $to->toDateString()])
+                ->where('is_warning_open', true)
+                ->count(),
+            'route' => [
+                'name'       => 'grp.org.productions.show.artisans.daily_hours',
+                'parameters' => [
+                    'organisation' => $production->organisation->slug,
+                    'production'   => $production->slug,
+                    'from'         => $from->toDateString(),
+                    'to'           => $to->toDateString(),
+                    'open_only'    => 1,
+                ],
+            ],
         ];
     }
 
@@ -290,11 +480,33 @@ class IndexArtisans extends OrgAction
                             'name'       => 'grp.org.productions.show.artisans.index',
                             'parameters' => $routeParameters,
                         ],
-                        'label' => __('Artisans'),
+                        'label' => __('Performance'),
                     ],
                     'suffix' => $suffix,
                 ],
             ]
         );
+    }
+
+    /**
+     * @param  Collection<int, Employee>  $employees
+     * @return Collection<int, array<int, array{changed_at: string, by: string|null, from: string|null, to: string|null, effective_from: string}>>
+     */
+    private function payTypeHistory(Collection $employees): Collection
+    {
+        $labels = ArtisanPayTypeEnum::labels();
+
+        return $employees->isEmpty() ? collect() : Employee::query()->whereIn('id', $employees->pluck('id'))
+            ->with(['audits' => fn ($query) => $query->where('event', 'updated')->whereNotNull('new_values->artisan_pay_type')->with('user')->latest('id')])
+            ->get()
+            ->mapWithKeys(fn (Employee $employee) => [
+                $employee->id => $employee->audits->map(fn ($audit) => [
+                    'changed_at'     => $audit->created_at->toIso8601String(),
+                    'by'             => $audit->user?->contact_name ?: $audit->user?->username,
+                    'from'           => $labels[$audit->old_values['artisan_pay_type'] ?? ''] ?? null,
+                    'to'             => $labels[$audit->new_values['artisan_pay_type']] ?? null,
+                    'effective_from' => SetArtisanPayType::effectiveFrom($audit->created_at)->toDateString(),
+                ])->values()->all(),
+            ]);
     }
 }

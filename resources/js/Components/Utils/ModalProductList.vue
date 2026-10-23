@@ -551,7 +551,8 @@ watch(() => model.value, async (newValue) => {
 											<PurchaseOrderItemStockInfo
 												v-if="typeModel === 'purchase_order'"
 												:item="slotProps.data"
-												:isPartner="isPartner" />
+												:isPartner="isPartner"
+												:inCartons="activeLevel === 'cartons'" />
 										</div>
 									</template>
 								</Column>

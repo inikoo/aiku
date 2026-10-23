@@ -25,6 +25,9 @@ use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\SupplyChain\Agent\UI\WithAgentEditAction;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
+use App\Actions\SupplyChain\AgentPayment\UI\IndexAgentLedger;
+use App\Actions\SupplyChain\DepositRequest\UI\IndexAgentMoneyRequests;
+use App\Models\SupplyChain\DepositRequest;
 use App\Actions\Procurement\SupplierMessage\UI\IndexSupplierMessages;
 use App\Http\Resources\Procurement\SupplierMessagesResource;
 use App\Http\Resources\History\HistoryResource;
@@ -130,6 +133,10 @@ class ShowOrgAgent extends OrgAction
                     fn () => GetOrgAgentShowcase::run($orgAgent, $this->organisation)
                     : Inertia::optional(fn () => GetOrgAgentShowcase::run($orgAgent, $this->organisation)),
 
+                OrgAgentTabsEnum::MONEY->value => $this->tab == OrgAgentTabsEnum::MONEY->value ?
+                    fn () => $this->money($orgAgent, $request)
+                    : Inertia::optional(fn () => $this->money($orgAgent, $request)),
+
                 OrgAgentTabsEnum::INBOX->value => $this->tab == OrgAgentTabsEnum::INBOX->value ?
                     fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($orgAgent, OrgAgentTabsEnum::INBOX->value))->additional(['compose' => IndexSupplierMessages::composeData($this->organisation, $request->user(), $orgAgent)])
                     : Inertia::optional(fn () => SupplierMessagesResource::collection(IndexSupplierMessages::run($orgAgent, OrgAgentTabsEnum::INBOX->value))->additional(['compose' => IndexSupplierMessages::composeData($this->organisation, $request->user(), $orgAgent)])),
@@ -169,6 +176,7 @@ class ShowOrgAgent extends OrgAction
             ->table(IndexProcurementNotes::make()->tableStructure(prefix: OrgAgentTabsEnum::NOTES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value))
             ->table(IndexSupplierMessages::make()->tableStructure($orgAgent, prefix: OrgAgentTabsEnum::INBOX->value))
+            ->table(IndexAgentMoneyRequests::make()->tableStructure(prefix: OrgAgentTabsEnum::MONEY->value, forClient: true))
             ->table(IndexAttachments::make()->tableStructure(prefix: OrgAgentTabsEnum::ATTACHMENTS->value));
     }
 
@@ -276,4 +284,27 @@ class ShowOrgAgent extends OrgAction
         ];
     }
 
+
+    /**
+     * The client's wallet with the agent and the money the agent asked it for, which it pays from here.
+     *
+     * @return array<string, mixed>
+     */
+    private function money(OrgAgent $orgAgent, ActionRequest $request): array
+    {
+        $agent         = $orgAgent->agent;
+        $agentCurrency = $agent->organisation->currency->code;
+        $wallet        = collect(IndexAgentLedger::make()->wallets($agent))
+            ->first(fn (array $wallet) => $wallet['organisation_id'] === $this->organisation->id && $wallet['currency_code'] === $agentCurrency)
+            ?? ['received' => 0.0, 'paid' => 0.0, 'balance' => 0.0];
+        $user = $request->user();
+
+        return [
+            'agent_currency_code'  => $agentCurrency,
+            'client_currency_code' => $this->organisation->currency->code,
+            'wallet'               => ['received' => $wallet['received'], 'paid' => $wallet['paid'], 'balance' => $wallet['balance']],
+            'requests'             => IndexAgentMoneyRequests::make()->handle($agent, $this->organisation, OrgAgentTabsEnum::MONEY->value)
+                ->through(fn (DepositRequest $depositRequest) => IndexAgentMoneyRequests::row($depositRequest, $user, true)),
+        ];
+    }
 }

@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 /**
  * Nothing here goes near the database. createOrganisation() builds the one organisation the
  * feature tests share, and creating it from a unit test leaves the suite in a state
- * InventoryTest cannot work from. The guard reads a slug, and getOrganisationSource reads
+ * the Inventory feature tests cannot work from. The guard reads a slug, and getOrganisationSource reads
  * source, so an unsaved model carries everything this needs.
  *
  * The decision is read from what the guard printed rather than from a return code, which

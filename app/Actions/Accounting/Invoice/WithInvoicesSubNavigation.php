@@ -10,6 +10,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Accounting\Reports\MontanaInvoices\UI\IndexMontanaInvoicesReport;
 use App\Actions\Accounting\Reports\SageInvoices\UI\IndexSageInvoicesReport;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -78,7 +79,7 @@ trait WithInvoicesSubNavigation
                 ],
             ],
 
-            $parent instanceof Shop ? [
+            $parent instanceof Shop && $this->canSeeShopInvoiceReports($parent) ? [
                 'number' => IndexSageInvoicesReport::make()->inReports($parent),
                 'label'  => __('Sage Invoices'),
                 'route'  => [
@@ -87,8 +88,8 @@ trait WithInvoicesSubNavigation
                 ]
             ] : [],
 
-            $parent instanceof Shop ? [
-                'number' => IndexSageInvoicesReport::make()->inReports($parent),
+            $parent instanceof Shop && $this->canSeeShopInvoiceReports($parent) ? [
+                'number' => IndexMontanaInvoicesReport::make()->inReports($parent),
                 'label'  => __('Montana Invoices'),
                 'route'  => [
                     'name'       => $montanaInvoicesRouteName,
@@ -96,7 +97,16 @@ trait WithInvoicesSubNavigation
                 ]
             ] : [],
 
-            [
+            $parent instanceof Organisation ? [
+                "label"   => __('By country'),
+                'tooltip' => __('Invoices by the country they were delivered to'),
+                "route"   => [
+                    "name"       => 'grp.org.accounting.invoices_by_country.index',
+                    "parameters" => $param,
+                ],
+            ] : [],
+
+            $this->canSeeDeletedInvoices($parent) ? [
                 "number" => $numberDeletedInvoices,
                 "label"  => __("Deleted Invoices"),
                 'align'  => 'right',
@@ -104,7 +114,7 @@ trait WithInvoicesSubNavigation
                     "name"       => $deletedInvoicesRouteName,
                     "parameters" => $param,
                 ],
-            ],
+            ] : [],
             [
                 "number" => $numberRefunds,
                 "label"  => __("Refunds"),
@@ -115,5 +125,31 @@ trait WithInvoicesSubNavigation
                 ],
             ],
         ];
+    }
+
+    private function canSeeDeletedInvoices(Organisation|Shop|Fulfilment $parent): bool
+    {
+        if ($parent instanceof Shop) {
+            return $this->canSeeShopInvoiceReports($parent);
+        }
+
+        $permissions = ["accounting.$parent->organisation_id.view"];
+        if ($parent instanceof Organisation) {
+            $permissions = ["accounting.$parent->id.view"];
+        } else {
+            $permissions[] = "fulfilment-shop.$parent->id.view";
+            $permissions[] = "supervisor-fulfilment-shop.$parent->id";
+        }
+
+        return (bool) request()->user()?->authTo($permissions);
+    }
+
+    private function canSeeShopInvoiceReports(Shop $shop): bool
+    {
+        return (bool) request()->user()?->authTo([
+            "accounting.$shop->organisation_id.view",
+            "crm.$shop->id.view",
+            "orders.$shop->id.view",
+        ]);
     }
 }

@@ -11,6 +11,7 @@ namespace App\Actions\Procurement;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\OrgSupplier\GetSupplierLeadTime;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Goods\Stock\StockStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
@@ -206,6 +207,7 @@ class GetOrganisationStockCoverBuckets
         ]);
         $counted  = "'".StockDeliveryStateEnum::CHECKED->value."', '".StockDeliveryStateEnum::BOOKING_IN->value."'";
         $ordered  = "'".PurchaseOrderStateEnum::SUBMITTED->value."', '".PurchaseOrderStateEnum::CONFIRMED->value."'";
+        $deadLines = "'".PurchaseOrderTransactionStateEnum::CANCELLED->value."', '".PurchaseOrderTransactionStateEnum::NOT_RECEIVED->value."'";
         $onDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery()->toRawSql();
 
         return "((coalesce((select sum(greatest(case when stock_deliveries.state in ($counted) then stock_delivery_items.unit_quantity_checked else stock_delivery_items.unit_quantity end - coalesce(stock_delivery_items.unit_quantity_placed, 0), 0))
@@ -217,6 +219,7 @@ class GetOrganisationStockCoverBuckets
                 from purchase_order_transactions
                 join purchase_orders on purchase_orders.id = purchase_order_transactions.purchase_order_id and purchase_orders.deleted_at is null
                 where purchase_order_transactions.org_stock_id = $orgStocks.id and purchase_order_transactions.deleted_at is null
+                    and purchase_order_transactions.state not in ($deadLines)
                     and purchase_orders.state in ($ordered)), 0))
             / greatest(coalesce($orgStocks.packed_in, 1), 1))";
     }

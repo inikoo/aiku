@@ -36,8 +36,10 @@ const bKeys = Blueprint?.blueprint?.map(b => b?.key?.join("-")) || []
 
 const openDisclosure = async (index: number) => {
   await nextTick()
-  const btn = disclosureBtns.value[index]
-  if (btn) btn.click()
+  const button: HTMLElement | undefined = disclosureBtns.value[index]?.$el
+  if (button && button.getAttribute("aria-expanded") !== "true") {
+    button.click()
+  }
 }
 </script>
 

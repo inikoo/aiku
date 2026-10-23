@@ -84,7 +84,7 @@ class UpdateTiktokInventory implements ShouldBeUnique
         $errors = Arr::get($tiktokInventory, 'data.errors', []);
 
         if (!$failed && (!is_array($errors) || count($errors) === 0)) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status' => PlatformPortfolioLogsStatusEnum::OK,
                 'last_stock_value' => $availableQuantity
             ]);
@@ -97,7 +97,7 @@ class UpdateTiktokInventory implements ShouldBeUnique
                 'stock_last_updated_at' => now()
             ]);
         } else {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status' => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E1: ' . ($failed ? Arr::get($tiktokInventory, 'data') : Arr::get($tiktokInventory, 'data.errors.0.message', ''))
             ]);

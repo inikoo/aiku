@@ -177,7 +177,6 @@ class StoreSupplier extends OrgAction
             'phone'           => ['nullable', new Phone()],
             'wechat'          => ['sometimes', 'nullable', 'string', 'max:255'],
             'whatsapp'        => ['sometimes', 'nullable', new Phone()],
-            'is_generic'      => ['sometimes', 'boolean'],
             'address'         => ['required', new ValidAddress(requireFullAddress: !$this->asAction)],
             'currency_id'     => ['required', 'exists:currencies,id'],
             'status'          => ['sometimes', 'required', 'boolean'],

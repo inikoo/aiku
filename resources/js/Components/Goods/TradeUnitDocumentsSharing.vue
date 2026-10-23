@@ -22,7 +22,7 @@ import { ref, watch } from "vue"
 import { Link, router } from "@inertiajs/vue3"
 import { notify } from "@kyvg/vue3-notification"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShareAlt, faTimes, faInfoCircle } from "@fal"
+import { faShareAlt, faTimes, faInfoCircle, faExclamationTriangle } from "@fal"
 import Checkbox from "primevue/checkbox"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ctrans } from "@/Composables/useTrans"
@@ -33,8 +33,10 @@ const props = defineProps<{
 }>()
 
 const selected = ref<number[]>([])
-watch(() => props.data.suggestions, (suggestions) => {
-    selected.value = suggestions.filter((suggestion) => suggestion.checked).map((suggestion) => suggestion.id)
+watch(() => props.data.suggestions, (suggestions, previousSuggestions) => {
+    selected.value = suggestions
+        .filter((suggestion) => previousSuggestions ? selected.value.includes(suggestion.id) : suggestion.checked)
+        .map((suggestion) => suggestion.id)
 }, { immediate: true })
 
 const isSubmitting = ref(false)
@@ -65,7 +67,7 @@ const stopSharing = (tradeUnitId: number) => {
 <template>
     <div class="px-10 pt-4">
         <div class="rounded-xl bg-white p-5">
-            <h3 class="mb-1 text-base font-semibold text-gray-700">{{ ctrans("Shared IFRA, SDS, CLP and allergen documents") }}</h3>
+            <h3 class="mb-1 text-base font-semibold text-gray-700">{{ ctrans("Shared IFRA, SDS, CLP, allergen and conformity documents") }}</h3>
             <div class="mb-4 h-1 border-b border-gray-300"></div>
 
             <div v-if="data.source" class="flex flex-wrap items-center gap-3 text-sm text-gray-700">
@@ -102,15 +104,21 @@ const stopSharing = (tradeUnitId: number) => {
                     <div class="mb-3 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
                         <label v-for="suggestion in data.suggestions" :key="suggestion.id" class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
                             <Checkbox v-model="selected" :value="suggestion.id" />
-                            <span class="font-medium">{{ suggestion.code }}</span>
+                            <span class="whitespace-nowrap font-medium">{{ suggestion.code }}</span>
                             <span class="truncate text-xs text-gray-400">{{ suggestion.name }}</span>
                         </label>
                     </div>
-                    <Button type="tertiary" :label="ctrans('Share with selected')" :disabled="!selected.length" :loading="isSubmitting" @click="share">
-                        <template #icon>
-                            <FontAwesomeIcon :icon="faShareAlt" class="text-green-600" fixed-width />
-                        </template>
-                    </Button>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <Button type="tertiary" :label="ctrans('Share with selected')" :disabled="!selected.length" :loading="isSubmitting" @click="share">
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faShareAlt" class="text-green-600" fixed-width />
+                            </template>
+                        </Button>
+                        <span v-if="selected.length" class="flex items-center gap-1 text-sm text-amber-600">
+                            <FontAwesomeIcon :icon="faExclamationTriangle" fixed-width />
+                            {{ ctrans("Ticked sizes are not shared yet, click Share with selected to save them") }}
+                        </span>
+                    </div>
                 </div>
             </template>
         </div>

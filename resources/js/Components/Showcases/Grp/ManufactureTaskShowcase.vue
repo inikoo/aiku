@@ -10,6 +10,7 @@ interface ManufactureTaskShowcaseData {
     status: boolean
     is_piece_rate: boolean
     is_recorded_in_kg: boolean
+    is_quantity_only: boolean
     artisans: {
         current: { id: number, name: string }[]
         options: { id: number, name: string }[]
@@ -43,6 +44,10 @@ defineProps<{
                 <div>
                     <div class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('Quantity recorded in') }}</div>
                     <div class="text-sm text-gray-900">{{ data.is_recorded_in_kg ? ctrans('kg') : ctrans('Units') }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">{{ ctrans('On the floor') }}</div>
+                    <div class="text-sm text-gray-900">{{ data.is_quantity_only ? ctrans('Quantity only, no timer') : ctrans('Start and stop timer') }}</div>
                 </div>
             </div>
 

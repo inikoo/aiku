@@ -452,3 +452,21 @@ test('architecture page serves the interactive diagram', function () {
     expect($response->baseResponse->getFile()->getPathname())->toBe(resource_path('aiku-public/architecture/aiku-architecture.html'))
         ->and(file_get_contents($response->baseResponse->getFile()->getPathname()))->toContain('Aiku Platform Architecture');
 });
+
+test('privacy policy and terms of service are public, linked and in the sitemap', function () {
+    get($this->host.'/privacy')->assertOk()
+        ->assertSee('Privacy policy', false)
+        ->assertSee('gmail.modify', false)
+        ->assertSee('Limited Use', false)
+        ->assertDontSee('Inikoo Ltd', false);
+
+    get($this->host.'/terms')->assertOk()
+        ->assertSee('Terms of service', false)
+        ->assertSee('at your own risk', false)
+        ->assertSee('no liability whatsoever', false)
+        ->assertSee(route('aiku-public.privacy'), false)
+        ->assertDontSee('Inikoo Ltd', false);
+
+    get($this->host.'/')->assertSee(route('aiku-public.terms'), false);
+    get($this->host.'/sitemap.xml')->assertSee(route('aiku-public.privacy'), false);
+});

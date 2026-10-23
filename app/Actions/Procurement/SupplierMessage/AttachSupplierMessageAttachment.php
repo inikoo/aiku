@@ -44,7 +44,7 @@ class AttachSupplierMessageAttachment extends OrgAction
     {
         $attachment = $supplierMessage->attachments[$index];
 
-        $related = $target instanceof PurchaseOrder ? $this->relatedToPurchaseOrder($supplierMessage, $target) : $target->purchaseOrders;
+        $related = $target instanceof PurchaseOrder ? $target->stockDeliveries : $target->purchaseOrders;
 
         $path = tempnam(sys_get_temp_dir(), 'supplier-attachment-');
 
@@ -73,25 +73,6 @@ class AttachSupplierMessageAttachment extends OrgAction
         $supplierMessage->update(['attachments' => $attachments]);
 
         return collect([$target])->concat($related);
-    }
-
-    /**
-     * What an agent writes covers the whole agent order, so a file from the agent also goes on the
-     * other supplier orders in it and on their deliveries.
-     *
-     * @return Collection<int, PurchaseOrder|StockDelivery>
-     */
-    private function relatedToPurchaseOrder(SupplierMessage $supplierMessage, PurchaseOrder $target): Collection
-    {
-        $siblings = $supplierMessage->org_agent_id && $target->isAgentOrder() && $target->agent_order_reference
-            ? $target->agentOrderPurchaseOrders()->whereKeyNot($target->id)->get()
-            : collect();
-
-        return $siblings
-            ->concat($target->stockDeliveries)
-            ->concat($siblings->flatMap(fn (PurchaseOrder $sibling) => $sibling->stockDeliveries))
-            ->unique(fn (PurchaseOrder|StockDelivery $model) => $model->getMorphClass().':'.$model->id)
-            ->values();
     }
 
     /**
@@ -149,8 +130,7 @@ class AttachSupplierMessageAttachment extends OrgAction
                 $query->orWhere(fn ($agentOrders) => $agentOrders
                     ->where('organisation_id', $counterpart->organisation_id)
                     ->where('agent_id', $counterpart->agent_id)
-                    ->where('parent_type', 'OrgSupplier')
-                    ->whereNotNull('agent_order_reference'));
+                    ->trackedThroughAgent());
             }
         })
             ->whereNotIn('state', [PurchaseOrderStateEnum::CANCELLED, PurchaseOrderStateEnum::NOT_RECEIVED])

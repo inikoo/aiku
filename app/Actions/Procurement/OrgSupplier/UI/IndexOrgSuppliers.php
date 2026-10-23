@@ -224,7 +224,12 @@ class IndexOrgSuppliers extends OrgAction
         return [
             'tabs'                                => [
                 'current'    => $this->tab,
-                'navigation' => OrgSuppliersTabsEnum::navigation(),
+                'navigation' => array_replace_recursive(OrgSuppliersTabsEnum::navigation(), [
+                    OrgSuppliersTabsEnum::INDEX->value => [
+                        'title'  => __('Supplier list'),
+                        'number' => $this->getAgentSuppliersQuery($agent)->count(),
+                    ],
+                ]),
             ],
             OrgSuppliersTabsEnum::DASHBOARD->value => $this->tab === OrgSuppliersTabsEnum::DASHBOARD->value ? $dashboard : Inertia::optional($dashboard),
             OrgSuppliersTabsEnum::INDEX->value     => $this->tab === OrgSuppliersTabsEnum::INDEX->value ? $index : Inertia::optional($index),

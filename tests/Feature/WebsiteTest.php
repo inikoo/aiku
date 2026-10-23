@@ -32,7 +32,9 @@ use App\Actions\Web\ExternalLink\CheckExternalLinkStatus;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\DuplicateModelHasWebBlock;
+use App\Actions\Web\ModelHasWebBlocks\ReplaceModelHasWebBlockContent;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
+use App\Actions\Web\WebBlock\RemapWebBlockLayoutLinksToWebsite;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\Redirect\StoreRedirect;
 use App\Actions\Web\Redirect\StoreRedirectFromWebpage;
@@ -72,6 +74,8 @@ use App\Actions\Web\Webpage\DeleteWebpage;
 use App\Models\Web\CruxRecord;
 use App\Actions\Web\WebVital\GetWebVitalsReport;
 use App\Actions\Web\Webpage\GetWebpageEngagementMetrics;
+use App\Actions\Web\WebsitePageView\GetWebsiteOrderJourneys;
+use App\Actions\Web\WebsitePageView\StoreWebsitePageView;
 use App\Actions\Web\Webpage\GetWebpageSeo;
 use App\Enums\Web\WebsiteConversionEvent\WebsiteConversionEventTypeEnum;
 use App\Actions\Web\Webpage\GetWebpagePerformance;
@@ -89,6 +93,7 @@ use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Helpers\TimeSeries\TimeSeriesFrequencyEnum;
+use App\Enums\UI\Web\SeoDashboardPageTabsEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
@@ -405,6 +410,218 @@ test('paste model has web block into another webpage belongs to that webpage', f
         ->and($pastedBlock->model_type)->toBe('Webpage')
         ->and($sourceWebpage->modelHasWebBlocks()->count())->toBe(1)
         ->and($targetWebpage->modelHasWebBlocks()->count())->toBe(1);
+})->depends('create b2b website');
+
+test('paste web block from another store points its links at this store and keeps its images', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebsite    = createWebsite($sourceShop);
+
+    $sharedCode          = 'showroom-'.Str::random(6);
+    $sourceSharedWebpage = StoreWebpage::make()->action($sourceWebsite->storefront, array_merge(Webpage::factory()->definition(), ['code' => $sharedCode]));
+    $targetSharedWebpage = StoreWebpage::make()->action($website->storefront, array_merge(Webpage::factory()->definition(), ['code' => $sharedCode]));
+    $sourceOnlyWebpage   = StoreWebpage::make()->action($sourceWebsite->storefront, Webpage::factory()->definition());
+    $targetWebpage       = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+
+    $webBlockType = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock  = StoreModelHasWebBlock::make()->action($sourceSharedWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $sourceBlock->webBlock->update(['layout' => [
+        'data' => ['fieldValue' => [
+            'home'     => ['type' => 'internal', 'id' => $sourceWebsite->storefront_id, 'href' => 'https://source.test/', 'workshop' => 'https://grp.test/source'],
+            'showroom' => ['type' => 'internal', 'id' => $sourceSharedWebpage->id, 'href' => $sourceSharedWebpage->canonical_url],
+            'only'     => ['type' => 'internal', 'id' => $sourceOnlyWebpage->id, 'href' => $sourceOnlyWebpage->canonical_url],
+            'external' => ['type' => 'external', 'id' => $sourceOnlyWebpage->id, 'href' => 'https://example.com'],
+            'empty'    => [],
+        ]],
+    ]]);
+
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $website->group_id,
+        'ulid'                  => Str::ulid(),
+        'name'                  => 'pasted block picture',
+        'is_animated'           => false,
+        'file_name'             => 'picture.jpg',
+        'disk'                  => 'media',
+        'collection_name'       => 'default',
+        'size'                  => 1,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    DB::table('model_has_media')->insert([
+        'id'         => DB::table('model_has_media')->max('id') + $media->id + 1000,
+        'group_id'   => $website->group_id,
+        'media_id'   => $media->id,
+        'model_type' => 'WebBlock',
+        'model_id'   => $sourceBlock->web_block_id,
+        'scope'      => 'image',
+        'data'       => '{}',
+        'source_id'  => 'paste-web-block-'.$media->id,
+    ]);
+
+    $remapped = RemapWebBlockLayoutLinksToWebsite::run($sourceBlock->webBlock->fresh()->layout, $website);
+    expect($remapped['number_unmatched_links'])->toBe(1);
+
+    $pastedBlock = DuplicateModelHasWebBlock::make()->action($targetWebpage, $sourceBlock->fresh());
+    $fieldValue  = $pastedBlock->webBlock->layout->data->fieldValue;
+
+    expect($fieldValue->home->id)->toBe($website->storefront_id)
+        ->and($fieldValue->home->href)->toBe($website->storefront->canonical_url)
+        ->and($fieldValue->home->workshop)->toBeNull()
+        ->and($fieldValue->showroom->id)->toBe($targetSharedWebpage->id)
+        ->and($fieldValue->showroom->canonical_url)->toBe($targetSharedWebpage->canonical_url)
+        ->and($fieldValue->only->id)->toBe($sourceOnlyWebpage->id)
+        ->and($fieldValue->external->id)->toBe($sourceOnlyWebpage->id)
+        ->and($fieldValue->empty)->toBe([])
+        ->and($sourceBlock->webBlock->fresh()->layout->data->fieldValue->home->id)->toBe($sourceWebsite->storefront_id)
+        ->and($pastedBlock->webBlock->images()->pluck('media.id')->all())->toBe([$media->id]);
+
+    \App\Actions\Web\WebBlock\DeleteWebBlock::make()->handle($sourceBlock->webBlock->fresh());
+
+    expect(\App\Models\Helpers\Media::find($media->id))->not->toBeNull();
+})->depends('create b2b website');
+
+test('paste content and style replaces a block of the same type and keeps where and how it is shown', function (Website $website) {
+    [, , $sourceShop] = createOwnShop('paste-web-block-source');
+    $sourceWebsite    = createWebsite($sourceShop);
+    $sourceWebpage    = StoreWebpage::make()->action($sourceWebsite->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $textType         = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $otherType        = $website->group->webBlockTypes()->where('code', 'script')->first();
+
+    $sourceBlock = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $textType->id]);
+    $sourceBlock->webBlock->update(['layout' => [
+        'data' => ['fieldValue' => [
+            'value'     => '<p>EU showroom</p>',
+            'container' => ['properties' => ['background' => ['color' => 'red']]],
+            'home'      => ['type' => 'internal', 'id' => $sourceWebsite->storefront_id, 'href' => 'https://source.test/'],
+        ]],
+    ]]);
+    $media = \App\Models\Helpers\Media::create([
+        'group_id'              => $website->group_id,
+        'ulid'                  => Str::ulid(),
+        'name'                  => 'replaced block picture',
+        'is_animated'           => false,
+        'file_name'             => 'picture.jpg',
+        'disk'                  => 'media',
+        'collection_name'       => 'default',
+        'size'                  => 1,
+        'manipulations'         => [],
+        'custom_properties'     => [],
+        'generated_conversions' => [],
+        'responsive_images'     => [],
+    ]);
+    DB::table('model_has_media')->insert([
+        'id'         => DB::table('model_has_media')->max('id') + $media->id + 1000,
+        'group_id'   => $website->group_id,
+        'media_id'   => $media->id,
+        'model_type' => 'WebBlock',
+        'model_id'   => $sourceBlock->web_block_id,
+        'scope'      => 'image',
+        'data'       => '{}',
+    ]);
+
+    $targetBlock = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $textType->id]);
+    $targetBlock->update(['show' => false]);
+    $numberHistories = $targetWebpage->webBlockHistories()->count();
+
+    $replaced   = ReplaceModelHasWebBlockContent::make()->action($targetBlock->fresh(), $sourceBlock->fresh());
+    $fieldValue = $replaced->webBlock->fresh()->layout->data->fieldValue;
+
+    expect($replaced->id)->toBe($targetBlock->id)
+        ->and($replaced->web_block_id)->toBe($targetBlock->web_block_id)
+        ->and($replaced->fresh()->show)->toBeFalse()
+        ->and($fieldValue->value)->toBe('<p>EU showroom</p>')
+        ->and($fieldValue->container->properties->background->color)->toBe('red')
+        ->and($fieldValue->home->id)->toBe($website->storefront_id)
+        ->and($replaced->webBlock->images()->pluck('media.id')->all())->toBe([$media->id])
+        ->and($targetWebpage->webBlockHistories()->count())->toBe($numberHistories + 1);
+
+    ReplaceModelHasWebBlockContent::make()->action($targetBlock->fresh(), $sourceBlock->fresh());
+    expect($targetBlock->webBlock->images()->count())->toBe(1);
+
+    $otherBlock = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $otherType->id]);
+    expect(fn () => ReplaceModelHasWebBlockContent::make()->action($otherBlock, $sourceBlock->fresh()))
+        ->toThrow(ValidationException::class);
+})->depends('create b2b website');
+
+/**
+ * Any access to a shop grants websites-view on its whole organisation, so a source the user can not read has to live in another organisation.
+ */
+function pasteSourceShopInAnotherOrganisation(Website $website): \App\Models\Catalogue\Shop
+{
+    $organisation = \App\Models\SysAdmin\Organisation::where('code', 'pst2')->first()
+        ?? \App\Actions\SysAdmin\Organisation\StoreOrganisation::make()->action(
+            $website->group,
+            array_merge(\App\Models\SysAdmin\Organisation::factory()->definition(), ['code' => 'pst2', 'type' => \App\Enums\SysAdmin\Organisation\OrganisationTypeEnum::SHOP])
+        );
+
+    return $organisation->shops()->first()
+        ?? \App\Actions\Catalogue\Shop\StoreShop::make()->action($organisation, \App\Models\Catalogue\Shop::factory()->definition());
+}
+
+test('paste content and style needs edit access to this store and read access to the store it comes from', function (Website $website) {
+    $sourceShop       = pasteSourceShopInAnotherOrganisation($website);
+    $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock      = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $targetBlock      = StoreModelHasWebBlock::make()->action($targetWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $replace          = fn () => post(route('grp.models.model_has_web_block.replace_content', [
+        'modelHasWebBlocks' => $targetBlock->id,
+        'source'            => $sourceBlock->id,
+    ]));
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.view", "web.{$sourceShop->id}.view"]);
+        $replace()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit"]);
+        $replace()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit", "web.{$sourceShop->id}.view"]);
+        $replace()->assertSuccessful();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+})->depends('create b2b website');
+
+test('paste web block needs edit access to this store and read access to the store it comes from', function (Website $website) {
+    $sourceShop       = pasteSourceShopInAnotherOrganisation($website);
+    $sourceWebpage    = StoreWebpage::make()->action(createWebsite($sourceShop)->storefront, Webpage::factory()->definition());
+    $targetWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+    $webBlockType     = $website->group->webBlockTypes()->where('code', 'text')->first();
+    $sourceBlock      = StoreModelHasWebBlock::make()->action($sourceWebpage, ['web_block_type_id' => $webBlockType->id]);
+    $paste            = fn () => post(route('grp.models.webpage.web_block.duplicate', [
+        'webpage'          => $targetWebpage->id,
+        'modelHasWebBlock' => $sourceBlock->id,
+    ]), ['position' => 0]);
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["websites-view.{$website->organisation_id}", "web.{$sourceShop->id}.view"]);
+        $paste()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit"]);
+        $paste()->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$website->shop_id}.edit", "web.{$sourceShop->id}.view"]);
+        $paste()->assertRedirect();
+        expect($targetWebpage->modelHasWebBlocks()->count())->toBe(1);
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
 })->depends('create b2b website');
 
 test('model external link', function () {
@@ -887,6 +1104,35 @@ test('UI index webpages in fulfilment website', function (Website $website) {
     });
 })->depends('launch fulfilment website from command');
 
+test('UI index webpages search with a comma searches what was typed', function (Website $website) {
+    $response = get(
+        route('grp.org.fulfilments.show.web.webpages.index', [
+            $this->organisation->slug,
+            $this->fulfilment->slug,
+            $website->slug,
+            'filter' => ['global' => 'home, about'],
+        ])
+    );
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->component('Org/Web/Webpages'));
+})->depends('launch fulfilment website from command');
+
+test('table global search callbacks get what was typed, not the query builder list or boolean', function (string|array $typed, string $expected) {
+    $received = null;
+
+    \App\Services\QueryBuilder::for(Webpage::class, Request::create('/', 'GET', ['filter' => ['global' => $typed]]))
+        ->allowedFilters([\Spatie\QueryBuilder\AllowedFilter::callback('global', function ($query, string $value) use (&$received) {
+            $received = $value;
+        })]);
+
+    expect($received)->toBe($expected);
+})->with([
+    'comma'  => ['home, about', 'home, about'],
+    'list'   => [['home', 'about'], 'home,about'],
+    'true'   => ['true', 'true'],
+    'false'  => ['false', 'false'],
+    'string' => ['about', 'about'],
+]);
+
 test('UI show fulfilment website workshop', function (Website $website) {
     $this->withoutExceptionHandling();
 
@@ -1023,10 +1269,12 @@ test('UI store fulfilment banner', function (Website $website) {
 })->depends('launch fulfilment website from command');
 
 test('UI create banner', function (Website $website) {
+    get(route('grp.org.shops.show.web.banners.create', [$this->organisation->slug, $this->shop->slug, $website->slug]))->assertNotFound();
+
     $response = get(
         route('grp.org.shops.show.web.banners.create', [
             $this->organisation->slug,
-            $this->shop->slug,
+            $website->shop->slug,
             $website->slug,
         ])
     );
@@ -1959,6 +2207,12 @@ test('robots txt is generated on demand with absolute sitemap urls', function (W
         ->toContain("://www.$website->domain/sitemap.xml")
         ->toContain("://www.$website->domain/sitemaps/products.xml")
         ->not->toContain('Sitemap: /');
+
+    expect($robotsTxt)
+        ->toContain("User-agent: Amazonbot\nDisallow: /*?variant")
+        ->toContain("Disallow: /email-protection\nDisallow: /i/\n")
+        ->toContain("User-agent: SiteAuditBot\n")
+        ->toContain("User-agent: SplitSignalBot\nDisallow: /\n");
 })->depends('launch website');
 
 test('llms txt core is generated and an upload is only appended', function (Website $website) {
@@ -1994,6 +2248,22 @@ test('llms txt core is generated and an upload is only appended', function (Webs
     $website->update(['settings' => array_merge($website->settings, ['webpage' => ['show_price' => true]])]);
 
     expect(App\Actions\Web\Website\LlmsTxt\GetLlmsTxt::run($website->refresh()))->toContain('Prices are public.');
+})->depends('launch website');
+
+test('llms txt reads the organisation fallback fresh even from a cached website', function (Website $website) {
+    $website->loadMissing(['organisation', 'group']);
+    $organisation     = $website->organisation;
+    $originalSettings = $organisation->settings;
+    App\Models\Web\WebsiteLlmsTxt::where('website_id', $website->id)->update(['is_active' => false]);
+
+    $organisation->newQuery()->whereKey($organisation->id)->update(['settings' => json_encode(array_merge($originalSettings ?? [], ['llms_txt' => ['content' => 'ORGANISATION FALLBACK EDITED']]))]);
+
+    $content = App\Actions\Web\Website\LlmsTxt\GetLlmsTxt::run($website);
+
+    $organisation->newQuery()->whereKey($organisation->id)->update(['settings' => json_encode($originalSettings ?? [])]);
+    App\Models\Web\WebsiteLlmsTxt::where('website_id', $website->id)->update(['is_active' => true]);
+
+    expect($content)->toContain("## Additional information\n\nORGANISATION FALLBACK EDITED");
 })->depends('launch website');
 
 test('update webpage canonical url', function (Webpage $webpage) {
@@ -2309,6 +2579,65 @@ test('the weekly chrome ux report fetch queues every live website and the pages 
         ->and($queued)->not->toContain([$website->id, $quietWebpage->id]);
 })->depends('launch website');
 
+test('the cache warmer warms only the most visited pages that carry half the views', function (Website $website) {
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+
+    $pageWithViews = function (int $views) use ($website, $visitorId) {
+        $webpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+        $webpage->update(['state' => WebpageStateEnum::LIVE, 'canonical_url' => 'https://warm.test/'.$webpage->id]);
+
+        DB::table('website_page_views')->insert(array_fill(0, $views, [
+            'group_id'           => $this->shop->group_id,
+            'organisation_id'    => $this->shop->organisation_id,
+            'shop_id'            => $this->shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'webpage_id'         => $webpage->id,
+            'page_url'           => 'https://test/'.$webpage->url,
+            'page_path'          => '/'.$webpage->url,
+            'view_date'          => now()->toDateString(),
+            'duration_seconds'   => 0,
+            'created_at'         => now(),
+            'updated_at'         => now(),
+        ]));
+
+        return $webpage->canonical_url;
+    };
+
+    $busiest = $pageWithViews(2000);
+    $second  = $pageWithViews(1500);
+    $tail    = $pageWithViews(1000);
+
+    $crawl = $website->crawls()->create([
+        'depth'       => 0,
+        'concurrency' => 1,
+        'trigger'     => CrawlTriggerEnum::DEPLOYMENT,
+        'type'        => CrawlTypeEnum::HTML,
+    ]);
+
+    $method = (new ReflectionClass(CrawlWebsite::class))->getMethod('getPrioritisedUrls');
+    $urls   = $method->invoke(new CrawlWebsite(), $crawl);
+
+    expect($urls)->toBe([$busiest, $second])
+        ->and($urls)->not->toContain($tail);
+})->depends('launch website');
+
 test('our visitors web vitals are reported as the daily 75th percentile, weekly for a page with too few loads a day, never the whole website for a page', function (Website $website) {
     $measuredWebpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
     $quietWebpage    = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
@@ -2494,6 +2823,140 @@ test('ads testing webpage metrics are read from the page views already recorded'
         ->and($yesterday['page_views'])->toBe(0)
         ->and($yesterday['conversion_rate'])->toBeNull()
         ->and($yesterday['avg_time_on_page'])->toBeNull();
+})->depends('launch website');
+
+test('SEO customer journey filters the tracked orders by source, visits, amount, landing page and search, page by page, HELP-4066', function (Website $website) {
+    $shop  = $website->shop;
+    $token = 'JRN'.strtoupper(Str::random(6));
+    $from  = now()->subDays(30)->startOfDay();
+
+    $baseline = GetWebsiteOrderJourneys::run($website, $from, now());
+
+    $storeVisitor = fn (string $source, string $landingPage, Carbon $seenAt, ?int $webUserId = null) => DB::table('website_visitors')->insertGetId([
+        'group_id'            => $shop->group_id,
+        'organisation_id'     => $shop->organisation_id,
+        'shop_id'             => $shop->id,
+        'website_id'          => $website->id,
+        'web_user_id'         => $webUserId,
+        'session_id'          => 'sess-'.Str::random(10),
+        'visitor_hash'        => Str::random(16),
+        'device_type'         => 'desktop',
+        'os'                  => 'linux',
+        'browser'             => 'firefox',
+        'user_agent'          => 'test-agent',
+        'ip_hash'             => Str::random(16),
+        'traffic_source_type' => $source,
+        'landing_page'        => 'https://test'.$landingPage,
+        'first_seen_at'       => $seenAt,
+        'last_seen_at'        => $seenAt->copy()->addMinutes(10),
+        'created_at'          => $seenAt,
+        'updated_at'          => $seenAt,
+    ]);
+
+    $storePurchase = function (Customer $customer, string $reference, float $net, Carbon $submittedAt, int $visitorId) use ($shop, $website): int {
+        $order = Order::factory()->create([
+            'group_id'        => $shop->group_id,
+            'organisation_id' => $shop->organisation_id,
+            'shop_id'         => $shop->id,
+            'customer_id'     => $customer->id,
+            'reference'       => $reference,
+            'slug'            => Str::slug($reference),
+            'tax_category_id' => TaxCategory::first()->id,
+            'currency_id'     => $shop->currency_id,
+            'state'           => OrderStateEnum::SUBMITTED,
+            'submitted_at'    => $submittedAt,
+            'net_amount'      => $net,
+        ]);
+
+        return DB::table('website_conversion_events')->insertGetId([
+            'group_id'           => $shop->group_id,
+            'organisation_id'    => $shop->organisation_id,
+            'shop_id'            => $shop->id,
+            'website_id'         => $website->id,
+            'website_visitor_id' => $visitorId,
+            'order_id'           => $order->id,
+            'event_type'         => WebsiteConversionEventTypeEnum::PURCHASE->value,
+            'quantity'           => 1,
+            'page_url'           => 'https://test/checkout',
+            'page_path'          => '/checkout',
+            'event_date'         => $submittedAt->toDateString(),
+            'created_at'         => $submittedAt,
+            'updated_at'         => $submittedAt,
+        ]);
+    };
+
+    $singleVisitCustomer = createOwnCustomer($shop, 'journey-single-visit');
+    $singleVisitPurchase = $storePurchase(
+        $singleVisitCustomer,
+        $token.'-A',
+        30,
+        now()->subDays(3),
+        $storeVisitor('email', '/aromatherapy/oils', now()->subDays(3)->subMinutes(5))
+    );
+
+    $returningCustomer = createOwnCustomer($shop, 'journey-returning');
+    $webUser           = StoreWebUser::make()->action($returningCustomer, [
+        'username' => 'jrn-'.Str::random(8),
+        'email'    => 'jrn-'.Str::random(8).'@testmail.com',
+        'password' => 'test',
+    ]);
+    $storeVisitor('organic-google', '/candles', now()->subDays(6), $webUser->id);
+    $storeVisitor('direct', '/', now()->subDays(4), $webUser->id);
+    $returningPurchase = $storePurchase(
+        $returningCustomer,
+        $token.'-B',
+        120,
+        now()->subDays(2),
+        $storeVisitor('direct', '/', now()->subDays(2)->subMinutes(5), $webUser->id)
+    );
+
+    $purchaseIds = fn (array $filters) => collect(GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token, ...$filters])['orders'])->pluck('purchase_id')->all();
+
+    $all = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token]);
+
+    expect($all['total'])->toBe($baseline['total'] + 2)
+        ->and($all['matching'])->toBe(2)
+        ->and(collect($all['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and(collect($all['orders'])->pluck('visits', 'purchase_id')->all())->toBe([$returningPurchase => 3, $singleVisitPurchase => 1])
+        ->and(collect($all['source_options'])->pluck('label', 'value')->only(['email', 'organic-google'])->all())->toBe(['email' => 'Email', 'organic-google' => 'Organic Google'])
+        ->and($purchaseIds(['sources' => 'email']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['sources' => ['organic-google']]))->toBe([$returningPurchase])
+        ->and($purchaseIds(['sources' => 'email,organic-google']))->toBe([$returningPurchase, $singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '1']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['visits' => '2-3']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['visits' => '4+']))->toBe([])
+        ->and($purchaseIds(['min' => '100']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['max' => '50']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['min' => '20', 'max' => '200', 'sources' => 'direct']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => 'AROMATHERAPY']))->toBe([$singleVisitPurchase])
+        ->and($purchaseIds(['landing' => 'candles']))->toBe([$returningPurchase])
+        ->and($purchaseIds(['landing' => '100%']))->toBe([])
+        ->and($purchaseIds(['visits' => 'every', 'min' => 'cheap']))->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $beyondLastPage = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $token], 5);
+    expect($beyondLastPage['page'])->toBe(1)
+        ->and($beyondLastPage['per_page'])->toBe(GetWebsiteOrderJourneys::ORDERS)
+        ->and($beyondLastPage['currency_code'])->toBe($shop->currency->code)
+        ->and(collect($beyondLastPage['orders'])->pluck('purchase_id')->all())->toBe([$returningPurchase, $singleVisitPurchase]);
+
+    $byCustomer = GetWebsiteOrderJourneys::run($website, $from, now(), ['search' => $returningCustomer->name]);
+    expect(collect($byCustomer['orders'])->pluck('purchase_id')->all())->toContain($returningPurchase)
+        ->not->toContain($singleVisitPurchase);
+
+    $parameters = [$shop->organisation->slug, $shop->slug, 'tab' => SeoDashboardPageTabsEnum::JOURNEY->value, 'journey_days' => 30, 'journey_search' => $token, 'journey_visits' => '2-3'];
+    $page       = get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->viewData('page');
+    $journey    = $this->withHeaders([
+        'X-Inertia'                   => 'true',
+        'X-Inertia-Version'           => $page['version'],
+        'X-Inertia-Partial-Component' => 'Org/Web/SeoDashboard',
+        'X-Inertia-Partial-Data'      => SeoDashboardPageTabsEnum::JOURNEY->value,
+    ])->get(route('grp.org.shops.show.seo.dashboard', $parameters))->assertOk()->json('props.'.SeoDashboardPageTabsEnum::JOURNEY->value);
+
+    expect($journey['filters']['search'])->toBe($token)
+        ->and($journey['filters']['visits'])->toBe('2-3')
+        ->and($journey['matching'])->toBe(1)
+        ->and($journey['page'])->toBe(1)
+        ->and($journey['orders'][0]['reference'])->toBe($token.'-B');
 })->depends('launch website');
 
 test('publish announcement', function (Website $website) {
@@ -3320,6 +3783,7 @@ describe('deployment crawling', function () {
                 'organisation_id' => $this->organisation->id,
                 'group_id'        => $this->organisation->group_id,
                 'code'            => "crawl-$index",
+                'name'            => "Crawl $index",
                 'type'            => WebsiteTypeEnum::INFO,
                 'state'           => WebsiteStateEnum::LIVE,
                 'migrated'        => true,
@@ -3526,6 +3990,19 @@ test('retina login renders the iris login block only when that page is live', fu
     $liveResponse = (new ShowRetinaLogin())->handle($request);
     expect($liveResponse)->toBeInstanceOf(Illuminate\Http\Response::class)
         ->and($liveResponse->headers->get('X-AIKU-WEBSITE'))->toBe((string) $website->id);
+})->depends('launch website');
+
+test('retina shares the google client id the iris login block needs to show login with google', function (Website $website) {
+    config()->set('services.google.client_id', 'test-google-client-id');
+
+    $request = Request::create('https://'.$website->domain.'/app/login');
+    $request->merge(['website' => $website]);
+    $request->setLaravelSession(app('session.store'));
+    $request->setRouteResolver(fn () => (new Illuminate\Routing\Route('GET', 'app/login', []))->name('retina.login'));
+
+    $shared = (new App\Http\Middleware\HandleRetinaInertiaRequests())->share($request);
+
+    expect(data_get($shared, 'iris.google.client_id'))->toBe('test-google-client-id');
 })->depends('launch website');
 
 test('retina register renders the iris register dashboard block only when that page is live', function (Website $website) {
@@ -3878,3 +4355,168 @@ test('website write routes need the web edit permission of the shop, INI-073', f
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
     }
 })->depends('launch website');
+
+test('website and webpage varnish purges need the web edit permission of the shop, INI-076', function (Website $website) {
+    Config::set('iris.cache.varnish', false);
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+
+    $originalRoles       = $this->user->roles->pluck('name')->toArray();
+    $originalPermissions = $this->user->getDirectPermissions()->pluck('name')->all();
+
+    try {
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.view"]);
+        get(route('grp.varnish.website', $website->slug))->assertForbidden();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertForbidden();
+
+        actingAsUserWithOnlyPermissions($this->user, ["web.{$shop->id}.edit"]);
+        get(route('grp.varnish.website', $website->slug))->assertOk();
+        get(route('grp.varnish.webpage', $webpage->slug))->assertOk();
+    } finally {
+        setPermissionsTeamId($this->user->group_id);
+        $this->user->syncPermissions($originalPermissions);
+        actingAsUserWithRoles($this->user, $originalRoles);
+        \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+
+    expect(app('router')->getRoutes()->getByName('grp.models.translate')->methods())->toBe(['POST'])
+        ->and(Route::has('grp.profile.update'))->toBeFalse();
+})->depends('launch website');
+
+test('store website page view looks an unknown path up once, then remembers there is no webpage', function (Webpage $webpage) {
+    $website = $webpage->website;
+    $visitorId = DB::table('website_visitors')->insertGetId([
+        'group_id'        => $this->shop->group_id,
+        'organisation_id' => $this->shop->organisation_id,
+        'shop_id'         => $this->shop->id,
+        'website_id'      => $website->id,
+        'session_id'      => 'sess-'.Str::random(10),
+        'visitor_hash'    => Str::random(16),
+        'device_type'     => 'desktop',
+        'os'              => 'linux',
+        'browser'         => 'firefox',
+        'user_agent'      => 'test-agent',
+        'ip_hash'         => Str::random(16),
+        'first_seen_at'   => now(),
+        'last_seen_at'    => now(),
+        'created_at'      => now(),
+        'updated_at'      => now(),
+    ]);
+    $visitor = \App\Models\Web\WebsiteVisitor::find($visitorId);
+
+    $unknownUrl = 'https://test/no-such-page-'.Str::random(8);
+
+    DB::enableQueryLog();
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    StoreWebsitePageView::make()->handle($visitor, $website, $unknownUrl);
+    $lookups = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'substring(canonical_url'));
+    DB::disableQueryLog();
+
+    expect($lookups)->toHaveCount(1);
+})->depends('create webpage');
+
+test('website json lookups answer staff of the shop and refuse staff from elsewhere, INI-076', function (Website $website) {
+    $shop     = $website->shop;
+    $webpage  = $website->webpages()->firstOrFail();
+    $template = \App\Models\Web\WebLayoutTemplate::create([
+        'name'     => 'Json permissions template',
+        'scope'    => 'Webpage',
+        'type'     => $webpage->type->value,
+        'sub_type' => $webpage->sub_type->value,
+        'blocks'   => [['type' => 'overview-1']],
+    ]);
+
+    $routes = [
+        route('grp.json.webpages_for_workshop_select', $website),
+        route('grp.json.announcement_active.index', $website),
+        route('grp.json.announcement_simulation.index', $website),
+        route('grp.json.template_layouts.index', $webpage->id),
+        route('grp.json.template_layouts.detail', [$webpage->id, $template->id]),
+        route('grp.json.shop.products.no-webpage', $shop->id),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ($routes as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view"]);
+    foreach ($routes as $url) {
+        getJson($url)->assertOk();
+    }
+})->depends('launch website');
+
+test('banner and redirect create pages need web edit of the shop, and webpage and redirect exports web view, INI-076', function (Website $website) {
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $params  = [$shop->organisation->slug, $shop->slug, $website->slug];
+
+    $createPages = [
+        route('grp.org.shops.show.web.banners.create', $params),
+        route('grp.org.shops.show.web.webpages.redirect.create', [...$params, $webpage->slug]),
+    ];
+    $exports = [
+        route('grp.org.shops.show.web.webpages.export', [...$params, 'type' => 'csv']),
+        route('grp.org.shops.show.web.redirect.export', [...$params, 'type' => 'csv']),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$shop->organisation_id}.view"]);
+    foreach ([...$createPages, ...$exports] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view"]);
+    foreach ($createPages as $url) {
+        get($url)->assertForbidden();
+    }
+    foreach ($exports as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["web.$shop->id.view", "web.$shop->id.edit"]);
+    foreach ($createPages as $url) {
+        get($url)->assertOk();
+    }
+})->depends('launch website');
+
+test('header, footer, sidebar and website previews answer web staff of the website shop, INI-076', function (Website $website) {
+    $shop    = $website->shop;
+    $webpage = $website->webpages()->firstOrFail();
+    $routes  = [
+        route('grp.websites.header.preview', $website->slug),
+        route('grp.websites.footer.preview', $website->slug),
+        route('grp.websites.sidebar.preview', $website->slug),
+        route('grp.websites.preview', [$website->slug, $webpage->slug]),
+    ];
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["human-resources.{$shop->organisation_id}.view"]);
+    foreach ($routes as $url) {
+        get($url)->assertForbidden();
+    }
+
+    foreach (["web.$shop->id.view", "web.$shop->id.edit"] as $permission) {
+        actingAsUserWithOnlyPermissions($user, [$permission]);
+        get($routes[1])->assertOk();
+        foreach ($routes as $url) {
+            expect(get($url)->status())->not->toBe(403);
+        }
+    }
+})->depends('launch website');
+
+test('rechecking external links marks a link that is not a url as an error and still checks the rest', function () {
+    Http::fake(['*' => Http::response('ok')]);
+
+    $notAUrl = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'aromatherapy body lotion '.Str::random(6), 'status' => '200']);
+    $url     = StoreExternalLink::make()->action($this->organisation->group, ['url' => 'https://example.com/'.Str::random(6), 'status' => 'error']);
+
+    \App\Actions\Web\ExternalLink\RecheckExternalLinkStatuses::run();
+
+    expect($notAUrl->refresh()->status)->toBe('error')
+        ->and($url->refresh()->status)->toBe('200');
+});

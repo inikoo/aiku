@@ -9,6 +9,7 @@
 
 namespace App\Actions\Catalogue\Product\Json;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateAvailableQuantity;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ProductsWebpageResource;
@@ -51,14 +52,7 @@ class GetProductsInShop extends OrgAction
                 ->selectRaw('case when count(*) = 1 then max(org_stocks.packed_in) end')
                 ->whereColumn('product_has_org_stocks.product_id', 'products.id'),
             'packed_in'
-        )->selectSub(
-            DB::table('product_has_org_stocks')
-                ->join('org_stocks', 'org_stocks.id', '=', 'product_has_org_stocks.org_stock_id')
-                ->selectRaw('greatest(min(floor(org_stocks.quantity_available / product_has_org_stocks.quantity)), 0)')
-                ->whereColumn('product_has_org_stocks.product_id', 'products.id')
-                ->where('product_has_org_stocks.quantity', '>', 0),
-            'shelf_quantity'
-        );
+        )->selectSub(ProductHydrateAvailableQuantity::shelfQuantityQuery(), 'shelf_quantity');
 
         return $queryBuilder->defaultSort('-id')
             ->allowedFilters([$globalSearch])

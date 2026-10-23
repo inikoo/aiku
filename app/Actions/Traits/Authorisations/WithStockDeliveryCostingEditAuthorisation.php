@@ -20,16 +20,16 @@ trait WithStockDeliveryCostingEditAuthorisation
             return true;
         }
 
-        $accountingManager = "org-supervisor.{$this->organisation->id}.accounting";
+        $stockDelivery = $this->costingStockDelivery($request);
 
-        if (Arr::has($this->costingStockDelivery($request)?->data ?? [], 'costing_reopened')) {
-            return $request->user()->authTo($accountingManager);
+        if (Arr::has($stockDelivery?->data ?? [], 'costing_reopened')) {
+            return $stockDelivery->canUpdateCosting($request->user());
         }
 
         return $request->user()->authTo([
             "procurement.{$this->organisation->id}.edit",
             "accounting.{$this->organisation->id}.edit",
-            $accountingManager,
+            "org-supervisor.{$this->organisation->id}.accounting",
         ]);
     }
 

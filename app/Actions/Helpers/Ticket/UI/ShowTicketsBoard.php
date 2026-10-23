@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\Ticket\UI;
 
 use App\Actions\Helpers\Ticket\GetTicketBadgeData;
 use App\Actions\OrgAction;
+use App\Enums\Helpers\Ticket\TicketQaStatusEnum;
 use App\Enums\Helpers\Ticket\TicketStatusEnum;
 use App\Enums\Helpers\Ticket\TicketStatusGroupEnum;
 use App\Enums\Helpers\Ticket\TicketTypeEnum;
@@ -49,6 +50,13 @@ class ShowTicketsBoard extends OrgAction
     ];
 
     /**
+     * QA runs alongside the ticket status, not as one of its steps: an in-progress ticket QA has
+     * been asked to check, is checking, or has failed sits under its own QA toggle in the in-progress
+     * column. Deploying and closed tickets keep their place whatever their QA says.
+     */
+    private const string QA = 'qa';
+
+    /**
      * Todo is aged on when the ticket was raised, the closed column on when it was closed.
      */
     private const array DEFAULT_PERIODS = ['closed' => '24h'];
@@ -72,16 +80,17 @@ class ShowTicketsBoard extends OrgAction
                     });
                 }
             })
-            ->with(['reporter', 'assignee', 'customer', 'collaborators'])
+            ->with(TicketResource::eagerLoads())
             ->orderByRaw("CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END")
             ->orderByDesc('updated_at')
             ->get()
-            ->groupBy(fn (Ticket $ticket) => $ticket->status->value);
+            ->groupBy(fn (Ticket $ticket) => $this->boardStatus($ticket));
 
         $columns = collect(self::COLUMNS)->map(function (array $statuses, string $key) use ($tickets, $periods) {
             $cases = array_map(fn (string $status) => TicketStatusEnum::from($status), $statuses);
             $group = $cases[0]->group();
-            $columnTickets = collect($statuses)->flatMap(fn (string $status) => $tickets->get($status, collect()));
+            $boardStatuses = $key === 'in_progress' ? [TicketStatusEnum::IN_PROGRESS->value, self::QA, TicketStatusEnum::PENDING_DEPLOY->value] : $statuses;
+            $columnTickets = collect($boardStatuses)->flatMap(fn (string $status) => $tickets->get($status, collect()));
             $labelledByGroup = $key === 'closed';
 
             return [
@@ -92,17 +101,28 @@ class ShowTicketsBoard extends OrgAction
                 'color'    => TicketStatusGroupEnum::stateIcon()[$group->value]['color'],
                 'icon'     => $labelledByGroup ? TicketStatusGroupEnum::stateIcon()[$group->value] : TicketStatusEnum::stateIcon()[$statuses[0]],
                 'period'   => $periods[$key] ?? null,
-                'statuses' => collect($cases)->map(fn (TicketStatusEnum $status) => [
-                    'status' => $status->value,
-                    'label'  => TicketStatusEnum::labels()[$status->value],
-                    'color'  => TicketStatusEnum::stateIcon()[$status->value]['color'],
-                    'count'  => $tickets->get($status->value, collect())->count(),
+                'statuses' => collect($boardStatuses)->map(fn (string $status) => [
+                    'status' => $status,
+                    'label'  => $status === self::QA ? __('In QA') : TicketStatusEnum::labels()[$status],
+                    'color'  => $status === self::QA ? 'amber' : TicketStatusEnum::stateIcon()[$status]['color'],
+                    'count'  => $tickets->get($status, collect())->count(),
                 ])->all(),
-                'tickets'  => TicketResource::collection($columnTickets)->toArray(request()),
+                'tickets'  => $columnTickets->map(fn (Ticket $ticket) => [
+                    ...TicketResource::make($ticket)->toArray(request()),
+                    'board_status' => $this->boardStatus($ticket),
+                ])->values()->all(),
             ];
         })->values()->all();
 
         return ['columns' => $columns, 'periods' => $periods, 'periodOptions' => self::PERIODS, 'created' => $created, 'type' => $type];
+    }
+
+    private function boardStatus(Ticket $ticket): string
+    {
+        return $ticket->status === TicketStatusEnum::IN_PROGRESS
+            && in_array($ticket->qa_status, [TicketQaStatusEnum::REQUESTED, TicketQaStatusEnum::CHECKING, TicketQaStatusEnum::FAILED], true)
+            ? self::QA
+            : $ticket->status->value;
     }
 
     private function since(string $period): ?\Illuminate\Support\Carbon

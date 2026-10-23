@@ -35,6 +35,7 @@ use App\Actions\Catalogue\Shop\UI\GetFormatedShopTimeSeriesStats;
 use App\Actions\UI\Dashboards\GetGroupDashboardTimeSeriesData;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
+use App\Actions\Accounting\Invoice\StoreStandaloneCreditNote;
 use App\Actions\Accounting\InvoiceTransaction\RefundTaxTransactions;
 use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
@@ -115,6 +116,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -909,6 +911,178 @@ test('UI show invoice in invoice category', function (InvoiceCategory $invoiceCa
 })->depends('store invoice category');
 
 
+test('customer services open the invoices and refunds of an invoice category, limited to the shops they work in', function () {
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->organisation, [
+        'name'        => 'CS Visible Category',
+        'state'       => InvoiceCategoryStateEnum::ACTIVE,
+        'type'        => InvoiceCategoryTypeEnum::SHOP_FALLBACK,
+        'currency_id' => $this->organisation->currency_id,
+        'priority'    => 1
+    ]);
+    $invoice = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    DB::table('invoices')->where('id', $invoice->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false]);
+
+    $otherShop = StoreShop::run($this->organisation, Shop::factory()->definition());
+
+    setPermissionsTeamId($this->group->id);
+    $newStaffUser = fn () => \App\Actions\SysAdmin\Guest\StoreGuest::make()->action(
+        $this->group,
+        array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    $invoicesRoute = route('grp.org.accounting.invoice-categories.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug]);
+    $refundsRoute  = route('grp.org.accounting.invoice-categories.show.refunds.index', [$this->organisation->slug, $invoiceCategory->slug]);
+
+    actingAs($newStaffUser());
+    get($invoicesRoute)->assertForbidden();
+    get($refundsRoute)->assertForbidden();
+
+    $customerServices = $newStaffUser();
+    $customerServices->givePermissionTo("crm.{$this->shop->id}.view");
+    actingAs($customerServices->refresh());
+    get($invoicesRoute)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 1)->where('data.data.0.reference', $invoice->reference));
+    get($refundsRoute)->assertOk();
+
+    $otherShopStaff = $newStaffUser();
+    $otherShopStaff->givePermissionTo("orders.$otherShop->id.view");
+    actingAs($otherShopStaff->refresh());
+    get($invoicesRoute)->assertOk()->assertInertia(fn (AssertableInertia $page) => $page->has('data.data', 0));
+});
+
+test('invoice category invoices list and download the delivery country, within the dates and shops the user can see', function () {
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->organisation, [
+        'name'        => 'Export By Country Category',
+        'state'       => InvoiceCategoryStateEnum::ACTIVE,
+        'type'        => InvoiceCategoryTypeEnum::SHOP_FALLBACK,
+        'currency_id' => $this->organisation->currency_id,
+        'priority'    => 1
+    ]);
+    $country = \App\Models\Helpers\Country::where('code', 'DE')->firstOrFail();
+
+    $inRange = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    $outOfRange = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    DB::table('invoices')->whereIn('id', [$inRange->id, $outOfRange->id])->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'delivery_country_id' => $country->id]);
+    DB::table('invoices')->where('id', $inRange->id)->update(['date' => '2026-03-15 10:00:00']);
+    DB::table('invoices')->where('id', $outOfRange->id)->update(['date' => '2025-03-15 10:00:00']);
+    $customerWithOrder = createCustomer($this->shop);
+    $invoiceWithoutDeliveryCountry = StoreInvoice::make()->action($customerWithOrder, Invoice::factory()->definition());
+    [, $product] = createProduct($this->shop);
+    $order = createOrder($customerWithOrder, $product);
+    DB::table('invoices')->where('id', $invoiceWithoutDeliveryCountry->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'delivery_country_id' => null, 'order_id' => $order->id, 'date' => '2026-03-16 10:00:00']);
+    DB::table('addresses')->where('id', $order->delivery_address_id)->update(['country_id' => $country->id]);
+
+    $otherShop = StoreShop::run($this->organisation, Shop::factory()->definition());
+    $otherShopInvoice = StoreInvoice::make()->action(createCustomer($otherShop), Invoice::factory()->definition());
+    DB::table('invoices')->where('id', $otherShopInvoice->id)->update(['invoice_category_id' => $invoiceCategory->id, 'in_process' => false, 'date' => '2026-03-15 10:00:00']);
+
+    get(route('grp.org.accounting.invoice-categories.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('invoiceExportOptions.0.name', 'grp.org.accounting.invoice-categories.show.invoices.index.export')
+            ->where('invoiceExportOptions.0.parameters.between.date', '20260101-20261231'));
+
+    get(route('grp.org.accounting.invoice-categories.show.countries.index', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Accounting/InvoicesByCountry')
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('country_code', 'DE')['number_invoices'] == 2
+                && collect($rows)->whereNull('country_code')->first()['number_invoices'] == 1));
+
+    get(route('grp.org.accounting.invoice-categories.show.countries.show.invoices.index', [$this->organisation->slug, $invoiceCategory->slug, 'DE', 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('data.data', 2)
+            ->where('invoiceExportOptions.0.parameters.country', 'DE'));
+
+    get(route('grp.org.accounting.invoices_by_country.index', [$this->organisation->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->firstWhere('country_code', 'DE')['number_invoices'] >= 2));
+
+    get(route('grp.org.accounting.invoices_by_country.show.invoices.index', [$this->organisation->slug, 'DE', 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->pluck('reference')->contains($inRange->reference)
+                && !collect($rows)->pluck('reference')->contains($otherShopInvoice->reference)));
+
+    setPermissionsTeamId($this->group->id);
+    $customerServices = \App\Actions\SysAdmin\Guest\StoreGuest::make()->action(
+        $this->group,
+        array_merge(\App\Models\SysAdmin\Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+    $customerServices->givePermissionTo("crm.{$this->shop->id}.view");
+    actingAs($customerServices->refresh());
+
+    $csv = get(route('grp.org.accounting.invoice-categories.show.invoices.index.export', [$this->organisation->slug, $invoiceCategory->slug, 'between' => ['date' => '20260101-20261231']]))
+        ->assertOk()
+        ->streamedContent();
+
+    expect($csv)->toContain('Delivery country')
+        ->and($csv)->toContain($inRange->reference.',2026-03-15')
+        ->and($csv)->toContain($country->name.',DE')
+        ->and(collect(explode("\n", $csv))->first(fn ($line) => str_starts_with($line, $invoiceWithoutDeliveryCountry->reference.',')))->toContain($country->name.',DE')
+        ->and($csv)->not->toContain($outOfRange->reference)
+        ->and($csv)->not->toContain($otherShopInvoice->reference);
+});
+
+test('billing region and tax code report groups invoices and refunds like Aurora, and opens the invoices behind a row', function () {
+    $originalCountryId = $this->organisation->country_id;
+    $countryId         = fn (string $code) => \App\Models\Helpers\Country::where('code', $code)->value('id');
+    DB::table('organisations')->where('id', $this->organisation->id)->update(['country_id' => $countryId('GB')]);
+    [$standardTax, $euTax] = \App\Models\Helpers\TaxCategory::orderBy('id')->limit(2)->get()->all();
+
+    $newInvoice = function (string $billingCountryCode, int $taxCategoryId, string $type, string $date) use ($countryId) {
+        $invoice = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+        DB::table('invoices')->where('id', $invoice->id)->update([
+            'billing_country_id' => $countryId($billingCountryCode),
+            'tax_category_id'    => $taxCategoryId,
+            'type'               => $type,
+            'in_process'         => false,
+            'date'               => $date,
+            'org_net_amount'     => 100,
+            'tax_amount'         => 20,
+            'total_amount'       => 120,
+            'org_exchange'       => 1,
+        ]);
+
+        return $invoice;
+    };
+
+    try {
+        $gbInvoice   = $newInvoice('GB', $standardTax->id, 'invoice', '2031-02-10 10:00:00');
+        $manxRefund  = $newInvoice('IM', $standardTax->id, 'refund', '2031-02-11 10:00:00');
+        $newInvoice('DE', $euTax->id, 'invoice', '2031-02-12 10:00:00');
+        $newInvoice('GB', $standardTax->id, 'invoice', '2031-04-10 10:00:00');
+        $between     = ['date' => '20310201-20310228'];
+
+        get(route('grp.org.reports.billing-region-tax-code', [$this->organisation->slug, 'between' => $between]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Reports/BillingRegionTaxCategoryReport')
+                ->where('data.data', function ($rows) use ($standardTax, $euTax) {
+                    $gbim = collect($rows)->first(fn ($row) => $row['billing_region'] === 'GBIM' && $row['tax_category_id'] === $standardTax->id);
+                    $eu   = collect($rows)->first(fn ($row) => $row['billing_region'] === 'EU' && $row['tax_category_id'] === $euTax->id);
+
+                    return count($rows) === 2
+                        && $gbim['number_invoices'] === 1 && $gbim['number_refunds'] === 1 && (float) $gbim['org_total_amount'] === 240.0
+                        && $eu['number_invoices'] === 1 && $eu['number_refunds'] === 0;
+                })
+                ->where('queryBuilderProps.default.footerRows.data.0.number_invoices', 2)
+                ->where('queryBuilderProps.default.footerRows.data.0.number_refunds', 1)
+                ->where('billing_region_labels.GBIM', 'GB+IM'));
+
+        get(route('grp.org.reports.billing-region-tax-code.invoices', [$this->organisation->slug, 'GBIM', $standardTax->id, 'between' => $between]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Org/Reports/BillingRegionTaxCategoryInvoices')
+                ->where('data.data', fn ($rows) => collect($rows)->pluck('reference')->sort()->values()->all() === collect([$gbInvoice->reference, $manxRefund->reference])->sort()->values()->all()));
+
+        get(route('grp.org.reports.billing-region-tax-code.invoices', [$this->organisation->slug, 'Mars', $standardTax->id]))->assertNotFound();
+    } finally {
+        DB::table('organisations')->where('id', $this->organisation->id)->update(['country_id' => $originalCountryId]);
+    }
+});
+
 test('UI Edit invoice categories', function (InvoiceCategory $invoiceCategory) {
     $response = get(route('grp.org.accounting.invoice-categories.edit', [$this->organisation->slug, $invoiceCategory->slug]));
 
@@ -953,7 +1127,13 @@ test('UI show accounting dashboard', function () {
                     ->etc()
             )
             ->has('flatTreeMaps')
-            ->has('payment_methods.summary.methods');
+            ->has('payment_methods.periods.1m.summary.methods')
+            ->has('payment_methods.periods.1q.summary.methods')
+            ->has('payment_methods.periods.1y.summary.methods')
+            ->has('invoice_countries.periods.1m.countries')
+            ->has('invoice_countries.periods.1y.between')
+            ->where('invoice_countries.route.name', 'grp.org.accounting.invoices_by_country.index')
+            ->where('intervals.value', '1m');
     });
 });
 
@@ -1586,16 +1766,17 @@ test('UI show invoice navigation follows the bucket it was opened from', functio
 test('Delete invoice', function () {
     $this->withoutExceptionHandling();
     $shop     = $this->shop;
-    $customer = createCustomer($shop);
-    $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
-    expect($customer->stats->number_invoices)->toBe(3);
+    $customer       = createCustomer($shop);
+    $invoicesBefore = $customer->stats->number_invoices;
+    $invoice        = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    expect($customer->refresh()->stats->number_invoices)->toBe($invoicesBefore + 1);
 
     $invoice = DeleteInvoice::make()->action($invoice, [
         'deleted_note' => 'test'
     ]);
     $customer->refresh();
     expect($invoice->trashed())->toBeTrue()
-        ->and($customer->stats->number_invoices)->toBe(2);
+        ->and($customer->stats->number_invoices)->toBe($invoicesBefore);
 
     return $invoice;
 });
@@ -3399,8 +3580,8 @@ describe('checkout.com payment session customer phone', function () {
 });
 
 describe('invoice pdf tax number display', function () {
-    $renderInvoiceTemplate = function ($invoice, $deliveryAddress = null, $isCollection = false) {
-        return view('invoices.templates.pdf.invoice', [
+    $renderInvoiceTemplate = function ($invoice, $deliveryAddress = null, $isCollection = false, array $viewData = []) {
+        return view('invoices.templates.pdf.invoice', $viewData + [
             'shop'                 => $invoice->shop,
             'invoice'              => $invoice,
             'deliveryNote'         => null,
@@ -3429,6 +3610,21 @@ describe('invoice pdf tax number display', function () {
             'dispatch_total_units' => null,
         ])->render();
     };
+
+    test('an export invoice whose lines were all out of stock or free keeps the export layout and does not list them', function () use ($renderInvoiceTemplate) {
+        $customer = createCustomer($this->shop);
+        $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+
+        $outOfStockLine = (object) ['historicAsset' => (object) ['code' => 'OOS-HELP4116', 'name' => 'Never shipped'], 'quantity' => 0, 'net_amount' => 0];
+
+        $html = $renderInvoiceTemplate($invoice, viewData: [
+            'transactions'          => collect([$outOfStockLine]),
+            'export_by_tariff_code' => true,
+            'tariffExportRows'      => collect(),
+        ]);
+
+        expect($html)->toContain('Origin')->not->toContain('OOS-HELP4116');
+    });
 
     test('spanish customer tax number shows even when VIES-invalid', function () use ($renderInvoiceTemplate) {
         $customer = createCustomer($this->shop);
@@ -3589,6 +3785,46 @@ test('balance increase for compensation issues a settled credit note', function 
 
     expect($plain->payment_id)->toBeNull()
         ->and(Invoice::where('customer_id', $customer->id)->where('type', InvoiceTypeEnum::REFUND)->count())->toBe(1);
+});
+
+test('a compensation credit note totals exactly what was credited even when no penny net reaches it', function () {
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+
+    $creditTransaction = IncreaseCreditTransactionCustomer::make()->action($customer, [
+        'amount'            => 13.65,
+        'reason'            => CreditTransactionReasonEnum::COMPENSATE_CUSTOMER->value,
+        'issue_credit_note' => true,
+    ]);
+
+    $creditNote = Invoice::where('customer_id', $customer->id)->where('type', InvoiceTypeEnum::REFUND)->first();
+    $payment    = Payment::find($creditTransaction->payment_id);
+
+    expect((float)$creditNote->total_amount)->toBe(-13.65)
+        ->and(round((float)$creditNote->net_amount + (float)$creditNote->tax_amount, 2))->toBe(-13.65)
+        ->and((float)$payment->amount)->toBe(-13.65)
+        ->and((float)$creditTransaction->amount)->toBe(13.65)
+        ->and(array_sum(array_column($creditNote->taxBreakdown(), 'tax_amount')))->toBe((float)$creditNote->tax_amount);
+
+    $recalculated = CalculateInvoiceTotals::make()->action($creditNote->refresh());
+
+    expect((float)$recalculated->total_amount)->toBe(-13.65);
+
+    $vat20 = TaxCategory::where('rate', 0.2)->firstOrFail();
+    $recalculated->update(['tax_category_id' => $vat20->id]);
+
+    foreach ([[13.65, 11.38, 2.27], [2.01, 1.68, 0.33], [0.21, 0.18, 0.03], [0.57, 0.48, 0.09], [12.0, 10.0, 2.0]] as [$amount, $net, $tax]) {
+        expect(StoreStandaloneCreditNote::make()->netForGross($amount, 0.2))->toBe($net);
+
+        $recalculated->update(['data' => ['credit_note_amount' => $amount]]);
+        $recalculated->invoiceTransactions()->update(['tax_category_id' => $vat20->id, 'net_amount' => -$net, 'gross_amount' => -$net]);
+
+        $atVat20 = CalculateInvoiceTotals::make()->action($recalculated->refresh());
+
+        expect((float)$atVat20->net_amount)->toBe(-$net)
+            ->and((float)$atVat20->tax_amount)->toBe(-$tax)
+            ->and((float)$atVat20->total_amount)->toBe(-$amount)
+            ->and(array_column($atVat20->taxBreakdown(), 'tax_amount'))->toBe([-$tax]);
+    }
 });
 
 test('credit transaction exchange rates keep their precision below four decimals', function () {
@@ -4103,4 +4339,154 @@ test('an issued invoice whose net changes later refreshes the sales figures of i
             && $arguments[2] === $invoiceDay
             && $arguments[3] === $invoiceDay
     );
+});
+
+test('payment methods dashboard figures are refreshed in the background', function () {
+    $this->artisan('accounting:refresh-payment-methods-dashboard')->assertSuccessful();
+
+    expect(Cache::get('accounting-dashboard-payment-methods:'.$this->organisation->id))
+        ->toHaveKeys(['1m', '1q', '1y']);
+});
+
+test('payment account shops are updated only by accounting editors of the payment account organisation', function () {
+    $shop           = $this->shop;
+    $paymentAccount = StorePaymentAccount::make()->action(
+        $this->organisation->orgPaymentServiceProviders()->firstOrFail(),
+        array_merge(PaymentAccount::factory()->definition(), ['type' => PaymentAccountTypeEnum::BANK->value])
+    );
+    $paymentAccountShop = StorePaymentAccountShop::make()->action($paymentAccount, $shop, [
+        'currency_id' => $shop->currency_id,
+        'state'       => PaymentAccountShopStateEnum::ACTIVE,
+    ]);
+    $organisationId = $paymentAccount->organisation_id;
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($user, ["accounting.$organisationId.view"]);
+
+    patch(route('grp.models.payment_account_shop.update', $paymentAccountShop->id), ['state' => PaymentAccountShopStateEnum::INACTIVE->value])->assertForbidden();
+
+    expect($paymentAccountShop->refresh()->state)->toBe(PaymentAccountShopStateEnum::ACTIVE);
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$organisationId.edit"]);
+
+    patch(route('grp.models.payment_account_shop.update', $paymentAccountShop->id), ['state' => PaymentAccountShopStateEnum::INACTIVE->value])->assertSessionHasNoErrors();
+
+    expect($paymentAccountShop->refresh()->state)->toBe(PaymentAccountShopStateEnum::INACTIVE);
+});
+
+test('shop payment accounts and refund original payments json refuse staff without accounting rights', function () {
+    $shop     = $this->shop;
+    $customer = createCustomer($shop);
+    $invoice  = StoreInvoice::make()->action($customer, Invoice::factory()->definition());
+    $refund   = StoreRefund::make()->action($invoice, []);
+
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $shop->group_id, 'status' => true]);
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    $this->getJson(route('grp.json.shop.payment-accounts', $shop))->assertForbidden();
+    $this->getJson(route('grp.json.refund.show.original_invoice_payments.index', $refund->id))->assertForbidden();
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$shop->organisation_id.view"]);
+    $this->getJson(route('grp.json.shop.payment-accounts', $shop))->assertOk();
+    $this->getJson(route('grp.json.refund.show.original_invoice_payments.index', $refund->id))->assertOk();
+});
+
+test('accounting and organisation reports answer only report readers or accountants, INI-076', function () {
+    $org  = $this->organisation;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $accountingReports = [
+        route('grp.org.reports.customer-credit', [$org->slug]),
+        route('grp.org.reports.sage-invoices', [$org->slug]),
+        route('grp.org.reports.montana-invoices', [$org->slug]),
+    ];
+    $shopReports = [
+        route('grp.org.shops.show.dashboard.invoices.sage.index', [$org->slug, $this->shop->slug]),
+        route('grp.org.shops.show.dashboard.invoices.montana.index', [$org->slug, $this->shop->slug]),
+    ];
+    $orgReports = [
+        route('grp.org.reports.picker-performance', [$org->slug]),
+        route('grp.org.reports.packer-performance', [$org->slug]),
+        route('grp.org.reports.uk-manufacturing-survey', [$org->slug]),
+    ];
+
+    actingAsUserWithOnlyPermissions($user, ["products.{$this->shop->id}.view"]);
+    foreach ([...$accountingReports, ...$shopReports, ...$orgReports] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$accountingReports, ...$shopReports] as $url) {
+        get($url)->assertOk();
+    }
+    foreach ($orgReports as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-reports.$org->id"]);
+    foreach ([...$accountingReports, ...$orgReports] as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.{$this->shop->id}.view"]);
+    foreach ($shopReports as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', false)->etc());
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ($shopReports as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
+    }
+
+    foreach ([route('grp.org.reports.sage-invoices', [$org->slug]), route('grp.org.reports.montana-invoices', [$org->slug])] as $url) {
+        get($url)->assertOk()->assertInertia(fn ($page) => $page->where('can_export', true)->etc());
+    }
+});
+
+test('accounting pages follow the overview, accounting module or shop they are opened from, INI-076', function () {
+    $org  = $this->organisation;
+    $shop = $this->shop;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+
+    $accountingPages = [
+        route('grp.org.accounting.deleted_invoices.index', [$org->slug]),
+        route('grp.org.accounting.invoice-categories.index', [$org->slug]),
+        route('grp.org.accounting.payments.methods.index', [$org->slug]),
+    ];
+    $shopPages = [
+        route('grp.org.shops.show.dashboard.invoices.deleted.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.payments.methods.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.accounts.index', [$org->slug, $shop->slug]),
+        route('grp.org.shops.show.dashboard.payments.accounting.top_ups.index', [$org->slug, $shop->slug]),
+    ];
+    $orgOverview   = [route('grp.org.overview.invoices.index', [$org->slug]), route('grp.org.overview.changelog.index', [$org->slug])];
+    $groupOverview = [route('grp.overview.accounting.deleted_invoices.index')];
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    foreach ([...$accountingPages, ...$shopPages, ...$orgOverview, ...$groupOverview] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$accountingPages, ...$shopPages] as $url) {
+        get($url)->assertOk();
+    }
+    foreach ([...$orgOverview, ...$groupOverview] as $url) {
+        get($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["orders.$shop->id.view"]);
+    foreach ($shopPages as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["org-reports.$org->id"]);
+    foreach ($orgOverview as $url) {
+        get($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ['group-overview']);
+    foreach ($groupOverview as $url) {
+        get($url)->assertOk();
+    }
 });

@@ -71,6 +71,8 @@ class GetCustomersInShop extends OrgAction
         });
 
         $phoneFilter = AllowedFilter::callback('phone', function ($query, $value) {
+            $value = is_array($value) ? implode(',', $value) : $value;
+
             $query->whereRaw(
                 "regexp_replace(customers.phone, '\\D', '', 'g') = ?",
                 [preg_replace('/\D/', '', (string) $value)]

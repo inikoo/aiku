@@ -22,15 +22,15 @@ enum OrgSupplierProductsTabsEnum: string
         return match ($this) {
             self::DASHBOARD => [
                 'title' => __('Data to fix'),
-                'icon'  => 'fal fa-tachometer-alt',
+                'icon'  => 'fal fa-toolbox',
             ],
             self::SUPPLIERS => [
                 'title' => __('By supplier'),
                 'icon'  => 'fal fa-person-dolly',
             ],
             self::INDEX => [
-                'title' => __('Index'),
-                'icon'  => 'fal fa-tachometer-alt-fast',
+                'title' => __('List'),
+                'icon'  => 'fal fa-list',
             ],
             self::HISTORY => [
                 'title' => __('History'),

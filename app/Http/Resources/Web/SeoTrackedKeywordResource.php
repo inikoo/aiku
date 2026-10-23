@@ -21,9 +21,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property bool $is_active
  * @property int|null $avg_monthly_searches
  * @property string|null $target_webpage_code
+ * @property array|null $tags
  * @property int $frequencies
  * @property int $languages
  * @property \Illuminate\Support\Collection|null $countries
+ * @property array<int, int>|null $check_ids
+ * @property float|null $check_cost
  */
 class SeoTrackedKeywordResource extends JsonResource
 {
@@ -42,6 +45,9 @@ class SeoTrackedKeywordResource extends JsonResource
             'is_active'            => $this->is_active,
             'avg_monthly_searches' => $countries->contains(fn ($country) => $country->avg_monthly_searches !== null) ? (int) $countries->sum('avg_monthly_searches') : null,
             'target_webpage_code'  => $this->target_webpage_code,
+            'tags'                 => $this->tags ?? [],
+            'check_ids'            => $this->check_ids ?? [],
+            'check_cost'           => $this->check_cost ?? 0,
             'countries'            => $countries->map(fn ($country) => [
                 'id'                   => $country->id,
                 'country_code'         => $country->country_code,

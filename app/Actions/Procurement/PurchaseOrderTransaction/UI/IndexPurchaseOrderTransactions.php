@@ -19,6 +19,9 @@ use App\Actions\Inventory\OrgStock\GetOrgStocksQuarterlyUsage;
 use App\Actions\Inventory\OrgStock\GetOrgStocksStockDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction;
+use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
+use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -31,6 +34,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilderBase;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -107,6 +111,7 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         $query = QueryBuilder::for(PurchaseOrderTransaction::class);
         $query->with([
+            'purchaseOrder.currency',
             'supplierProduct.currency',
             'supplierProduct.supplier',
             'orgSupplierProduct.orgSupplier',
@@ -140,6 +145,10 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         if ($parent instanceof PurchaseOrder) {
             $query->where('purchase_order_transactions.purchase_order_id', $parent->id);
+        }
+
+        if ($parent->isAgentOrder()) {
+            $this->selectAgentWarehouseQuantities($query);
         }
 
         if ($parent->state !== PurchaseOrderStateEnum::IN_PROCESS) {
@@ -183,6 +192,34 @@ class IndexPurchaseOrderTransactions extends OrgAction
         IndexPurchaseOrderOrgSupplierProducts::make()->attachOtherOpenPurchaseOrders($paginator, $parent->organisation_id, $parent->id);
 
         return $paginator;
+    }
+
+    /**
+     * What the agent holds of each line: received waiting to be packed, the part of it not checked yet, packed,
+     * and the units not in a container yet.
+     */
+    private function selectAgentWarehouseQuantities(QueryBuilder $query): void
+    {
+        $ofLine = fn ($stocks) => $stocks->whereColumn('agent_warehouse_stocks.purchase_order_transaction_id', 'purchase_order_transactions.id')
+            ->selectRaw('coalesce(sum(agent_warehouse_stocks.quantity), 0)');
+
+        $quantityOnDelivery = StoreStockDeliveryFromPurchaseOrder::quantityOnDelivery();
+
+        $query->selectSub($ofLine(PackPurchaseOrderTransaction::receivedStocks()), 'quantity_packable')
+            ->selectSub($ofLine(PackPurchaseOrderTransaction::receivedStocks()->whereNull('agent_goods_receipt_items.checked_at')), 'quantity_to_check')
+            ->selectSub($ofLine(DB::table('agent_warehouse_stocks')->where('agent_warehouse_stocks.state', '!=', AgentWarehouseStockStateEnum::RECEIVED->value)), 'quantity_packed')
+            ->selectRaw('purchase_order_transactions.quantity_ordered - ('.$quantityOnDelivery->toSql().') as quantity_awaiting_delivery', $quantityOnDelivery->getBindings())
+            ->selectSub($this->containersOfLine(), 'agent_containers');
+    }
+
+    private function containersOfLine(): QueryBuilderBase
+    {
+        return DB::table('stock_delivery_items')
+            ->join('stock_deliveries', 'stock_deliveries.id', 'stock_delivery_items.stock_delivery_id')
+            ->whereRaw("(stock_delivery_items.data->>'purchase_order_transaction_id')::bigint = purchase_order_transactions.id")
+            ->whereNotIn('stock_delivery_items.state', [StockDeliveryItemStateEnum::CANCELLED->value, StockDeliveryItemStateEnum::NOT_RECEIVED->value])
+            ->whereNull('stock_deliveries.deleted_at')
+            ->selectRaw("coalesce(json_agg(json_build_object('id', stock_deliveries.id, 'reference', stock_deliveries.reference, 'slug', stock_deliveries.slug, 'state', stock_deliveries.state, 'unit_quantity', stock_delivery_items.unit_quantity) order by stock_deliveries.id), '[]')");
     }
 
     /**

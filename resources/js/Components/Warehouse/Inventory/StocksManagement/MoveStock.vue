@@ -26,6 +26,7 @@ const props = defineProps<{
         isAudited?: boolean
         audited_at?: string | null
         packed_in?: number
+        batches?: { batch_code_id: number, code: string, expiry_date: string | null, quantity: number }[]
     }[],
     replenishment_data: Record<number, {
         replenishment_stock?: number
@@ -70,13 +71,24 @@ const form = useForm({
         name: item.code,
         stock: Number(item.quantity ?? 0),
         isAudited: item.isAudited,
-        audited_at: item.audited_at
-    })),
+        audited_at: item.audited_at,
+        batches: item.batches ?? []
+    })).sort((a, b) => (a.batches[0]?.expiry_date ?? '9999').localeCompare(b.batches[0]?.expiry_date ?? '9999')),
     moveStock: null as null | { from: string, targets: { to: string, quantity: number }[] }
 })
 
 const selectedReason = ref('')
 const note = ref('')
+
+const batchLines = (location: { stock: number, batches: { batch_code_id: number, code: string, expiry_date: string | null, quantity: number }[] }) => {
+    const lines: { key: number, code: string | null, expiry_date: string | null, quantity: number }[] = location.batches.map((batch) => ({ key: batch.batch_code_id, ...batch }))
+    const unbatched = location.stock - location.batches.reduce((sum, batch) => sum + batch.quantity, 0)
+    if (lines.length && unbatched > 0.001) {
+        lines.push({ key: 0, code: null, expiry_date: null, quantity: unbatched })
+    }
+
+    return lines
+}
 
 const isSource = (location: any) => moveStock.value.from?.id === location.id
 const getTargetEntry = (location: any) => moveStock.value.targets.find((entry) => entry.location.id === location.id)
@@ -132,14 +144,14 @@ const stickyRowStyle = (location: any) => {
 
     const position = stickyLocationIds.indexOf(location.id)
     if (position <= 0) {
-        return { top: '0px' }
+        return { '--sticky-top': '0px' }
     }
 
     const offset = stickyLocationIds
         .slice(0, position)
         .reduce((sum, id) => sum + (stickyRowHeights.value[id] ?? 0), 0)
 
-    return { top: `${offset}px` }
+    return { '--sticky-top': `${offset}px` }
 }
 
 const canSave = computed(() => {
@@ -665,49 +677,66 @@ onMounted(() => {
             </div>
         </div> -->
 
-        <div class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-1 pr-4 pb-3 mt-4">
-        <template v-if="form.stockCheck.length > 0">
-            <div v-for="location in form.stockCheck" :key="location.id"
+        <div class="flex-1 min-h-0 overflow-y-auto overflow-x-auto pr-4 pb-3 mt-4">
+        <table v-if="form.stockCheck.length > 0" class="w-full text-sm">
+            <thead class="whitespace-nowrap text-xs text-gray-500">
+                <tr class="border-b border-gray-200">
+                    <th class="w-8"></th>
+                    <th class="px-2 py-1.5 text-left font-medium">{{ ctrans("Location") }}</th>
+                    <th class="px-2 py-1.5 text-right font-medium">{{ ctrans("Stock") }}</th>
+                    <th class="px-2 py-1.5 font-medium">
+                        <div class="grid grid-cols-[10.5rem_4.5rem_3.5rem] border-x border-transparent">
+                            <span class="px-2 text-left">{{ ctrans("Batch") }}</span>
+                            <span class="px-2 text-left">{{ ctrans("Best-before") }}</span>
+                            <span class="px-2 text-right">{{ ctrans("Qty") }}</span>
+                        </div>
+                    </th>
+                    <th class="px-2 py-1.5 text-right font-medium hidden sm:table-cell">{{ ctrans("Last audit") }}</th>
+                    <th v-tooltip="ctrans('Suggested replenishment')" class="px-2 py-1.5 text-right font-medium">{{ ctrans("Repl.") }}</th>
+                    <th class="w-8"></th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr v-for="location in form.stockCheck" :key="location.id"
                 :ref="(el) => setStickyRowRef(location, el)"
                 :data-location-id="location.id"
                 :style="stickyRowStyle(location)"
                 :class="[
-                    'flex items-center gap-x-3 ps-2 pe-2 py-2 rounded transition',
-                    isSource(location) ? 'bg-green-50 border border-green-100' :
-                    isTarget(location) ? 'bg-blue-50 border border-blue-100' :
-                    'border border-[rgba(255,255,255,0)] hover:bg-gray-50',
-                    isSource(location) || isTarget(location) ? 'sticky z-10' : ''
+                    'border-b border-gray-100 align-middle transition',
+                    isSource(location) ? '[&>td]:bg-green-50' :
+                    isTarget(location) ? '[&>td]:bg-blue-50' :
+                    'hover:bg-gray-50',
+                    isSource(location) || isTarget(location) ? '[&>td]:sticky [&>td]:top-[--sticky-top] [&>td]:z-10' : ''
                 ]">
+                <td class="py-2 pl-1">
+                    <FontAwesomeIcon
+                        icon="fas fa-forklift"
+                        v-tooltip="isSource(location) ? ctrans('Unset as source') : ctrans('Set as source location')"
+                        :class="[
+                            'text-xl transition shrink-0',
+                            isSource(location)
+                                ? 'cursor-pointer text-green-600 scale-110' :
+                            isTarget(location)
+                                ? 'text-gray-400 opacity-70 cursor-pointer' :
+                            location.stock <= 0
+                                ? 'text-gray-400 opacity-90 cursor-not-allowed' :
+                            moveStock.from
+                                ? 'cursor-pointer text-gray-400 opacity-30 hover:opacity-80' :
+                            'cursor-pointer opacity-50 hover:opacity-100 text-green-600'
+                        ]"
+                        fixed-width
+                        aria-hidden="true"
+                        @click="selectSource(location)"
+                    />
+                </td>
 
-                <!-- Left: Source forklift -->
-                <FontAwesomeIcon
-                    icon="fas fa-forklift"
-                    v-tooltip="isSource(location) ? ctrans('Unset as source') : ctrans('Set as source location')"
-                    :class="[
-                        'text-xl transition shrink-0',
-                        isSource(location)
-                            ? 'cursor-pointer text-green-600 scale-110' :
-                        isTarget(location)
-                            ? 'text-gray-400 opacity-70 cursor-pointer' :
-                        location.stock <= 0
-                            ? 'text-gray-400 opacity-90 cursor-not-allowed' :
-                        moveStock.from
-                            ? 'cursor-pointer text-gray-400 opacity-30 hover:opacity-80' :
-                        'cursor-pointer opacity-50 hover:opacity-100 text-green-600'
-                    ]"
-                    fixed-width
-                    aria-hidden="true"
-                    @click="selectSource(location)"
-                />
+                <td class="px-2 py-2 font-medium whitespace-nowrap">{{ location.name }}</td>
 
-                <!-- Name + stock number -->
-                <div class="flex-1 min-w-0 flex items-center gap-x-2 flex-wrap">
-                    <span class="font-medium truncate">{{ location.name }}</span>
-
+                <td class="px-2 py-2 whitespace-nowrap text-right">
                     <!-- Preview: original + change -> result -->
                     <span
                         v-if="isSource(location) || isTarget(location)"
-                        class="tabular-nums text-xs flex items-center gap-x-1"
+                        class="tabular-nums text-xs inline-flex items-center gap-x-1"
                     >
                         <span
                             v-tooltip="isSource(location)
@@ -762,56 +791,68 @@ onMounted(() => {
                             <FractionDisplay :fractionData="toFractionData(getCalculatedStock(location))" />
                         </span>
                     </span>
-
-                    <!-- Static stock (no pending change on this row) -->
-                    <span
-                        v-else
-                        v-tooltip="ctrans('Stock in this location')"
-                        class="tabular-nums text-xs border rounded px-1.5 py-0.5 border-gray-300 text-gray-600"
-                    >
+                    <span v-else v-tooltip="ctrans('Stock in this location')" class="tabular-nums">
                         <FractionDisplay :fractionData="toFractionData(location.stock)" />
                     </span>
-                </div>
+                </td>
 
-                <!-- Audit info -->
-                <div v-if="location.audited_at" v-tooltip="ctrans('Last audit :date', { date: useFormatTime(location.audited_at) })" class="text-right text-sm whitespace-nowrap hidden sm:block">
-                    {{ formatDistanceStrict(new Date(location.audited_at), new Date()) }}
-                    <FontAwesomeIcon icon="fal fa-clock" class="text-gray-400" fixed-width aria-hidden="true" />
-                </div>
-                <div v-else class="text-right text-sm italic opacity-60 whitespace-nowrap hidden sm:block">
-                    {{ ctrans("Never audited") }}
-                </div>
+                <td class="px-2 py-2">
+                    <div v-if="batchLines(location).length" class="w-fit rounded border border-gray-200 divide-y divide-gray-100 text-xs">
+                        <div v-for="line in batchLines(location)" :key="line.key" class="grid grid-cols-[10.5rem_4.5rem_3.5rem] items-center leading-5">
+                            <span v-tooltip="line.code" class="px-2 truncate text-[9px]" :class="line.code ? 'text-gray-500' : 'italic text-gray-400'">{{ line.code ?? ctrans('no batch') }}</span>
+                            <span class="px-2 whitespace-nowrap tabular-nums text-gray-700">{{ line.expiry_date ? useFormatTime(line.expiry_date, { formatTime: 'dd MMM yy' }) : '' }}</span>
+                            <span class="px-2 text-right whitespace-nowrap tabular-nums text-gray-700 [&_.fraction-display]:![font-family:inherit]"><FractionDisplay :fractionData="toFractionData(line.quantity)" /></span>
+                        </div>
+                    </div>
+                </td>
 
-                <!-- Replenishment suggestion -->
-                <span
-                    v-tooltip="ctrans('Apply suggested replenishment')"
-                    class="text-sm text-blue-500 cursor-pointer hover:underline whitespace-nowrap"
-                    :class="isTarget(location) ? '' : 'opacity-40 cursor-not-allowed'"
-                    @click="isTarget(location) && applyReplenishment(location)"
-                >
-                    ({{ replenishment_data[location.id]?.replenishment_stock ?? '0' }})
-                </span>
+                <td class="px-2 py-2 text-right hidden sm:table-cell">
+                    <!-- Audit info -->
+                    <div v-if="location.audited_at" v-tooltip="ctrans('Last audit :date', { date: useFormatTime(location.audited_at) })" class="text-right text-sm whitespace-nowrap ">
+                        {{ formatDistanceStrict(new Date(location.audited_at), new Date()) }}
+                        <FontAwesomeIcon icon="fal fa-clock" class="text-gray-400" fixed-width aria-hidden="true" />
+                    </div>
+                    <div v-else v-tooltip="ctrans('Never audited')" class="text-right text-sm whitespace-nowrap text-gray-400">
+                        {{ ctrans("Never") }}
+                        <FontAwesomeIcon icon="fal fa-clock" class="text-gray-400" fixed-width aria-hidden="true" />
+                    </div>
+                </td>
 
-                <!-- Right: Target forklift -->
-                <FontAwesomeIcon
-                    icon="fas fa-forklift"
-                    v-tooltip="isTarget(location) ? ctrans('Unset as destination') : ctrans('Add as destination location')"
-                    :class="[
-                        'text-xl transition shrink-0',
-                        isTarget(location)
-                            ? 'cursor-pointer text-blue-600 scale-110' :
-                        isSource(location)
-                            ? 'text-gray-300 opacity-20 cursor-not-allowed' :
-                        moveStock.targets.length
-                            ? 'cursor-pointer text-gray-400 opacity-30 hover:opacity-80' :
-                        'cursor-pointer opacity-50 hover:opacity-100 text-blue-600'
-                    ]"
-                    fixed-width
-                    aria-hidden="true"
-                    @click="selectTarget(location)"
-                />
-            </div>
-        </template>
+                <td class="px-2 py-2 text-right">
+                    <!-- Replenishment suggestion -->
+                    <span
+                        v-tooltip="ctrans('Apply suggested replenishment')"
+                        class="text-sm text-blue-500 cursor-pointer hover:underline whitespace-nowrap"
+                        :class="isTarget(location) ? '' : 'opacity-40 cursor-not-allowed'"
+                        @click="isTarget(location) && applyReplenishment(location)"
+                    >
+                        ({{ replenishment_data[location.id]?.replenishment_stock ?? '0' }})
+                    </span>
+                </td>
+
+                <td class="py-2 pr-1">
+                    <!-- Right: Target forklift -->
+                    <FontAwesomeIcon
+                        icon="fas fa-forklift"
+                        v-tooltip="isTarget(location) ? ctrans('Unset as destination') : ctrans('Add as destination location')"
+                        :class="[
+                            'text-xl transition shrink-0',
+                            isTarget(location)
+                                ? 'cursor-pointer text-blue-600 scale-110' :
+                            isSource(location)
+                                ? 'text-gray-300 opacity-20 cursor-not-allowed' :
+                            moveStock.targets.length
+                                ? 'cursor-pointer text-gray-400 opacity-30 hover:opacity-80' :
+                            'cursor-pointer opacity-50 hover:opacity-100 text-blue-600'
+                        ]"
+                        fixed-width
+                        aria-hidden="true"
+                        @click="selectTarget(location)"
+                    />
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <div
             v-else
             class="flex flex-col items-center justify-center text-center py-10 border border-dashed border-gray-300 rounded-lg"

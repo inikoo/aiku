@@ -11,6 +11,7 @@
 namespace App\Actions\Accounting\Payment\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingShopAuthorisation;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
@@ -26,6 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetRefundOriginalInvoicePayments extends OrgAction
 {
+    use WithAccountingShopAuthorisation;
     public function handle(Invoice $refund, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -80,7 +82,11 @@ class GetRefundOriginalInvoicePayments extends OrgAction
 
     public function asController(Invoice $invoice, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($invoice->shop, $request);
+        if ($invoice->shop->fulfilment) {
+            $this->initialisationFromFulfilment($invoice->shop->fulfilment, $request);
+        } else {
+            $this->initialisationFromShop($invoice->shop, $request);
+        }
 
         return $this->handle($invoice);
     }

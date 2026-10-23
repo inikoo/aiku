@@ -28,10 +28,13 @@ class SeedEmailTemplates
     use AsAction;
 
 
-    public function handle(Group $group): void
+    public function handle(Group $group, ?Command $command = null): void
     {
         $templates = json_decode(file_get_contents(database_path('seeders/datasets/email-templates/email-templates.json')), true);
+        $bar       = $command?->getOutput()->createProgressBar(count($templates));
+        $bar?->start();
         foreach ($templates as $template) {
+            $bar?->advance();
             $basePath = 'seeders/datasets/email-templates/'.explode('.', Arr::get($template, 'content'))[0];
 
             $filePath = database_path($basePath.'/'.Arr::get($template, 'content'));
@@ -150,10 +153,17 @@ class SeedEmailTemplates
             }
         }
 
-        Artisan::call('shop:seed_outboxes');
-        Artisan::call('fulfilment:seed_outboxes');
-        Artisan::call('website:seed_outboxes');
-        Artisan::call('org:seed_outboxes');
+        $bar?->finish();
+        $command?->newLine();
+
+        foreach (['shop:seed_outboxes', 'fulfilment:seed_outboxes', 'website:seed_outboxes', 'org:seed_outboxes'] as $seedOutboxesCommand) {
+            if ($command) {
+                $command->info("Running $seedOutboxesCommand");
+                $command->call($seedOutboxesCommand);
+            } else {
+                Artisan::call($seedOutboxesCommand);
+            }
+        }
     }
 
     public string $commandSignature = 'group:seed_email_templates';
@@ -162,7 +172,7 @@ class SeedEmailTemplates
     {
         foreach (Group::all() as $group) {
             $command->info("Seeding email templates for group: $group->name");
-            $this->handle($group);
+            $this->handle($group, $command);
         }
 
         return 0;

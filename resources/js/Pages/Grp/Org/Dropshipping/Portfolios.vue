@@ -35,6 +35,7 @@ import { ctrans } from "@/Composables/useTrans"
 library.add(faBookmark, faDownload, faEllipsisV, faUpload)
 
 const props = defineProps<{
+    can_edit?: boolean
     data: {}
     title: string
     pageHead: PageHeadingTypes
@@ -386,9 +387,9 @@ const submitPortfolioAction = async (action: any) => {
     <TablePlatformPortfolioLogs v-if="currentTab === 'logs'" :data="logs" :tab="currentTab" />
 
     <template v-else>
-        <TablePortfoliosShopify v-if="platform.type === 'shopify'" :data="data" :customerSalesChannel v-model:selectedProducts="selectedProducts" :key="key" :progressToUploadToShopifyAll="progessbar"/>
+        <TablePortfoliosShopify v-if="platform.type === 'shopify'" :data="data" :customerSalesChannel :canEdit="can_edit" v-model:selectedProducts="selectedProducts" :key="key" :progressToUploadToShopifyAll="progessbar"/>
         <TablePortfoliosManual v-else-if="platform.type === 'manual'" :data="data" :customerSalesChannel />
-        <TablePortfolios v-else :data="data" :customerSalesChannel  v-model:selectedProducts="selectedProducts" :key="key"    :progressToUploadToShopifyAll="progessbar"  :routes="props.routes"/>
+        <TablePortfolios v-else :data="data" :customerSalesChannel :canEdit="can_edit"  v-model:selectedProducts="selectedProducts" :key="key"    :progressToUploadToShopifyAll="progessbar"  :routes="props.routes"/>
     </template>
 
 

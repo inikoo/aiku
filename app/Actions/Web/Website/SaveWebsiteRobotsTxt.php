@@ -24,8 +24,7 @@ class SaveWebsiteRobotsTxt extends OrgAction
             'collections',
         ];
 
-        $lines = [
-            'User-agent: *',
+        $disallows = [
             'Disallow: /*?variant',
             'Disallow: /*.pdf$',
             'Disallow: /return_policy',
@@ -48,8 +47,31 @@ class SaveWebsiteRobotsTxt extends OrgAction
             'Disallow: /app/basket',
             'Disallow: /app/back-in-stocks',
             'Disallow: /email-protection',
-            '',
+        ];
 
+        $semrushAgents = [
+            'SemrushBot',
+            'SiteAuditBot',
+            'SemrushBot-BA',
+            'SemrushBot-SI',
+            'SemrushBot-SWA',
+            'SemrushBot-CT',
+            'SemrushBot-OCOB',
+            'SemrushBot-FT',
+            'SplitSignalBot',
+        ];
+
+        $lines = [
+            'User-agent: *',
+            ...$disallows,
+            '',
+            'User-agent: Amazonbot',
+            ...$disallows,
+            'Disallow: /i/',
+            '',
+            ...array_map(fn (string $agent) => "User-agent: $agent", $semrushAgents),
+            'Disallow: /',
+            '',
             "Sitemap: {$baseUrl}/sitemap.xml",
         ];
 

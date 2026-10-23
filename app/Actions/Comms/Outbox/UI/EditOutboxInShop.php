@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\Comms\Mailshot\Filters\FilterDueToReorder;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
@@ -23,6 +24,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditOutboxInShop extends OrgAction
 {
+    use WithCommsEditAuthorisation;
+
     private Shop $parent;
 
     /**
@@ -264,23 +267,6 @@ class EditOutboxInShop extends OrgAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return true;
-
-        if ($this->parent instanceof Shop) {
-            return $this->canEdit = $request->user()->authTo("shop.{$this->shop->id}.edit");
-        }
-
-        return $request->user()->authTo([
-            'shop-admin.' . $this->shop->id,
-            'marketing.' . $this->shop->id . '.view',
-            'web.' . $this->shop->id . '.view',
-            'orders.' . $this->shop->id . '.view',
-            'crm.' . $this->shop->id . '.view',
-        ]);
-    }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
@@ -449,6 +435,7 @@ class EditOutboxInShop extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request)
     {
 
+        abort_unless($outbox->shop_id === $shop->id, 404);
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OutboxTabsEnum::values());
 

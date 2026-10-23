@@ -18,6 +18,9 @@ type VisitorAppointment = {
     appointment_type: string | null
     meeting_mode: "store_visit" | "video_call" | null
     meeting_mode_label: string | null
+    media: "whatsapp" | "zoom" | "google_meet" | null
+    zoom_join_url: string | null
+    google_meet_join_url: string | null
     location: string | null
     duration_minutes: number | null
     date: string
@@ -136,7 +139,17 @@ const cancel = () => send("cancel", { reason: cancelReason.value }, ctrans("Your
                         </div>
                         <div v-if="appointment.meeting_mode === 'video_call'" class="flex items-start gap-3">
                             <FontAwesomeIcon icon="fal fa-video" fixed-width aria-hidden="true" class="mt-0.5 text-lg text-slate-600" />
-                            <span>{{ ctrans("Video call on WhatsApp") }}</span>
+                            <span v-if="appointment.zoom_join_url">
+                                {{ ctrans("Video call on Zoom") }}:
+                                <a :href="appointment.zoom_join_url" target="_blank" rel="noopener" class="break-all font-bold text-[var(--theme-color-0)] hover:underline">{{ ctrans("Join the meeting") }}</a>
+                            </span>
+                            <span v-else-if="appointment.google_meet_join_url">
+                                {{ ctrans("Video call on Google Meet") }}:
+                                <a :href="appointment.google_meet_join_url" target="_blank" rel="noopener" class="break-all font-bold text-[var(--theme-color-0)] hover:underline">{{ ctrans("Join the meeting") }}</a>
+                            </span>
+                            <span v-else-if="appointment.media === 'zoom'">{{ ctrans("Video call on Zoom, we email you the link once confirmed") }}</span>
+                            <span v-else-if="appointment.media === 'google_meet'">{{ ctrans("Video call on Google Meet, we email you the link once confirmed") }}</span>
+                            <span v-else>{{ ctrans("Video call on WhatsApp") }}</span>
                         </div>
                         <div v-if="appointment.location" class="flex items-start gap-3">
                             <FontAwesomeIcon icon="fal fa-map-marker-alt" fixed-width aria-hidden="true" class="mt-0.5 text-lg text-slate-600" />

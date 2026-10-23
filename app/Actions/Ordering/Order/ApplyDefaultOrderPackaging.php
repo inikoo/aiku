@@ -50,12 +50,27 @@ class ApplyDefaultOrderPackaging
             return $order;
         }
 
-        UpdateOrderPackaging::make()->action($order, [
+        $packagingData = [
             'packaging_id' => $preferredPackaging->id,
             'leaflet_ids'  => $this->getDefaultLeafletIds($shop->id, $customer->id, $preferredPackaging->family_code),
-        ]);
+        ];
+
+        $defaultPersonalisedMessage = $this->getDefaultPersonalisedMessage($shop->id, $customer->id);
+        if (blank($order->personalised_message) && filled($defaultPersonalisedMessage)) {
+            $packagingData['personalised_message'] = $defaultPersonalisedMessage;
+        }
+
+        UpdateOrderPackaging::make()->action($order, $packagingData);
 
         return $order;
+    }
+
+    private function getDefaultPersonalisedMessage(int $shopId, int $customerId): ?string
+    {
+        return CustomerHasPackaging::where('customer_id', $customerId)
+            ->whereHas('packaging', fn ($query) => $query->where('shop_id', $shopId))
+            ->whereNotNull('personalised_message')
+            ->value('personalised_message');
     }
 
     /** @return array<int, int> */

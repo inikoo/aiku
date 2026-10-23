@@ -415,6 +415,24 @@ const assignSelf = async () => {
     }
 }
 
+const isUsingDraft = ref(false)
+const assignAndUse = async (draftId: number) => {
+    if (isUsingDraft.value) return
+    isUsingDraft.value = true
+
+    try {
+        await assignSelf()
+        if (props.session?.status !== "active") return
+
+        const { data } = await axios.post(route("grp.api.chats.ai_drafts.take", [draftId]))
+        if (data?.data?.text) newMessage.value = data.data.text
+    } catch {
+        notify({ title: ctrans("Error"), text: ctrans("The draft could not be used, please copy it by hand"), type: "error" })
+    } finally {
+        isUsingDraft.value = false
+    }
+}
+
 const isRestoring = ref(false)
 const restoreChat = async () => {
     if (!props.session?.ulid || isRestoring.value) return
@@ -637,15 +655,6 @@ const { closingAt, closingIn, onClosing: onClosingEvent, keepOpen } = useChatClo
 const { waitingIn, setWaiting, onCustomerMessage: onCustomerWaitMessage } = useChatWaitingForCustomer(chatSession, () =>
     chatSession.value?.ulid ? route("grp.org.chat.agents.sessions.wait_for_customer", [(route().params as Record<string, any>)?.organisation ?? "aw", chatSession.value.ulid]) : null
 )
-const onSuggestedAction = async (action: "close" | "wait") => {
-    if (action === "wait") {
-        setWaiting(72)
-        return
-    }
-    if (!chatSession.value?.ulid) return
-    await axios.patch(route("grp.org.chat.agents.sessions.close", [(chatSession.value as any)?.organisation?.id, chatSession.value.ulid]))
-    emit("close-session")
-}
 const onWaitPicked = (event: Event) => {
     const select = event.target as HTMLSelectElement
     const hours = Number(select.value)
@@ -1677,7 +1686,7 @@ const handleClickOutside = (e: MouseEvent) => {
 
         <!-- Footer: Assign-to-me banner for waiting (unassigned) chats -->
         <footer v-else-if="isWaiting" class="px-3 py-3 bg-white border-t">
-            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview />
+            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview assignable :assigning="isAssigningSelf || isUsingDraft" @assign-and-use="assignAndUse" />
             <div class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200">
                 <div class="text-xs text-gray-600">
                     {{ ctrans('Assign this chat to yourself to start the conversation') }}
@@ -1740,7 +1749,7 @@ const handleClickOutside = (e: MouseEvent) => {
                 <span>{{ ctrans("The customer writes in :language. A reply in another language is translated to :language before it is sent.", { language: customerLanguage.name }) }}</span>
             </div>
 
-            <ChatAiDraftBox :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" @action="onSuggestedAction" />
+            <ChatAiDraftBox :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" />
 
             <div class="rounded-xl border border-gray-200 bg-white shadow-sm focus-within:border-gray-400 focus-within:shadow-md transition-shadow">
                 <ChatMessageEditor ref="messageEditor" v-model="newMessage" @update:model-value="handleTyping"

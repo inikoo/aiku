@@ -20,7 +20,8 @@ export interface PurchaseOrder {
     agent_name: string | null
     agent_slug: string | null
     org_agent_slug: string | null
-    agent_order_reference?: string | null
     supplier_slug: string | null
+    supplier_purchase_orders?: number | null
     organisation_slug?: string | null
+    number_pending_price_changes?: number
 }

@@ -8,9 +8,10 @@
 
 namespace App\Actions\Production\JobOrder;
 
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PartnerShoppingListItem;
-use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItem;
 use Illuminate\Support\Arr;
@@ -28,6 +29,7 @@ class GetJobOrderDestinationAllocation
      * out of a batch of 280 gets 50 in its bay, the other 230 are ours.
      *
      * A line carries the buyer's org stock and the artefact the maker's, so they only meet on the stock.
+     * A line whose order has already shipped or been cancelled asks for nothing: its goods go to stock.
      *
      * Lines are denominated in SKOs, artisans work in artefact units, org_stocks.packed_in is the
      * only bridge; every quantity returned here is in artefact units.
@@ -40,6 +42,8 @@ class GetJobOrderDestinationAllocation
         $items = $jobOrder->jobOrderItems()->with(['artefact.orgStock.stock', 'artefact.orgStock.orgStockFamily', 'tasks'])->get();
 
         $lines = PartnerShoppingListItem::with('stock')->where('job_order_id', $jobOrder->id)
+            ->where(fn ($query) => $query->whereNull('transaction_id')
+                ->orWhereHas('transaction', fn ($query) => $query->whereNotIn('state', [TransactionStateEnum::DISPATCHED, TransactionStateEnum::CANCELLED])))
             ->get()
             ->groupBy('stock_id');
 
@@ -52,7 +56,7 @@ class GetJobOrderDestinationAllocation
         $allocations          = [];
 
         foreach ($items as $item) {
-            $packedIn = max(1, (int) $item->artefact->orgStock?->packed_in);
+            $packedIn = $item->artefact->packedIn();
             $made     = $madeByItem[$item->id] ?? min((float) $item->quantity, $this->producedArtefacts($item));
 
             if ($made <= 0) {
@@ -105,6 +109,9 @@ class GetJobOrderDestinationAllocation
      * destination it went to, so the bays can be served in any order; whatever was received
      * before walks were remembered is taken off in allocation order.
      *
+     * While the rest of a carried job is still being made only whole packs are walked: the loose
+     * artefacts wait at the artisan's desk and go out with the next part, so a bay never gets 12.25.
+     *
      * @return array<int, array{item: JobOrderItem, line: PartnerShoppingListItem|null, location_id: int|null, quantity: float}>
      */
     public function outstanding(JobOrder $jobOrder): array
@@ -135,7 +142,25 @@ class GetJobOrderDestinationAllocation
             $allocations[$index]['quantity'] -= $putAway;
         }
 
+        foreach ($allocations as $index => $allocation) {
+            $item     = $allocation['item'];
+            $packedIn = $item->artefact->packedIn();
+            if ($packedIn > 1 && $this->restStillBeingMade($item)) {
+                $allocations[$index]['quantity'] = floor(round($allocation['quantity'] / $packedIn, 6)) * $packedIn;
+            }
+        }
+
         return array_values(array_filter($allocations, fn (array $allocation) => $allocation['quantity'] > 0));
+    }
+
+    private function restStillBeingMade(JobOrderItem $item): bool
+    {
+        $nextItem = $item->carriedTo()?->jobOrderItems()->with('tasks')->where('artefact_id', $item->artefact_id)->first();
+        if (!$nextItem) {
+            return false;
+        }
+
+        return $nextItem->tasks->contains(fn ($task) => $task->state !== JobOrderItemTaskStateEnum::DONE) || $this->restStillBeingMade($nextItem);
     }
 
     /**
@@ -143,16 +168,6 @@ class GetJobOrderDestinationAllocation
      */
     public function producedArtefacts(JobOrderItem $item): float
     {
-        $lastTask = $item->tasks->last();
-
-        if (!$lastTask) {
-            return 0.0;
-        }
-
-        $unitsPerArtefact = (float) ArtefactManufactureTask::where('artefact_id', $item->artefact_id)
-            ->where('manufacture_task_id', $lastTask->manufacture_task_id)
-            ->value('units_per_artefact') ?: 1;
-
-        return ArtefactManufactureTask::artefactsIn($lastTask->quantity_made, $unitsPerArtefact);
+        return $item->finalTask()?->artefactsIn() ?? 0.0;
     }
 }

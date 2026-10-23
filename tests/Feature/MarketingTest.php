@@ -15,6 +15,7 @@
  * restore, and each former file keeps its own setup inside its own describe() block.
  */
 
+use App\Actions\CRM\SocialMedia\GetSocialMediaPerformance;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UI\GetCustomerJourney;
@@ -2602,6 +2603,94 @@ describe('fetching meta ads costs', function () {
         Artisan::call('traffic-source:fetch-meta-costs', ['shop' => $this->shop->slug, '--dry-run' => true]);
 
         expect(TrafficSourceCost::where('traffic_source_id', $this->metaAds->id)->get())->toHaveCount(0);
+    });
+
+    it('keeps impressions and link clicks per campaign day, summed across facebook platforms', function () {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(metaInsights([
+                metaRow('120000020', 10.00, $this->shop->currency->code) + ['impressions' => '1000', 'inline_link_clicks' => '25'],
+                metaRow('120000020', 5.00, $this->shop->currency->code, platform: 'audience_network') + ['impressions' => '500', 'inline_link_clicks' => '5'],
+                metaRow('120000020', 7.00, $this->shop->currency->code, platform: 'instagram') + ['impressions' => '800', 'inline_link_clicks' => '12'],
+            ])),
+        ]);
+
+        Artisan::call('traffic-source:fetch-meta-costs', ['shop' => $this->shop->slug]);
+
+        $metrics = TrafficSourceCampaignMetric::whereIn(
+            'traffic_source_campaign_id',
+            TrafficSourceCampaign::whereIn('traffic_source_id', [$this->metaAds->id, $this->instagramAds->id])->pluck('id')
+        )->get()->keyBy(fn ($metric) => $metric->trafficSourceCampaign->traffic_source_id);
+
+        expect($metrics[$this->metaAds->id]->impressions)->toBe(1500)
+            ->and($metrics[$this->metaAds->id]->clicks)->toBe(30)
+            ->and((float) $metrics[$this->metaAds->id]->source_cost)->toBe(15.0)
+            ->and($metrics[$this->instagramAds->id]->impressions)->toBe(800)
+            ->and($metrics[$this->instagramAds->id]->clicks)->toBe(12);
+    });
+
+    it('keeps the purchases and purchase value meta reports, once per order whatever the action types', function () {
+        $purchases = fn (string $count, string $value) => [
+            'actions'       => [
+                ['action_type' => 'omni_purchase', 'value' => $count],
+                ['action_type' => 'purchase', 'value' => $count],
+                ['action_type' => 'offsite_conversion.fb_pixel_purchase', 'value' => $count],
+                ['action_type' => 'link_click', 'value' => '40'],
+            ],
+            'action_values' => [
+                ['action_type' => 'omni_purchase', 'value' => $value],
+                ['action_type' => 'purchase', 'value' => $value],
+            ],
+        ];
+
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(metaInsights([
+                metaRow('120000030', 10.00, $this->shop->currency->code) + $purchases('3', '150.50'),
+                metaRow('120000030', 5.00, $this->shop->currency->code, platform: 'audience_network') + $purchases('1', '20'),
+                metaRow('120000030', 7.00, $this->shop->currency->code, platform: 'instagram'),
+            ])),
+        ]);
+
+        Artisan::call('traffic-source:fetch-meta-costs', ['shop' => $this->shop->slug]);
+
+        $metrics = TrafficSourceCampaignMetric::whereIn(
+            'traffic_source_campaign_id',
+            TrafficSourceCampaign::whereIn('traffic_source_id', [$this->metaAds->id, $this->instagramAds->id])->pluck('id')
+        )->get()->keyBy(fn ($metric) => $metric->trafficSourceCampaign->traffic_source_id);
+
+        expect((float) $metrics[$this->metaAds->id]->conversions)->toBe(4.0)
+            ->and((float) $metrics[$this->metaAds->id]->source_conversions_value)->toBe(170.5)
+            ->and((float) $metrics[$this->instagramAds->id]->conversions)->toBe(0.0);
+    });
+
+    it('shows a meta campaign as one row on the social media dashboard, as ads manager does', function () {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(metaInsights([
+                metaRow('120000040', 10.00, $this->shop->currency->code) + [
+                    'impressions'   => '1000',
+                    'actions'       => [['action_type' => 'omni_purchase', 'value' => '3']],
+                    'action_values' => [['action_type' => 'omni_purchase', 'value' => '90']],
+                ],
+                metaRow('120000040', 5.00, $this->shop->currency->code, platform: 'instagram') + [
+                    'impressions'   => '500',
+                    'actions'       => [['action_type' => 'omni_purchase', 'value' => '1']],
+                    'action_values' => [['action_type' => 'omni_purchase', 'value' => '30']],
+                ],
+            ])),
+        ]);
+
+        Artisan::call('traffic-source:fetch-meta-costs', ['shop' => $this->shop->slug]);
+
+        $period   = fn (array $filters) => GetSocialMediaPerformance::run($this->organisation, Carbon::parse('2026-08-01')->startOfDay(), Carbon::parse('2026-08-31')->endOfDay(), ['shop' => $this->shop->slug, ...$filters]);
+        $campaign = collect($period([])['paid']['campaigns'])->firstWhere('name', 'Campaign 120000040');
+        $facebook = collect($period(['platform' => 'facebook'])['paid']['campaigns'])->firstWhere('name', 'Campaign 120000040');
+
+        expect($campaign['spend'])->toBe(15.0)
+            ->and($campaign['impressions'])->toBe(1500)
+            ->and($campaign['placements'])->toHaveCount(2)
+            ->and($campaign['meta_purchases'])->toBe(4.0)
+            ->and($campaign['meta_roas'])->toBe(8.0)
+            ->and($facebook['spend'])->toBe(10.0)
+            ->and($facebook['meta_roas'])->toBe(9.0);
     });
 });
 

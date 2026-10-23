@@ -22,6 +22,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -78,11 +79,18 @@ class ShowIrisWebpage
             ];
         }
 
-        $webBlocks = $this->getIrisWebBlocks(
+        $webBlocks = HideRetailPricesFromIrisVisitors::resolved($this->getIrisWebBlocks(
             webpage: $webpage,
             webBlocks: Arr::get($webpage->published_layout, 'web_blocks', []),
             isLoggedIn: $loggedIn
-        );
+        ));
+
+        $webBlocksForVisitors = HideRetailPricesFromIrisVisitors::withoutHiddenKeys($webBlocks);
+        $isDifferentWhenLoggedIn = $webpage->is_different_when_logged_in || $webBlocksForVisitors !== $webBlocks;
+
+        if (!$loggedIn) {
+            $webBlocks = $webBlocksForVisitors;
+        }
 
 
         $webpageImg = $this->getWebpageShareImageSources($webpage);
@@ -123,7 +131,7 @@ class ShowIrisWebpage
             'minimum_reviews_to_show'           => Arr::get($webpage->shop->settings, 'reviews.minimum_reviews_to_show', 0),
             'webpage_reviews_count'             => $this->getApprovedReviewsCount($webpage),
             'show_staff_who_reply'              => Arr::get($webpage->shop->settings, 'reviews.show_staff_who_reply', false),
-            'is_different_when_logged_in'       => $webpage->is_different_when_logged_in,
+            'is_different_when_logged_in'       => $isDifferentWhenLoggedIn,
         ];
 
         return array_merge($baseWebpageData, [
@@ -243,9 +251,26 @@ class ShowIrisWebpage
     }
 
 
+    /**
+     * Storefront pictures offer avif with the original as fallback; the webp variants stored in
+     * web_images are for the back office only.
+     */
+    public function withoutWebpImages(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (($key === 'webp' || $key === 'webp_2x') && is_string($value)) {
+                unset($data[$key]);
+            } elseif (is_array($value)) {
+                $data[$key] = $this->withoutWebpImages($value);
+            }
+        }
+
+        return $data;
+    }
+
     private function withShortImageUrls(array $webpageData, Website $website): array
     {
-        return ShortenWebsiteImageUrls::run($webpageData, $website, $this->getEnvironmentUrl($website->storefront?->getCanonicalUrl() ?? $website->getUrl()));
+        return ShortenWebsiteImageUrls::run($this->withoutWebpImages($webpageData), $website, $this->getEnvironmentUrl($website->storefront?->getCanonicalUrl() ?? $website->getUrl()));
     }
 
     public function getEnvironmentUrl($url)

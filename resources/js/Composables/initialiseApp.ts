@@ -274,6 +274,10 @@ export const initialiseApp = () => {
             layout.task_badges = usePage().props.task_badges as any
         }
 
+        if (usePage().props.development_badges !== undefined) {
+            layout.development_badges = usePage().props.development_badges as any
+        }
+
         if (usePage().props.leave_covers !== undefined) {
             layout.leave_covers = usePage().props.leave_covers as any
             const coveredLeaveIds = layout.leave_covers.map((cover) => cover.id).join(",")

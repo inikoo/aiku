@@ -69,7 +69,9 @@ Vous pouvez aussi cocher des produits dans la liste. Des boutons apparaissent au
 
 Si vous vendez déjà nos produits dans Shopify, donnez à chaque produit (ou variante) Shopify le même SKU que notre code produit avant de faire correspondre. Utilisez ensuite <b>Match all with default product</b>. Cela lie vos annonces existantes et n'en crée pas de nouvelles.
 
-Si vous vendez plusieurs de nos produits comme les variantes d'un seul produit Shopify, par exemple un produit avec une variante par couleur, chaque variante doit avoir son propre SKU. Demandez-nous dans le chat de notre site d'activer la liaison aux variantes existantes pour votre canal. Vous ne pouvez pas l'activer vous-même. La correspondance lie ensuite chaque produit à la variante portant son SKU, et nous ne changeons jamais le prix, le SKU ou le code-barres de vos variantes.
+Si vous vendez plusieurs de nos produits comme les variantes d'un seul produit Shopify, par exemple un produit avec une variante par couleur, donnez à chaque variante le SKU de son produit. Il n'y a rien à activer : la correspondance lie chaque produit à la variante portant son SKU, et nous ne changeons jamais le prix, le SKU ou le code-barres de vos variantes. Chacune de ces variantes doit être en stock uniquement à l'emplacement <b>aiku-</b>. Retirez-lui dans Shopify tout autre emplacement, même un emplacement affichant 0, sinon la correspondance est refusée, car Shopify pourrait y envoyer ses commandes et elles ne nous parviendraient jamais.
+
+Un produit Shopify avec une seule variante n'est pas lié de cette façon : la correspondance remplace sa variante par la nôtre. Voir [Ce qu'il advient de vos descriptions de produits](/docs/product-descriptions-after-connecting).
 
 ## Trouver des produits dans la liste
 
@@ -102,9 +104,9 @@ Pour voir ce qui s'est passé pour chaque import, ouvrez l'onglet <b>Logs</b> da
 
 **« No variant on Shopify matches this sku ».** Le produit est lié, mais nous ne trouvons plus son SKU dans Shopify. Le SKU a été changé, ou le produit ou la variante a été supprimé dans Shopify. Remettez le SKU en place, ou reliez le produit avec <b>Connect with other product</b>.
 
-**« You need to add option values for Colour »** (ou une autre option). Vous avez fait correspondre avec un produit Shopify ayant des options, comme des couleurs. Donnez à chaque variante son propre SKU et demandez-nous dans le chat de notre site d'activer la liaison aux variantes existantes, ou faites correspondre avec un produit sans options.
+**« You need to add option values for Colour »** (ou une autre option). Vous avez fait correspondre avec un produit Shopify ayant des options, comme des couleurs, et aucune de ses variantes ne porte notre SKU. Donnez à la variante le SKU de notre produit et refaites correspondre, ou faites correspondre avec un produit sans options.
 
-**« None of the variants of this Shopify product has the sku ... ».** La liaison aux variantes est activée, mais aucune variante ne porte notre SKU. Réglez le SKU sur la variante voulue et refaites correspondre.
+**« This Shopify variant is also stocked at your location ... ».** La variante est aussi en stock à l'un de vos propres emplacements, donc Shopify pourrait y envoyer ses commandes et nous ne les recevrions jamais. Retirez cet emplacement de la variante dans Shopify, même s'il affiche 0, et refaites correspondre.
 
 **« More than one variant of this Shopify product has the sku ... ».** Deux variantes ont le même SKU. Donnez à chaque variante son propre SKU.
 

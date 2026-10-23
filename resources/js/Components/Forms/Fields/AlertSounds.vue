@@ -19,6 +19,9 @@ const kinds: { key: AlertSoundKind, label: string, hint: string }[] = [
     { key: 'colleague', label: ctrans('Colleague messages'), hint: ctrans('A colleague writes to you') },
     { key: 'waiting', label: ctrans('Customer still waiting'), hint: ctrans('Rings again every 30 seconds while a chat is unanswered') },
     { key: 'ticket', label: ctrans('Ticket resolved'), hint: ctrans('A ticket you reported is marked done') },
+    { key: 'ticket_new', label: ctrans('New ticket'), hint: ctrans('A ticket is raised for the engineers') },
+    { key: 'ticket_answered', label: ctrans('Ticket answered'), hint: ctrans('Someone answers a waiting ticket assigned to you') },
+    { key: 'ticket_qa', label: ctrans('Ticket QA'), hint: ctrans('A ticket needs your QA check, or the QA result of your ticket') },
 ]
 
 const labels = alertSoundLabels()

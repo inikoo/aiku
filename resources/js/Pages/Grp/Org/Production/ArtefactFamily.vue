@@ -28,6 +28,7 @@ const props = defineProps<{
     set_batch_size?: object
     set_state?: object
     set_recipe?: object
+    set_mix_batch?: object
     department?: { code: string; name: string; route: routeType }
     number_artefacts: number
 }>()
@@ -52,5 +53,5 @@ const component = computed(() => ({
 
     </div>
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab" :moveToFamily="move_to_family" :setBatchSize="set_batch_size" :setState="set_state" :setRecipe="set_recipe" />
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :moveToFamily="move_to_family" :setBatchSize="set_batch_size" :setState="set_state" :setRecipe="set_recipe" :setMixBatch="set_mix_batch" />
 </template>

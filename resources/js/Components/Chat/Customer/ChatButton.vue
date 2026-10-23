@@ -26,7 +26,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { router, usePage } from "@inertiajs/vue3"
-import { faSpinner, faComments, faEnvelope, faPhone, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck } from "@fal"
+import { faSpinner, faComments, faEnvelope, faPhone, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faVideo, faStoreAlt } from "@fal"
 import { useWindowSize } from "@vueuse/core"
 import { useBundle } from "../../../Composables/useBundle"
 import { useFloatingButtonsDrag } from "@/Iris/Composables/useFloatingButtonsDrag"
@@ -36,11 +36,12 @@ const MessageArea = defineAsyncComponent(() => import("@/Components/Chat/Custome
 const MessageHistory = defineAsyncComponent(() => import("@/Components/Chat/MessageHistory.vue"))
 const HistoryChatList = defineAsyncComponent(() => import("@/Components/Chat/HistoryChatList.vue"))
 const OfflineChatForm = defineAsyncComponent(() => import("../OfflineChatForm.vue"))
+const AppointmentDialog = defineAsyncComponent(() => import("@/Iris/Components/AppointmentDialog.vue"))
 
 library.add(
     faWhatsapp, faFacebookF, faFacebookMessenger, faInstagram, faXTwitter, faTelegram, faTiktok,
     faYoutube, faLinkedinIn, faLine, faWeixin, faPinterest, faSnapchat, faDiscord,
-    faEnvelope, faPhone, faComments, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck
+    faEnvelope, faPhone, faComments, faGlobe, faMapMarkerAlt, faLightbulb, faQuestionCircle, faTruck, faVideo, faStoreAlt
 )
 
 interface ChatMessage {
@@ -88,6 +89,7 @@ interface ContactOption {
     icon: string[] | null
     label: string
     url: string
+    appointmentTypeId?: number
 }
 
 /*
@@ -208,20 +210,35 @@ const configuredContactOptions = computed<ContactOption[]>(() =>
         (option) => !isAtlassianContactOption(option) && !isBrokenContactOption(option)
     )
 )
-const isLiveChatOption = (option: ContactOption) => !option.url?.trim()
+const isLiveChatOption = (option: ContactOption) => !option.appointmentTypeId && !option.url?.trim()
+
+const appointmentTypes = computed(() => (page.props?.appointment_types as { id: number, name: string, meeting_mode: string }[]) ?? [])
+const hasAppointments = computed(() => appointmentTypes.value.length > 0)
+const isAppointmentDialogVisible = ref(false)
+const selectedAppointmentTypeId = ref<number | null>(null)
 
 const contactOptions = computed<ContactOption[]>(() => {
-    const options = configuredContactOptions.value
+    const options = configuredContactOptions.value.some(isLiveChatOption)
+        ? configuredContactOptions.value
+        : [{ icon: ["fal", "comments"], label: ctrans("Livechat"), url: "" }, ...configuredContactOptions.value]
 
-    if (options.some(isLiveChatOption)) {
+    if (!hasAppointments.value) {
         return options
     }
 
-    return [{ icon: ["fal", "comments"], label: ctrans("Livechat"), url: "" }, ...options]
+    return [
+        ...options,
+        ...appointmentTypes.value.map((appointmentType) => ({
+            icon: ["fal", appointmentType.meeting_mode === "video_call" ? "video" : "store-alt"],
+            label: appointmentType.name,
+            url: "",
+            appointmentTypeId: appointmentType.id,
+        })),
+    ]
 })
 
 const hasContactOptionsPanel = computed(
-    () => page.props?.show_contact_options_panel === true && configuredContactOptions.value.length > 0
+    () => (page.props?.show_contact_options_panel === true && configuredContactOptions.value.length > 0) || hasAppointments.value
 )
 
 const activeView = ref<"show_contact_options_panel" | "chat">("chat")
@@ -653,6 +670,12 @@ const startChat = async () => {
 }
 
 const selectContactOption = async (option: ContactOption) => {
+    if (option.appointmentTypeId) {
+        selectedAppointmentTypeId.value = option.appointmentTypeId
+        isAppointmentDialogVisible.value = true
+        return
+    }
+
     if (!isLiveChatOption(option)) {
         window.open(option.url, "_blank", "noopener,noreferrer")
         return
@@ -1159,6 +1182,8 @@ if (isClient) {
                 </div>
             </Dialog>
         </TransitionRoot>
+
+        <AppointmentDialog v-if="hasAppointments" v-model:visible="isAppointmentDialogVisible" :appointmentTypeId="selectedAppointmentTypeId" />
     </div>
 </template>
 

@@ -36,6 +36,8 @@ use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReopenWebpage;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\WithIrisGetWebpageWebBlocks;
+use App\Actions\Web\Webpage\Iris\ShowIrisWebpage;
+use App\Http\Middleware\HideRetailPricesFromIrisVisitors;
 use App\Actions\Web\WebBlock\Iris\GetIrisWebBlockFamiliesOverview;
 use App\Actions\Web\WebBlock\Iris\GetWebBlockProduct as IrisGetWebBlockProduct;
 use App\Actions\Web\WebBlock\Traits\WithFamiliesQuery;
@@ -55,6 +57,7 @@ use App\Models\Web\Webpage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
@@ -947,6 +950,58 @@ test('logged-in product list prices a basket line of a fractional-units product 
         ->and($prices['price_per_unit'])->toEqual(round((float) $row->price, 2));
 });
 
+test('logged-in product list reads the customer favourites and back in stock reminders once for the whole list, with the same flags as one product at a time', function () {
+    [, $seed]   = createProduct($this->shop);
+    $newProduct = function () use ($seed) {
+        $product = \App\Actions\Catalogue\Product\StoreProduct::make()->action($seed->family, array_merge(
+            \App\Models\Catalogue\Product::factory()->definition(),
+            ['trade_units' => [['id' => $seed->tradeUnits->first()->id, 'quantity' => 1]], 'price' => 100]
+        ));
+        $product = \App\Actions\Catalogue\Product\UpdateProduct::make()->action($product, ['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE]);
+        DB::table('products')->where('id', $product->id)->update(['available_quantity' => 10]);
+
+        return $product->refresh();
+    };
+    [$favouriteProduct, $remindedProduct, $plainProduct] = [$newProduct(), $newProduct(), $newProduct()];
+    $customer = createOwnCustomer($this->shop, 'iris-product-list-flags');
+
+    \App\Actions\CRM\Favourite\StoreFavourite::make()->action($customer, $favouriteProduct, []);
+    $reminder = \App\Actions\Comms\BackInStockReminder\StoreBackInStockReminder::make()->action($customer, $remindedProduct, [], strict: false);
+
+    $products = [$favouriteProduct, $remindedProduct, $plainProduct];
+    foreach ($products as $product) {
+        PublishWebpage::make()->action(StoreProductWebpage::make()->action($product), ['comment' => 'product goes live']);
+    }
+    $rows = fn () => collect($products)->map(
+        fn ($product) => collect(GetIrisProductsInProductCategory::run(productCategory: $product->family)->items())->firstWhere('id', $product->id)
+    );
+
+    request()->setUserResolver(fn () => (object) ['customer' => $customer]);
+    $flagKeys = ['id', 'is_favourite', 'is_back_in_stock', 'back_in_stock_id'];
+
+    $oneAtATime = $rows()->map(fn ($row) => Arr::only((new IrisAuthenticatedProductsInWebpageResource($row))->toArray(request()), $flagKeys))->all();
+
+    $lookups = 0;
+    DB::listen(function ($query) use (&$lookups) {
+        if (preg_match('/from "(favourites|back_in_stock_reminders)"/', $query->sql)) {
+            $lookups++;
+        }
+    });
+    $asList = collect(IrisAuthenticatedProductsInWebpageResource::collection($rows())->resolve(request()))
+        ->map(fn ($item) => Arr::only($item, $flagKeys))
+        ->all();
+
+    request()->setUserResolver(fn () => null);
+
+    expect($asList)->toBe($oneAtATime)
+        ->and($lookups)->toBe(2)
+        ->and($asList[0]['is_favourite'])->toBeTrue()
+        ->and($asList[1]['is_back_in_stock'])->toBeTrue()
+        ->and($asList[1]['back_in_stock_id'])->toBe($reminder->id)
+        ->and($asList[2]['is_favourite'])->toBeFalse()
+        ->and($asList[2]['is_back_in_stock'])->toBeFalse();
+});
+
 test('department web block renders when the department lost its webpage link', function () {
     [, $product] = createProduct($this->shop);
     $department  = $product->department;
@@ -1021,6 +1076,43 @@ test('iris variant products list leaves out the variant products that are not fo
     expect($productIds->all())->toBe([$forSaleProduct->id])
         ->and(collect($variantAndProducts['products'])->pluck('id')->all())->toBe([$forSaleProduct->id])
         ->and(collect($variantAndProducts['variant_data']['products'])->keys()->all())->toBe([$forSaleProduct->id]);
+});
+
+test('iris variant products list sends the pre-order of an out of stock back-order variant (HELP-4100)', function () {
+    $originalSettings = $this->shop->settings;
+    $this->shop->update(['settings' => array_merge($originalSettings ?? [], ['pre_orders' => ['enabled' => true]])]);
+
+    try {
+        [, $product] = createProduct($this->shop);
+        $product->updateQuietly(['is_for_sale' => true, 'is_back_order' => true, 'available_quantity' => 0]);
+
+        $masterVariant = \App\Models\Masters\MasterVariant::create([
+            'group_id' => $product->group_id,
+            'code'     => $product->code,
+            'data'     => ['products' => []],
+        ]);
+
+        $variant = \App\Models\Catalogue\Variant::create([
+            'master_variant_id' => $masterVariant->id,
+            'group_id'          => $product->group_id,
+            'organisation_id'   => $product->organisation_id,
+            'shop_id'           => $product->shop_id,
+            'family_id'         => $product->family_id,
+            'code'              => $product->code,
+            'leader_id'         => $product->id,
+            'data'              => ['products' => [$product->id => ['product' => ['id' => $product->id]]]],
+        ]);
+        $product->updateQuietly(['variant_id' => $variant->id]);
+
+        $variantProduct = \App\Actions\Catalogue\Product\Json\GetProductsOfVariant::run($variant)['products'][0];
+
+        expect($variantProduct['stock'])->toEqual(0)
+            ->and($variantProduct['pre_order']['type'])->toBe('back_order')
+            ->and($variantProduct['pre_order']['available_label'])->not->toBeEmpty()
+            ->and($variantProduct['pre_order'])->not->toHaveKey('lead_time_days');
+    } finally {
+        $this->shop->update(['settings' => $originalSettings]);
+    }
 });
 
 test('iris variant products list sends the offers and step discount each variant needs to price the selection', function () {
@@ -1401,4 +1493,81 @@ test('iris variant shows its option groups and options in the shop language and 
     \App\Actions\Catalogue\Variant\UpdateVariant::make()->action($variant, ['option_translations' => ['Plug' => 'Wtyczka', 'UK Plug' => 'Wtyczka UK', 'EU Plug' => '', '0.5kg' => '0,5 kg']]);
 
     expect($variant->refresh()->option_translations)->toEqual(['Plug' => 'Wtyczka', 'UK Plug' => 'Wtyczka UK', '0.5kg' => '0,5 kg']);
+});
+
+test('logged-out product page leaves out the rrp, what is worked out from it and the product documents (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30, 'is_for_sale' => true]);
+    createAttachedMedia('Product', $product->id, 'sds');
+
+    $webpage      = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+    $webBlockType = $this->website->group->webBlockTypes()->where('code', 'product-3')->firstOrFail();
+    StoreModelHasWebBlock::make()->action($webpage, ['web_block_type_id' => $webBlockType->id, 'position' => 0]);
+    $webpage = PublishWebpage::make()->action($webpage, ['comment' => 'rrp visibility test']);
+
+    $productInBlocks = fn (array $webpageData) => collect($webpageData['web_blocks'])
+        ->map(fn ($block) => Arr::get($block, 'structure.product'))
+        ->filter()
+        ->first();
+
+    $loggedOut = ShowIrisWebpage::make()->getWebpageData($webpage->id, [], false);
+    $loggedIn  = ShowIrisWebpage::make()->getWebpageData($webpage->id, [], true);
+
+    expect($productInBlocks($loggedOut))->toHaveKey('price')
+        ->not->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit', 'profit_per_unit', 'attachments'])
+        ->and($productInBlocks($loggedIn))->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit', 'attachments'])
+        ->and($productInBlocks($loggedIn)['attachments'])->not->toBeEmpty()
+        ->and($loggedOut['is_different_when_logged_in'])->toBeTrue()
+        ->and($loggedIn['is_different_when_logged_in'])->toBeTrue();
+});
+
+test('hiding retail prices keeps a web block margin style that has no rrp beside it (HELP-4214)', function () {
+    $hidden = HideRetailPricesFromIrisVisitors::withoutHiddenKeys([
+        'container' => ['properties' => ['margin' => ['top' => 10], 'profit' => 'kept']],
+        'products'  => [['code' => 'A-1', 'rrp' => 10, 'margin' => '20%', 'profit' => 2, 'labeling_guide' => ['label' => 'x']]],
+    ]);
+
+    expect($hidden['container']['properties'])->toBe(['margin' => ['top' => 10], 'profit' => 'kept'])
+        ->and($hidden['products'][0])->toBe(['code' => 'A-1']);
+});
+
+test('iris product detail json leaves out the documents and discounted profit for visitors only (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30]);
+    createAttachedMedia('Product', $product->id, 'sds');
+    $url = 'http://'.$this->website->domain.'/catalogue/product/'.$product->slug;
+
+    $visitor = $this->getJson($url)->assertOk()->json();
+
+    $this->actingAs(createWebUser(createCustomer($this->shop)), 'retina');
+    $customer = $this->getJson($url)->assertOk()->json();
+
+    expect($visitor)->toHaveKey('discounted_price')
+        ->not->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin'])
+        ->and($customer)->toHaveKeys(['attachments', 'discounted_profit', 'discounted_margin']);
+});
+
+test('logged-out family page product list leaves out the rrp (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30, 'price' => 10, 'available_quantity' => 5, 'is_for_sale' => true]);
+    $productWebpage = $product->refresh()->webpage ?? StoreProductWebpage::make()->action($product);
+    PublishWebpage::make()->action($productWebpage, ['comment' => 'rrp visibility test']);
+
+    $webpage      = StoreProductCategoryWebpage::make()->action($product->family);
+    $webBlockType = $this->website->group->webBlockTypes()->where('code', 'products-1')->firstOrFail();
+    StoreModelHasWebBlock::make()->action($webpage, ['web_block_type_id' => $webBlockType->id, 'position' => 0]);
+    $webpage = PublishWebpage::make()->action($webpage, ['comment' => 'rrp visibility test']);
+
+    $productsInBlocks = function (array $webpageData) {
+        $products = collect($webpageData['web_blocks'])->map(fn ($block) => Arr::get($block, 'structure.products'))->filter()->first();
+
+        return $products instanceof Responsable ? $products->toResponse(request())->getData(true) : $products;
+    };
+
+    $loggedOut = $productsInBlocks(ShowIrisWebpage::make()->getWebpageData($webpage->id, [], false));
+    $loggedIn  = $productsInBlocks(ShowIrisWebpage::make()->getWebpageData($webpage->id, [], true));
+
+    expect($loggedOut['data'])->not->toBeEmpty()
+        ->and($loggedOut['data'][0])->toHaveKey('code')->not->toHaveKeys(['rrp', 'rrp_per_unit'])
+        ->and($loggedIn['data'][0])->toHaveKeys(['rrp', 'rrp_per_unit']);
 });

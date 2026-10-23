@@ -7,12 +7,12 @@ import Select from "primevue/select"
 import InputText from "primevue/inputtext"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faDownload, faFileCsv, faQuestionCircle } from "@fal"
+import { faDownload, faFileCsv, faQuestionCircle, faUndo } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import { routeType } from "@/types/route"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
-library.add(faDownload, faFileCsv, faQuestionCircle)
+library.add(faDownload, faFileCsv, faQuestionCircle, faUndo)
 
 const props = defineProps<{
     customsExport: {
@@ -32,21 +32,58 @@ const preview = ref<{
     rows: { cells: string[], errors: Record<string, string[]> }[]
     file_errors: string[]
 } | null>(null)
+// Values typed in the preview, by row then column. They only go into this file, the product is not changed
+const edits = ref<Record<number, Record<number, string>>>({})
 const isLoadingPreview = ref(false)
 const isDownloading = ref(false)
+let previewRequest = 0
+let editTimer: ReturnType<typeof setTimeout> | undefined
 
 const urlFor = (target: routeType | undefined) => {
     if (!target || !format.value || delimiter.value.length !== 1) {
         return null
     }
 
-    return route(target.name, {
-        ...target.parameters,
-        format: format.value,
-        delimiter: delimiter.value,
-        ...(textDelimiter.value ? { text_delimiter: textDelimiter.value } : {}),
-    })
+    return route(target.name, target.parameters)
 }
+
+const payload = () => ({
+    format: format.value,
+    delimiter: delimiter.value,
+    ...(textDelimiter.value ? { text_delimiter: textDelimiter.value } : {}),
+    edits: edits.value,
+})
+
+const cellValue = (rowIndex: number, cellIndex: number) => edits.value[rowIndex]?.[cellIndex] ?? preview.value?.rows[rowIndex]?.cells[cellIndex] ?? ""
+
+const isEdited = (rowIndex: number, cellIndex: number) => edits.value[rowIndex]?.[cellIndex] !== undefined
+
+const editCell = (rowIndex: number, cellIndex: number, value: string) => {
+    const row = { ...(edits.value[rowIndex] ?? {}) }
+    if (value === preview.value?.rows[rowIndex]?.cells[cellIndex]) {
+        delete row[cellIndex]
+    } else {
+        row[cellIndex] = value
+    }
+
+    const next = { ...edits.value }
+    if (Object.keys(row).length) {
+        next[rowIndex] = row
+    } else {
+        delete next[rowIndex]
+    }
+    edits.value = next
+
+    clearTimeout(editTimer)
+    editTimer = setTimeout(() => loadPreview(false), 400)
+}
+
+const resetEdits = () => {
+    edits.value = {}
+    loadPreview(false)
+}
+
+const hasEdits = computed(() => Object.keys(edits.value).length > 0)
 
 const rowFailures = computed(() => (preview.value?.rows ?? []).flatMap((row, rowIndex) =>
     Object.entries(row.errors).flatMap(([columnIndex, messages]) =>
@@ -68,27 +105,38 @@ const showError = (body: any) => {
     })
 }
 
-const loadPreview = async () => {
+// withSkeleton is off while editing cells, so the table (and the cell being typed in) stays in place
+const loadPreview = async (withSkeleton = true) => {
     const url = urlFor(props.customsExport?.preview_route)
     if (!url) {
         return
     }
 
-    isLoadingPreview.value = true
-    preview.value = null
+    const request = ++previewRequest
+    if (withSkeleton) {
+        isLoadingPreview.value = true
+        preview.value = null
+    }
     problems.value = []
     try {
-        const { data } = await axios.get(url)
-        preview.value = data
+        const { data } = await axios.post(url, payload())
+        if (request === previewRequest) {
+            preview.value = data
+        }
     } catch (error: any) {
-        showError(await responseBody(error))
+        if (request === previewRequest) {
+            showError(await responseBody(error))
+        }
     } finally {
-        isLoadingPreview.value = false
+        if (request === previewRequest) {
+            isLoadingPreview.value = false
+        }
     }
 }
 
 const openDialog = () => {
     format.value = props.customsExport?.formats[0]?.value ?? null
+    edits.value = {}
     isOpen.value = true
 }
 
@@ -104,9 +152,10 @@ const onDownload = async () => {
         return
     }
 
+    clearTimeout(editTimer)
     isDownloading.value = true
     try {
-        const response = await axios.get(url, { responseType: "blob" })
+        const response = await axios.post(url, payload(), { responseType: "blob" })
         const filename = /filename="?([^";]+)"?/.exec(response.headers["content-disposition"] ?? "")?.[1] ?? "customs-items.csv"
         const objectUrl = URL.createObjectURL(response.data)
         const link = document.createElement("a")
@@ -183,7 +232,17 @@ const onDownload = async () => {
                 </div>
 
                 <div>
-                    <div class="text-sm text-gray-600 mb-1">{{ ctrans("Preview") }}</div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <div class="text-sm text-gray-600">
+                            {{ ctrans("Preview") }}
+                            <span class="text-gray-400">· {{ ctrans("Click a cell to change it for this file only, the product is not changed.") }}</span>
+                        </div>
+                        <Button v-if="hasEdits" :label="ctrans('Undo changes')" type="tertiary" size="xs" @click="resetEdits">
+                            <template #icon>
+                                <FontAwesomeIcon icon="fal fa-undo" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                    </div>
                     <div v-if="isLoadingPreview" class="space-y-2">
                         <div v-for="index in 4" :key="index" class="h-6 rounded bg-gray-100 animate-pulse" />
                     </div>
@@ -202,10 +261,15 @@ const onDownload = async () => {
                                 <tr v-for="(row, rowIndex) in preview.rows" :key="rowIndex" class="odd:bg-white even:bg-gray-50">
                                     <td class="px-2 py-1 text-gray-400 border-b border-gray-100">{{ rowIndex + 1 }}</td>
                                     <td v-for="(cell, cellIndex) in row.cells" :key="cellIndex"
-                                        v-tooltip="row.errors[cellIndex]?.join(' ')"
-                                        class="px-2 py-1 whitespace-nowrap border-b border-gray-100"
-                                        :class="row.errors[cellIndex] ? 'bg-red-100 text-red-700 font-semibold' : 'text-gray-700'">
-                                        {{ cell }}
+                                        v-tooltip="row.errors[cellIndex]?.join(' ') || (isEdited(rowIndex, cellIndex) ? ctrans('Was: :value', { value: cell || '-' }) : undefined)"
+                                        class="p-0 border-b border-gray-100"
+                                        :class="row.errors[cellIndex] ? 'bg-red-100 text-red-700 font-semibold' : isEdited(rowIndex, cellIndex) ? 'bg-amber-50 text-amber-800' : 'text-gray-700'">
+                                        <input
+                                            :value="cellValue(rowIndex, cellIndex)"
+                                            :size="Math.max(cellValue(rowIndex, cellIndex).length, 4)"
+                                            class="block px-2 py-1 bg-transparent border border-transparent rounded-sm hover:border-gray-300 focus:border-gray-400 focus:outline-none focus:ring-0 text-xs"
+                                            @input="editCell(rowIndex, cellIndex, ($event.target as HTMLInputElement).value)"
+                                        />
                                     </td>
                                 </tr>
                             </tbody>

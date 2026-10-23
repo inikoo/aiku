@@ -43,7 +43,7 @@ class StoreFulfilmentFromWooCommerce extends OrgAction
         $wooProducts = collect(Arr::get($wooOrderData, 'line_items', []));
 
         $wooUserHasProductExists = $wooCommerceUser->customerSalesChannel->portfolios()
-            ->whereIn('platform_product_id', $wooProducts->pluck('product_id'))->exists();
+            ->whereIn('platform_product_id', $wooProducts->flatMap(fn ($item) => StoreOrderFromWooCommerce::lineItemPlatformProductIds($item)))->exists();
 
         if (! $wooUserHasProductExists) {
             return;
@@ -60,9 +60,14 @@ class StoreFulfilmentFromWooCommerce extends OrgAction
         ]);
 
         foreach ($wooProducts as $wooProduct) {
+            $platformProductIds = StoreOrderFromWooCommerce::lineItemPlatformProductIds($wooProduct);
+
             /** @var Portfolio $portfolio */
             $portfolio = $wooCommerceUser->customerSalesChannel->portfolios()
-                ->where('platform_product_id', $wooProduct['product_id'])->first();
+                ->whereIn('platform_product_id', $platformProductIds)
+                ->get()
+                ->sortBy(fn (Portfolio $portfolio) => array_search($portfolio->platform_product_id, $platformProductIds))
+                ->first();
 
             if ($portfolio) {
                 /** @var StoredItem $storedItem */

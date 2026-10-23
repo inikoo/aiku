@@ -16,13 +16,14 @@ import { RouteParams } from "@/types/route-params"
 import InputNumber from "primevue/inputnumber"
 import { faPlus } from "@far"
 import { faWarning, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { faCheck, faMinus, faTimes } from "@fal"
+import { faMinus } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
 import ProductUnitLabel from "@/Components/Utils/Label/ProductUnitLabel.vue"
 import Image from "@common/Components/Image.vue"
 import { faShapes, faStar, faTriangle, faEquals } from "@fas"
 import { routeType } from "@/types/route"
 import LabelSKU from "@/Components/Utils/Product/LabelSKU.vue"
+import ChecklistBar from "@/Components/DataDisplay/ChecklistBar.vue"
 
 const props = defineProps<{
     data: {}
@@ -47,6 +48,13 @@ function masterFamilyRoute(masterProduct: MasterProduct) {
     return route(
         "grp.masters.master_shops.show.master_families.show",
         {masterShop: (route().params as RouteParams).masterShop, masterFamily: masterProduct.master_family_slug})
+}
+
+function editInformationRoute(masterProduct: MasterProduct) {
+    return route("grp.masters.master_shops.show.master_products.edit_information", {
+        masterShop: masterProduct.master_shop_slug ?? (route().params as RouteParams).masterShop,
+        masterProduct: masterProduct.slug,
+    })
 }
 
 function masterProductRoute(masterProduct: MasterProduct) {
@@ -269,8 +277,23 @@ const getIntervalStateColor = (isPositive: boolean) => {
             </div>
         </template>
         <template #cell(status)="{ item: masterProduct }">
-            <FontAwesomeIcon v-if="masterProduct.status" :icon="faCheck" :class="'text-green-500'" v-tooltip="ctrans('Active')" fixed-width />
-            <FontAwesomeIcon v-else :icon="faTimes" :class="'text-red-500'" v-tooltip="ctrans('Inactive')" fixed-width />
+            <span
+                class="whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="masterProduct.status ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'"
+            >
+                {{ masterProduct.status ? ctrans("Active") : ctrans("Discontinued") }}
+            </span>
+        </template>
+
+        <template #cell(stock)="{ item: masterProduct }">
+            <span v-if="masterProduct.stock === null || masterProduct.stock === undefined" class="text-gray-400">-</span>
+            <span v-else class="tabular-nums" :class="masterProduct.stock > 0 ? 'text-gray-700' : 'font-medium text-red-600'">
+                {{ locale.number(masterProduct.stock) }}
+            </span>
+        </template>
+
+        <template #cell(checklist)="{ item: masterProduct }">
+            <ChecklistBar v-if="masterProduct.checklist" :checklist="masterProduct.checklist" />
         </template>
 
         <template #cell(master_shop_code)="{ item: masterProduct }">
@@ -497,6 +520,14 @@ const getIntervalStateColor = (isPositive: boolean) => {
         </template>
 
         <template #cell(actions)="{ item: item}">
+            <Link
+                v-if="tab === 'index'"
+                :href="editInformationRoute(item)"
+                @start="() => isLoadingDetach.push('edit' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'edit' + item.id)"
+            >
+                <Button type="tertiary" size="xs" :label="ctrans('Edit product')" icon="fal fa-pencil" :loading="isLoadingDetach.includes('edit' + item.id)" :disabled="isLoadingDetach.includes('edit' + item.id)" />
+            </Link>
             <Link v-if="routes?.detach?.name" as="button" :href="route(routes.detach.name, routes.detach.parameters)"
                 :method="routes?.detach?.method" :data="{
                     product: item.id

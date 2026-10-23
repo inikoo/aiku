@@ -3,6 +3,7 @@
 namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\OrgAction;
+use Lorisleiva\Actions\ActionRequest;
 use App\Models\Dispatching\DeliveryNote;
 use App\Actions\Traits\WithExportData;
 use App\Models\Dispatching\DeliveryNoteItem;
@@ -123,8 +124,10 @@ class PdfPackingList extends OrgAction
         return $quantity >= 1 && abs($quantity - round($quantity)) < 0.02;
     }
 
-    public function asController(DeliveryNote $deliveryNote): Response
+    public function asController(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
+        abort_unless($deliveryNote->canBeViewedBy($request->user()), 403);
+
         return $this->handle($deliveryNote);
     }
 }

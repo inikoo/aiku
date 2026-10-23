@@ -31,7 +31,7 @@ class CalculateJobOrderItemTaskQuantities
         $quantityRejected = (float) $ownSessions->sum('quantity_rejected') + (float) $shares->sum('quantity_rejected');
 
         $state = JobOrderItemTaskStateEnum::TODO;
-        if ($quantityMade >= $jobOrderItemTask->quantity_required) {
+        if (round($quantityMade, 3) >= round((float) $jobOrderItemTask->quantity_required, 3)) {
             $state = JobOrderItemTaskStateEnum::DONE;
         } elseif ($this->hasBeenWorked($jobOrderItemTask)) {
             $state = JobOrderItemTaskStateEnum::IN_PROGRESS;
@@ -48,14 +48,17 @@ class CalculateJobOrderItemTaskQuantities
 
     private function hasBeenWorked(JobOrderItemTask $jobOrderItemTask): bool
     {
-        $workedStates = [ManufactureTaskSessionStateEnum::OPEN, ManufactureTaskSessionStateEnum::CLOSED];
+        $isWorked = fn ($query) => $query->where('state', ManufactureTaskSessionStateEnum::OPEN)
+            ->orWhere(fn ($closed) => $closed->where('state', ManufactureTaskSessionStateEnum::CLOSED)->where('quantity_made', '>', 0));
 
-        if ($jobOrderItemTask->sessions()->where('is_combined', false)->whereIn('state', $workedStates)->exists()) {
+        if ($jobOrderItemTask->sessions()->where('is_combined', false)->where($isWorked)->exists()) {
             return true;
         }
 
         if (ManufactureTaskSessionShare::where('job_order_item_task_id', $jobOrderItemTask->id)
-            ->whereHas('session', fn ($query) => $query->whereIn('state', $workedStates))
+            ->whereHas('session', fn ($query) => $query->where('state', ManufactureTaskSessionStateEnum::OPEN))
+            ->orWhere(fn ($query) => $query->where('job_order_item_task_id', $jobOrderItemTask->id)->where('quantity_made', '>', 0)
+                ->whereHas('session', fn ($session) => $session->where('state', ManufactureTaskSessionStateEnum::CLOSED)))
             ->exists()) {
             return true;
         }

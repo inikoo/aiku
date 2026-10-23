@@ -25,6 +25,7 @@ import SetOrderingPositionOfProduct from "@/Components/Master/SetOrderingPositio
 import { notify } from '@kyvg/vue3-notification'
 import ModalCreateStepDiscountProduct from '@/Components/Offers/ModalCreateStepDiscountProduct.vue'
 import { faCube, faPlay } from "@fal"
+import SummaryCards, { type SummaryCard } from "@/Components/DataDisplay/SummaryCards.vue"
 
 library.add(fadSave, faQuestion, falSave, faInfoCircle, faAsterisk, faTools, faCube)
 
@@ -60,6 +61,8 @@ const props = defineProps<{
     }
     bulk_set_active_route?: routeType | null
     can_edit?: boolean
+    shop_code?: string
+    productStats?: { total: number, active: number, discontinued: number, incomplete: number } | null
     step_discount_shop_data?: {
         id: number
         slug: string
@@ -71,6 +74,19 @@ const props = defineProps<{
         }
     } | null
 }>()
+
+const summaryCards = computed<SummaryCard[]>(() => {
+    if (!props.productStats) {
+        return []
+    }
+
+    return [
+        { key: "total", value: props.productStats.total, label: ctrans("Products"), description: ctrans("All products in this category"), tone: "accent" },
+        { key: "active", value: props.productStats.active, label: ctrans("Active"), description: ctrans("Product status"), tone: "green" },
+        { key: "discontinued", value: props.productStats.discontinued, label: ctrans("Discontinued"), description: ctrans("Product status"), tone: "gray" },
+        { key: "incomplete", value: props.productStats.incomplete, label: ctrans("Incomplete information"), description: ctrans("Products with missing product information"), tone: "red" },
+    ]
+})
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => {
@@ -334,6 +350,13 @@ const replaceProps = (updatedData) => {
         :navigation="props.tabs.navigation"
         @update:tab="handleTabUpdate"
     />
+
+    <SummaryCards v-if="currentTab === 'index' && summaryCards.length" :cards="summaryCards" class="px-4 pt-4 pb-4">
+        <template #info>
+            {{ ctrans("Product information comes from the") }} <strong class="font-semibold text-gray-900">{{ ctrans("master") }}</strong>
+            {{ ctrans("as the default. You can follow it or customise any field for the :shop shop. Product code and status are always set by the master.", { shop: shop_code ?? "" }) }}
+        </template>
+    </SummaryCards>
 
     <div
         v-if="currentTab === 'bulk_unit'"

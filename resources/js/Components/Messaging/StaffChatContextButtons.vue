@@ -11,6 +11,7 @@ import { useStaffMessaging } from "@/Stores/staff-messaging"
 
 const props = defineProps<{
     context: { context_type: string; context_id: number; audiences: { key: string; label: string }[] }
+    full?: boolean
 }>()
 
 const store = useStaffMessaging()
@@ -27,13 +28,14 @@ const open = async (audience: string) => {
 </script>
 
 <template>
-    <div class="flex items-center gap-x-2">
+    <div :class="full ? 'flex w-full flex-col gap-y-1' : 'flex items-center gap-x-2'">
         <Button
             v-for="audience in context.audiences"
             :key="audience.key"
             type="tertiary"
             icon="fal fa-comments"
             :label="audience.label"
+            :full="full"
             :loading="loadingKey === audience.key"
             @click="open(audience.key)"
         />

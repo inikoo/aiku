@@ -12,6 +12,7 @@ namespace App\Actions\Accounting\TopUp\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Comms\Traits\WithAccountingSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithAccountingPagesAuthorisation;
 use App\Http\Resources\Accounting\TopUpsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\TopUp;
@@ -27,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTopUps extends OrgAction
 {
+    use WithAccountingPagesAuthorisation;
     use WithAccountingSubNavigation;
 
     private Shop $parent;

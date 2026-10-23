@@ -14,6 +14,7 @@ use App\Actions\Dropshipping\Ebay\UpdateEbayUser;
 use App\Actions\Dropshipping\WooCommerce\Product\UpdateInventoryInEbayPortfolio;
 use App\Actions\Dropshipping\Ebay\UpdateReturnPolicyEbayUser;
 use App\Actions\Dropshipping\Ebay\UpdateShippingPolicyEbayUser;
+use App\Actions\Maintenance\Dropshipping\SyncEbayChannelPoliciesFromEbay;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\CustomerSalesChannelStateEnum;
@@ -92,6 +93,11 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
         $returnPolicyId = Arr::pull($modelData, 'return_policy_id');
         $fulfillmentPolicyId = Arr::pull($modelData, 'fulfillment_policy_id');
 
+        if ($returnAccepted) {
+            $returnPayer = $returnPayer ?: (Arr::get($customerSalesChannel->settings, 'return.payer') ?: 'BUYER');
+            $returnWithin = $returnWithin ?: (Arr::get($customerSalesChannel->settings, 'return.within') ?: 30);
+        }
+
         if ($returnAccepted !== null) {
             data_set($modelData, 'settings.return.accepted', $returnAccepted);
         }
@@ -110,11 +116,30 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
 
         $resetAllPrices = (bool) Arr::pull($modelData, 'pricing_reset_all');
 
+        if ($fulfillmentPolicyId) {
+            data_forget($modelData, 'settings.shipping');
+            UpdateEbayUser::run($platformUser, ['fulfillment_policy_id' => $fulfillmentPolicyId]);
+        } elseif (filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
+            UpdateShippingPolicyEbayUser::run($platformUser, $modelData);
+        }
+
+        if ($returnPolicyId) {
+            data_forget($modelData, 'settings.return');
+            UpdateEbayUser::run($platformUser, ['return_policy_id' => $returnPolicyId]);
+        } elseif ($returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
+            UpdateReturnPolicyEbayUser::run($platformUser, $modelData);
+        }
+
         $stockSettingsBefore = UpdateCustomerSalesChannel::stockSettings($customerSalesChannel);
         $pricingSettingsBefore = json_encode(Arr::get($customerSalesChannel->settings, 'pricing'));
         $doNotUpdatePricesBefore = (bool) Arr::get($customerSalesChannel->settings, 'do_not_update_prices');
 
         $customerSalesChannel = UpdateCustomerSalesChannel::run($customerSalesChannel, $modelData);
+
+        if ($fulfillmentPolicyId || $returnPolicyId) {
+            SyncEbayChannelPoliciesFromEbay::make()->handle($platformUser->refresh(), true);
+            $customerSalesChannel->refresh();
+        }
 
         if (
             !Arr::get($customerSalesChannel->settings, 'do_not_update_prices')
@@ -125,20 +150,6 @@ class UpdateEbayCustomerSalesChannel extends OrgAction
 
         if ($customerSalesChannel->stock_update && $stockSettingsBefore !== UpdateCustomerSalesChannel::stockSettings($customerSalesChannel)) {
             UpdateInventoryInEbayPortfolio::dispatch($customerSalesChannel, true);
-        }
-
-        if ($fulfillmentPolicyId || filled($shippingService) || filled($shippingPrice) || filled($shippingDispatchTime)) {
-            if ($fulfillmentPolicyId) {
-                data_set($modelData, 'fulfillment_policy_id', $fulfillmentPolicyId);
-            }
-            UpdateShippingPolicyEbayUser::run($platformUser, $modelData);
-        }
-
-        if ($returnPolicyId || $returnAccepted !== null || $returnPayer || $returnWithin || $returnDescription) {
-            if ($returnPolicyId) {
-                data_set($modelData, 'return_policy_id', $returnPolicyId);
-            }
-            UpdateReturnPolicyEbayUser::run($platformUser, $modelData);
         }
 
         if ($paymentPolicyId) {

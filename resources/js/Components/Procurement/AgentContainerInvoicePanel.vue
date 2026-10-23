@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import { router, usePage } from "@inertiajs/vue3"
+import { computed, ref } from "vue"
+import { Link, router, usePage } from "@inertiajs/vue3"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
-import InputText from "primevue/inputtext"
-import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PaymentDialog, { PaymentPayload } from "@/Components/Procurement/PaymentDialog.vue"
-import Select from "primevue/select"
-import { InvoiceChargeType, invoiceChargeTypeOptions } from "@/Components/Procurement/invoiceChargeTypes"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip } from "@fal"
@@ -21,7 +17,7 @@ library.add(faFileInvoice, faFilePdf, faPlus, faTrashAlt, faPaperclip)
 
 interface Charge {
 	description: string
-	type?: InvoiceChargeType
+	type?: string
 	amount: number | null
 }
 
@@ -66,7 +62,7 @@ const props = defineProps<{
 		payment_store_route: routeType | null
 		is_open: boolean
 		store_route: routeType
-		charges_update_route: routeType | null
+		ledger_route: routeType | null
 	}
 	currencyCode: string
 }>()
@@ -75,7 +71,6 @@ const locale = useLocaleStore()
 const confirm = useConfirm()
 const page = usePage()
 
-const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent] [&_textarea:focus]:!border-[--app-accent]"
 
 const money = (amount: number) => locale.currencyFormat(props.data.invoice?.currency_code ?? props.currencyCode, amount)
 
@@ -99,8 +94,21 @@ const storePayment = (payload: PaymentPayload) => {
 }
 
 const deletePayment = (row: Payment) => {
-	if (!row.delete_route) return
-	router.delete(route(row.delete_route.name, row.delete_route.parameters), { preserveScroll: true })
+	const deleteRoute = row.delete_route
+	if (!deleteRoute) return
+	confirm.require({
+		group: "stock-delivery",
+		message: ctrans("The payment is taken off this container and off the agent's ledger."),
+		header: ctrans("Remove this payment?"),
+		acceptLabel: ctrans("Remove"),
+		rejectLabel: ctrans("Cancel"),
+		accept: () =>
+			router.delete(route(deleteRoute.name, deleteRoute.parameters), {
+				preserveScroll: true,
+				onSuccess: () => notify({ title: ctrans("Payment removed"), type: "success" }),
+				onError,
+			}),
+	})
 }
 
 const errorMessage = computed(() => {
@@ -123,34 +131,13 @@ const makeInvoice = () =>
 
 const confirmRemakeInvoice = () =>
 	confirm.require({
-		message: ctrans("The goods lines are taken again from the container as it stands now. The invoice number and your charges are kept."),
+		group: "stock-delivery",
+		message: ctrans("The goods lines are taken again from the container as it stands now. The invoice number is kept, and the charges follow your ledger."),
 		header: ctrans("Make the invoice again?"),
 		acceptLabel: ctrans("Make again"),
 		rejectLabel: ctrans("Cancel"),
 		accept: makeInvoice,
 	})
-
-const charges = ref<Charge[]>([])
-const syncCharges = () => (charges.value = (props.data.invoice?.charges ?? []).map(charge => ({ ...charge, type: charge.type ?? "other" })))
-const chargeTypeOptions = invoiceChargeTypeOptions()
-watch(() => props.data.invoice?.charges, syncCharges, { immediate: true, deep: true })
-
-const chargesDirty = computed(() => JSON.stringify(charges.value) !== JSON.stringify((props.data.invoice?.charges ?? []).map(charge => ({ ...charge, type: charge.type ?? "other" }))))
-const chargesTotal = computed(() => charges.value.reduce((sum, charge) => sum + (Number(charge.amount) || 0), 0))
-const chargesLoading = ref(false)
-
-const addCharge = () => charges.value.push({ description: "", type: "other", amount: null })
-const removeCharge = (index: number) => charges.value.splice(index, 1)
-const saveCharges = () => {
-	if (!props.data.charges_update_route) return
-	router.patch(route(props.data.charges_update_route.name, props.data.charges_update_route.parameters), { charges: charges.value }, {
-		preserveScroll: true,
-		onStart: () => (chargesLoading.value = true),
-		onFinish: () => (chargesLoading.value = false),
-		onSuccess: () => notify({ title: ctrans("Charges saved"), type: "success" }),
-		onError,
-	})
-}
 
 const deposits = computed(() => props.data.invoice?.advance_payments.filter(payment => payment.type === "deposit") ?? [])
 
@@ -210,34 +197,17 @@ const deposits = computed(() => props.data.invoice?.advance_payments.filter(paym
 			<div class="px-4 py-4">
 				<div class="flex items-center justify-between">
 					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ ctrans("Your charges") }}</h3>
-					<Button v-if="data.is_open" type="transparent" size="xs" icon="fal fa-plus" :label="ctrans('Add')" @click="addCharge" />
+					<Link v-if="data.ledger_route" :href="route(data.ledger_route.name, data.ledger_route.parameters)" class="text-xs text-gray-500 underline hover:text-gray-800">{{ ctrans("Ledger") }}</Link>
 				</div>
 				<p v-if="data.invoice.charges.length && !data.invoice.charges_approved" class="mt-2 rounded bg-amber-50 px-2 py-1 text-sm text-amber-700">{{ ctrans("Your charges are waiting for approval by the organisation paying them") }}</p>
 				<p v-else-if="data.invoice.charges.length" class="mt-2 rounded bg-green-50 px-2 py-1 text-sm text-green-700">{{ ctrans("Charges approved") }}</p>
-				<template v-if="data.is_open">
-					<p v-if="!charges.length" class="mt-2 text-sm text-gray-500">{{ ctrans("Commission, packing, freight: anything on top of the goods. Mark freight charges as Freight so they count as the container's shipping cost.") }}</p>
-					<div v-for="(charge, index) in charges" :key="index" class="mt-2 flex flex-wrap items-center gap-2">
-						<InputText v-model="charge.description" size="small" class="min-w-0 basis-full flex-1 sm:basis-auto" :class="fieldFocusClass" :placeholder="ctrans('Description')" :aria-label="ctrans('Description')" />
-						<Select v-model="charge.type" :options="chargeTypeOptions" optionLabel="label" optionValue="value" class="w-56" :aria-label="ctrans('Charge type')" />
-						<InputNumber v-model="charge.amount" mode="currency" :currency="data.invoice.currency_code" :min="0" size="small" :class="fieldFocusClass" :pt="{ pcInputText: { root: { class: '!w-32 !text-right' } } }" :aria-label="ctrans('Amount')" />
-						<button type="button" class="text-gray-400 hover:text-red-600" :title="ctrans('Remove')" :aria-label="ctrans('Remove')" @click="removeCharge(index)">
-							<FontAwesomeIcon icon="fal fa-trash-alt" fixed-width aria-hidden="true" />
-						</button>
-					</div>
-					<div v-if="charges.length || chargesDirty" class="mt-3 flex items-center justify-between text-sm">
-						<span class="text-gray-500">{{ ctrans("Charges total") }} <span class="tabular-nums text-gray-800">{{ money(chargesTotal) }}</span></span>
-						<Button type="save" size="xs" :label="ctrans('Save')" :disabled="!chargesDirty" :loading="chargesLoading" @click="saveCharges" />
-					</div>
-				</template>
-				<template v-else>
-					<p v-if="!data.invoice.charges.length" class="mt-2 text-sm text-gray-500">{{ ctrans("No charges.") }}</p>
-					<ul v-else class="mt-2 space-y-1 text-sm">
-						<li v-for="(charge, index) in data.invoice.charges" :key="index" class="flex justify-between gap-4">
-							<span class="text-gray-700">{{ charge.description }}<span v-if="charge.type === 'freight'" class="ml-1.5 text-xs text-gray-400">{{ ctrans("Freight") }}</span></span>
-							<span class="tabular-nums text-gray-800">{{ money(Number(charge.amount)) }}</span>
-						</li>
-					</ul>
-				</template>
+				<p v-if="!data.invoice.charges.length" class="mt-2 text-sm text-gray-500">{{ ctrans("The charges are the money paid out for this container in your ledger: record loading, inland charges, packaging and other costs there, against this container.") }}</p>
+				<ul v-else class="mt-2 space-y-1 text-sm">
+					<li v-for="(charge, index) in data.invoice.charges" :key="index" class="flex justify-between gap-4">
+						<span class="text-gray-700">{{ charge.description }}</span>
+						<span class="tabular-nums text-gray-800">{{ money(Number(charge.amount)) }}</span>
+					</li>
+				</ul>
 			</div>
 
 			<div class="px-4 py-4">

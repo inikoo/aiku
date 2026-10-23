@@ -60,6 +60,22 @@ enum WebsiteVisitorChannelEnum: string
     }
 
     /**
+     * The organic and paid traffic types, one per platform (Organic Google, Google Ads, Organic Meta,
+     * Meta Ads, ...), in the order of the traffic source types: an organic type and its ads next to
+     * each other. These are filtered on one by one, so Google is never mixed with Bing or Meta.
+     *
+     * @return array<int, string>
+     */
+    public static function platformTypes(): array
+    {
+        return collect(TrafficSourcesTypeEnum::cases())
+            ->filter(fn (TrafficSourcesTypeEnum $type) => in_array($type->group()['key'], [self::PAID->value, self::ORGANIC->value], true))
+            ->map(fn (TrafficSourcesTypeEnum $type) => $type->value)
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return array<int, string>
      */
     public function types(): array

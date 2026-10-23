@@ -10,6 +10,7 @@
 namespace App\Actions\Web\Redirect\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -26,6 +27,8 @@ use Spatie\LaravelOptions\Options;
 
 class CreateRedirect extends OrgAction
 {
+    use WithWebEditAuthorisation;
+
     /**
      * @throws Exception
      */
@@ -127,6 +130,7 @@ class CreateRedirect extends OrgAction
      */
     public function inWebpage(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Response
     {
+        abort_unless($website->shop_id === $shop->id && $webpage->website_id === $website->id, 404);
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webpage, $request);
@@ -138,6 +142,7 @@ class CreateRedirect extends OrgAction
      */
     public function inWebpageInFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Response
     {
+        abort_unless($website->shop_id === $fulfilment->shop_id && $webpage->website_id === $website->id, 404);
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webpage, $request);

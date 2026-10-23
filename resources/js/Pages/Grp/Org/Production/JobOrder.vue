@@ -22,9 +22,10 @@ import { PageHeadingTypes } from "@/types/PageHeading"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import InputText from "primevue/inputtext"
-import { faPauseCircle, faPlayCircle, faCheck, faTimes } from "@fal"
+import Select from "primevue/select"
+import { faPauseCircle, faPlayCircle, faCheck, faTimes, faUndo, faBan } from "@fal"
 
-library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes)
+library.add(faSortShapesDown, faPlus, faTrashAlt, faUsers, faLink, faPauseCircle, faPlayCircle, faCheck, faTimes, faUndo, faBan)
 
 interface Hold {
     reason: string
@@ -34,6 +35,17 @@ interface Hold {
     at: string
     cleared_by?: string | null
     cleared_at?: string
+}
+
+interface Cancellation {
+    mode: "backlog" | "cancel"
+    kind: string
+    kind_label: string | null
+    reason: string | null
+    by: string | null
+    at: string
+    units_kept: number
+    units_returned: number
 }
 
 interface ItemTask {
@@ -47,6 +59,7 @@ interface ItemTask {
     unit: string | null
     mix_batch_kg: number | null
     combined_with: string | null
+    owners: { id: number, sub_job: string | null, owner_id: number | null, owner: string | null, only_for: number[], can_assign: boolean }[]
 }
 
 interface SubJob {
@@ -59,7 +72,7 @@ interface SubJob {
     quantity_target: number
     state: "assigned" | "in_progress" | "complete"
     seconds: number
-    reward: string
+    reward: string | null
     can_remove: boolean
 }
 
@@ -76,6 +89,12 @@ interface Item {
     waiting_for: { code: string, needed: number, on_hand: number }[]
     tasks: ItemTask[]
     sub_jobs: SubJob[]
+}
+
+const selectPt = { label: { class: "!py-0.5 !text-xs" } }
+
+function assignStep(stepId: number, employeeId: number | null) {
+    router.patch(route("grp.models.job-order-item-task.assign", { jobOrderItemTask: stepId }), { employee_id: employeeId ?? null }, { preserveScroll: true })
 }
 
 const props = defineProps<{
@@ -95,9 +114,13 @@ const props = defineProps<{
         non_productive: { activity: string, hours: number, pay: string | null }[]
         hold: Hold | null
         holds: Hold[]
+        cancellation: Cancellation | null
     }
+    can_see_pay: boolean
     hold_route: null | { name: string, parameters: object }
     hold_kind_options: { value: string, label: string }[]
+    cancel_route: null | { name: string, parameters: object }
+    cancel_kind_options: { value: string, label: string }[]
     artisan_options: { id: number, name: string }[]
     update_route: null | { name: string, parameters: object }
     items: Item[]
@@ -314,6 +337,34 @@ function setHold(onHold: boolean) {
     )
 }
 
+const cancelMode = ref<"backlog" | "cancel" | null>(null)
+const cancelKind = ref("missing_label")
+const cancelReason = ref("")
+const cancelErrors = ref<string[]>([])
+const unitsMade = computed(() => props.items.reduce((total, item) => total + item.produced_quantity, 0))
+
+function openCancelDialog(mode: "backlog" | "cancel") {
+    cancelMode.value = mode
+    cancelKind.value = "missing_label"
+    cancelReason.value = ""
+    cancelErrors.value = []
+}
+
+function cancelJobOrder() {
+    if (!props.cancel_route || !cancelMode.value) return
+    processing.value = true
+    router.patch(
+        route(props.cancel_route.name, props.cancel_route.parameters),
+        { mode: cancelMode.value, kind: cancelKind.value, reason: cancelReason.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => cancelMode.value = null,
+            onError: (errors) => cancelErrors.value = Object.values(errors),
+            onFinish: () => processing.value = false,
+        }
+    )
+}
+
 function receiveIntoStock() {
     if (!props.receive_route || !selectedLocation.value) return
     processing.value = true
@@ -361,6 +412,22 @@ function receiveIntoStock() {
                 @click="openHoldDialog">
                 <template #icon><FontAwesomeIcon icon="fal fa-pause-circle" class="text-amber-500" fixed-width aria-hidden="true" /></template>
             </Button>
+            <Button
+                v-if="cancel_route"
+                type="tertiary"
+                :label="ctrans('Back to backlog')"
+                :disabled="processing"
+                @click="openCancelDialog('backlog')">
+                <template #icon><FontAwesomeIcon icon="fal fa-undo" class="text-amber-500" fixed-width aria-hidden="true" /></template>
+            </Button>
+            <Button
+                v-if="cancel_route"
+                type="tertiary"
+                :label="ctrans('Cancel job')"
+                :disabled="processing"
+                @click="openCancelDialog('cancel')">
+                <template #icon><FontAwesomeIcon icon="fal fa-ban" class="text-red-500" fixed-width aria-hidden="true" /></template>
+            </Button>
             <button
                 v-if="confirm_route"
                 type="button"
@@ -370,6 +437,17 @@ function receiveIntoStock() {
             >
                 {{ ctrans('Release to floor') }}
             </button>
+        </div>
+        <div v-if="job_order.cancellation" class="mb-6 flex items-start gap-3 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-gray-700" role="status">
+            <FontAwesomeIcon :icon="job_order.cancellation.mode === 'backlog' ? 'fal fa-undo' : 'fal fa-ban'" class="mt-0.5 text-red-500" fixed-width aria-hidden="true" />
+            <div class="flex-1">
+                <div class="font-semibold text-red-800">
+                    {{ job_order.cancellation.mode === 'backlog' ? ctrans('Sent back to the backlog') : ctrans('Cancelled') }}<template v-if="job_order.cancellation.kind_label && job_order.cancellation.kind !== 'other'">: {{ job_order.cancellation.kind_label }}</template>
+                </div>
+                <div v-if="job_order.cancellation.reason">{{ job_order.cancellation.reason }}</div>
+                <div v-if="job_order.cancellation.units_kept">{{ ctrans(':kept made units stay on this job, :returned went back to To Produce', { kept: job_order.cancellation.units_kept, returned: job_order.cancellation.units_returned }) }}</div>
+                <div class="text-xs text-gray-500">{{ job_order.cancellation.by ?? '—' }} · {{ useFormatTime(job_order.cancellation.at, { formatTime: 'hm' }) }}</div>
+            </div>
         </div>
         <div v-if="job_order.hold" class="mb-6 flex items-start gap-3 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-gray-700" role="status">
             <FontAwesomeIcon icon="fal fa-pause-circle" class="mt-0.5 text-yellow-600" fixed-width aria-hidden="true" />
@@ -415,7 +493,7 @@ function receiveIntoStock() {
             <div v-for="entry in job_order.non_productive" :key="entry.activity" class="flex gap-6 tabular-nums">
                 <span class="w-32">{{ entry.activity }}</span>
                 <span>{{ entry.hours }} h</span>
-                <span>{{ entry.pay ?? '—' }}</span>
+                <span v-if="can_see_pay">{{ entry.pay ?? '—' }}</span>
             </div>
         </div>
         <div v-if="confirm_route" class="mb-6 -mt-3 text-sm text-amber-600">
@@ -476,6 +554,26 @@ function receiveIntoStock() {
                         <span v-if="task.quantity_rejected" class="text-red-500 ml-1">({{ task.quantity_rejected }} {{ ctrans('rejected') }})</span>
                     </div>
                 </div>
+                <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <div v-for="owner in task.owners" :key="owner.id" class="flex items-center gap-2">
+                        <span v-if="owner.sub_job" class="whitespace-nowrap">{{ owner.sub_job }}</span>
+                        <Select
+                            v-if="owner.can_assign"
+                            :modelValue="owner.owner_id"
+                            :options="owner.only_for.length ? artisan_options.filter((option) => owner.only_for.includes(option.id)) : artisan_options"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            showClear
+                            :placeholder="owner.owner ?? ctrans('Nobody')"
+                            class="w-44"
+                            :class="{ '!border-amber-400': !owner.owner }"
+                            :pt="selectPt"
+                            :aria-label="ctrans('Operator of :step', { step: task.task_name })"
+                            @update:modelValue="(employeeId: number | null) => assignStep(owner.id, employeeId)" />
+                        <span v-else :class="owner.owner ? 'text-gray-700' : 'text-gray-400'">{{ owner.owner ?? ctrans('Nobody') }}</span>
+                    </div>
+                </div>
                 <div class="mt-1 h-2 rounded-full bg-gray-100 overflow-hidden">
                     <div
                         class="h-full rounded-full"
@@ -500,7 +598,7 @@ function receiveIntoStock() {
                                 <th class="py-1 pr-3 font-medium">{{ ctrans('Completed') }}</th>
                                 <th class="py-1 pr-3 font-medium">{{ ctrans('Status') }}</th>
                                 <th class="py-1 pr-3 font-medium text-right">{{ ctrans('Time') }}</th>
-                                <th class="py-1 font-medium text-right">{{ ctrans('Reward') }}</th>
+                                <th v-if="can_see_pay" class="py-1 font-medium text-right">{{ ctrans('Reward') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -518,7 +616,7 @@ function receiveIntoStock() {
                                     <span class="rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap" :class="subJobStateClasses[subJob.state]">{{ subJobStateLabels[subJob.state] }}</span>
                                 </td>
                                 <td class="py-2 pr-3 text-right tabular-nums whitespace-nowrap">{{ formatDuration(subJob.seconds) }}</td>
-                                <td class="py-2 text-right tabular-nums">{{ subJob.reward }}</td>
+                                <td v-if="can_see_pay" class="py-2 text-right tabular-nums">{{ subJob.reward }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -592,6 +690,29 @@ function receiveIntoStock() {
                         <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
                     </Button>
                     <Button type="tertiary" :label="ctrans('Put on hold')" :disabled="!holdReason.trim() || processing" @click="setHold(true)">
+                        <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+
+        <Modal :isOpen="!!cancelMode" width="w-full max-w-md" closeButton @onClose="cancelMode = null">
+            <form class="space-y-3" @submit.prevent="cancelJobOrder">
+                <div class="text-lg font-semibold">
+                    {{ cancelMode === 'backlog' ? ctrans('Send :reference back to the backlog', { reference: job_order.reference }) : ctrans('Cancel :reference', { reference: job_order.reference }) }}
+                </div>
+                <div class="text-sm text-gray-500">
+                    <template v-if="unitsMade">{{ ctrans('The :count units already made stay on this job to be received. The rest is taken off the artisan and the Manufacture Floor and goes back to To Produce.', { count: unitsMade }) }}</template>
+                    <template v-else>{{ ctrans('The job is taken off the artisan and the Manufacture Floor and closed. What it was making goes back to To Produce, to be planned again.') }}</template>
+                </div>
+                <SegmentedToggle v-model="cancelKind" :options="cancel_kind_options" :ariaLabel="ctrans('Why')" />
+                <InputText v-model="cancelReason" class="w-full" maxlength="255" autofocus :placeholder="ctrans('e.g. Labels out of stock, coming from China')" :aria-label="ctrans('Reason')" />
+                <div v-for="error in cancelErrors" :key="error" class="text-sm text-red-600">{{ error }}</div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Keep the job')" @click="cancelMode = null">
+                        <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="cancelMode === 'backlog' ? ctrans('Back to backlog') : ctrans('Cancel job')" :disabled="(cancelKind === 'other' && !cancelReason.trim()) || processing" @click="cancelJobOrder">
                         <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>

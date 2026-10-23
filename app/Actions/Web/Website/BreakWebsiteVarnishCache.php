@@ -9,6 +9,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithWebEditAuthorisation;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\ActionRequest;
@@ -17,6 +18,7 @@ use App\Actions\Traits\WithVarnishBan;
 class BreakWebsiteVarnishCache extends OrgAction
 {
     use WithVarnishBan;
+    use WithWebEditAuthorisation;
 
     public function handle(Website $website, ?Command $command = null): void
     {

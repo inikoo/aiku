@@ -245,7 +245,7 @@ class GetSeoWeeklyReport
 
     private function suggestions(int $websiteId): ?array
     {
-        $pending = SeoContentSuggestion::where('website_id', $websiteId)->where('state', SeoContentSuggestionStateEnum::PENDING)->count();
+        $pending = SeoContentSuggestion::where('website_id', $websiteId)->whereNot('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->where('state', SeoContentSuggestionStateEnum::PENDING)->count();
 
         return $pending ? [
             'title' => __('Suggested fixes'),

@@ -13,6 +13,7 @@ use App\Actions\Dispatching\DeliveryNote\CalculateDeliveryNoteTotalAmounts;
 use App\Actions\Dispatching\DeliveryNote\WithDeliveryNoteQuantitySync;
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
+use App\Actions\Ordering\UpcomingTransaction\UpdateUpcomingTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\Ordering\WithOrderingEditAuthorisation;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -22,9 +23,12 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Events\BroadcastTransactionUpdated;
 use App\Models\Catalogue\Product;
 use App\Models\Ordering\Order;
+use App\Enums\Ordering\Transaction\UpcomingTransactionStateEnum;
 use App\Models\Ordering\Transaction;
+use App\Models\Ordering\UpcomingTransaction;
 use App\Models\SysAdmin\User;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
@@ -57,6 +61,10 @@ class UpdateTransactionProductQuantityOrdered extends OrgAction
             abort(422, __('This order can no longer be modified'));
         }
 
+        if ($transaction->is_gift) {
+            $modelData = $this->giftQuantityData($transaction, $modelData);
+        }
+
         $product   = $transaction->model()->with('orgStocks')->first();
         $orgStocks = $product->orgStocks->keyBy('id');
 
@@ -79,6 +87,10 @@ class UpdateTransactionProductQuantityOrdered extends OrgAction
             $transaction = UpdateTransaction::make()->action($transaction, $modelData);
             $transaction->refresh();
 
+            if ($transaction->is_gift && (float)$transaction->quantity_bonus == 0 && in_array($order->state, [OrderStateEnum::CREATING, OrderStateEnum::SUBMITTED])) {
+                $transaction = DeleteTransaction::run($transaction);
+            }
+
             if (!$transaction->trashed()) {
                 foreach ($deliveryNotes as $deliveryNote) {
                     $this->syncDeliveryNote($deliveryNote, $transaction, $orgStocks, $user);
@@ -91,6 +103,10 @@ class UpdateTransactionProductQuantityOrdered extends OrgAction
                 CalculateDeliveryNoteTotalAmounts::run($deliveryNote);
             }
 
+            if ($transaction->is_gift && (float)$transaction->quantity_bonus == 0) {
+                $this->releaseUpcomingTransaction($transaction);
+            }
+
             $this->recordModification($order, $transaction, $modelData, $user);
 
             return $transaction;
@@ -99,6 +115,39 @@ class UpdateTransactionProductQuantityOrdered extends OrgAction
         BroadcastTransactionUpdated::dispatch($transaction, $order);
 
         return $transaction;
+    }
+
+    /**
+     * A gift line orders nothing: its quantity is the free quantity_bonus. Staff may lower or remove
+     * it, never raise it, so a gift can not be used to hand out free stock (HELP-4082).
+     */
+    protected function giftQuantityData(Transaction $transaction, array $modelData): array
+    {
+        if (Arr::has($modelData, 'units_ordered') || !Arr::has($modelData, 'quantity_ordered')) {
+            abort(422, __('A free gift can only be changed by its quantity'));
+        }
+
+        $quantity = (float)$modelData['quantity_ordered'];
+        if ($quantity > (float)$transaction->quantity_bonus + 0.000001) {
+            abort(422, __('A free gift can be lowered or removed, not raised'));
+        }
+
+        return ['quantity_bonus' => $quantity];
+    }
+
+    /**
+     * A removed claim follow-on or customer service gift goes back to the customer's upcoming
+     * items, so it ships with their next order instead of being lost.
+     */
+    protected function releaseUpcomingTransaction(Transaction $transaction): void
+    {
+        foreach (UpcomingTransaction::where('transaction_id', $transaction->id)->get() as $upcomingTransaction) {
+            UpdateUpcomingTransaction::run($upcomingTransaction, [
+                'order_id'       => null,
+                'transaction_id' => null,
+                'state'          => UpcomingTransactionStateEnum::READY,
+            ]);
+        }
     }
 
     protected function recordModification(Order $order, Transaction $transaction, array $modelData, User $user): void

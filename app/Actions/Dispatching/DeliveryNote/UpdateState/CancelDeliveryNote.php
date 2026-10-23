@@ -9,11 +9,10 @@
 namespace App\Actions\Dispatching\DeliveryNote\UpdateState;
 
 use App\Actions\Catalogue\Shop\Hydrators\HasDeliveryNoteHydrators;
-use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydratePickedBays;
 use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydrateTrolleys;
 use App\Actions\Dispatching\DeliveryNoteItem\UpdateDeliveryNoteItem;
 use App\Actions\Dispatching\Packing\DeletePacking;
-use App\Actions\Dispatching\PickedBay\Hydrators\PickedBayHydrateNumberDeliveryNotes;
+use App\Actions\Dispatching\PickedBay\DetachDeliveryNoteFromPickedBays;
 use App\Actions\Dispatching\Picking\DeletePicking;
 use App\Actions\Dispatching\Picking\StoreNotPickPicking;
 use App\Actions\GoodsIn\ReturnDeliveryNote\ProcessReturnDeliveryNote;
@@ -167,11 +166,7 @@ class CancelDeliveryNote extends OrgAction
                 $trolley->update(['current_delivery_note_id' => null]);
             }
 
-            foreach ($deliveryNote->pickedBays as $pickedBay) {
-                DB::table('picked_bay_has_delivery_notes')
-                    ->where('delivery_note_id', $deliveryNote->id)->where('picked_bay_id', $pickedBay->id)->delete();
-                PickedBayHydrateNumberDeliveryNotes::run($pickedBay->id);
-            }
+            DetachDeliveryNoteFromPickedBays::run($deliveryNote);
 
             /**
              * Nothing picked means nothing to walk back, and the return would refuse to be created
@@ -204,7 +199,6 @@ class CancelDeliveryNote extends OrgAction
         }
 
         DeliveryNoteHydrateTrolleys::dispatch($deliveryNote->id);
-        DeliveryNoteHydratePickedBays::dispatch($deliveryNote->id);
 
 
         return $deliveryNote;

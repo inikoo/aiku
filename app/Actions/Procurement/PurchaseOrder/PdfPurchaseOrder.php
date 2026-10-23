@@ -10,6 +10,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\SupplierAgreedTerm\GetPurchaseOrderAgreedTerms;
 use App\Actions\Procurement\SupplierAgreedTerm\UI\GetPurchaseOrderAgreement;
 use App\Actions\Helpers\Images\GetImgProxyUrl;
+use App\Actions\Procurement\WithAgentOrganisation;
 use App\Actions\Traits\Authorisations\WithProcurementAuthorisation;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -20,7 +21,6 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Client\Response as ImageResponse;
@@ -28,11 +28,11 @@ use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\ActionRequest;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
 class PdfPurchaseOrder extends OrgAction
 {
     use WithProcurementAuthorisation;
+    use WithAgentOrganisation;
 
     private const array PDF_RELATIONS = ['organisation.address', 'currency', 'parent', 'agent', 'purchaseOrderTransactions.supplierProduct.currency', 'purchaseOrderTransactions.orgStock'];
 
@@ -73,36 +73,6 @@ class PdfPurchaseOrder extends OrgAction
         $this->loadAgreements(collect([$purchaseOrder]));
 
         return PDF::loadView('procurement.templates.pdf.purchase-order', $this->viewData($purchaseOrder))->output();
-    }
-
-    /**
-     * One PDF for the supplier orders of an agent order, a section per supplier order.
-     *
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     */
-    public function handleMany(Collection $purchaseOrders): string
-    {
-        $purchaseOrders = $this->withoutCancelled($purchaseOrders);
-        (new EloquentCollection($purchaseOrders->all()))->loadMissing(self::PDF_RELATIONS);
-        $this->loadAgreements($purchaseOrders);
-
-        return PDF::loadView('procurement.templates.pdf.purchase-orders', [
-            'reference'      => $purchaseOrders->first()->agent_order_reference ?? $purchaseOrders->first()->reference,
-            'purchaseOrders' => $purchaseOrders->map(fn (PurchaseOrder $purchaseOrder) => $this->viewData($purchaseOrder))->all(),
-        ])->output();
-    }
-
-    /**
-     * A cancelled supplier order is left out of the agent order, unless every one of them is cancelled.
-     *
-     * @param  Collection<int, PurchaseOrder>  $purchaseOrders
-     * @return Collection<int, PurchaseOrder>
-     */
-    public function withoutCancelled(Collection $purchaseOrders): Collection
-    {
-        $live = $purchaseOrders->reject(fn (PurchaseOrder $purchaseOrder) => $purchaseOrder->state === PurchaseOrderStateEnum::CANCELLED)->values();
-
-        return $live->isEmpty() ? $purchaseOrders : $live;
     }
 
     /**
@@ -161,22 +131,34 @@ class PdfPurchaseOrder extends OrgAction
      * @param  Collection<int, PurchaseOrderTransaction>  $lines
      * @return array<int, string>
      */
-    private function lineImages(Collection $lines): array
+    public function lineImages(Collection $lines): array
     {
-        $urls = $lines
-            ->mapWithKeys(fn (PurchaseOrderTransaction $line) => [$line->id => $this->lineImage($line)])
-            ->filter()
-            ->map(fn (Media $media) => GetImgProxyUrl::run($media->getImage()->resize(self::IMAGE_EDGE, self::IMAGE_EDGE)->extension('jpg')));
+        return $this->mediaImages(
+            $lines->mapWithKeys(fn (PurchaseOrderTransaction $line) => [$line->id => $this->lineImage($line)])->filter(),
+            self::IMAGE_EDGE
+        );
+    }
+
+    /**
+     * Images shrunk through imgproxy, fetched together, as data URIs keyed like the media given. Keys whose fetch
+     * failed are left out.
+     *
+     * @param  Collection<int, Media>  $media
+     * @return array<int, string>
+     */
+    public function mediaImages(Collection $media, int $edge): array
+    {
+        $urls = $media->map(fn (Media $image) => GetImgProxyUrl::run($image->getImage()->resize($edge, $edge)->extension('jpg')));
 
         if ($urls->isEmpty()) {
             return [];
         }
 
-        $responses = Http::pool(fn ($pool) => $urls->map(fn (string $url, int $lineId) => $pool->as((string) $lineId)->timeout(15)->get($url))->all(), self::IMAGE_CONCURRENCY);
+        $responses = Http::pool(fn ($pool) => $urls->map(fn (string $url, int $key) => $pool->as((string) $key)->timeout(15)->get($url))->all(), self::IMAGE_CONCURRENCY);
 
         return collect($responses)
             ->filter(fn ($response) => $response instanceof ImageResponse && $response->successful() && $response->body() !== '')
-            ->mapWithKeys(fn ($response, $lineId) => [(int) $lineId => 'data:image/jpeg;base64,'.base64_encode($response->body())])
+            ->mapWithKeys(fn ($response, $key) => [(int) $key => 'data:image/jpeg;base64,'.base64_encode($response->body())])
             ->all();
     }
 
@@ -209,27 +191,10 @@ class PdfPurchaseOrder extends OrgAction
         return $this->filenameFor($purchaseOrder->reference);
     }
 
-    public function inAgentOrder(Organisation $organisation, OrgAgent $orgAgent, string $agentOrderReference, ActionRequest $request): Response
-    {
-        abort_unless($orgAgent->organisation_id === $organisation->id, 404);
-        $this->initialisation($organisation, $request);
-        $this->withImages = $request->boolean('with_images');
-
-        $purchaseOrders = PurchaseOrder::inAgentOrder($orgAgent->organisation_id, $orgAgent->agent_id, $agentOrderReference)
-            ->with(self::PDF_RELATIONS)
-            ->orderBy('parent_code')
-            ->get();
-        abort_if($purchaseOrders->isEmpty(), 404);
-
-        return response($this->handleMany($purchaseOrders), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="'.$this->filenameFor($agentOrderReference).'"');
-    }
-
     public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): Response
     {
-        abort_unless($purchaseOrder->organisation_id === $organisation->id || $organisation->type === OrganisationTypeEnum::AGENT, 404);
         $this->initialisation($organisation, $request);
+        $this->authorizeProcurementRecord($purchaseOrder);
         $this->withImages = $request->boolean('with_images');
 
         return response($this->handle($purchaseOrder), 200)

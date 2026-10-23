@@ -31,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property OrgAgentOrderContainerEnum $order_container
+ * @property string|null $agent_fee_percentage share of a container's goods the agent charges as its fee; null is 2
  * @property int $organisation_id
  * @property string $slug
  * @property int $agent_id

@@ -29,9 +29,9 @@ trait CalculatesOrgStockHistories
     {
         $endOfDate = $date->copy()->endOfDay()->format('Y-m-d H:i:s.u');
 
-        $cost = $this->lastPurchaseCostPerSku($orgStock, fn ($query) => $query->where('date', '<=', $endOfDate)->orderBy('date', 'desc'));
+        $cost = $this->lastPurchaseCostPerSku($orgStock, fn ($query) => $query->where('date', '<=', $endOfDate)->orderBy('date', 'desc')->orderBy('id', 'desc'));
         if ($cost === null) {
-            $cost = $this->lastPurchaseCostPerSku($orgStock, fn ($query) => $query->where('date', '>', $endOfDate)->orderBy('date'));
+            $cost = $this->lastPurchaseCostPerSku($orgStock, fn ($query) => $query->where('date', '>', $endOfDate)->orderBy('date')->orderBy('id'));
         }
         if ($cost !== null) {
             return $cost;
@@ -40,18 +40,21 @@ trait CalculatesOrgStockHistories
         return (float)($orgStock->current_supplier_sku_cost ?? 0);
     }
 
+    private function lastPurchaseCostPerSku(OrgStock $orgStock, callable $window): ?float
+    {
+        return $this->firstPurchaseCostPerSku($window(
+            OrgStockMovement::on('aiku_no_sticky')->select(['cost_per_sku', 'org_amount', 'quantity'])
+                ->where('org_stock_id', $orgStock->id)
+                ->where('type', OrgStockMovementTypeEnum::PURCHASE->value)
+        )->limit(20)->get());
+    }
+
     /**
      * A purchase priced only by its org_amount still carries a cost: the FIFO walk reads it that
      * way, so the last purchase price has to agree or the two valuations disagree on the same row.
      */
-    private function lastPurchaseCostPerSku(OrgStock $orgStock, callable $window): ?float
+    protected function firstPurchaseCostPerSku(iterable $purchases): ?float
     {
-        $purchases = $window(
-            OrgStockMovement::on('aiku_no_sticky')->select(['cost_per_sku', 'org_amount', 'quantity'])
-                ->where('org_stock_id', $orgStock->id)
-                ->where('type', OrgStockMovementTypeEnum::PURCHASE->value)
-        )->limit(20)->get();
-
         foreach ($purchases as $purchase) {
             if ($purchase->cost_per_sku > 0) {
                 return (float)$purchase->cost_per_sku;
@@ -164,11 +167,7 @@ trait CalculatesOrgStockHistories
      */
     protected function initValuationState(OrgStock $orgStock, Carbon $valuationStartDate): array
     {
-        $onHand = (float)OrgStockMovement::on('aiku_no_sticky')
-            ->where('org_stock_id', $orgStock->id)
-            ->where('date', '<', $valuationStartDate->copy()->startOfDay()->format('Y-m-d H:i:s.u'))
-            ->whereNot(fn ($query) => $query->where('type', OrgStockMovementTypeEnum::AUDIT->value)->whereNotNull('source_id'))
-            ->sum('quantity');
+        $onHand = $this->openingOnHand($orgStock, $valuationStartDate);
 
         $openingCost = $onHand > 0 ? $this->getLppPerSku($orgStock, $valuationStartDate) : null;
 
@@ -177,6 +176,15 @@ trait CalculatesOrgStockHistories
             'wac'    => $openingCost,
             'layers' => $openingCost !== null ? [[$onHand, $openingCost]] : [],
         ];
+    }
+
+    protected function openingOnHand(OrgStock $orgStock, Carbon $valuationStartDate): float
+    {
+        return (float)OrgStockMovement::on('aiku_no_sticky')
+            ->where('org_stock_id', $orgStock->id)
+            ->where('date', '<', $valuationStartDate->copy()->startOfDay()->format('Y-m-d H:i:s.u'))
+            ->whereNot(fn ($query) => $query->where('type', OrgStockMovementTypeEnum::AUDIT->value)->whereNotNull('source_id'))
+            ->sum('quantity');
     }
 
     /**
@@ -330,6 +338,100 @@ trait CalculatesOrgStockHistories
 
     protected function persistOrgStockHistories(OrgStock $orgStock, Carbon $date, array $orgStockLocationData, float $costPerSku, ?Carbon $lastSoldDate, $hydratorDelay = 30, ?float $wacPerSku = null, ?float $fifoPerSku = null): void
     {
+        if (empty($orgStockLocationData)) {
+            LocationOrgStockHistory::where('date', $date->format('Y-m-d'))
+                ->where('org_stock_id', $orgStock->id)
+                ->delete();
+
+            OrgStockHistory::where('date', $date->format('Y-m-d'))
+                ->where('organisation_id', $orgStock->organisation_id)
+                ->where('org_stock_id', $orgStock->id)
+                ->delete();
+
+            $organisationStockHistory = OrganisationStockHistory::where('date', $date->format('Y-m-d'))->where('organisation_id', $orgStock->organisation_id)->first();
+            if ($organisationStockHistory) {
+                OrganisationStockHistoryHydrateFromOrgStockHistories::dispatch($organisationStockHistory->id)->delay($hydratorDelay);
+            }
+        }
+
+        $orgStockHistoryValues = $this->orgStockHistoryValues($date, $orgStockLocationData, $costPerSku, $lastSoldDate, $wacPerSku, $fifoPerSku, fn (float $quantity) => $this->nonMovingOneYear($orgStock, $date, $quantity));
+
+        $organisationStockHistory = $this->organisationStockHistoryForDate($orgStock, $date);
+
+        $orgStockHistory = OrgStockHistory::updateOrCreate(
+            [
+                'date'            => $date->format('Y-m-d'),
+                'organisation_id' => $orgStock->organisation_id,
+                'org_stock_id'    => $orgStock->id
+            ],
+            ['organisation_stock_history_id' => $organisationStockHistory->id] + $orgStockHistoryValues
+        );
+
+        foreach ($orgStockLocationData as $orgStockLocation) {
+            LocationOrgStockHistory::updateOrCreate(
+                [
+                    'date'         => $date->format('Y-m-d'),
+                    'org_stock_id' => $orgStock->id,
+                    'location_id'  => $orgStockLocation['location_id'],
+                ],
+                [
+                    'org_stock_history_id'          => $orgStockHistory->id,
+                    'organisation_stock_history_id' => $orgStockHistory->organisation_stock_history_id,
+                ] + $this->locationOrgStockHistoryValues($orgStockLocation, $costPerSku, $wacPerSku, $fifoPerSku)
+            );
+        }
+
+        OrganisationStockHistoryHydrateFromOrgStockHistories::dispatch($organisationStockHistory->id)->delay(30);
+    }
+
+    protected function organisationStockHistoryForDate(OrgStock $orgStock, Carbon $date): OrganisationStockHistory
+    {
+        $groupStockHistory = GroupStockHistory::firstOrCreate(
+            [
+                'group_id' => $orgStock->group_id,
+                'date'     => $date->format('Y-m-d'),
+            ],
+            [
+                'is_week'                           => $date->isFriday(),
+                'is_month'                          => $date->isLastOfMonth(),
+                'is_year'                           => $date->isEndOfYear(),
+                'number_stocks'                     => 0,
+                'number_org_stocks_no_stock'        => 0,
+                'number_stocks_org_stocks_no_stock' => 0,
+                'number_org_stocks'                 => 0,
+                'number_out_of_stock_org_stocks'    => 0,
+                'number_location_org_stocks'        => 0,
+            ]
+        );
+
+        return OrganisationStockHistory::firstOrCreate(
+            [
+
+                'organisation_id' => $orgStock->organisation_id,
+                'date'            => $date->format('Y-m-d')
+            ],
+            [
+                'group_id'                       => $orgStock->group_id,
+                'group_stock_history_id'         => $groupStockHistory->id,
+                'org_stock_lpp_value'                => 0,
+                'grp_stock_lpp_value'                => 0,
+                'org_stock_commercial_value'     => 0,
+                'grp_stock_commercial_value'     => 0,
+                'number_org_stocks'              => 0,
+                'number_out_of_stock_org_stocks' => 0,
+                'number_location_org_stocks'     => 0,
+                'is_week'                        => $date->isFriday(),
+                'is_month'                       => $date->isLastOfMonth(),
+                'is_year'                        => $date->isEndOfYear(),
+            ]
+        );
+    }
+
+    /**
+     * @param callable(float): float $nonMovingOneYear
+     */
+    protected function orgStockHistoryValues(Carbon $date, array $orgStockLocationData, float $costPerSku, ?Carbon $lastSoldDate, ?float $wacPerSku, ?float $fifoPerSku, callable $nonMovingOneYear): array
+    {
         $orgStockQuantity  = 0;
         $orgStockValue     = 0;
         $grpStockValue     = 0;
@@ -353,121 +455,41 @@ trait CalculatesOrgStockHistories
             }
         }
 
-        if (empty($orgStockLocationData)) {
-            LocationOrgStockHistory::where('date', $date->format('Y-m-d'))
-                ->where('org_stock_id', $orgStock->id)
-                ->delete();
+        return [
+            'quantity_in_locations'      => $orgStockQuantity,
+            'number_locations'           => count($orgStockLocationData),
+            'org_stock_lpp_value'        => $orgStockValue,
+            'grp_stock_lpp_value'        => $grpStockValue,
+            'org_stock_wac_value'        => $orgStockWacValue,
+            'grp_stock_wac_value'        => $grpStockWacValue,
+            'org_stock_fifo_value'       => $orgStockFifoValue,
+            'grp_stock_fifo_value'       => $grpStockFifoValue,
+            'org_stock_commercial_value' => 0,
+            'grp_stock_commercial_value' => 0,
+            'lpp_per_sku'                => $costPerSku,
+            'wac_per_sku'                => $wacPerSku,
+            'fifo_per_sku'               => $fifoPerSku,
+            'last_sold_date'             => $lastSoldDate,
+            'sold_within_1y'             => $lastSoldDate && $lastSoldDate->gte($date->copy()->subYear()),
+            'non_moving_1y'              => $nonMovingOneYear((float)$orgStockQuantity),
+        ];
+    }
 
-            OrgStockHistory::where('date', $date->format('Y-m-d'))
-                ->where('organisation_id', $orgStock->organisation_id)
-                ->where('org_stock_id', $orgStock->id)
-                ->delete();
+    protected function locationOrgStockHistoryValues(array $orgStockLocation, float $costPerSku, ?float $wacPerSku, ?float $fifoPerSku): array
+    {
+        $quantity      = max(0, $orgStockLocation['quantity']);
+        $orgStockValue = max(0, $orgStockLocation['org_stock_lpp_value'] ?? $quantity * $costPerSku);
+        $grpStockValue = max(0, $orgStockLocation['grp_stock_lpp_value'] ?? $quantity * $costPerSku);
 
-            $organisationStockHistory = OrganisationStockHistory::where('date', $date->format('Y-m-d'))->where('organisation_id', $orgStock->organisation_id)->first();
-            if ($organisationStockHistory) {
-                OrganisationStockHistoryHydrateFromOrgStockHistories::dispatch($organisationStockHistory->id)->delay($hydratorDelay);
-            }
-        }
-
-        $nonMovingOneYear = $this->nonMovingOneYear($orgStock, $date, (float)$orgStockQuantity);
-
-
-        $groupStockHistory = GroupStockHistory::firstOrCreate(
-            [
-                'group_id' => $orgStock->group_id,
-                'date'     => $date->format('Y-m-d'),
-            ],
-            [
-                'is_week'                           => $date->isFriday(),
-                'is_month'                          => $date->isLastOfMonth(),
-                'is_year'                           => $date->isEndOfYear(),
-                'number_stocks'                     => 0,
-                'number_org_stocks_no_stock'        => 0,
-                'number_stocks_org_stocks_no_stock' => 0,
-                'number_org_stocks'                 => 0,
-                'number_out_of_stock_org_stocks'    => 0,
-                'number_location_org_stocks'        => 0,
-            ]
-        );
-
-
-        $organisationStockHistory = OrganisationStockHistory::firstOrCreate(
-            [
-
-                'organisation_id' => $orgStock->organisation_id,
-                'date'            => $date->format('Y-m-d')
-            ],
-            [
-                'group_id'                       => $orgStock->group_id,
-                'group_stock_history_id'         => $groupStockHistory->id,
-                'org_stock_lpp_value'                => 0,
-                'grp_stock_lpp_value'                => 0,
-                'org_stock_commercial_value'     => 0,
-                'grp_stock_commercial_value'     => 0,
-                'number_org_stocks'              => 0,
-                'number_out_of_stock_org_stocks' => 0,
-                'number_location_org_stocks'     => 0,
-                'is_week'                        => $date->isFriday(),
-                'is_month'                       => $date->isLastOfMonth(),
-                'is_year'                        => $date->isEndOfYear(),
-            ]
-        );
-
-        $orgStockHistory = OrgStockHistory::updateOrCreate(
-            [
-                'date'            => $date->format('Y-m-d'),
-                'organisation_id' => $orgStock->organisation_id,
-                'org_stock_id'    => $orgStock->id
-            ],
-            [
-                'organisation_stock_history_id' => $organisationStockHistory->id,
-                'quantity_in_locations'         => $orgStockQuantity,
-                'number_locations'              => count($orgStockLocationData),
-                'org_stock_lpp_value'               => $orgStockValue,
-                'grp_stock_lpp_value'               => $grpStockValue,
-                'org_stock_wac_value'           => $orgStockWacValue,
-                'grp_stock_wac_value'           => $grpStockWacValue,
-                'org_stock_fifo_value'          => $orgStockFifoValue,
-                'grp_stock_fifo_value'          => $grpStockFifoValue,
-                'org_stock_commercial_value'    => 0,
-                'grp_stock_commercial_value'    => 0,
-                'lpp_per_sku'                 => $costPerSku,
-                'wac_per_sku'                   => $wacPerSku,
-                'fifo_per_sku'                  => $fifoPerSku,
-                'last_sold_date'                => $lastSoldDate,
-                'sold_within_1y'                => $lastSoldDate && $lastSoldDate->gte($date->copy()->subYear()),
-                'non_moving_1y'                 => $nonMovingOneYear,
-            ]
-        );
-
-        foreach ($orgStockLocationData as $orgStockLocation) {
-            $quantity      = max(0, $orgStockLocation['quantity']);
-            $orgStockValue = max(0, $orgStockLocation['org_stock_lpp_value'] ?? $quantity * $costPerSku);
-            $grpStockValue = max(0, $orgStockLocation['grp_stock_lpp_value'] ?? $quantity * $costPerSku);
-
-            $updateData = [
-                'org_stock_history_id'          => $orgStockHistory->id,
-                'organisation_stock_history_id' => $orgStockHistory->organisation_stock_history_id,
-                'actual_quantity_in_locations'  => $orgStockLocation['quantity'],
-                'quantity_in_locations'         => $quantity,
-                'org_stock_lpp_value'               => $orgStockValue,
-                'grp_stock_lpp_value'               => $grpStockValue,
-                'org_stock_wac_value'           => $wacPerSku === null ? null : max(0, $orgStockLocation['org_stock_wac_value'] ?? $quantity * $wacPerSku),
-                'grp_stock_wac_value'           => $wacPerSku === null ? null : max(0, $orgStockLocation['grp_stock_wac_value'] ?? $quantity * $wacPerSku),
-                'org_stock_fifo_value'          => $fifoPerSku === null ? null : max(0, $orgStockLocation['org_stock_fifo_value'] ?? $quantity * $fifoPerSku),
-                'grp_stock_fifo_value'          => $fifoPerSku === null ? null : max(0, $orgStockLocation['grp_stock_fifo_value'] ?? $quantity * $fifoPerSku),
-            ];
-
-            LocationOrgStockHistory::updateOrCreate(
-                [
-                    'date'         => $date->format('Y-m-d'),
-                    'org_stock_id' => $orgStock->id,
-                    'location_id'  => $orgStockLocation['location_id'],
-                ],
-                $updateData
-            );
-        }
-
-        OrganisationStockHistoryHydrateFromOrgStockHistories::dispatch($organisationStockHistory->id)->delay(30);
+        return [
+            'actual_quantity_in_locations' => $orgStockLocation['quantity'],
+            'quantity_in_locations'        => $quantity,
+            'org_stock_lpp_value'          => $orgStockValue,
+            'grp_stock_lpp_value'          => $grpStockValue,
+            'org_stock_wac_value'          => $wacPerSku === null ? null : max(0, $orgStockLocation['org_stock_wac_value'] ?? $quantity * $wacPerSku),
+            'grp_stock_wac_value'          => $wacPerSku === null ? null : max(0, $orgStockLocation['grp_stock_wac_value'] ?? $quantity * $wacPerSku),
+            'org_stock_fifo_value'         => $fifoPerSku === null ? null : max(0, $orgStockLocation['org_stock_fifo_value'] ?? $quantity * $fifoPerSku),
+            'grp_stock_fifo_value'         => $fifoPerSku === null ? null : max(0, $orgStockLocation['grp_stock_fifo_value'] ?? $quantity * $fifoPerSku),
+        ];
     }
 }

@@ -15,6 +15,8 @@ import { faBell, faChevronDown, faChevronRight, faSyncAlt } from "@fal"
 import { faBell as fasBell } from "@fas"
 import SeoKeywordHistoryChart from "@/Components/Seo/SeoKeywordHistoryChart.vue"
 import SeoExportButton from "@/Components/Seo/SeoExportButton.vue"
+import SeoKeywordFilters from "@/Components/Seo/SeoKeywordFilters.vue"
+import qs from "qs"
 import { featureLabel } from "@/Components/Seo/serpFeatures"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
@@ -23,7 +25,7 @@ import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime } from "@/Composables/useFormatTime"
 import { useLocaleStore } from "@/Stores/locale"
 import { routeType } from "@/types/route"
-import type { SeoKeywordOptions } from "@/Components/Seo/types"
+import type { SeoKeywordFilterOptions, SeoKeywordOptions } from "@/Components/Seo/types"
 
 type Summary = {
     tracked: number
@@ -58,9 +60,12 @@ type RankingRow = {
     has_previous_check: boolean
     ranking_url: string | null
     serp_features: string[]
+    serp_features_owned: string[]
     in_ai_overview: boolean
     avg_monthly_searches: number | null
+    keyword_difficulty: number | null
     intent: string | null
+    tags: { id: number, name: string }[]
     search_console_position: number | null
     competitor_positions: CompetitorPosition[]
     is_watched: boolean
@@ -94,6 +99,7 @@ const props = defineProps<{
     data?: RankingsData
     tab: string
     options: SeoKeywordOptions
+    filterOptions: SeoKeywordFilterOptions
 }>()
 
 const summary = computed(() => props.data!.summary)
@@ -199,27 +205,35 @@ const visibility = computed(() => [
     { label: ctrans("Top :depth", { depth: depths.value.daily }), count: summary.value.top_20 },
 ])
 
-const intentParam = computed(() => `${props.tab}_filter[intent]`)
+const filtersParam = computed(() => `${props.tab}_filters`)
+
+const currentQuery = computed(() => qs.parse(new URL(page.url, window.location.origin).search, { ignoreQueryPrefix: true, arrayLimit: 100 }) as Record<string, Record<string, unknown> | unknown>)
 
 const currentIntent = computed(() => {
-    const filter = new URL(page.url, window.location.origin).searchParams.get(intentParam.value)
+    const intents = ((currentQuery.value[filtersParam.value] ?? {}) as { intents?: string[] }).intents ?? []
 
-    return filter || null
+    return intents.length === 1 ? intents[0] : null
 })
 
 const intentHref = (intent: string | null) => {
     const url = new URL(page.url, window.location.origin)
+    const query = { ...currentQuery.value }
+    const filters = { ...((query[filtersParam.value] ?? {}) as Record<string, unknown>) }
 
-    url.searchParams.delete(`${props.tab}Page`)
+    delete query[`${props.tab}Page`]
 
     if (intent) {
-        url.searchParams.set(intentParam.value, intent)
+        filters.intents = [intent]
     } else {
-        url.searchParams.delete(intentParam.value)
+        delete filters.intents
     }
 
-    return url.pathname + url.search
+    query[filtersParam.value] = filters
+
+    return url.pathname + qs.stringify(query, { addQueryPrefix: true, encodeValuesOnly: true })
 }
+
+const total = computed(() => (props.data?.table as { meta?: { total?: number } } | undefined)?.meta?.total ?? null)
 
 const positionText = (ranking: RankingRow) => {
     if (!ranking.last_checked_at) {
@@ -434,6 +448,7 @@ const urlPath = (url: string) => {
                     <SegmentedToggle v-model="device" :options="deviceOptions" :ariaLabel="ctrans('Device')" />
                     <SeoExportButton table="rankings" />
                 </div>
+                <SeoKeywordFilters :tab="tab" :filterOptions="filterOptions" :total="total" />
                 <Table :resource="data.table" :name="tab" :useExpandTable="true">
                     <template #cell(keyword)="{ item: ranking }: { item: RankingRow }">
                         <div class="flex items-center gap-2">
@@ -516,6 +531,18 @@ const urlPath = (url: string) => {
                         <span class="tabular-nums">{{ ranking.avg_monthly_searches === null ? "-" : locale.number(ranking.avg_monthly_searches) }}</span>
                     </template>
 
+                    <template #cell(keyword_difficulty)="{ item: ranking }: { item: RankingRow }">
+                        <span v-if="ranking.keyword_difficulty === null" class="text-gray-400" v-tooltip="ctrans('No data')">-</span>
+                        <span v-else class="tabular-nums">{{ ranking.keyword_difficulty }}</span>
+                    </template>
+
+                    <template #cell(tags)="{ item: ranking }: { item: RankingRow }">
+                        <div v-if="ranking.tags.length" class="flex max-w-xs flex-wrap gap-1">
+                            <span v-for="keywordTag in ranking.tags" :key="keywordTag.id" class="whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">{{ keywordTag.name }}</span>
+                        </div>
+                        <span v-else class="text-gray-400">-</span>
+                    </template>
+
                     <template #cell(intent)="{ item: ranking }: { item: RankingRow }">
                         {{ ranking.intent ? intentLabels[ranking.intent] ?? ranking.intent : "-" }}
                     </template>
@@ -526,8 +553,8 @@ const urlPath = (url: string) => {
                                 v-for="feature in ranking.serp_features"
                                 :key="feature"
                                 :value="featureLabel(feature)"
-                                :severity="feature === 'ai_overview' && ranking.in_ai_overview ? 'success' : 'secondary'"
-                                v-tooltip="feature === 'ai_overview' ? (ranking.in_ai_overview ? ctrans('The AI Overview cites our website') : ctrans('The AI Overview does not cite our website')) : undefined" />
+                                :severity="ranking.serp_features_owned.includes(feature) || (feature === 'ai_overview' && ranking.in_ai_overview) ? 'success' : 'secondary'"
+                                v-tooltip="ranking.serp_features_owned.includes(feature) || (feature === 'ai_overview' && ranking.in_ai_overview) ? ctrans('Shows our website') : ctrans('Does not show our website')" />
                         </div>
                     </template>
 
@@ -596,7 +623,7 @@ const urlPath = (url: string) => {
                                                     v-for="feature in other.serp_features"
                                                     :key="feature"
                                                     :value="featureLabel(feature)"
-                                                    :severity="feature === 'ai_overview' && other.in_ai_overview ? 'success' : 'secondary'" />
+                                                    :severity="other.serp_features_owned.includes(feature) || (feature === 'ai_overview' && other.in_ai_overview) ? 'success' : 'secondary'" />
                                             </div>
                                         </td>
                                         <td class="py-1.5 pr-2 text-right">

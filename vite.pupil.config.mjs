@@ -8,8 +8,8 @@ import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 import i18n from "laravel-vue-i18n/vite";
+import { withSharedLangFiles } from "./vite.app-plugins.mjs";
 import { fileURLToPath, URL } from "node:url";
-import { codecov } from "./vite.codecov.mjs";
 import path from "node:path";
 
 export default defineConfig(
@@ -37,8 +37,7 @@ export default defineConfig(
               }
             }
           }),
-      i18n(),
-      codecov("pupil")
+      withSharedLangFiles(i18n())
     ],
     ssr    : {
       noExternal: ["@inertiajs/server"]
@@ -66,6 +65,7 @@ export default defineConfig(
     },
     build  : {
       sourcemap    : true,
+      reportCompressedSize: false,
       devSourcemap : true,
       rollupOptions: {
         output: {

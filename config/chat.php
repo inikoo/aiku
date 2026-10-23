@@ -22,23 +22,6 @@ return [
     'summary_writer_model' => env('CHAT_SUMMARY_WRITER_MODEL', 'deepseek/deepseek-v4.1-flash'),
     // On 71 real emails it put aside 25 of 34 staff-marked spam to gpt-4o's 20, and one real customer to gpt-4o's two.
     'noise_model' => env('CHAT_NOISE_MODEL', 'openai/gpt-5.6-luna'),
-    'page_answer_model' => env('CHAT_PAGE_ANSWER_MODEL'),
-    // Suggested replies are written by one of these, half of the conversations each, so staff choices show which writes better.
-    // CHAT_SUGGESTION_MODEL set to one of them ends the comparison.
-    'suggestion_model' => env('CHAT_SUGGESTION_MODEL'),
-    'suggestion_models' => ['deepseek/deepseek-v4.1-flash', 'openai/gpt-6-luna'],
-    // INI-085: open-ended suggestions scored 4 to 16% close outside dropshipping, so only dropshipping shops get them,
-    // and only when well covered. Elsewhere only the looked-up and quoted drafts are shown.
-    'suggestion_shop_types' => array_filter(explode(',', (string) env('CHAT_SUGGESTION_SHOP_TYPES', 'dropshipping'))),
-    'suggestion_min_covered' => env('CHAT_SUGGESTION_MIN_COVERED', 0.66),
-    // Shops (by slug) where suggestions are written and scored against the staff reply but never shown, until they are good enough there.
-    'suggestion_shadow_shops' => array_filter(explode(',', (string) env('CHAT_SUGGESTION_SHADOW_SHOPS', 'aroma'))),
-    // A version Jev finds weak is rewritten from the critic's notes, up to this many times; the best version is kept.
-    // The cheap writer rewrites; only the last try goes to the strong model, and only when Jev says the facts cover most of what is asked.
-    'suggestion_rewrites' => (int) env('CHAT_SUGGESTION_REWRITES', 2),
-    'suggestion_strong_model' => env('CHAT_SUGGESTION_STRONG_MODEL', 'anthropic/claude-sonnet-5.5'),
-    // Between Jev's scores and the rewrite, this cheap model says what exactly to change.
-    'suggestion_critic_model' => env('CHAT_SUGGESTION_CRITIC_MODEL', 'deepseek/deepseek-v4.1-flash'),
     'learning_model' => env('CHAT_LEARNING_MODEL', 'gpt-4o-mini'),
 
     // Hiding a real customer is worse than showing a junk mail, so the bar is low.
@@ -49,8 +32,6 @@ return [
     'spam_rescue_scam_tag_probability' => (float) env('CHAT_SPAM_RESCUE_SCAM_TAG_PROBABILITY', 0.3),
 
     'urgent_model' => env('CHAT_URGENT_MODEL', 'openai/gpt-5.6-luna'),
-
-    'draft_review_model' => env('CHAT_DRAFT_REVIEW_MODEL', 'gpt-6-sol'),
 
     'close_after_thanks' => (bool) env('CHAT_CLOSE_AFTER_THANKS', true),
 
@@ -98,10 +79,6 @@ return [
     // A message that arrives while the shop is closed is answered once per wait, with when the
     // shop opens again. Email only to a person, never to mail that was generated or sent to a list.
     'out_of_hours_reply' => (bool) env('CHAT_OUT_OF_HOURS_REPLY', true),
-
-    // Replies the AI writes from order and stock facts for staff to send, change or discard.
-    // Never sent by themselves.
-    'ai_drafts' => (bool) env('CHAT_AI_DRAFTS', true),
 
     // A draft goes to the customer without a person only out of hours, and only on a topic of a
     // shop where staff sent nearly all recent drafts exactly as written and none sent this way

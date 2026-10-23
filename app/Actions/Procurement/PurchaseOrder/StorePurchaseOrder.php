@@ -11,7 +11,6 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Procurement\WithProcurementSerialReferences;
 use App\Actions\Traits\Authorisations\WithProcurementEditAuthorisation;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\AgentOrder\ResolveAgentOrderReference;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgPartner\Hydrators\OrgPartnerHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
@@ -63,13 +62,9 @@ class StorePurchaseOrder extends OrgAction
             data_set($modelData, 'data.delivery_address', $deliveryAddress);
         }
 
-        $isDraft = in_array(Arr::get($modelData, 'state', PurchaseOrderStateEnum::IN_PROCESS), [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::IN_PROCESS->value], true);
-        if ($parent instanceof OrgSupplier && $parent->orgAgent && $isDraft) {
-            $modelData = $this->prepareAgentOrderFields($parent, $modelData);
-        }
-
         if (!Arr::get($modelData, 'reference')) {
-            data_set($modelData, 'reference', $this->newProcurementReference($parent, SerialReferenceModelEnum::PURCHASE_ORDER));
+            $serialParent = $parent instanceof OrgSupplier && $parent->orgAgent ? $parent->orgAgent : $parent;
+            data_set($modelData, 'reference', $this->newProcurementReference($serialParent, SerialReferenceModelEnum::PURCHASE_ORDER));
         }
         if (!Arr::get($modelData, 'date')) {
             data_set($modelData, 'date', now());
@@ -106,32 +101,6 @@ class StorePurchaseOrder extends OrgAction
         return $purchaseOrder;
     }
 
-    /**
-     * A supplier order through an agent joins an agent order, and its reference says which one and
-     * which supplier, as the agent's own split references always did.
-     *
-     * @param  array<string, mixed>  $modelData
-     * @return array<string, mixed>
-     */
-    private function prepareAgentOrderFields(OrgSupplier $orgSupplier, array $modelData): array
-    {
-        if (!Arr::get($modelData, 'agent_order_reference')) {
-            data_set($modelData, 'agent_order_reference', ResolveAgentOrderReference::run($orgSupplier->orgAgent));
-        }
-
-        if (!Arr::get($modelData, 'reference')) {
-            $base      = $modelData['agent_order_reference'].'-'.$orgSupplier->supplier->code;
-            $reference = $base;
-            $suffix    = 2;
-            while (PurchaseOrder::withTrashed()->where('organisation_id', $orgSupplier->organisation_id)->where('reference', $reference)->exists()) {
-                $reference = $base.'-'.$suffix++;
-            }
-            data_set($modelData, 'reference', $reference);
-        }
-
-        return $modelData;
-    }
-
     public function rules(): array
     {
         $rules = [
@@ -164,7 +133,6 @@ class StorePurchaseOrder extends OrgAction
             $rules = $this->noStrictStoreRules($rules);
             $rules = $this->noStrictProcurementOrderRules($rules);
             $rules = $this->noStrictPurchaseOrderDatesRules($rules);
-            $rules['agent_order_reference'] = ['sometimes', 'nullable', 'string', 'max:255'];
         }
 
         return $rules;

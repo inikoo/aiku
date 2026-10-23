@@ -19,7 +19,6 @@ interface Card {
 	reference: string
 	supplier: string
 	organisation: string | null
-	agent_order: string | null
 	amount: number
 	days_waiting: number
 	is_overdue: boolean

@@ -53,11 +53,11 @@ class UpdateWooProduct implements ShouldBeUnique
                 ]
             );
 
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'           => PlatformPortfolioLogsStatusEnum::OK
             ]);
         } catch (Throwable $e) {
-            UpdatePlatformPortfolioLog::dispatch($platformPortfolioLog, [
+            UpdatePlatformPortfolioLog::run($platformPortfolioLog, [
                 'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
                 'response' => 'E2: '.$e->getMessage()
             ]);

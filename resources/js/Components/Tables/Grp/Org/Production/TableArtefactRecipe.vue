@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { notify } from '@kyvg/vue3-notification'
 import { nextTick, ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlus, faTrashAlt } from '@fal'
@@ -18,6 +19,7 @@ import { routeType } from '@/types/route'
 import { ctrans } from '@/Composables/useTrans'
 import { useLocaleStore } from '@/Stores/locale'
 import ModalConfirmationDelete from '@/Components/Utils/ModalConfirmationDelete.vue'
+import ConfirmRecipeOpenJobs from '@/Components/Production/ConfirmRecipeOpenJobs.vue'
 
 library.add(faPlus, faTrashAlt)
 
@@ -102,25 +104,47 @@ function syncDraftsWithRecipe() {
 syncDraftsWithRecipe()
 watch(() => props.data.recipe, syncDraftsWithRecipe, { deep: true })
 
-function attach(taskId: number, position: number, units: number, standardRate?: number | null, extra: Record<string, unknown> = {}) {
+const openJobs = ref<string | null>(null)
+let pendingAttach: Record<string, unknown> = {}
+
+function sendAttach(payload: Record<string, unknown>) {
     processing.value = true
     router.post(
         route(props.data.routes.attach.name, props.data.routes.attach.parameters),
-        {
-            manufacture_task_id: taskId,
-            position: position,
-            units_per_artefact: units,
-            ...(standardRate !== undefined ? { standard_rate: standardRate } : {}),
-            ...extra,
-        },
+        payload,
         {
             preserveScroll: true,
-            onFinish: () => {
-                processing.value = false
+            onSuccess: () => {
+                openJobs.value = null
                 newTaskId.value = null
             },
+            onError: (errors) => {
+                if (errors.confirm_open_jobs) {
+                    pendingAttach = payload
+                    openJobs.value = errors.confirm_open_jobs
+                    return
+                }
+                syncDraftsWithRecipe()
+                notify({ title: ctrans('Something went wrong'), text: Object.values(errors)[0], type: 'error' })
+            },
+            onFinish: () => processing.value = false,
         }
     )
+}
+
+function attach(taskId: number, position: number, units: number, standardRate?: number | null, extra: Record<string, unknown> = {}) {
+    sendAttach({
+        manufacture_task_id: taskId,
+        position: position,
+        units_per_artefact: units,
+        ...(standardRate !== undefined ? { standard_rate: standardRate } : {}),
+        ...extra,
+    })
+}
+
+function cancelAttach() {
+    openJobs.value = null
+    syncDraftsWithRecipe()
 }
 
 function detach(taskId: number) {
@@ -474,5 +498,11 @@ function detachRawMaterial(stepId: number, rawMaterialId: number) {
                     @click="attach(newTaskId!, newPosition, newUnits)" />
             </div>
         </section>
+
+        <ConfirmRecipeOpenJobs
+            :jobs="openJobs"
+            :processing="processing"
+            @confirm="sendAttach({ ...pendingAttach, confirm_open_jobs: true })"
+            @cancel="cancelAttach" />
     </div>
 </template>

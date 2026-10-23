@@ -58,6 +58,25 @@ use App\Enums\Dashboards\ShopDashboardSalesTableTabsEnum;
 use App\Enums\Dashboards\ShopDashboardSectionsEnum;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Enums\UI\Catalogue\FamilyTabsEnum;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
+use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
+use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
+use App\Models\Web\SeoTrackedKeyword;
+use App\Models\Helpers\Audit;
+use App\Models\Web\SeoContentSuggestion;
+use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
+use App\Actions\Catalogue\ProductCategory\UI\GetFamilyPageScore;
+use App\Actions\Web\Seo\AskWebmastersToImplementSeoReview;
+use App\Actions\Web\Seo\StoreProductSeoReview;
+use App\Actions\Web\Seo\ValidateProductSeoReview;
+use App\Actions\Catalogue\Product\StoreProductWebpage;
+use App\Actions\Catalogue\Product\UI\GetProductSeoReview;
+use App\Enums\Tasks\StaffTaskStatusEnum;
+use App\Events\BroadcastStaffTaskBadgeUpdate;
+use App\Events\BroadcastStaffTaskChanged;
+use App\Models\Tasks\StaffTask;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Arr;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Charge;
@@ -73,13 +92,16 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\SysAdmin\Guest;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 use function Pest\Laravel\patch;
+use function Pest\Laravel\post;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\patchJson;
+use function Pest\Laravel\postJson;
 
 uses()->group('ui');
 
@@ -333,6 +355,288 @@ test('UI show family attachments tab lists trade unit documents read only', func
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Org/Catalogue/Family')
             ->has('attachments.documents'));
+});
+
+test('UI show family edit page tab lays out the webpage and content fields with their seo checks', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Wholesale <b>Aroma</b> Diffusers', 'seo_data' => ['structured_data' => ['@context' => 'https://schema.org', '@type' => 'FAQPage']]]);
+
+    SeoTrackedKeyword::create([
+        'shop_id'           => $this->shop->id,
+        'keyword'           => 'aroma diffusers',
+        'country_code'      => 'GB',
+        'language_code'     => 'en',
+        'device'            => SeoKeywordDeviceEnum::DESKTOP,
+        'frequency'         => SeoKeywordFrequencyEnum::WEEKLY,
+        'target_webpage_id' => $webpage->id,
+        'is_active'         => true,
+    ]);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Org/Catalogue/Family')
+            ->where('tabs.current', FamilyTabsEnum::EDIT_PAGE->value)
+            ->has('tabs.navigation.edit_page')
+            ->where('edit_page.notice', null)
+            ->where('edit_page.workshop_route.parameters.webpage', $webpage->slug)
+            ->where('edit_page.sections.0.cards.0.fields.state_data.type', 'toggle_state_webpage')
+            ->where('edit_page.sections.0.cards.0.fields.state_data.fetch_params', [
+                'organisation' => $this->organisation->slug,
+                'shop'         => $this->shop->slug,
+                'website'      => $webpage->website->slug,
+                'webpage'      => $webpage->slug,
+            ])
+            ->where('edit_page.sections.1.cards.0.keywords', ['aroma diffusers'])
+            ->where('edit_page.sections.2.cards.0.update_route.name', 'grp.models.webpage.update')
+            ->where('edit_page.sections.2.cards.0.fields.title.value', 'Wholesale <b>Aroma</b> Diffusers')
+            ->where('edit_page.sections.2.cards.0.check', ['ok' => true, 'note' => 'Contains keyword'])
+            ->where('edit_page.sections.2.cards.5.update_route.name', 'grp.models.product_category.update')
+            ->has('edit_page.sections.2.cards.5.fields.description_title')
+            ->has('edit_page.page_score.steps', 4)
+            ->has('edit_page.seo_issues.groups')
+            ->where('edit_page.seo_review.checks.title', ['ok' => true, 'note' => 'Contains keyword'])
+            ->where('edit_page.seo_review.structured_data', fn (string $json) => json_decode($json, true)['@type'] === 'FAQPage')
+            ->etc());
+
+    $webpage->update(['seo_data' => ['structured_data' => ['']]]);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('edit_page.seo_review.structured_data', '')->etc());
+});
+
+test('SEO team sends a family page review that replaces the last one and moves the workflow on', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $family->update(['faq' => [['question' => 'Do they need water?', 'answer' => 'Most do.']]]);
+
+    $reviewRoute = route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]);
+    $pending     = fn () => SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+    $targeted    = fn () => SeoTrackedKeyword::where('target_webpage_id', $webpage->id)->distinct()->orderBy('keyword')->pluck('keyword')->all();
+
+    post($reviewRoute, ['suggestions' => ['not_a_field' => 'x']])->assertSessionHasErrors('suggestions');
+
+    post($reviewRoute, [
+        'keywords'            => 'Aroma Diffuser,  essential oil nebuliser ,aroma diffuser',
+        'suggestions'         => ['title' => 'Electric Aroma Diffusers | Wholesale', 'desc_title' => '', 'top_desc' => 'Better copy'],
+        'faq'                 => [
+            'items' => [['question' => 'Do all aroma diffusers need water?', 'answer' => '', 'remove' => false]],
+            'new'   => [['question' => 'How do I clean one?', 'answer' => 'Unplug it first.'], ['question' => '', 'answer' => 'Dropped without a question']],
+        ],
+        'structured_data'     => '{"@context":"https://schema.org","@type":"FAQPage"}',
+        'structured_data_why' => 'Mark up the FAQ',
+    ])->assertSessionHasNoErrors()->assertRedirect();
+
+    $suggestions = $pending();
+    $audits      = fn (string $event, $ids) => Audit::where('auditable_type', 'SeoContentSuggestion')->whereIn('auditable_id', $ids)->where('event', $event)->get();
+    expect($suggestions->keys()->sort()->values()->all())->toBe(['faq', 'structured_data', 'title', 'top_desc'])
+        ->and($audits('created', $suggestions->pluck('id'))->pluck('user_id')->unique()->all())->toBe([$this->user->id])
+        ->and(json_decode($suggestions['faq']->suggestion, true)['new'])->toBe([['question' => 'How do I clean one?', 'answer' => 'Unplug it first.']])
+        ->and(json_decode($suggestions['structured_data']->suggestion, true)['why'])->toBe('Mark up the FAQ')
+        ->and($targeted())->toBe(['aroma diffuser', 'essential oil nebuliser'])
+        ->and(collect(GetFamilyPageScore::run($family->refresh())['steps'])->firstWhere('key', 'seo_review')['is_done'])->toBeTrue();
+
+    post($reviewRoute, ['keywords' => 'aroma diffuser', 'suggestions' => ['url' => 'electric-aroma-diffusers']])->assertRedirect();
+
+    expect($pending()->keys()->all())->toBe(['url'])
+        ->and($targeted())->toBe(['aroma diffuser'])
+        ->and($audits('deleted', $suggestions->pluck('id')))->toHaveCount(4);
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('edit_page.seo_review.sent_count', 1)
+            ->where('edit_page.seo_review.keywords', 'aroma diffuser')
+            ->where('edit_page.seo_review.fields.2.key', 'url')
+            ->where('edit_page.seo_review.fields.2.suggestion', 'electric-aroma-diffusers')
+            ->etc());
+
+    $urlSuggestion = $pending()['url'];
+    patch(route('grp.models.seo_content_suggestion.dismiss', ['seoContentSuggestion' => $urlSuggestion->id]))->assertSessionHasNoErrors();
+
+    expect($audits('updated', [$urlSuggestion->id])->map(fn (Audit $audit) => [$audit->new_values['state'] ?? null, $audit->user_id])->all())
+        ->toBe([[SeoContentSuggestionStateEnum::DISMISSED->value, $this->user->id]]);
+});
+
+test('webmaster implements the SEO review one suggestion at a time, keeps what was already pasted, then validates it', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Aroma Diffusers', 'breadcrumb_label' => 'Diffusers']);
+    $family->update(['faq' => [['question' => 'Do they need water?', 'answer' => 'Most do.'], ['question' => 'Old question', 'answer' => 'Old answer']]]);
+
+    post(route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]), [
+        'suggestions' => ['title' => 'Electric Aroma Diffusers | Wholesale', 'breadcrumb_label' => 'Aroma diffusers', 'top_desc' => 'Better copy'],
+        'faq'         => [
+            'items' => [['question' => '', 'answer' => 'Most models do.', 'remove' => false], ['question' => '', 'answer' => '', 'remove' => true]],
+            'new'   => [['question' => 'How do I clean one?', 'answer' => 'Unplug it first.']],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $webpage->update(['breadcrumb_label' => 'Aroma diffusers range']);
+
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+    $implement   = fn (string $field, array $data = []) => patch(route('grp.models.product_category.seo_review.implement', ['productCategory' => $family->id, 'seoContentSuggestion' => $suggestions[$field]->id]), $data);
+    $validate    = fn () => post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]));
+    $editPage    = route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]);
+
+    get($editPage)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('edit_page.sections.2.cards.0.key', 'title')
+        ->where('edit_page.webmaster_validation.tasks', fn ($tasks) => collect($tasks)->pluck('key')->all() === ['title', 'breadcrumb_label', 'top_desc', 'faq-item-0', 'faq-item-1', 'faq-new-0']
+            && !collect($tasks)->contains('is_done', true))
+        ->etc());
+
+    $implement('title')->assertSessionHasNoErrors();
+    $implement('breadcrumb_label')->assertSessionHasNoErrors();
+    $implement('top_desc')->assertSessionHasNoErrors();
+    $implement('faq')->assertSessionHasErrors('suggestion');
+    $implement('faq', ['item' => 0])->assertSessionHasNoErrors();
+    $implement('faq', ['item' => 1])->assertSessionHasNoErrors();
+
+    expect($suggestions['faq']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::PENDING);
+
+    $implement('faq', ['new' => 0])->assertSessionHasNoErrors();
+    $implement('title')->assertSessionHasErrors('suggestion');
+
+    $webpage->refresh();
+    $family->refresh();
+
+    expect($webpage->title)->toBe('Electric Aroma Diffusers | Wholesale')
+        ->and($webpage->breadcrumb_label)->toBe('Aroma diffusers range')
+        ->and($family->description)->toBe('Better copy')
+        ->and(collect($family->faq)->map(fn (array $item) => Arr::only($item, ['question', 'answer']))->all())->toEqual([
+            ['question' => 'Do they need water?', 'answer' => 'Most models do.'],
+            ['question' => 'How do I clean one?', 'answer' => 'Unplug it first.'],
+        ])
+        ->and($suggestions['faq']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::IMPLEMENTED)
+        ->and(collect(GetFamilyPageScore::run($family)['steps'])->firstWhere('key', 'implemented')['is_done'])->toBeFalse();
+
+    $this->travel(4)->seconds();
+    $validate()->assertSessionHasNoErrors();
+
+    expect(SeoContentSuggestion::whereIn('id', $suggestions->pluck('id'))->pluck('state')->unique()->values()->all())->toBe([SeoContentSuggestionStateEnum::ACCEPTED])
+        ->and($suggestions['title']->audits()->orderBy('id')->get()->map(fn (Audit $audit) => [$audit->event, $audit->new_values['state'] ?? null, $audit->user_id])->all())->toBe([
+            ['created', SeoContentSuggestionStateEnum::PENDING->value, $this->user->id],
+            ['updated', SeoContentSuggestionStateEnum::IMPLEMENTED->value, $this->user->id],
+            ['updated', SeoContentSuggestionStateEnum::ACCEPTED->value, $this->user->id],
+        ]);
+
+    get($editPage)->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('edit_page.webmaster_validation.is_validated', true)
+        ->has('edit_page.webmaster_validation.tasks', 0)
+        ->where('edit_page.webmaster_validation.activity', fn ($activity) => collect($activity)->contains('text', 'Validated the SEO suggestions.'))
+        ->etc());
+});
+
+test('webmaster validates a family SEO review with suggestions still pending, which dismisses them and leaves those fields as they were', function () {
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+    $webpage->update(['title' => 'Aroma Diffusers']);
+    $family->update(['description' => 'Old copy']);
+
+    post(route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]), [
+        'suggestions' => ['title' => 'Electric Aroma Diffusers', 'top_desc' => 'Better copy'],
+    ])->assertSessionHasNoErrors();
+
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->get()
+        ->keyBy('field');
+
+    patch(route('grp.models.product_category.seo_review.implement', ['productCategory' => $family->id, 'seoContentSuggestion' => $suggestions['title']->id]))->assertSessionHasNoErrors();
+    post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]))->assertSessionHasNoErrors();
+
+    expect($suggestions['title']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::ACCEPTED)
+        ->and($suggestions['top_desc']->refresh())
+        ->state->toBe(SeoContentSuggestionStateEnum::DISMISSED)
+        ->decided_by_user_id->toBe($this->user->id)
+        ->and($family->refresh()->description)->toBe('Old copy');
+
+    get(route('grp.org.shops.show.catalogue.families.show', [$this->organisation->slug, $this->shop->slug, $family->slug, 'tab' => FamilyTabsEnum::EDIT_PAGE->value]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('edit_page.webmaster_validation.is_validated', true)
+            ->has('edit_page.webmaster_validation.tasks', 0)
+            ->etc());
+});
+
+test('sending the SEO review tasks the webmasters handling the page as assignee and collaborators, keeps one open task per page, and validating closes it', function () {
+    Event::fake([BroadcastStaffTaskBadgeUpdate::class, BroadcastStaffTaskChanged::class]);
+    createWebsite($this->shop);
+    $family  = $this->family->refresh();
+    $webpage = $family->webpage ?? StoreProductCategoryWebpage::make()->action($family);
+
+    $openTasks = fn () => StaffTask::open()->where('data->kind', AskWebmastersToImplementSeoReview::TASK_KIND)->where('data->webpage_id', $webpage->id)->get();
+    StaffTask::whereIn('id', $openTasks()->pluck('id'))->update(['status' => StaffTaskStatusEnum::CANCELLED, 'closed_at' => now()]);
+
+    [$lockOwner, $editor, $expiredEditor] = collect(range(1, 3))->map(fn () => StoreGuest::make()->action($this->group, Guest::factory()->definition())->getUser())->all();
+    $webpage->update([
+        'locked_at'         => now(),
+        'locked_by_user_id' => $lockOwner->id,
+        'lock_data'         => ['editors' => [
+            ['user_id' => $editor->id, 'until' => null, 'until_publish' => false],
+            ['user_id' => $expiredEditor->id, 'until' => now()->subDay()->toIso8601String(), 'until_publish' => false],
+            ['user_id' => $this->user->id, 'until' => null, 'until_publish' => false],
+        ]],
+    ]);
+
+    $reviewRoute = route('grp.models.product_category.seo_review.store', ['productCategory' => $family->id]);
+
+    post($reviewRoute, ['suggestions' => ['title' => 'Electric Aroma Diffusers']])->assertSessionHasNoErrors();
+    post($reviewRoute, ['suggestions' => ['title' => 'Electric Aroma Diffusers', 'top_desc' => 'Better copy']])->assertSessionHasNoErrors();
+
+    $task = $openTasks()->sole();
+    expect($task->requester_id)->toBe($this->user->id)
+        ->and($task->assignee_id)->toBe($lockOwner->id)
+        ->and($task->collaborators()->pluck('users.id')->all())->toBe([$editor->id])
+        ->and($task->description)->toContain('tab='.FamilyTabsEnum::EDIT_PAGE->value)
+        ->and($task->conversation->messages()->latest('id')->value('body'))->toContain('2 suggestions are waiting');
+
+    SeoContentSuggestion::where('webpage_id', $webpage->id)
+        ->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)
+        ->where('state', SeoContentSuggestionStateEnum::PENDING)
+        ->update(['state' => SeoContentSuggestionStateEnum::IMPLEMENTED]);
+    post(route('grp.models.product_category.seo_review.validate', ['productCategory' => $family->id]))->assertSessionHasNoErrors();
+
+    expect($task->refresh()->status)->toBe(StaffTaskStatusEnum::DONE);
+
+    $webpage->update(['locked_at' => null, 'locked_by_user_id' => null, 'lock_data' => null]);
+    post($reviewRoute, ['suggestions' => ['url' => 'electric-aroma-diffusers']])->assertSessionHasNoErrors();
+
+    expect($openTasks()->sole())
+        ->assignee_id->toBeNull()
+        ->department->toBe('webmaster');
+});
+
+test('webmaster validates a product SEO review with suggestions still pending, which dismisses them', function () {
+    createWebsite($this->shop);
+    $product = $this->product->refresh();
+    $webpage = $product->webpage ?? StoreProductWebpage::make()->action($product);
+    $product->refresh();
+
+    StoreProductSeoReview::make()->handle($product, ['suggestions' => ['title' => 'Electric Aroma Diffuser', 'description' => 'Better meta description']], null);
+    $suggestions = SeoContentSuggestion::where('webpage_id', $webpage->id)->where('reason', SeoContentSuggestion::REASON_SEO_REVIEW)->whereIn('state', [SeoContentSuggestionStateEnum::PENDING])->get()->keyBy('field');
+    $suggestions['title']->update(['state' => SeoContentSuggestionStateEnum::IMPLEMENTED]);
+
+    expect(ValidateProductSeoReview::make()->handle($product, $this->user))->toBe(1)
+        ->and($suggestions['title']->refresh()->state)->toBe(SeoContentSuggestionStateEnum::ACCEPTED)
+        ->and($suggestions['description']->refresh())
+        ->state->toBe(SeoContentSuggestionStateEnum::DISMISSED)
+        ->decided_by_user_id->toBe($this->user->id);
+
+    expect(GetProductSeoReview::run($webpage, $product, $this->user))
+        ->pending->toBe(0)
+        ->is_validated->toBeTrue();
 });
 
 test('UI show family sales analysis tab', function () {
@@ -1245,7 +1549,10 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
         ->and($serve($shortOriginal))->toBe($original)
         ->and($serve(str_replace('0x600', 'rs::0:600::', $shortThumb)))->toBe($thumb)
         ->and($serve(str_replace('0x600', '0x1200', $shortThumb)))->toBeNull()
-        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull();
+        ->and($serve(str_replace('.avif', '.png', $shortThumb)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '', $shortOriginal)))->toBe($original)
+        ->and($serve(str_replace('.jpeg', '.png', $shortOriginal)))->toBeNull()
+        ->and($serve(str_replace('.jpeg', '.a1', $shortOriginal)))->toBeNull();
 
     \Illuminate\Support\Facades\Http::fake(['media.test/*' => \Illuminate\Support\Facades\Http::response('avif-bytes', 200, ['Content-Type' => 'image/avif'])]);
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))
@@ -1264,6 +1571,16 @@ test('website pages swap imgproxy urls for short signed links that serve the sam
 
     \Illuminate\Support\Facades\Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('cURL error 28'));
     $this->get(Str::after($shortThumb, 'https://www.shop.test'))->assertStatus(504)->assertHeader('Cache-Control', 'max-age=60, public');
+
+    config(['img-proxy.accel_location' => '/_imgproxy/']);
+    \Illuminate\Support\Facades\Http::fake();
+    $this->get(Str::after($shortThumb, 'https://www.shop.test'))
+        ->assertOk()
+        ->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($thumb, 'https://media.test'))
+        ->assertHeader('Cache-Control', 'max-age=60, public')
+        ->assertHeader('Content-Type', 'application/octet-stream');
+    $this->get(Str::after($shortOriginal, 'https://www.shop.test'))->assertHeader('X-Accel-Redirect', '/_imgproxy'.Str::after($original, 'https://media.test'));
+    \Illuminate\Support\Facades\Http::assertNothingSent();
 });
 
 test('products export ends with the weight unit columns', function () {
@@ -1769,7 +2086,12 @@ test('a shop selling under several invoice categories targets their sum, partner
     $invoice('2037-05-15', $movedToOwnShop->id, 400);
     Cache::tags(["dashboard-shop-$shop->id"])->flush();
 
-    expect(collect(GetShopMonthSalesTarget::run($shop, null, $today)['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id);
+    $block = GetShopMonthSalesTarget::run($shop, null, $today);
+
+    expect(collect($block['children'])->pluck('invoice_category_id'))->not->toContain($movedToOwnShop->id)
+        ->and($block['target']['amount'])->toEqualWithDelta(2000, 0.05)
+        ->and(collect($block['children'])->sum('target.amount'))->toEqualWithDelta($block['target']['amount'], 0.05)
+        ->and(GetShopMonthSalesTarget::run($this->organisation, null, $today)['target']['amount'])->toEqualWithDelta($organisationTarget - 1000 * (1 + $growth) + 2000, 0.05);
 
     $shop->stats->update(['sales_forecast' => ['version' => '3', 'from' => '2038-05-10', 'org' => collect(range(10, 31))->mapWithKeys(fn (int $day) => [sprintf('2038-05-%02d', $day) => [10.0, 4.0]])->all(), 'grp' => null]]);
     $block      = GetShopMonthSalesTarget::run($shop, null, $today);
@@ -2086,6 +2408,39 @@ test('a compliance editor sees supply chain, goods and products, and edits only 
     patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['gpsr_warnings' => 'x'])->assertForbidden();
 });
 
+test('a compliance editor pastes an ingredients list onto a trade unit', function () {
+    setPermissionsTeamId($this->group->id);
+    $newUser = fn () => StoreGuest::make()->action(
+        $this->group,
+        array_merge(Guest::factory()->definition(), ['positions' => []])
+    )->getUser();
+
+    $tradeUnit  = $this->product->tradeUnits()->first();
+    $ingredient = 'Compliance pasted '.Str::random(8);
+
+    $viewer = $newUser();
+    $viewer->givePermissionTo('compliance.view');
+    actingAs($viewer);
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient])->assertForbidden();
+
+    $compliance = $newUser();
+    $compliance->givePermissionTo(['compliance.view', 'compliance.edit']);
+    actingAs($compliance);
+
+    postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient.'*'])
+        ->assertOk()
+        ->assertJsonPath('0.name', $ingredient)
+        ->assertJsonPath('0.is_new', true);
+
+    $slug = postJson(route('grp.json.ingredients.parse'), ['text' => $ingredient, 'commit' => true])
+        ->assertOk()
+        ->json('0.slug');
+
+    patch(route('grp.models.trade-unit.update', $tradeUnit->id), ['ingredients' => [$slug]])->assertSessionHasNoErrors();
+
+    expect($tradeUnit->refresh()->ingredients()->pluck('slug')->all())->toBe([$slug]);
+});
+
 test('only goods, masters or media editors change trade unit media, and attachments follow the edit permission of their model', function () {
     setPermissionsTeamId($this->group->id);
     SeedShopPermissions::run($this->shop);
@@ -2354,5 +2709,33 @@ test('family edit needs catalogue edit and the shop dashboard needs a permission
         $this->user->syncPermissions($originalPermissions);
         actingAsUserWithRoles($this->user, $originalRoles);
         \App\Actions\SysAdmin\User\SetUserAuthorisedModels::run($this->user);
+    }
+});
+
+test('shop and organisation dashboard data answer only staff of the shop or organisation, INI-076', function () {
+    $org  = $this->organisation;
+    $shop = $this->shop;
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $org->group_id, 'status' => true]);
+
+    $shopRoutes = [
+        route('grp.org.shops.show.dashboard.widgets', [$org->slug, $shop->slug, 'only' => 'top_products']),
+        route('grp.org.shops.show.dashboard.tab-data', [$org->slug, $shop->slug, 'tab' => 'sub_departments']),
+        route('grp.org.shops.show.dashboard.changelogs.index', [$org->slug, $shop->slug]),
+    ];
+    $orgTabData = route('grp.org.dashboard.tab-data', [$org->slug, 'tab' => 'shops']);
+
+    actingAsUserWithOnlyPermissions($user, ['goods.view']);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertForbidden();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["products.$shop->id.view"]);
+    foreach ($shopRoutes as $url) {
+        getJson($url)->assertOk();
+    }
+
+    actingAsUserWithOnlyPermissions($user, ["accounting.$org->id.view"]);
+    foreach ([...$shopRoutes, $orgTabData] as $url) {
+        getJson($url)->assertOk();
     }
 });

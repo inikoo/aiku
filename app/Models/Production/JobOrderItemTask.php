@@ -10,6 +10,7 @@ namespace App\Models\Production;
 
 use App\Events\BroadcastManufactureFloorChanged;
 use App\Events\BroadcastPartnerProductionChanged;
+use App\Actions\Production\JobOrderItemTask\CalculateJobOrderItemTaskQuantities;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\HumanResources\Employee;
@@ -113,7 +114,51 @@ class JobOrderItemTask extends Model
 
     public function unitsPerArtefact(): float
     {
-        return (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+        $units = (float) ($this->recipeStep()?->units_per_artefact ?: 1);
+
+        return $this->isRecordedInKg() ? $units : ArtefactManufactureTask::exactUnits($units);
+    }
+
+    public function requiredFor(float|int|string $artefacts): float
+    {
+        return round((float) $artefacts * $this->unitsPerArtefact(), 3);
+    }
+
+    public function artefactsIn(float|int|string|null $stepQuantity = null): float
+    {
+        return floor(round((float) ($stepQuantity ?? $this->quantity_made) / $this->unitsPerArtefact(), 3));
+    }
+
+    public function isInRecipe(): bool
+    {
+        return $this->recipeStep() !== null;
+    }
+
+    public function setRequiredQuantity(float $quantity): self
+    {
+        $this->update(['quantity_required' => $quantity]);
+
+        return CalculateJobOrderItemTaskQuantities::run($this);
+    }
+
+    /**
+     * A step left with nothing recorded and asking for more than the recipe says today comes down to
+     * the recipe, so a count it kept through a recipe change because of an entry that was later moved
+     * away or voided does not stay behind. A count lowered on purpose, like work credited to a carried
+     * job, is never raised back.
+     */
+    public function followRecipeWhenNothingRecorded(): self
+    {
+        if ((float) $this->quantity_made > 0 || !$this->isInRecipe()) {
+            return $this;
+        }
+
+        $recipeQuantity = $this->requiredFor($this->jobOrderItem->quantity);
+        if ((float) $this->quantity_required <= $recipeQuantity) {
+            return $this;
+        }
+
+        return $this->setRequiredQuantity($recipeQuantity);
     }
 
     public function mixBatchKg(): ?int
@@ -204,6 +249,13 @@ class JobOrderItemTask extends Model
         }
 
         return $this->isRestricted() ? null : $this->jobOrderItem->artisan();
+    }
+
+    public function scopeUnworked(Builder $query): Builder
+    {
+        return $query->where('state', JobOrderItemTaskStateEnum::TODO)
+            ->whereDoesntHave('sessions')
+            ->whereDoesntHave('sessionShares');
     }
 
     public function scopeLive(Builder $query): Builder

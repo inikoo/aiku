@@ -19,6 +19,7 @@ use App\Enums\UI\Web\SeoKeywordsTabsEnum;
 use App\Enums\Web\Seo\SeoContentBriefStateEnum;
 use App\Enums\Web\Seo\SeoKeywordDeviceEnum;
 use App\Enums\Web\Seo\SeoKeywordFrequencyEnum;
+use App\Enums\Web\Seo\SeoResearchScopeEnum;
 use App\Http\Resources\Web\SeoRankingResource;
 use App\Http\Resources\Web\SeoTrackedKeywordResource;
 use App\Models\Catalogue\Shop;
@@ -54,19 +55,22 @@ class ShowSeoKeywords extends OrgAction
     }
 
     /**
-     * @return array{seed: string, url: string, country_code: string, language_code: string}
+     * @return array{seed: string, url: string, scope: string, country_code: string, language_code: string}
      */
-    private function researchQuery(Shop $shop, ActionRequest $request): array
+    public function researchQuery(Shop $shop, ActionRequest $request): array
     {
+        $url = Str::limit((string) $request->query('url', ''), 2048, '');
+
         return [
             'seed'          => Str::limit((string) $request->query('seed', ''), 1000, ''),
-            'url'           => Str::limit((string) $request->query('url', ''), 2048, ''),
+            'url'           => $url,
+            'scope'         => (SeoResearchScopeEnum::tryFrom((string) $request->query('scope')) ?? SeoResearchScopeEnum::guess($url))->value,
             'country_code'  => strtoupper((string) $request->query('country_code', $shop->country?->code ?? '')),
             'language_code' => strtolower((string) $request->query('language_code', $shop->language?->code ?? '')),
         ];
     }
 
-    private function research(Shop $shop, array $query): ?array
+    public function research(Shop $shop, array $query): ?array
     {
         $seedKeywords = array_values(array_filter(array_map('trim', preg_split('/[,\n]+/', $query['seed']))));
 
@@ -77,7 +81,7 @@ class ShowSeoKeywords extends OrgAction
         $keywordData = ['ideas' => [], 'error' => null];
 
         try {
-            $keywordData = [...GetKeywordIdeas::run($shop, $seedKeywords, $query['url'] ?: null, $query['country_code'], $query['language_code']), 'error' => null];
+            $keywordData = [...GetKeywordIdeas::run($shop, $seedKeywords, $query['url'] ?: null, $query['country_code'], $query['language_code'], SeoResearchScopeEnum::from($query['scope'])), 'error' => null];
         } catch (ValidationException $e) {
             $keywordData['error'] = Arr::first(Arr::flatten($e->errors()));
         }
@@ -143,18 +147,30 @@ class ShowSeoKeywords extends OrgAction
                 'daily'  => PostSerpTasks::DAILY_DEPTH,
             ],
             'costPerPage'    => PostSerpTasks::COST_PER_PAGE,
-            'checkNow'       => $this->canEdit ? [
-                ...PostSerpTasks::make()->requestable($shop),
-                'route' => [
-                    'name'       => 'grp.models.shop.seo.keyword_checks.store',
-                    'parameters' => [$shop->id],
-                ],
-            ] : null,
+            'checkNow'       => $this->checkNow($shop),
             'runChecksRoute' => app()->environment('local') && $this->canEdit ? [
                 'name'       => 'grp.models.shop.seo.rank_checks.store',
                 'parameters' => [$shop->id],
             ] : null,
             'table'          => SeoRankingResource::collection(IndexSeoRankings::run($shop, SeoKeywordsTabsEnum::RANKINGS->value, $device)),
+        ];
+    }
+
+    /**
+     * @return array{keywords: int, cost: float, route: array{name: string, parameters: array<int, int>}}|null
+     */
+    private function checkNow(Shop $shop): ?array
+    {
+        if (!$this->canEdit) {
+            return null;
+        }
+
+        return [
+            ...PostSerpTasks::make()->requestable($shop),
+            'route' => [
+                'name'       => 'grp.models.shop.seo.keyword_checks.store',
+                'parameters' => [$shop->id],
+            ],
         ];
     }
 
@@ -192,6 +208,46 @@ class ShowSeoKeywords extends OrgAction
         ];
     }
 
+    /**
+     * The shop's tags with how many keywords carry each, and the result-page features seen in the
+     * latest checks with how many keywords show them and how many show our website in them.
+     *
+     * @return array{tags: array<int, array<string, mixed>>, serp_features: array<int, array{value: string, keywords: int, ours: int}>}
+     */
+    private function keywordFilterOptions(Shop $shop): array
+    {
+        $tags = $shop->seoKeywordTags()
+            ->leftJoin('seo_keyword_tag_keyword', 'seo_keyword_tag_keyword.tag_id', '=', 'seo_keyword_tags.id')
+            ->groupBy('seo_keyword_tags.id', 'seo_keyword_tags.name')
+            ->orderBy('seo_keyword_tags.name')
+            ->select('seo_keyword_tags.id', 'seo_keyword_tags.name')
+            ->selectRaw('COUNT(seo_keyword_tag_keyword.keyword) as keywords')
+            ->get()
+            ->map(fn ($tag) => [
+                'id'           => $tag->id,
+                'name'         => $tag->name,
+                'keywords'     => (int) $tag->keywords,
+                'update_route' => ['name' => 'grp.models.seo_keyword_tag.update', 'parameters' => [$tag->id], 'method' => 'patch'],
+                'delete_route' => ['name' => 'grp.models.seo_keyword_tag.delete', 'parameters' => [$tag->id], 'method' => 'delete'],
+            ])
+            ->all();
+
+        $serpFeatures = DB::table('seo_tracked_keywords')
+            ->crossJoin(DB::raw("jsonb_array_elements_text(COALESCE(seo_tracked_keywords.serp_features, '[]'::jsonb)) as feature"))
+            ->where('seo_tracked_keywords.shop_id', $shop->id)
+            ->where('seo_tracked_keywords.is_active', true)
+            ->groupBy('feature')
+            ->select('feature')
+            ->selectRaw('COUNT(DISTINCT seo_tracked_keywords.keyword) as keywords')
+            ->selectRaw("COUNT(DISTINCT seo_tracked_keywords.keyword) FILTER (WHERE jsonb_exists(COALESCE(seo_tracked_keywords.serp_features_owned, '[]'::jsonb), feature)) as ours")
+            ->orderByDesc('keywords')
+            ->get()
+            ->map(fn ($row) => ['value' => $row->feature, 'keywords' => (int) $row->keywords, 'ours' => (int) $row->ours])
+            ->all();
+
+        return ['tags' => $tags, 'serp_features' => $serpFeatures];
+    }
+
     private function tabProp(SeoKeywordsTabsEnum $tab, Closure $resolver): mixed
     {
         return $this->tab === $tab->value ? $resolver : Inertia::optional($resolver);
@@ -225,12 +281,34 @@ class ShowSeoKeywords extends OrgAction
                         'parameters' => [$shop->id],
                         'method'     => 'post',
                     ],
+                    'bulkTrack'      => [
+                        'name'       => 'grp.models.shop.seo.tracked_keywords.bulk_store',
+                        'parameters' => [$shop->id],
+                        'method'     => 'post',
+                    ],
+                    'bulkDelete'     => [
+                        'name'       => 'grp.models.shop.seo.tracked_keywords.delete',
+                        'parameters' => [$shop->id],
+                        'method'     => 'delete',
+                    ],
+                    'storeTag'       => [
+                        'name'       => 'grp.models.shop.seo.keyword_tag.store',
+                        'parameters' => [$shop->id],
+                        'method'     => 'post',
+                    ],
+                    'assignTags'     => [
+                        'name'       => 'grp.models.shop.seo.keyword_tags.assign',
+                        'parameters' => [$shop->id],
+                        'method'     => 'post',
+                    ],
                 ],
+                'keywordFilters' => fn () => $this->keywordFilterOptions($shop),
                 'options'     => [
                     'countries'   => Country::orderBy('name')->get(['code', 'name'])->map(fn (Country $country) => ['value' => $country->code, 'label' => $country->name])->all(),
                     'languages'   => Language::orderBy('name')->get(['code', 'name'])->map(fn (Language $language) => ['value' => $language->code, 'label' => $language->name])->all(),
                     'devices'     => collect(SeoKeywordDeviceEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
                     'frequencies' => collect(SeoKeywordFrequencyEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
+                    'scopes'      => collect(SeoResearchScopeEnum::labels())->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()->all(),
                 ],
                 'query'       => $query,
 
@@ -242,6 +320,7 @@ class ShowSeoKeywords extends OrgAction
                 SeoKeywordsTabsEnum::TRACKED_KEYWORDS->value => $this->tabProp(
                     SeoKeywordsTabsEnum::TRACKED_KEYWORDS,
                     fn () => SeoTrackedKeywordResource::collection(IndexSeoTrackedKeywords::run($shop, SeoKeywordsTabsEnum::TRACKED_KEYWORDS->value))
+                        ->additional(['checkNow' => $this->checkNow($shop)])
                 ),
 
                 SeoKeywordsTabsEnum::RANKINGS->value => $this->tabProp(

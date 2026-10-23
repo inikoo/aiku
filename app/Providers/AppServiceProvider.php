@@ -13,6 +13,9 @@ use App\Services\GeocoderService;
 use App\Services\Translation;
 use Gnikyt\BasicShopifyAPI\BasicShopifyAPI;
 use Gnikyt\BasicShopifyAPI\Options;
+use App\Models\SysAdmin\User;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
@@ -126,6 +129,24 @@ class AppServiceProvider extends ServiceProvider
     {
         ini_set('pcre.backtrack_limit', '10000000');
         ini_set('pcre.recursion_limit', '10000000');
+
+        ResetPassword::toMailUsing(function (User $user, string $token): MailMessage {
+            $message = (new MailMessage())
+                ->subject(__('Reset your Aiku password'))
+                ->line(__('You are receiving this email because we received a password reset request for your account.'))
+                ->action(__('Reset Password'), route('grp.email.reset-password.show', [
+                    'token' => $token,
+                    'email' => $user->getEmailForPasswordReset(),
+                ]))
+                ->line(__('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.users.expire')]))
+                ->line(__('If you did not request a password reset, no further action is required.'));
+
+            if (app()->isProduction()) {
+                $message->mailer('ses')->from('help@aiku.io', 'Aiku');
+            }
+
+            return $message;
+        });
 
         Paginator::queryStringResolver(function (): array {
             parse_str((string) request()->server('QUERY_STRING'), $queryString);
@@ -307,6 +328,15 @@ class AppServiceProvider extends ServiceProvider
                 'StockFamily'                      => 'App\Models\Goods\StockFamily',
                 'TradeUnit'                        => 'App\Models\Goods\TradeUnit',
                 'TradeUnitFamily'                  => 'App\Models\Goods\TradeUnitFamily',
+                'ProductDevelopment'               => 'App\Models\Goods\ProductDevelopment',
+                'ProductDevelopmentItem'           => 'App\Models\Goods\ProductDevelopmentItem',
+                'ProductDevelopmentChecklistItem'  => 'App\Models\Goods\ProductDevelopmentChecklistItem',
+                'ProductDevelopmentFile'           => 'App\Models\Goods\ProductDevelopmentFile',
+                'ProductDevelopmentDesignRound'    => 'App\Models\Goods\ProductDevelopmentDesignRound',
+                'ProductDevelopmentDesignSection'  => 'App\Models\Goods\ProductDevelopmentDesignSection',
+                'ProductDevelopmentArtwork'        => 'App\Models\Goods\ProductDevelopmentArtwork',
+                'ProductDevelopmentStage'          => 'App\Models\Goods\ProductDevelopmentStage',
+                'ProductDevelopmentComment'        => 'App\Models\Goods\ProductDevelopmentComment',
                 'TradeUnitTariffCodeOverride'      => 'App\Models\Goods\TradeUnitTariffCodeOverride',
 
 
@@ -419,6 +449,8 @@ class AppServiceProvider extends ServiceProvider
                 'OrgSupplierProduct'               => 'App\Models\Procurement\OrgSupplierProduct',
                 'PurchaseOrder'                    => 'App\Models\Procurement\PurchaseOrder',
                 'ProcurementNote'                  => 'App\Models\Procurement\ProcurementNote',
+                'AgentGoodsReceipt'                => 'App\Models\Procurement\AgentGoodsReceipt',
+                'AgentGoodsReceiptItem'            => 'App\Models\Procurement\AgentGoodsReceiptItem',
                 'SupplierAgreedTerm'               => 'App\Models\Procurement\SupplierAgreedTerm',
                 'PurchaseOrderTransaction'         => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'OrgPartner'                       => 'App\Models\Procurement\OrgPartner',
@@ -426,11 +458,11 @@ class AppServiceProvider extends ServiceProvider
 
                 // Supply Chain
                 'AspoDeposit'                      => 'App\Models\SupplyChain\AspoDeposit',
-                'SupplierUser'                     => 'App\Models\SupplyChain\SupplierUser',
                 'AgentSupplierPurchaseOrder'       => 'App\Models\SupplyChain\AgentSupplierPurchaseOrder',
                 'HistoricSupplierProduct'          => 'App\Models\SupplyChain\HistoricSupplierProduct',
                 'SupplierProductTradeUnit'         => 'App\Models\SupplyChain\SupplierProductTradeUnit',
                 'SupplierProduct'                  => 'App\Models\SupplyChain\SupplierProduct',
+                'SupplierProductPackingSpec'       => 'App\Models\SupplyChain\SupplierProductPackingSpec',
                 'Supplier'                         => 'App\Models\SupplyChain\Supplier',
                 'Agent'                            => 'App\Models\SupplyChain\Agent',
 
@@ -449,6 +481,7 @@ class AppServiceProvider extends ServiceProvider
                 'WebLayoutTemplate'                => 'App\Models\Web\WebLayoutTemplate',
                 'Website'                          => 'App\Models\Web\Website',
                 'Webpage'                          => 'App\Models\Web\Webpage',
+                'SeoContentSuggestion'             => 'App\Models\Web\SeoContentSuggestion',
                 'WebBlock'                         => 'App\Models\Web\WebBlock',
                 'WebBlockType'                     => 'App\Models\Web\WebBlockType',
                 'Banner'                           => 'App\Models\Web\Banner',

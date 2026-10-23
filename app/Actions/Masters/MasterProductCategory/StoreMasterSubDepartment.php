@@ -20,7 +20,9 @@ use App\Models\Masters\MasterShop;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreMasterSubDepartment extends OrgAction
@@ -49,7 +51,7 @@ class StoreMasterSubDepartment extends OrgAction
             ? $this->parent->id
             : $this->parent->master_shop_id;
 
-        return [
+        $rules = [
             'code'        => [
                 'required',
                 'max:32',
@@ -67,6 +69,19 @@ class StoreMasterSubDepartment extends OrgAction
             'description' => ['sometimes', 'nullable', 'max:1500'],
 
         ];
+
+        if ($this->parent instanceof MasterShop) {
+            $rules['master_department_id'] = [
+                'required',
+                'integer',
+                Rule::exists('master_product_categories', 'id')
+                    ->where('master_shop_id', $masterShopId)
+                    ->where('type', MasterProductCategoryTypeEnum::DEPARTMENT->value)
+                    ->whereNull('deleted_at'),
+            ];
+        }
+
+        return $rules;
     }
 
 
@@ -84,7 +99,10 @@ class StoreMasterSubDepartment extends OrgAction
         $this->parent = $masterShop;
         $this->initialisationFromGroup(group(), $request);
 
-        return $this->handle($masterShop, $this->validatedData);
+        $modelData        = $this->validatedData;
+        $masterDepartment = MasterProductCategory::find(Arr::pull($modelData, 'master_department_id'));
+
+        return $this->handle($masterDepartment, $modelData);
     }
 
     public function inMasterDepartment(MasterProductCategory $masterDepartment, ActionRequest $request): MasterProductCategory

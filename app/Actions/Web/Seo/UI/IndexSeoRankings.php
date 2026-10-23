@@ -22,6 +22,8 @@ use Spatie\QueryBuilder\AllowedSort;
 
 class IndexSeoRankings extends OrgAction
 {
+    use WithSeoKeywordFilters;
+
     public const int SEARCH_CONSOLE_DAYS = 28;
 
     /**
@@ -51,6 +53,7 @@ class IndexSeoRankings extends OrgAction
                     ->on('seo_keywords.country_code', '=', 'seo_tracked_keywords.country_code')
                     ->on('seo_keywords.language_code', '=', 'seo_tracked_keywords.language_code');
             })
+            ->where(fn ($query) => $this->applyKeywordFilters($query, $this->keywordFilters($prefix)))
             ->groupBy('seo_tracked_keywords.keyword')
             ->defaultSort('keyword')
             ->select(['seo_tracked_keywords.keyword'])
@@ -58,6 +61,7 @@ class IndexSeoRankings extends OrgAction
                 AllowedSort::field('keyword', 'seo_tracked_keywords.keyword'),
                 AllowedSort::callback('position', fn ($query, bool $descending) => $query->orderByRaw('MIN(seo_tracked_keywords.position) '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
                 AllowedSort::callback('avg_monthly_searches', fn ($query, bool $descending) => $query->orderByRaw('MAX(seo_keywords.avg_monthly_searches) '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
+                AllowedSort::callback('keyword_difficulty', fn ($query, bool $descending) => $query->orderByRaw('MAX(seo_keywords.keyword_difficulty) '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
             ])
             ->allowedFilters([
                 $globalSearch,
@@ -71,6 +75,8 @@ class IndexSeoRankings extends OrgAction
         $this->attach($shop, $variants);
 
         $variantsByKeyword = $variants->groupBy('keyword');
+
+        $this->attachTags($shop->id, $keywords->getCollection());
 
         return $keywords->through(function (SeoTrackedKeyword $keyword) use ($variantsByKeyword) {
             $variants = $variantsByKeyword
@@ -87,6 +93,7 @@ class IndexSeoRankings extends OrgAction
 
             $primary->setAttribute('other_countries', $variants->slice(1)->values());
             $primary->setAttribute('check_ids', $variants->pluck('id')->all());
+            $primary->setAttribute('tags', $keyword->tags);
 
             return $primary;
         });
@@ -134,9 +141,11 @@ class IndexSeoRankings extends OrgAction
             'seo_tracked_keywords.ranking_url',
             'seo_tracked_keywords.serp_features',
             'seo_tracked_keywords.in_ai_overview',
+            'seo_tracked_keywords.serp_features_owned',
             'seo_tracked_keywords.pending_task_id',
             'seo_keywords.avg_monthly_searches',
             'seo_keywords.intent',
+            'seo_keywords.keyword_difficulty',
         ];
     }
 
@@ -162,12 +171,14 @@ class IndexSeoRankings extends OrgAction
                     ->on('seo_keywords.country_code', '=', 'seo_tracked_keywords.country_code')
                     ->on('seo_keywords.language_code', '=', 'seo_tracked_keywords.language_code');
             })
+            ->where(fn ($query) => $this->applyKeywordFilters($query, $this->keywordFilters($prefix)))
             ->defaultSort('seo_tracked_keywords.keyword')
             ->select($this->columns())
             ->allowedSorts([
                 AllowedSort::field('keyword', 'seo_tracked_keywords.keyword'),
                 AllowedSort::callback('position', fn ($query, bool $descending) => $query->orderByRaw('seo_tracked_keywords.position '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
                 AllowedSort::callback('avg_monthly_searches', fn ($query, bool $descending) => $query->orderByRaw('seo_keywords.avg_monthly_searches '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
+                AllowedSort::callback('keyword_difficulty', fn ($query, bool $descending) => $query->orderByRaw('seo_keywords.keyword_difficulty '.($descending ? 'DESC' : 'ASC').' NULLS LAST')),
             ])
             ->allowedFilters([
                 $globalSearch,
@@ -177,6 +188,7 @@ class IndexSeoRankings extends OrgAction
             ->withQueryString();
 
         $this->attach($shop, $rankings->getCollection());
+        $this->attachTags($shop->id, $rankings->getCollection());
 
         return $rankings;
     }
@@ -291,8 +303,10 @@ class IndexSeoRankings extends OrgAction
                 ->column(key: 'search_console_position', label: __('Search Console'), tooltip: __('Average position over all impressions in the last 28 days, every country and device. It measures something different from one check, so the two rarely match'), align: 'right', tooltipIcon: true)
                 ->column(key: 'ranking_url', label: __('Ranking page'))
                 ->column(key: 'avg_monthly_searches', label: __('Monthly searches'), sortable: true, align: 'right')
+                ->column(key: 'keyword_difficulty', label: __('KD'), tooltip: __('Keyword difficulty, 0 to 100: how hard it is to reach the top 10, from DataForSEO. A dash means no data, which is not the same as 0'), sortable: true, align: 'right', tooltipIcon: true)
                 ->column(key: 'intent', label: __('Intent'))
-                ->column(key: 'serp_features', label: __('On the results page'), tooltip: __('What else Google showed for the keyword. AI Overview is highlighted when it cites our website'), tooltipIcon: true)
+                ->column(key: 'tags', label: __('Tags'))
+                ->column(key: 'serp_features', label: __('On the results page'), tooltip: __('What else Google showed for the keyword. A feature is highlighted when it shows our website'), tooltipIcon: true)
                 ->column(key: 'competitor_positions', label: __('Competitors'))
                 ->defaultSort('keyword');
         };

@@ -15,6 +15,7 @@ import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import { capitalize } from '@/Composables/capitalize'
 import { mixBatchesLabel } from '@/Composables/mixBatches'
+import { packsLabel } from '@/Composables/packs'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faIndustry, faLink } from "@fal"
@@ -28,6 +29,7 @@ interface FloorStep {
     quantity_required: number
     unit: string | null
     mix_batch_kg: number | null
+    pack_size: number | null
     blocked_by_step: string | null
     worked_by: string[]
     working_on_by: string[]
@@ -50,6 +52,7 @@ interface FloorTask {
     manufacture_task_id: number
     task_code: string
     task_name: string
+    is_piece_rate: boolean
     artefact_code: string
     artefact_name: string
     job_order_reference: string
@@ -72,6 +75,7 @@ interface FloorTask {
     combined: CombinedLine[] | null
     separate_route: null | { name: string, parameters: object }
     start_route: { name: string, parameters: object }
+    is_quantity_only: boolean
 }
 
 const props = defineProps<{
@@ -86,6 +90,8 @@ const props = defineProps<{
         planned_minutes: number | null
         started_at: string
         is_clocked_out: boolean
+        is_shift_end: boolean
+        worked_seconds: number | null
         end_route: { name: string, parameters: object }
     }
     non_productive: {
@@ -105,8 +111,17 @@ const props = defineProps<{
             session: { started_at: string, break_minutes: number, quantity_made: number }
         }
         break_minutes: number
+        left_open_after_shift_at?: string | null
+        shift_end?: null | {
+            paused_at: string
+            worked_seconds: number
+            answer: string | null
+            is_resolved: boolean
+            continue_route: { name: string, parameters: object }
+        }
     }
     artisan: string | null
+    is_hourly: boolean
     materials_check_route: null | { name: string, parameters: string[] }
     can_pick_open_jobs: boolean
     combine_route: null | { name: string, parameters: object }
@@ -170,11 +185,27 @@ const breakSecondsLeft = computed(() => {
     return Math.max(0, props.open_break.planned_minutes * 60 - breakSecondsElapsed.value)
 })
 const breakCountdown = computed(() => {
-    const seconds = isKioskBreak.value ? breakSecondsElapsed.value : breakSecondsLeft.value
+    if (isKioskBreak.value) {
+        const minutes = Math.floor(breakSecondsElapsed.value / 60)
+        return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
+    }
+    const seconds = breakSecondsLeft.value
     const m = Math.floor(seconds / 60)
     const s = seconds % 60
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+function durationLabel(seconds: number) {
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    return hours ? ctrans(':hours h :minutes min', { hours, minutes: minutes % 60 }) : ctrans(':minutes min', { minutes })
+}
+
+function pausedAtLabel(iso: string) {
+    return new Date(iso).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+const pausedTask = computed(() => props.open_session && !props.open_session.activity ? props.open_session.task : null)
 
 const pendingBreak = ref<number | null>(null)
 const breakProcessing = ref(false)
@@ -254,7 +285,9 @@ function stepStatus(step: FloorStep) {
     const progress = `${step.quantity_made}/${step.quantity_required}`
     const units = step.unit
         ? [`${progress} ${step.unit}`, mixBatchesLabel(step.quantity_required, step.mix_batch_kg)].filter(Boolean).join(' · ')
-        : ctransChoice(':progress unit|:progress units', step.quantity_required, { progress })
+        : step.pack_size
+            ? `${packsLabel(step.quantity_made, step.pack_size)} / ${packsLabel(step.quantity_required, step.pack_size)}`
+            : ctransChoice(':progress unit|:progress units', step.quantity_required, { progress })
     if (step.state == 'done') {
         return [ctrans('Done'), units, formatWorked(step.seconds), step.worked_by.join(', ')].filter(Boolean).join(' · ')
     }
@@ -309,7 +342,14 @@ function mixBatches(task: FloorTask): string | null {
     return mixBatchesLabel(task.quantity_required - task.quantity_made, task.mix_batch_kg)
 }
 
+const pieceRateWarningFor = ref<number | null>(null)
+
 function startTask(task: FloorTask) {
+    if (props.is_hourly && task.is_piece_rate && pieceRateWarningFor.value !== task.id) {
+        pieceRateWarningFor.value = task.id
+        return
+    }
+    pieceRateWarningFor.value = null
     processing.value = true
     router.post(
         route(task.start_route.name, task.start_route.parameters),
@@ -362,7 +402,7 @@ function startTask(task: FloorTask) {
                     <div class="text-sm text-gray-600 truncate">{{ task.artefact_name }}</div>
                     <div class="text-xs text-gray-500 mt-0.5 flex justify-between">
                         <span>{{ task.task_name }} · {{ task.job_order_reference }}</span>
-                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="mixBatches(task)"> · {{ mixBatches(task) }}</template><template v-if="task.pack_size"> {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
+                        <span class="tabular-nums">{{ packsLabel(task.quantity_made, task.pack_size) }}/{{ packsLabel(task.quantity_required, task.pack_size) }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="mixBatches(task)"> · {{ mixBatches(task) }}</template><template v-if="task.pack_size"> · {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
                     </div>
                     <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
                         <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
@@ -400,15 +440,28 @@ function startTask(task: FloorTask) {
         <main class="flex-1 min-w-0 overflow-y-auto p-6 flex flex-col items-center gap-6">
             <div v-if="breakError" class="w-full max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{{ breakError }}</div>
 
-            <div v-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
-                <div>
-                    <div v-if="isKioskBreak" class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('Clocked out') }} · {{ ctrans('Job paused') }}</div>
-                    <div v-else class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
-                    <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
-                    <div v-if="isKioskBreak" class="mt-2 text-amber-700">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
-                    <div v-else-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+            <div v-if="open_break && isKioskBreak" class="w-full max-w-5xl rounded-2xl border-2 border-gray-300 bg-gray-50 p-8">
+                <div class="text-xs uppercase tracking-wide text-gray-500">
+                    {{ open_break.is_shift_end ? ctrans('Paused at end of shift, :time', { time: pausedAtLabel(open_break.started_at) }) : ctrans('Clocked out, job paused at :time', { time: pausedAtLabel(open_break.started_at) }) }}
                 </div>
-                <button v-if="!isKioskBreak" type="button"
+                <div class="mt-1 flex items-baseline gap-4">
+                    <span class="text-7xl font-mono tabular-nums text-gray-500">{{ breakCountdown }}</span>
+                    <span class="text-xl text-gray-500">{{ ctrans('paused for :duration', { duration: durationLabel(breakSecondsElapsed) }) }}</span>
+                </div>
+                <div v-if="open_break.worked_seconds !== null" class="mt-3 text-xl text-gray-700">
+                    {{ ctrans('Worked: :duration', { duration: durationLabel(open_break.worked_seconds) }) }}
+                    <template v-if="pausedTask"> · {{ ctrans(':made of :required recorded', { made: packsLabel(pausedTask.quantity_made, pausedTask.pack_size), required: pausedTask.unit ? `${pausedTask.quantity_required} ${pausedTask.unit}` : packsLabel(pausedTask.quantity_required, pausedTask.pack_size) }) }}</template>
+                </div>
+                <div class="mt-2 text-gray-600">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
+            </div>
+
+            <div v-else-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
+                <div>
+                    <div class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
+                    <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
+                    <div v-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+                </div>
+                <button type="button"
                     class="rounded-xl bg-amber-600 text-white text-2xl font-semibold px-10 py-5 disabled:opacity-40"
                     :disabled="breakProcessing" @click="endBreak">
                     {{ ctrans('End break') }}
@@ -471,7 +524,7 @@ function startTask(task: FloorTask) {
 
             <div v-if="open_break" class="flex-1 flex items-center text-gray-400 text-lg">{{ isKioskBreak ? ctrans('Clock back in to continue working') : ctrans('Finish your break to continue working') }}</div>
 
-            <ManufactureWorkingCard v-else-if="open_session" :session="open_session" :server-time="server_time" class="w-full max-w-5xl" />
+            <ManufactureWorkingCard v-else-if="open_session" :key="open_session.id" :session="open_session" :server-time="server_time" class="w-full max-w-5xl" />
 
             <div v-else-if="selectedTask" class="flex-1 flex flex-col justify-center w-full max-w-2xl text-center">
                 <div v-if="startError" class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">{{ startError }}</div>
@@ -481,7 +534,7 @@ function startTask(task: FloorTask) {
                 <div class="text-3xl font-semibold mt-2">{{ selectedTask.artefact_code }}</div>
                 <div class="text-xl text-gray-600">{{ selectedTask.artefact_name }}</div>
                 <div class="text-5xl font-semibold tabular-nums my-6">
-                    {{ selectedTask.quantity_made }} <span class="text-gray-400 text-3xl">/ {{ selectedTask.quantity_required }}<template v-if="selectedTask.unit"> {{ selectedTask.unit }}</template></span>
+                    {{ packsLabel(selectedTask.quantity_made, selectedTask.pack_size) }} <span class="text-gray-400 text-3xl">/ {{ packsLabel(selectedTask.quantity_required, selectedTask.pack_size) }}<template v-if="selectedTask.unit"> {{ selectedTask.unit }}</template></span>
                     <div v-if="mixBatches(selectedTask)" class="mt-1 text-3xl text-[--app-accent-strong]">{{ mixBatches(selectedTask) }}</div>
                     <div v-if="selectedTask.pack_size" class="mt-1 text-2xl text-amber-700">{{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: selectedTask.pack_size, code: selectedTask.artefact_code }) }}</div>
                 </div>
@@ -492,11 +545,25 @@ function startTask(task: FloorTask) {
                     <FontAwesomeIcon icon="fas fa-lock" fixed-width aria-hidden="true" /> {{ ctrans('Waiting for') }} {{ selectedTask.blocked_by_step }}
                 </div>
                 <div v-else-if="selectedTask.working_on_by.length" class="text-amber-600 font-medium mb-2">{{ ctrans('Working') }}: {{ selectedTask.working_on_by.join(', ') }}</div>
-                <button v-if="selectedTask.can_start" type="button"
+                <div v-if="selectedTask.can_start && pieceRateWarningFor === selectedTask.id" class="rounded-xl border-2 border-amber-300 bg-amber-50 p-5">
+                    <div class="text-2xl font-semibold text-amber-800">{{ ctrans('Are you really doing :step now?', { step: selectedTask.task_name }) }}</div>
+                    <div class="mt-1 text-lg text-amber-800">{{ ctrans('You are paid by the hour. Start :step only if you are doing it now. If the work you did is not on this job, ask your manager to add the step.', { step: selectedTask.task_name }) }}</div>
+                    <div class="mt-4 flex justify-center gap-3">
+                        <button type="button" class="rounded-xl bg-[--app-accent] text-[--app-accent-text] text-xl font-semibold px-8 py-4 disabled:opacity-40"
+                            :disabled="processing" @click="startTask(selectedTask)">
+                            {{ ctrans('Yes, start :step', { step: selectedTask.task_name }) }}
+                        </button>
+                        <button type="button" class="rounded-xl border border-gray-300 bg-white text-gray-700 text-xl font-semibold px-8 py-4"
+                            @click="pieceRateWarningFor = null">
+                            {{ ctrans('Cancel') }}
+                        </button>
+                    </div>
+                </div>
+                <button v-else-if="selectedTask.can_start" type="button"
                     class="rounded-xl bg-[--app-accent] text-[--app-accent-text] text-2xl font-semibold px-16 py-5 disabled:opacity-40"
                     :disabled="processing"
                     @click="startTask(selectedTask)">
-                    {{ ctrans('START') }}
+                    {{ selectedTask.is_quantity_only ? ctrans('ENTER QUANTITY') : ctrans('START') }}
                 </button>
 
                 <div v-if="selectedTask.combined" class="mt-8 rounded-xl border border-gray-200 bg-white text-left">

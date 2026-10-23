@@ -8,6 +8,7 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\Accounting\Invoice\WithInvoiceDeliveryCountry;
 use App\Actions\Accounting\Invoice\WithInvoicesSubNavigation;
 use App\Actions\Accounting\InvoiceCategory\UI\ShowInvoiceCategory;
 use App\Actions\Accounting\InvoiceCategory\WithInvoiceCategorySubNavigation;
@@ -35,8 +36,10 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Helpers\Country;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
+use App\Actions\Traits\Authorisations\WithInvoiceCategoryListAuthorisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -53,10 +56,12 @@ class IndexInvoices extends OrgAction
     use WithCustomerSubNavigation;
     use WithInvoicesSubNavigation;
     use WithInvoiceCategorySubNavigation;
-
+    use WithInvoiceCategoryListAuthorisation;
+    use WithInvoiceDeliveryCountry;
 
     private Organisation|Fulfilment|Customer|FulfilmentCustomer|InvoiceCategory|Shop $parent;
     private string $bucket = '';
+    private ?Country $deliveryCountry = null;
 
 
     public function handle(Organisation|Fulfilment|Customer|FulfilmentCustomer|InvoiceCategory|Shop|Order|OrgPaymentServiceProvider $parent, ?string $prefix = null, ?string $bucket = null): LengthAwarePaginator
@@ -105,6 +110,9 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.order_id', $parent->id);
         } elseif ($parent instanceof InvoiceCategory) {
             $queryBuilder->where('invoices.invoice_category_id', $parent->id);
+            if ($this->invoiceCategoryViewableShopIds !== null) {
+                $queryBuilder->whereIn('invoices.shop_id', $this->invoiceCategoryViewableShopIds);
+            }
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
             $queryBuilder->leftJoin('model_has_payments', function ($join) {
                 $join->on('invoices.id', '=', 'model_has_payments.model_id')
@@ -126,6 +134,15 @@ class IndexInvoices extends OrgAction
             $additionalSelects = [
                 'customers.name as customer_name', 'customers.slug as customer_slug', 'customers.company_name as customer_company'
             ];
+        }
+
+        if ($parent instanceof InvoiceCategory || $this->deliveryCountry) {
+            $this->joinInvoiceDeliveryCountry($queryBuilder);
+            if ($this->deliveryCountry) {
+                $queryBuilder->where('delivery_countries.id', $this->deliveryCountry->id);
+            }
+            $additionalSelects[] = 'delivery_countries.name as delivery_country';
+            $additionalSelects[] = 'delivery_countries.code as delivery_country_code';
         }
 
         if ($parent instanceof Fulfilment) {
@@ -162,7 +179,7 @@ class IndexInvoices extends OrgAction
             ->leftJoin('currencies', 'invoices.currency_id', 'currencies.id')
             ->leftJoin('invoice_stats', 'invoices.id', 'invoice_stats.invoice_id');
 
-        return $queryBuilder->allowedSorts(['number', 'pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference'])
+        return $queryBuilder->allowedSorts(['number', 'pay_status', 'total_amount', 'net_amount', 'date', 'customer_name', 'reference', ...($parent instanceof InvoiceCategory || $this->deliveryCountry ? ['delivery_country'] : [])])
             ->allowedFilters([$globalSearch])
             ->withBetweenDates(['date'])
             ->withPaginator($prefix, tableName: request()->route()->getName())
@@ -210,6 +227,10 @@ class IndexInvoices extends OrgAction
                 $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
+            if ($parent instanceof InvoiceCategory || $this->deliveryCountry) {
+                $table->column(key: 'delivery_country', label: __('Country'), canBeHidden: false, sortable: true);
+            }
+
             $table->column(key: 'date', label: __('Date'), canBeHidden: false, sortable: true, searchable: true, align: 'right');
 
             $show = true;
@@ -236,8 +257,28 @@ class IndexInvoices extends OrgAction
 
     public function getExportOptions(?string $filter): array
     {
+        $spreadsheetOptions = [];
+        if ($this->parent instanceof InvoiceCategory) {
+            $spreadsheetOptions[] = [
+                'type'       => 'csv',
+                'icon'       => 'fal fa-file-csv',
+                'tooltip'    => __('Download the invoices of the selected dates, with their country'),
+                'label'      => 'CSV',
+                'name'       => 'grp.org.accounting.invoice-categories.show.invoices.index.export',
+                'parameters' => array_filter([
+                    'organisation'    => $this->organisation->slug,
+                    'invoiceCategory' => $this->parent->slug,
+                    'between'         => $filter ? ['date' => $filter] : null,
+                    'country'         => $this->deliveryCountry?->code,
+                ]),
+            ];
+        }
+
         if (!Arr::get($this->organisation->settings, 'invoice_export.show_omega')) {
-            return [];
+            return $spreadsheetOptions;
+        }
+        if ($this->deliveryCountry && !$this->parent instanceof InvoiceCategory) {
+            return $spreadsheetOptions;
         }
         if ($this->parent instanceof Organisation) {
             $route      = 'grp.org.accounting.invoices.index.omega';
@@ -256,7 +297,7 @@ class IndexInvoices extends OrgAction
                 'bucket'       => $this->bucket,
                 'type'         => 'invoice',
             ]);
-        } elseif ($this->parent instanceof InvoiceCategory) {
+        } elseif ($this->parent instanceof InvoiceCategory && $this->invoiceCategoryViewableShopIds === null && !$this->deliveryCountry) {
             $route      = 'grp.org.accounting.invoice-categories.show.invoices.index.omega';
             $parameters = array_filter([
                 'organisation' => $this->organisation->slug,
@@ -266,10 +307,11 @@ class IndexInvoices extends OrgAction
                 'type'         => 'invoice',
             ]);
         } else {
-            return [];
+            return $spreadsheetOptions;
         }
 
         return [
+            ...$spreadsheetOptions,
             [
                 'type'       => 'omega',
                 'icon'       => 'fas fa-omega',
@@ -356,13 +398,18 @@ class IndexInvoices extends OrgAction
         } elseif ($this->parent instanceof InvoiceCategory) {
             $model = __('Invoices');
             $title = $this->parent->name;
+            if ($this->deliveryCountry) {
+                $afterTitle = [
+                    'label' => __('Delivered to').' '.$this->deliveryCountry->name
+                ];
+            }
             $icon  = [
                 'icon'  => ['fal', 'fa-file-invoice-dollar'],
                 'title' => __('Invoice category')
             ];
         } elseif ($this->parent instanceof Organisation) {
             $afterTitle = [
-                'label' => __('In organisation') . ': ' . $this->parent->name
+                'label' => $this->deliveryCountry ? __('Delivered to').' '.$this->deliveryCountry->name : __('In organisation') . ': ' . $this->parent->name
             ];
         } elseif ($this->parent instanceof Shop) {
             $afterTitle = [
@@ -546,6 +593,21 @@ class IndexInvoices extends OrgAction
         return $this->handle($invoiceCategory, InvoicesTabsEnum::INVOICES->value);
     }
 
+    public function inOrganisationCountry(Organisation $organisation, Country $country, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->deliveryCountry = $country;
+
+        return $this->asController($organisation, $request);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inInvoiceCategoryCountry(Organisation $organisation, InvoiceCategory $invoiceCategory, Country $country, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->deliveryCountry = $country;
+
+        return $this->inInvoiceCategory($organisation, $invoiceCategory, $request);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
@@ -559,6 +621,10 @@ class IndexInvoices extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $routeName = $request->route()->getName();
+
+        if (in_array($routeName, ['grp.org.accounting.invoice-categories.show.invoices.index', 'grp.org.accounting.invoice-categories.show.countries.show.invoices.index'])) {
+            return $this->authorizeInvoiceCategoryList($request->user(), $this->organisation);
+        }
 
         if (str_starts_with($routeName, 'grp.org.accounting.')) {
             return $request->user()->authTo("accounting.{$this->organisation->id}.view");
@@ -747,6 +813,19 @@ class IndexInvoices extends OrgAction
                         'name'       => $routeName,
                         'parameters' => $routeParameters
                     ],
+                )
+            ),
+
+            'grp.org.accounting.invoice-categories.show.countries.show.invoices.index',
+            'grp.org.accounting.invoices_by_country.show.invoices.index' =>
+            array_merge(
+                IndexInvoicesByCountry::make()->getBreadcrumbs($this->parent, Arr::except($routeParameters, ['country'])),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $this->deliveryCountry?->name
                 )
             ),
 

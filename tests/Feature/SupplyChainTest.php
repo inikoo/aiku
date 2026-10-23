@@ -147,7 +147,7 @@ test('agent org admin can log in with aurora legacy password', function (Agent $
     expect($user->auth_type)->toBe(UserAuthTypeEnum::DEFAULT)
         ->and($user->legacy_password)->toBeNull()
         ->and(Hash::check('aurora-password', $user->password))->toBeTrue()
-        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
+        ->and(array_keys(GetOrganisationsLayout::run($user)[$organisation->slug]))->toBe(['agent_incoming_purchase_orders', 'agent_suppliers', 'agent_products', 'agent_sales', 'agent_purchase_orders', 'agent_warehouse_navigation', 'agent_containers', 'agent_accounting', 'hr', 'agent_settings'])
         ->and($user->hasGroupAccess())->toBeFalse()
         ->and(array_keys(GetGroupNavigation::run($user)))->toBe(['tickets']);
 
@@ -374,7 +374,7 @@ test('HELP-4019 carton dimensions give the CBM, packaging terms merge, and a new
         ->toThrow(ValidationException::class);
 })->depends('create supplier product independent supplier');
 
-test('HELP-4019 a generic supplier takes no new contacts, a real factory takes WeChat and WhatsApp', function (Supplier $supplier) {
+test('HELP-4019 a factory takes WeChat, WhatsApp and holidays', function (Supplier $supplier) {
     $supplier = UpdateSupplier::make()->action($supplier, [
         'wechat'                 => 'factory_wx',
         'production_waiting_time' => 30,
@@ -385,14 +385,6 @@ test('HELP-4019 a generic supplier takes no new contacts, a real factory takes W
     expect($supplier->wechat)->toBe('factory_wx')
         ->and($supplier->defaultLeadTimeDays())->toBe(40)
         ->and($supplier->factory_holidays)->toHaveCount(1);
-
-    $supplier = UpdateSupplier::make()->action($supplier, ['is_generic' => true]);
-
-    expect(fn () => UpdateSupplier::make()->action($supplier, ['wechat' => 'someone_else']))
-        ->toThrow(ValidationException::class);
-
-    $supplier = UpdateSupplier::make()->action($supplier, ['wechat' => 'factory_wx', 'is_generic' => false]);
-    expect($supplier->is_generic)->toBeFalse();
 })->depends('create independent supplier');
 
 test('HELP-4019 a family at a supplier keeps its own MOQ, lead time, packaging terms and production calendar', function (Supplier $supplier) {
@@ -631,7 +623,8 @@ test('confirmed supplier product upload creates families, trade unit, SKO, suppl
         ])
         ->and($supplierProduct->data['unit_expense'])->toEqual(0.1)
         ->and((float)$purchaseOrder->purchaseOrderTransactions()->where('supplier_product_id', $supplierProduct->id)->value('quantity_ordered'))->toBe(240.0)
-        ->and($upload->data['purchase_orders'][strtoupper($this->organisation->code)]['lines'])->toBe(1);
+        ->and($upload->data['purchase_orders'][strtoupper($this->organisation->code)]['lines'])->toBe(1)
+        ->and($purchaseOrder->fresh()->data['from_upload_id'])->toBe($upload->id);
 
     expect(App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder::make()->estimatedExpenses($purchaseOrder))->toEqual(24.0);
 
@@ -656,6 +649,14 @@ test('confirmed supplier product upload creates families, trade unit, SKO, suppl
     $againFindings = collect($again->records()->first()->data['findings'])->pluck('level', 'code');
 
     expect($againFindings->all())->toMatchArray(['link_trade_unit' => 'link', 'update_supplier_product' => 'block', 'cost_change' => 'block']);
+
+    $orderCurrencyId = $purchaseOrder->currency_id;
+    $purchaseOrder->update(['currency_id' => Currency::where('id', '!=', $supplierProduct->currency_id)->value('id')]);
+    App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange::shouldRun()->andReturn(2.0);
+
+    expect(App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder::make()->estimatedExpenses($purchaseOrder->refresh()))->toEqual(48.0);
+
+    $purchaseOrder->update(['currency_id' => $orderCurrencyId]);
 });
 
 
@@ -1250,6 +1251,7 @@ test('UI Index suppliers product in supplier', function () {
             ->has('pageHead')
             ->has('data')
             ->has('upload_spreadsheet')
+            ->where('queryBuilderProps.default.columns', fn ($columns) => !collect($columns)->contains('key', 'supplier_name'))
             ->has('breadcrumbs', 4);
     });
 });
@@ -1264,8 +1266,19 @@ test('UI Index free supplier products', function () {
             ->where('title', 'Free Supplier Products')
             ->has('pageHead.subNavigation', 3)
             ->has('data')
+            ->where('data.data.0.supplier_name', fn ($name) => filled($name))
+            ->where('queryBuilderProps.default.columns', fn ($columns) => collect($columns)->contains('key', 'supplier_name'))
             ->has('breadcrumbs', 3);
     });
+});
+
+test('supplier products list finds products by their supplier name', function () {
+    $supplierProduct = SupplierProduct::whereNull('agent_id')->whereNotNull('supplier_id')->first();
+    $supplierName    = $supplierProduct->supplier->name;
+
+    $this->get(route('grp.supply-chain.supplier_products.index', ['filter' => ['global' => $supplierName], 'elements' => ['state' => 'in_process,active,discontinuing,discontinued']]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('data.data', fn ($rows) => collect($rows)->pluck('id')->contains($supplierProduct->id)));
 });
 
 test('UI Index supplier products in agents', function () {
@@ -1498,7 +1511,8 @@ test('UI show agent supplier lists its purchase orders', function () {
     $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->where('pageHead.subNavigation.2.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
-            ->missing('pageHead.subNavigation.4')
+            ->where('pageHead.subNavigation.4.route.name', 'grp.supply-chain.suppliers.sales')
+            ->missing('pageHead.subNavigation.5')
             ->where('showcase.stats.1.route.name', 'grp.supply-chain.suppliers.purchase_orders.index')
             ->etc());
 

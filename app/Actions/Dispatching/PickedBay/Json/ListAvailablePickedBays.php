@@ -9,6 +9,7 @@
 namespace App\Actions\Dispatching\PickedBay\Json;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\WithDispatchingEquipmentAuthorisation;
 use App\Enums\UI\Inventory\PickedBaysTabsEnum;
 use App\Http\Resources\Dispatching\PickedBaysResource;
 use App\InertiaTable\InertiaTable;
@@ -22,11 +23,12 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ListAvailablePickedBays extends OrgAction
 {
+    use WithDispatchingEquipmentAuthorisation;
     public function handle(Warehouse $warehouse, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('picked_bays.name', $value);
+                $query->whereStartWith('picked_bays.code', $value);
             });
         });
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProductDevelopmentRelatedList from "@/Components/Goods/ProductDevelopment/ProductDevelopmentRelatedList.vue"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -40,6 +41,7 @@ library.add(
 )
 
 const props = defineProps<{
+    product_developments?: InstanceType<typeof ProductDevelopmentRelatedList>["$props"]["data"]
   title: string,
   pageHead: PageHeadingTypes
   tabs: {
@@ -57,6 +59,7 @@ const props = defineProps<{
   },
   sales_analysis?: object
   sales_analysis_teaser?: object
+  can_edit?: boolean
   trade_units?: Object
   attachments?:any
   history?: Object
@@ -91,7 +94,8 @@ const component = computed(() => {
     sales_analysis: SalesAnalysis,
     trade_units: TableTradeUnits,
     attachments : AttachmentManagement,
-    history: TableHistories
+    history: TableHistories,
+    product_developments: ProductDevelopmentRelatedList
   }
   return components[currentTab.value]
 })
@@ -199,8 +203,8 @@ const handleMassAssign = () => {
         @click="isBulkEditVisible = true"
       />
       <BulkTranslateTradeUnitNamesButton v-if="bulk_edit && currentTab === 'trade_units'" :tradeUnits="selectedTradeUnits" />
-      <Button @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
-      <Button @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
+      <Button v-if="can_edit" @click="isModalOpenMassAssign = true" :icon="faHandHoldingMagic" label="Edit Brand/Tag" :style="'secondary'"/>
+      <Button v-if="can_edit" @click="isModalOpen = true" :icon="faPlus" label="Trade Unit"/>
     </template>
   </PageHeading>
 

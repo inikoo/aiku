@@ -37,8 +37,11 @@ trait WithMasterAssetTradeUnits
     {
         $tradeUnits = $model->tradeUnits;
 
+        /** One trade unit states its own pack size, unless somebody set the units by hand: then the switch back must be reachable. */
         if ($tradeUnits->count() < 2) {
-            return ['shown' => false, 'canToggle' => false, 'byHand' => false];
+            return $model->has_independent_units
+                ? ['shown' => true, 'canToggle' => true, 'byHand' => true]
+                : ['shown' => false, 'canToggle' => false, 'byHand' => false];
         }
 
         $impliedUnits = $this->getSharedTradeUnitQuantity(
@@ -103,6 +106,21 @@ trait WithMasterAssetTradeUnits
     }
 
     /**
+     * Switching units back to "use the composition" posts only the flag, so the units are read
+     * off the composition already saved. Null when it implies none and the units stay as they are.
+     */
+    public function getUnitsFromCurrentTradeUnits(MasterAsset|Product $model): ?float
+    {
+        if ($model->tradeUnits->isEmpty()) {
+            return null;
+        }
+
+        return $this->getUnitsFromTradeUnits(
+            $model->tradeUnits->map(fn ($tradeUnit) => ['quantity' => $tradeUnit->pivot->quantity, 'type' => $tradeUnit->type])->all()
+        )['units'];
+    }
+
+    /**
      * Units are null when the composition cannot imply them - trade units packing different
      * quantities - and the caller leaves whatever was set by hand alone rather than flattening
      * it to 1.
@@ -153,7 +171,7 @@ trait WithMasterAssetTradeUnits
         foreach ($tradeUnitsRaw as $item) {
             $tradeUnit                  = TradeUnit::find(Arr::get($item, 'id'));
             $tradeUnits[$tradeUnit->id] = [
-                'quantity' => Arr::get($item, 'quantity')
+                'quantity' => wholeTradeUnitQuantity(Arr::get($item, 'quantity'))
             ];
 
             foreach ($tradeUnit->stocks as $stock) {

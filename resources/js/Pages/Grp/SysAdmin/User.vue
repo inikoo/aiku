@@ -49,7 +49,7 @@ const props = defineProps<{
     roles?: {}
     api_tokens?: {}
     apiRoutes: {
-        createToken: routeType
+        createToken: routeType | null
         deleteToken: routeType
     }
     two_fa_status: {}
@@ -123,7 +123,7 @@ const onClickCopyButton = async (text: string) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #otherBefore>
-            <Button @click="() => isModalApiToken = true" label="Generate API Token" type="tertiary">
+            <Button v-if="apiRoutes.createToken" @click="() => isModalApiToken = true" label="Generate API Token" type="tertiary">
 
             </Button>
         </template>

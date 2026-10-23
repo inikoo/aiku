@@ -1,0 +1,103 @@
+<script setup lang="ts">
+import { computed, nextTick, ref } from "vue"
+import { Message } from "primevue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faExternalLink } from "@fal"
+import FamilyEditCard, { type FamilyEditCardData } from "@/Components/Showcases/Grp/FamilyEditCard.vue"
+import FamilySeoChecklist from "@/Components/Showcases/Grp/FamilySeoChecklist.vue"
+import FamilySeoReview from "@/Components/Showcases/Grp/FamilySeoReview.vue"
+import FamilyWebmasterValidation from "@/Components/Showcases/Grp/FamilyWebmasterValidation.vue"
+import FamilySeoIssues from "@/Components/Showcases/Grp/FamilySeoIssues.vue"
+import { ctrans } from "@/Composables/useTrans"
+import { routeType } from "@/types/route"
+
+const props = defineProps<{
+    data: {
+        notice: string | null
+        workshop_route: routeType | null
+        sections: { title: string, subtitle: string, cards: FamilyEditCardData[] }[]
+        page_score: any | null
+        seo_review: any | null
+        webmaster_validation: any | null
+        seo_issues: any | null
+    }
+}>()
+
+type EditPageSection = "page_setting" | "seo_review" | "webmaster_validation" | "issues"
+
+const sectionFromUrl = new URLSearchParams(window.location.search).get("section")
+const currentSection = ref<EditPageSection>(sectionFromUrl === "issues" && props.data.seo_issues ? "issues" : "page_setting")
+
+const canOpenValidation = computed(() => !!props.data.webmaster_validation
+    && (props.data.webmaster_validation.tasks.length > 0 || props.data.webmaster_validation.is_validated))
+
+const navClass = (section: string) => currentSection.value === section
+    ? "bg-[--app-accent-soft] text-[--app-accent-strong]"
+    : "text-gray-700 hover:bg-gray-100"
+
+const openSetting = async (cardKey: string) => {
+    currentSection.value = "page_setting"
+    await nextTick()
+    document.getElementById(`edit-page-card-${cardKey}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+}
+</script>
+
+<template>
+    <div class="flex flex-col gap-4 p-4">
+        <nav :aria-label="ctrans('Edit page sections')" class="flex flex-wrap gap-1 border-b border-gray-200 pb-2">
+            <button type="button" :aria-current="currentSection === 'page_setting' ? 'page' : undefined" @click="currentSection = 'page_setting'"
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('page_setting')">
+                {{ ctrans("Page setting") }}
+            </button>
+            <a v-if="data.workshop_route" :href="route(data.workshop_route.name, data.workshop_route.parameters)" target="_blank" rel="noopener noreferrer"
+                class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[--app-accent]">
+                {{ ctrans("Workshop") }}
+                <FontAwesomeIcon :icon="faExternalLink" class="text-xs text-gray-500" fixed-width aria-hidden="true" />
+                <span class="sr-only">({{ ctrans("opens in a new window") }})</span>
+            </a>
+            <button v-if="data.seo_review" type="button" :aria-current="currentSection === 'seo_review' ? 'page' : undefined" @click="currentSection = 'seo_review'"
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('seo_review')">
+                {{ ctrans("SEO reviews and suggestions") }}
+            </button>
+            <button v-if="data.webmaster_validation" type="button" :aria-current="currentSection === 'webmaster_validation' ? 'page' : undefined" @click="currentSection = 'webmaster_validation'"
+                :disabled="!canOpenValidation" v-tooltip="canOpenValidation ? '' : ctrans('Opens once the SEO team has saved suggestions')"
+                class="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[--app-accent] disabled:opacity-50 disabled:cursor-not-allowed" :class="navClass('webmaster_validation')">
+                {{ ctrans("Webmaster validation") }}
+            </button>
+            <button v-if="data.seo_issues" type="button" :aria-current="currentSection === 'issues' ? 'page' : undefined" @click="currentSection = 'issues'"
+                class="inline-flex items-center gap-1.5 min-h-10 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="navClass('issues')">
+                {{ ctrans("Issues") }}
+                <span v-if="data.seo_issues.total" class="rounded-full bg-red-700 px-1.5 text-xs font-semibold text-white">{{ data.seo_issues.total }}</span>
+            </button>
+        </nav>
+
+        <Message v-if="data.notice" severity="warn">{{ data.notice }}</Message>
+
+        <FamilySeoReview v-if="currentSection === 'seo_review' && data.seo_review" :data="data.seo_review" :pageScore="data.page_score"
+            :canOpenValidation="canOpenValidation" @openWebmasterValidation="currentSection = 'webmaster_validation'" />
+
+        <FamilyWebmasterValidation v-else-if="currentSection === 'webmaster_validation' && canOpenValidation" :data="data.webmaster_validation"
+            :sections="data.sections" :workshopRoute="data.workshop_route" :pageScore="data.page_score" @openSetting="openSetting" />
+
+        <FamilySeoIssues v-else-if="currentSection === 'issues' && data.seo_issues" :data="data.seo_issues" />
+
+        <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div class="flex min-w-0 flex-col gap-4">
+                <section v-for="(section, sectionIndex) in data.sections" :key="sectionIndex"
+                    class="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="font-semibold text-gray-900">{{ section.title }}</h2>
+                        <span class="text-xs text-gray-500">{{ section.subtitle }}</span>
+                    </div>
+
+                    <FamilyEditCard v-for="(card, cardIndex) in section.cards" :key="cardIndex" :id="card.key ? `edit-page-card-${card.key}` : undefined"
+                        :card="card" :fieldKey="`${sectionIndex}-${cardIndex}`" />
+                </section>
+            </div>
+
+            <aside class="flex h-fit flex-col gap-4 lg:sticky lg:top-4">
+                <FamilySeoChecklist v-if="data.page_score" :pageScore="data.page_score" />
+            </aside>
+        </div>
+    </div>
+</template>

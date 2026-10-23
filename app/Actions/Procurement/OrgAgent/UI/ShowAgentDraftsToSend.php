@@ -19,6 +19,7 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,7 +84,9 @@ class ShowAgentDraftsToSend extends OrgAction
             $currencyId => $currencyId === $organisationCurrency->id ? null : GetCurrencyExchange::run(Currency::find($currencyId), $organisationCurrency),
         ]);
 
-        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent, $exchanges) {
+        $belowMinimum = $this->belowMinimum($orgAgent);
+
+        return $rows->groupBy('supplier_id')->map(function ($drafts) use ($orgAgent, $exchanges, $belowMinimum) {
             $parts = $drafts->map(function ($draft) use ($orgAgent) {
                 $ready = json_decode($draft->ready_to_send ?? 'null', true);
 
@@ -120,32 +123,82 @@ class ShowAgentDraftsToSend extends OrgAction
                 'all_ready'         => $parts->every(fn (array $part) => $part['ready']),
                 'has_ours'          => $parts->contains(fn (array $part) => $part['is_ours']),
                 'others_asked'      => json_decode($drafts->firstWhere('organisation_id', $orgAgent->organisation_id)?->others_asked ?? 'null', true),
+                'below_minimum'     => $belowMinimum->get($drafts->first()->supplier_id, collect())->values()->all(),
                 'parts'             => $parts->all(),
             ];
         })->values()->all();
     }
 
     /**
-     * Every product on the drafts, keyed by purchase order, shown when a purchase order is opened in the list.
+     * Products whose cartons, added up over every organisation's draft with the supplier, are still short of the supplier's minimum carton order.
+     *
+     * @return Collection<int, Collection<int, array{code: string, name: ?string, cartons: float, minimum: int, organisations: array<string, float>}>>
+     */
+    public function belowMinimum(OrgAgent $orgAgent): Collection
+    {
+        return self::drafts($orgAgent)
+            ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
+            ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+            ->join('organisations as o', 'o.id', 'po.organisation_id')
+            ->where('sp.minimum_carton_order', '>', 0)
+            ->where('sp.units_per_carton', '>', 0)
+            ->groupBy('po.supplier_id', 'sp.id', 'o.id')
+            ->orderBy('sp.code')
+            ->orderBy('o.code')
+            ->selectRaw('po.supplier_id, sp.id as supplier_product_id, sp.code, sp.name, sp.minimum_carton_order, o.code as organisation_code, sum(pot.quantity_ordered / sp.units_per_carton) as cartons')
+            ->get()
+            ->groupBy('supplier_id')
+            ->map(fn ($rows) => $rows->groupBy('supplier_product_id')
+                ->filter(fn ($organisations) => $organisations->sum('cartons') < $organisations->first()->minimum_carton_order)
+                ->map(fn ($organisations) => [
+                    'code'          => $organisations->first()->code,
+                    'name'          => $organisations->first()->name,
+                    'cartons'       => round((float) $organisations->sum('cartons'), 2),
+                    'minimum'       => (int) $organisations->first()->minimum_carton_order,
+                    'organisations' => $organisations->mapWithKeys(fn ($row) => [$row->organisation_code => round((float) $row->cartons, 2)])->all(),
+                ])
+                ->values())
+            ->filter(fn ($products) => $products->isNotEmpty());
+    }
+
+    /**
+     * Every product on the drafts, keyed by purchase order, shown when a purchase order is opened in the list, and on the cards only when a part's products are asked for.
      *
      * @return array<int, array<int, array<string, mixed>>>
      */
     public function lines(OrgAgent $orgAgent): array
     {
-        return self::drafts($orgAgent)
+        $lines = self::drafts($orgAgent)
             ->join('purchase_order_transactions as pot', fn ($join) => $join->on('pot.purchase_order_id', 'po.id')->whereNull('pot.deleted_at'))
             ->join('supplier_products as sp', 'sp.id', 'pot.supplier_product_id')
+            ->leftJoin('org_stocks as os', 'os.id', 'pot.org_stock_id')
             ->orderBy('sp.code')
-            ->selectRaw('pot.id, pot.purchase_order_id, sp.code, sp.name, pot.quantity_ordered, sp.units_per_carton, pot.unit_cost, pot.net_amount,
+            ->selectRaw('pot.id, pot.purchase_order_id, pot.org_supplier_product_id, sp.code, sp.name, pot.quantity_ordered, sp.units_per_carton, coalesce(nullif(os.packed_in, 0), sp.units_per_pack) as units_per_sko, pot.unit_cost, pot.net_amount,
                 pot.quantity_ordered / nullif(sp.units_per_carton, 0) * sp.cbm as cbm')
-            ->get()
+            ->get();
+
+        $images = DB::table('org_stock_has_org_supplier_products as link')
+            ->join('product_has_org_stocks as phos', 'phos.org_stock_id', 'link.org_stock_id')
+            ->join('products', 'products.id', 'phos.product_id')
+            ->whereIn('link.org_supplier_product_id', $lines->pluck('org_supplier_product_id')->filter()->unique()->values())
+            ->whereNull('products.deleted_at')
+            ->whereNotNull('products.web_images->main->thumbnail')
+            ->selectRaw("distinct on (link.org_supplier_product_id) link.org_supplier_product_id, products.web_images->'main'->>'thumbnail' as thumbnail")
+            ->orderBy('link.org_supplier_product_id')
+            ->orderByDesc('products.id')
+            ->pluck('thumbnail', 'org_supplier_product_id')
+            ->map(fn (string $thumbnail) => json_decode($thumbnail, true));
+
+        return $lines
             ->groupBy('purchase_order_id')
             ->map(fn ($lines) => $lines->map(fn ($line) => [
                 'id'       => $line->id,
+                'image'    => $images->get($line->org_supplier_product_id),
                 'code'     => $line->code,
                 'name'     => $line->name,
                 'units'    => (float) $line->quantity_ordered,
                 'cartons'  => $line->units_per_carton ? round((float) $line->quantity_ordered / (int) $line->units_per_carton, 2) : null,
+                'skos'     => $line->units_per_sko ? round((float) $line->quantity_ordered / (float) $line->units_per_sko, 2) : null,
                 'unit_cost' => $line->unit_cost !== null ? (float) $line->unit_cost : null,
                 'amount'   => (float) $line->net_amount,
                 'cbm'      => $line->cbm !== null ? round((float) $line->cbm, 3) : null,
@@ -223,7 +276,7 @@ class ShowAgentDraftsToSend extends OrgAction
                         'orders' => ['title' => __('By purchase order'), 'icon' => 'fal fa-th-list'],
                     ],
                 ],
-                'lines'       => fn () => $this->view === 'orders' ? $this->lines($this->orgAgent) : [],
+                'lines'       => $this->view === 'orders' ? fn () => $this->lines($this->orgAgent) : Inertia::optional(fn () => $this->lines($this->orgAgent)),
                 'cards'       => $cards,
             ]
         );

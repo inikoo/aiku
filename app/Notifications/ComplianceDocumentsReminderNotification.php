@@ -8,12 +8,15 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\SendsMailThroughSes;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ComplianceDocumentsReminderNotification extends Notification
 {
+    use SendsMailThroughSes;
+
     /**
      * @param string[] $missing
      */
@@ -41,7 +44,7 @@ class ComplianceDocumentsReminderNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        $message = (new MailMessage())
+        $message = $this->newMailMessage()
             ->subject(__(':reference: compliance documents due :date', ['reference' => $this->purchaseOrder->reference, 'date' => $this->deadline]))
             ->line($this->occasion)
             ->line(__('Still missing:'));

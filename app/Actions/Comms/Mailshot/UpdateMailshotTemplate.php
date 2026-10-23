@@ -16,10 +16,12 @@ use App\Models\Comms\EmailTemplate;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Http\JsonResponse;
+use App\Actions\Traits\Authorisations\WithCommsEditAuthorisation;
 
 class UpdateMailshotTemplate extends OrgAction
 {
     use WithActionUpdate;
+    use WithCommsEditAuthorisation;
 
     public function handle(EmailTemplate $emailTemplate, array $modelData): EmailTemplate
     {
@@ -52,7 +54,7 @@ class UpdateMailshotTemplate extends OrgAction
 
     public function asController(Shop $shop, EmailTemplate $emailTemplate, ActionRequest $request): EmailTemplate
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($emailTemplate->shop ?? abort(403), $request);
 
         return $this->handle($emailTemplate, $this->validatedData);
     }

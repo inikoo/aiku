@@ -7,6 +7,9 @@
 
 namespace App\Actions\Chat\MetaChatSession;
 
+use App\Models\SysAdmin\User;
+use App\Models\Catalogue\Shop;
+use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Actions\Chat\Whatsapp\SendWhatsappReadReceipt;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Events\BroadcastMetaChatListEvent;
@@ -19,6 +22,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class MarkMetaChatMessagesAsRead
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $shop = $request->route('metaChatSession')?->shop;
+
+        return $shop instanceof Shop && $request->user() instanceof User && $this->userCanActOnChatOnShop($request->user(), $shop);
+    }
 
     public function rules(): array
     {

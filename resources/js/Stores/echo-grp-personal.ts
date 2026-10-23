@@ -11,7 +11,12 @@ import { differenceInMilliseconds } from 'date-fns'
 import { defineStore } from "pinia";
 import { useLayoutStore } from "@/Stores/layout"
 import { useStaffMessaging } from "@/Stores/staff-messaging"
-import { alertOnce, chosenAlertSound, showTicketPopup } from "@/Composables/useNotificationSound"
+import { ctrans } from "@/Composables/useTrans"
+import { alertOnce, chosenAlertSound, showTicketPopup, type AlertSoundKind } from "@/Composables/useNotificationSound"
+
+const ticketAlertSpokenLines = (): Record<string, string> => ({ raised: ctrans('New ticket'), answered: ctrans('Ticket answered'), qa: ctrans('Ticket QA') })
+
+const TICKET_ALERT_SOUND_KINDS: Record<string, AlertSoundKind> = { resolved: 'ticket', raised: 'ticket_new', answered: 'ticket_answered', qa: 'ticket_qa' }
 
 interface ProgressBar {
     [key: string]: {
@@ -123,6 +128,9 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
             .listen('.task-badges-update', (eventData: { task_badges: TaskBadges }) => {
                 useLayoutStore().task_badges = eventData.task_badges
             })
+            .listen('.development-badges-update', (eventData: { development_badges: { waiting: number, late: number, reminded?: boolean } | null }) => {
+                useLayoutStore().development_badges = eventData.development_badges
+            })
             .listen('.ticket-badges-update', (eventData: { ticket_badges: TicketBadges; notification: { title: string; body: string; route: string; reason?: string } | null }) => {
                 const layout = useLayoutStore()
                 layout.ticket_badges = eventData.ticket_badges
@@ -130,16 +138,18 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                 if (notification) {
                     layout.notifications.unshift({ id: '', read: false, href: '', created_at: new Date(), ...notification })
                 }
-                if (notification?.reason === 'resolved') {
+                const soundKind = notification?.reason ? TICKET_ALERT_SOUND_KINDS[notification.reason] : undefined
+                if (notification && soundKind) {
                     if (notification.title) {
                         showTicketPopup(notification.title, notification.body, notification.route)
                     }
                     alertOnce({
-                        key: `ticket-resolved:${notification.route}`,
+                        key: `ticket-${notification.reason}:${notification.title}`,
                         title: notification.title,
                         body: notification.body,
                         tag: `ticket-${notification.route}`,
-                        sound: chosenAlertSound('ticket'),
+                        sound: chosenAlertSound(soundKind),
+                        spoken: ticketAlertSpokenLines()[notification.reason ?? ''] ?? '',
                         url: notification.route,
                     })
                 }

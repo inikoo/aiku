@@ -29,13 +29,13 @@ import { ctrans } from "@/Composables/useTrans"
 import TableStoredItemReturnStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import { get } from 'lodash-es'
 import PureInput from "@/Components/Pure/PureInput.vue"
-import Popover from "@/Components/Popover.vue"
 import { Tabs as TSTabs } from "@/types/Tabs"
 import { Action } from "@/types/Action"
 import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
 import { notify } from "@kyvg/vue3-notification"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
+import ModalBulkAddTransactions from "@/Components/Fulfilment/ModalBulkAddTransactions.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import { Table as TableTS } from "@/types/Table"
@@ -178,8 +178,6 @@ const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 const isModalUploadOpen = ref(false)
 
-const formAddService = useForm({ service_id: "", quantity: 1, historic_asset_id: null })
-const formAddPhysicalGood = useForm({ outer_id: "", quantity: 1, historic_asset_id: null })
 const isFulfilmentOperationsPalletReturnPage = computed(() => {
     return route().current('grp.org.fulfilments.show.operations.pallet-returns.show')
         || route().current('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show')
@@ -206,53 +204,14 @@ watch(
 	{ deep: true }
 )
 
-// Tabs: Services
-const onSubmitAddService = (data: Action, closedPopover: Function) => {
-	isLoadingButton.value = "addService"
-
-	formAddService.post(route(data.route?.name, { ...data.route?.parameters }), {
-		preserveScroll: true,
-		onSuccess: () => {
-			closedPopover()
-			formAddService.reset()
-			handleTabUpdate("services")
-		},
-		onError: (errors) => {
-			notify({
-				title: "Something went wrong.",
-				text: "Failed to add service, please try again.",
-				type: "error",
-			})
-		},
-		onFinish: () => {
-			isLoadingButton.value = false
-		},
-	})
-}
-
-// Tabs: Physical Goods
-const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
-	isLoadingButton.value = "addPhysicalGood"
-	formAddPhysicalGood.post(route(data.route?.name, data.route?.parameters), {
-		preserveScroll: true,
-		onSuccess: () => {
-			closedPopover()
-			formAddPhysicalGood.reset()
-			isLoadingButton.value = false
-			handleTabUpdate("physical_goods")
-		},
-		onError: (errors) => {
-			isLoadingButton.value = false
-			notify({
-				title: "Something went wrong.",
-				text: "Failed to add physical good, please try again.",
-				type: "error",
-			})
-		},
-		onFinish: () => {
-			isLoadingButton.value = false
-		},
-	})
+// Tabs: Services and Physical Goods
+const bulkAddRoute = ref<routeType | null>(null)
+const bulkAddTab = ref<"services" | "physical_goods">("services")
+const isModalBulkAddOpen = ref(false)
+const onOpenBulkAdd = (action: { route: routeType }, tab: "services" | "physical_goods") => {
+	bulkAddRoute.value = action.route
+	bulkAddTab.value = tab
+	isModalBulkAddOpen.value = true
 }
 
 const isModalUploadFileOpen = ref(false)
@@ -480,150 +439,27 @@ provide("listError", listError.value)
 			<div v-else />
 		</template>
 
-		<!-- Button: Add service (single) -->
+		<!-- Button: Add services -->
 		<template #button-group-add-service="{ action }">
-			<Popover>
-				<template #button>
-					<Button
-						:style="action.style"
-						:label="action.label"
-						:icon="action.icon"
-						:key="`ActionButton${action.label}${action.style}`"
-						:tooltip="action.tooltip" />
-				</template>
-
-				<template #content="{ close: closed }">
-					<div class="w-[350px]">
-						<span class="text-xs px-1 my-2">{{ ctrans("Services") }}: </span>
-						<div class="">
-							<PureMultiselectInfiniteScroll
-								v-model="formAddService.service_id"
-								@selectedObject="(option) => formAddService.historic_asset_id = option?.historic_asset_id ?? null"
-								:fetchRoute="props.service_list_route"
-								:placeholder="ctrans('Select Services')"
-								valueProp="id">
-								<template #singlelabel="{ value }">
-									<div class="w-full text-left pl-4">
-										{{ value.name }}
-										<span class="text-sm text-gray-400"
-											>({{
-												locale.currencyFormat(
-													value.currency_code,
-													value.price
-												)
-											}}/{{ value.unit }})</span
-										>
-									</div>
-								</template>
-
-								<template #option="{ option, isSelected, isPointed }">
-									<div class="">
-										{{ option.name }}
-										<span class="text-sm text-gray-400"
-											>({{
-												locale.currencyFormat(
-													option.currency_code,
-													option.price
-												)
-											}}/{{ option.unit }})</span
-										>
-									</div>
-								</template>
-							</PureMultiselectInfiniteScroll>
-
-							<p
-								v-if="get(formAddService, ['errors', 'service_id'])"
-								class="mt-2 text-sm text-red-500">
-								{{ formAddService.errors.service_id }}
-							</p>
-						</div>
-						<div class="mt-3">
-							<span class="text-xs px-1 my-2">{{ ctrans("Quantity") }}: </span>
-							<PureInput
-								v-model="formAddService.quantity"
-								:placeholder="ctrans('Quantity')"
-								@keydown.enter="() => onSubmitAddService(action, closed)" />
-							<p
-								v-if="get(formAddService, ['errors', 'quantity'])"
-								class="mt-2 text-sm text-red-600">
-								{{ formAddService.errors.quantity }}
-							</p>
-						</div>
-						<div class="flex justify-end mt-3">
-							<Button
-								:style="'save'"
-								:loading="isLoadingButton == 'addService'"
-								:label="'save'"
-								:disabled="
-									!formAddService.service_id || !(formAddService.quantity > 0)
-								"
-								full
-								@click="() => onSubmitAddService(action, closed)" />
-						</div>
-					</div>
-				</template>
-			</Popover>
+			<Button
+				:style="action.style"
+				:label="action.label"
+				:icon="action.icon"
+				:key="`ActionButton${action.label}${action.style}`"
+				:tooltip="action.tooltip"
+				@click="() => onOpenBulkAdd(action, 'services')" />
 		</template>
 
-		<!-- Button: Add physical good (single) -->
+		<!-- Button: Add physical goods -->
 		<template #button-group-add-physical-good="{ action }">
 			<div class="relative ml-2">
-				<Popover>
-					<template #button>
-						<Button
-							:style="action.style"
-							:label="action.label"
-							:icon="action.icon"
-							:key="`ActionButton${action.label}${action.style}`"
-							:tooltip="action.tooltip" />
-					</template>
-
-					<template #content="{ close: closed }">
-						<div class="w-[350px]">
-							<span class="text-xs px-1 my-2">{{ ctrans("Physical Goods") }}: </span>
-							<div>
-								<PureMultiselectInfiniteScroll
-									v-model="formAddPhysicalGood.outer_id"
-									@selectedObject="(option) => formAddPhysicalGood.historic_asset_id = option?.historic_asset_id ?? null"
-									:fetchRoute="physical_good_list_route"
-									:placeholder="ctrans('Select Physical Goods')"
-									valueProp="id" />
-
-								<p
-									v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
-									class="mt-2 text-sm text-red-600">
-									{{ formAddPhysicalGood.errors.outer_id }}
-								</p>
-							</div>
-							<div class="mt-3">
-								<span class="text-xs px-1 my-2">{{ ctrans("Quantity") }}: </span>
-								<PureInput
-									v-model="formAddPhysicalGood.quantity"
-									:placeholder="ctrans('Quantity')"
-									@keydown.enter="
-										() => onSubmitAddPhysicalGood(action, closed)
-									" />
-								<p
-									v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
-									class="mt-2 text-sm text-red-600">
-									{{ formAddPhysicalGood.errors.quantity }}
-								</p>
-							</div>
-							<div class="flex justify-end mt-3">
-								<Button
-									:style="'save'"
-									:loading="isLoadingButton == 'addPhysicalGood'"
-									:disabled="
-										!formAddPhysicalGood.outer_id ||
-										!(formAddPhysicalGood.quantity > 0)
-									"
-									:label="'save'"
-									full
-									@click="() => onSubmitAddPhysicalGood(action, closed)" />
-							</div>
-						</div>
-					</template>
-				</Popover>
+				<Button
+					:style="action.style"
+					:label="action.label"
+					:icon="action.icon"
+					:key="`ActionButton${action.label}${action.style}`"
+					:tooltip="action.tooltip"
+					@click="() => onOpenBulkAdd(action, 'physical_goods')" />
 			</div>
 		</template>
 
@@ -756,6 +592,15 @@ provide("listError", listError.value)
 		progressDescription="Adding Pallet Deliveries"
 		:attachmentRoutes
 		:options="props.option_attach_file" />
+
+	<ModalBulkAddTransactions
+		v-if="bulkAddRoute"
+		v-model="isModalBulkAddOpen"
+		:title="bulkAddTab === 'services' ? ctrans('Add services') : ctrans('Add physical goods')"
+		:fetchRoute="bulkAddTab === 'services' ? service_list_route : physical_good_list_route"
+		:submitRoute="bulkAddRoute"
+		:isService="bulkAddTab === 'services'"
+		@success="handleTabUpdate(bulkAddTab)" />
 
 	<!-- Modal: Shipment -->
 	<Modal

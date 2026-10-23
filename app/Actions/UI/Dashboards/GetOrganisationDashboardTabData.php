@@ -18,6 +18,13 @@ class GetOrganisationDashboardTabData extends OrgAction
     use WithDashboardPartnersTypeSettings;
     use WithPerformanceDateResolution;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $user = $request->user();
+
+        return $user->canViewSales() && $user->authorisedOrganisations()->whereKey($this->organisation->id)->exists();
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): JsonResponse
     {
         $this->initialisation($organisation, $request);

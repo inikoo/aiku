@@ -1,0 +1,549 @@
+{
+  "page": {
+    "body": {
+      "type": "mailup-bee-page-properties",
+      "content": {
+        "style": {
+          "color": "#000000",
+          "font-family": "Arial, Helvetica Neue, Helvetica, sans-serif"
+        },
+        "computedStyle": {
+          "linkColor": "#0068A5",
+          "messageWidth": "650px",
+          "messageBackgroundColor": "transparent"
+        }
+      },
+      "webFonts": [
+        {
+          "url": "https://fonts.googleapis.com/css?family=Ubuntu",
+          "name": "Ubuntu",
+          "fontFamily": "'Ubuntu', Tahoma, Verdana, Segoe, sans-serif"
+        },
+        {
+          "url": "https://fonts.googleapis.com/css?family=Montserrat",
+          "name": "Montserrat",
+          "fontFamily": "'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif"
+        }
+      ],
+      "container": {
+        "style": {
+          "background-color": "#FFFFFF"
+        }
+      }
+    },
+    "rows": [
+      {
+        "type": "one-column-empty",
+        "uuid": "127aaf54-c1b3-404d-9fc1-8cf6bcabfaa4",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "3d82f322-78fa-41fa-bc50-b21e7ef69b60",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "f943484d-5047-440a-bacf-46cc26950b7c",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "1124998e-4d78-44be-96b2-de1c5120ea7c",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [
+              {
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "3495b547-2066-4c5c-bb4e-d55546a5bfe2",
+                "locked": false,
+                "descriptor": {
+                  "text": {
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:&#39;Montserrat&#39;, &#39;Trebuchet MS&#39;, &#39;Lucida Grande&#39;, &#39;Lucida Sans Unicode&#39;, &#39;Lucida Sans&#39;, Tahoma, sans-serif;font-size:12px;line-height:14px;\" data-mce-style=\"font-family:&#39;Montserrat&#39;, &#39;Trebuchet MS&#39;, &#39;Lucida Grande&#39;, &#39;Lucida Sans Unicode&#39;, &#39;Lucida Sans&#39;, Tahoma, sans-serif;font-size:12px;line-height:14px;\"><p style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\" data-mce-style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\"><span style=\"font-size:30px;line-height:36px;\" data-mce-style=\"font-size:30px;line-height:36px;\">Your Appointment Has Moved</span></p></div>",
+                    "style": {
+                      "color": "#e87928",
+                      "font-family": "'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif",
+                      "line-height": "120%"
+                    },
+                    "computedStyle": {
+                      "linkColor": "#0068A5"
+                    }
+                  },
+                  "style": {
+                    "padding-top": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-bottom": "10px"
+                  },
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  }
+                }
+              }
+            ],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "#EBEBEB",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "255a719e-2883-4835-9ba3-d50e19bbcd2c",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "3152910f-c104-4266-914a-b37984f2273e",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [
+              {
+                "type": "mailup-bee-newsletter-modules-divider",
+                "uuid": "e93fae0d-c7ec-4719-9b68-74a385a65c29",
+                "locked": false,
+                "descriptor": {
+                  "style": {
+                    "padding-top": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-bottom": "10px"
+                  },
+                  "divider": {
+                    "style": {
+                      "width": "100%",
+                      "height": "0px",
+                      "border-top": "1px solid #5093BB"
+                    }
+                  },
+                  "computedStyle": {
+                    "align": "center"
+                  }
+                }
+              }
+            ],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "8968e063-af0c-45c8-9ba1-cc0529c88bd4",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "dbac6306-0d71-439c-bee8-ea7051fe0c31",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [
+              {
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "4d44f724-868a-47ce-a1fe-62731bf419af",
+                "locked": false,
+                "descriptor": {
+                  "text": {
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-size: 12px; line-height: 14px; font-family: 'Ubuntu', Tahoma, Verdana, Segoe, sans-serif;\" data-mce-style=\"font-size: 12px; line-height: 14px; font-family: 'Ubuntu', Tahoma, Verdana, Segoe, sans-serif;\">Hello [Customer Name],<p style=\"font-size: 12px; line-height: 14px; text-align: left; word-break: break-word;\" data-mce-style=\"font-size: 12px; line-height: 14px; text-align: left; word-break: break-word;\"><span style=\"line-height: 16px; font-size: 14px;\" data-mce-style=\"line-height: 16px; font-size: 14px;\">&nbsp;</span></p>Your appointment has moved from [Previous Appointment Date] to <strong>[Appointment Date] at [Appointment Time]</strong>.</div>",
+                    "style": {
+                      "color": "#555555",
+                      "font-family": "'Ubuntu', Tahoma, Verdana, Segoe, sans-serif",
+                      "line-height": "120%"
+                    },
+                    "computedStyle": {
+                      "linkColor": "#0068A5"
+                    }
+                  },
+                  "style": {
+                    "padding-top": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-bottom": "10px"
+                  },
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  }
+                }
+              }
+            ],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "3798fdf6-9f75-4423-8144-27892e26ec0a",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "522736fc-573c-4d38-a721-4751e4ebf2d7",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [
+              {
+                "type": "mailup-bee-newsletter-modules-paragraph",
+                "uuid": "c6add602-169a-405b-bf5b-74745334c9bf",
+                "locked": false,
+                "descriptor": {
+                  "style": {
+                    "padding-top": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-bottom": "10px"
+                  },
+                  "paragraph": {
+                    "html": "<p>[Appointment Details]</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-size": "14px",
+                      "text-align": "left",
+                      "font-family": "inherit",
+                      "font-weight": "400",
+                      "line-height": "120%",
+                      "letter-spacing": "0px"
+                    },
+                    "computedStyle": {
+                      "linkColor": "#0068A5",
+                      "paragraphSpacing": "16px"
+                    }
+                  },
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false,
+                    "hideContentOnDesktop": false
+                  }
+                }
+              }
+            ],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "border-top": "0px solid transparent",
+            "border-left": "0px solid transparent",
+            "padding-top": "0px",
+            "border-right": "0px solid transparent",
+            "padding-left": "0px",
+            "border-bottom": "0px solid transparent",
+            "border-radius": "0px",
+            "padding-right": "0px",
+            "padding-bottom": "0px",
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "dd730a08-88db-4c5a-8705-44fb43527473",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "e70be1a9-7dab-4e27-ad0c-9c12a14ccb10",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [
+              {
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "d5370108-34b3-40f2-971c-b1d44bc791f1",
+                "locked": false,
+                "descriptor": {
+                  "text": {
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-size: 12px; line-height: 14px; font-family: 'Ubuntu', Tahoma, Verdana, Segoe, sans-serif;\" data-mce-style=\"font-size: 12px; line-height: 14px; font-family: 'Ubuntu', Tahoma, Verdana, Segoe, sans-serif;\">[Manage Appointment Link]<p style=\"font-size: 12px; line-height: 14px; text-align: left; word-break: break-word;\" data-mce-style=\"font-size: 12px; line-height: 14px; text-align: left; word-break: break-word;\"><span style=\"line-height: 16px; font-size: 14px;\" data-mce-style=\"line-height: 16px; font-size: 14px;\">&nbsp;</span></p>If you have any questions, just reply to this email.</div>",
+                    "style": {
+                      "color": "#555555",
+                      "font-family": "'Ubuntu', Tahoma, Verdana, Segoe, sans-serif",
+                      "line-height": "120%"
+                    },
+                    "computedStyle": {
+                      "linkColor": "#0068A5"
+                    }
+                  },
+                  "style": {
+                    "padding-top": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-bottom": "10px"
+                  },
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  }
+                }
+              }
+            ],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      },
+      {
+        "type": "one-column-empty",
+        "uuid": "95c4a4c9-9aeb-440c-8ef6-8737dbbbd5a0",
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "columns": [
+          {
+            "uuid": "52dedb16-1fbd-4cd8-88a1-a6106f6749a3",
+            "style": {
+              "border-top": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "padding-top": "5px",
+              "border-right": "0px solid transparent",
+              "padding-left": "0px",
+              "border-bottom": "0px solid transparent",
+              "padding-right": "0px",
+              "padding-bottom": "5px",
+              "background-color": "transparent"
+            },
+            "modules": [],
+            "grid-columns": 12
+          }
+        ],
+        "content": {
+          "style": {
+            "color": "#000000",
+            "width": "650px",
+            "background-color": "#4b5058",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          },
+          "computedStyle": {
+            "verticalAlign": "top",
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "hideContentOnDesktop": false,
+            "rowReverseColStackOnMobile": false
+          }
+        },
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-repeat": "no-repeat",
+            "background-position": "top left"
+          }
+        }
+      }
+    ],
+    "title": null,
+    "template": {
+      "name": "template-base",
+      "type": "basic",
+      "version": "2.0.0"
+    },
+    "description": "Your Appointment Has Moved"
+  },
+  "comments": []
+}

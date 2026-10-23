@@ -29,7 +29,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
-use Illuminate\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -40,7 +39,6 @@ class UpdateSupplier extends OrgAction
     use WithSupplierJsonColumns;
     use WithSupplierPacking;
 
-    private const CONTACT_FIELDS = ['contact_name', 'email', 'phone', 'wechat', 'whatsapp'];
 
     private Supplier $supplier;
     private bool $action = false;
@@ -198,7 +196,6 @@ class UpdateSupplier extends OrgAction
             'phone'           => ['sometimes', 'nullable', new Phone()],
             'wechat'          => ['sometimes', 'nullable', 'string', 'max:255'],
             'whatsapp'        => ['sometimes', 'nullable', new Phone()],
-            'is_generic'      => ['sometimes', 'boolean'],
             'factory_holidays'         => ['sometimes', 'array'],
             'factory_holidays.*.from'  => ['required', 'date'],
             'factory_holidays.*.to'    => ['required', 'date', 'after_or_equal:factory_holidays.*.from'],
@@ -235,19 +232,6 @@ class UpdateSupplier extends OrgAction
         }
 
         return $rules;
-    }
-
-    public function afterValidator(Validator $validator): void
-    {
-        if (!$this->strict || !$this->get('is_generic', $this->supplier->is_generic)) {
-            return;
-        }
-
-        foreach (self::CONTACT_FIELDS as $field) {
-            if (filled($this->get($field)) && $this->get($field) !== $this->supplier->{$field}) {
-                $validator->errors()->add($field, __('This is a generic supplier record: contacts go on the real factory, move its products there first.'));
-            }
-        }
     }
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier

@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Lorisleiva\Actions\Decorators\JobDecorator;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Models\Accounting\Invoice;
@@ -43,10 +44,24 @@ use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Enums\CRM\Appointment\AppointmentSourceEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
+use App\Http\Middleware\HandleIrisInertiaRequests;
+use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
+use App\Actions\CRM\Appointment\Widget\EnableShopAppointmentWidget;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use App\Actions\Retina\Dropshipping\Product\SaveDataFeeds;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use Illuminate\Support\Str;
+use App\Actions\Comms\Outbox\ReviewReminder\ProcessReviewReminderRecipients;
+use App\Actions\Iris\Reviews\ShowIrisOrderReview;
+use App\Actions\Iris\Reviews\ShowIrisOrderReviewPreview;
+use App\Actions\Comms\Outbox\GetOutboxTestEmailData;
+use App\Enums\Catalogue\Product\ProductStatusEnum;
+use Inertia\Testing\AssertableInertia;
+use App\Enums\Catalogue\Review\ReviewScopeEnum;
+use App\Models\Reviews\Review;
 
 use function Pest\Laravel\actingAs;
 
@@ -112,6 +127,63 @@ test('iris footer json includes app version', function () {
     $response = $this->getJson('http://' . $this->website->domain . '/json/footer');
     $response->assertOk()
         ->assertJsonPath('version', 'v2.369.0');
+});
+
+test('iris shares the out of stock notification outbox only when a page renders, never on json calls', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+
+    $outboxQueries = 0;
+    DB::listen(function ($query) use (&$outboxQueries) {
+        if (str_contains($query->sql, 'from "outboxes"')) {
+            $outboxQueries++;
+        }
+    });
+
+    $this->getJson('http://'.$this->website->domain.'/json/footer')->assertOk();
+    expect($outboxQueries)->toBe(0);
+
+    $request = Request::create('http://'.$this->website->domain);
+    $request->merge(['website' => $this->website]);
+    $request->setLaravelSession(app('session.store'));
+    $props = (new \App\Http\Middleware\HandleIrisInertiaRequests())->share($request);
+    $outboxQueriesWhileSharing = $outboxQueries;
+
+    $expected = $this->shop->outboxes()
+        ->where('code', OutboxCodeEnum::OOS_NOTIFICATION)
+        ->get()
+        ->mapWithKeys(fn ($outbox) => [$outbox->code->value => ['id' => $outbox->id, 'state' => $outbox->state]])
+        ->all();
+
+    expect($outboxQueriesWhileSharing)->toBe(0)
+        ->and($props['outboxes'])->toBeInstanceOf(\Closure::class)
+        ->and($props['outboxes']())->toBe($expected);
+});
+
+test('iris caches the website with its organisation and group so a request does not query them again', function () {
+    $websiteData = (new DetectIrisWebsite())->getWebsiteData($this->website->domain);
+    $cached      = unserialize(serialize($websiteData['website']));
+
+    $queries = 0;
+    DB::listen(function () use (&$queries) {
+        $queries++;
+    });
+
+    expect($cached->organisation->id)->toBe($this->website->organisation_id)
+        ->and($cached->group->id)->toBe($this->website->group_id)
+        ->and($cached->shop->id)->toBe($this->website->shop_id)
+        ->and($queries)->toBe(0);
+});
+
+test('webpage stats are indexed by webpage', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpage_stats']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('UNIQUE INDEX webpage_stats_webpage_id_unique');
+});
+
+test('live webpages are indexed by their canonical path', function () {
+    $indexes = collect(DB::select('SELECT indexdef FROM pg_indexes WHERE tablename = ?', ['webpages']))->pluck('indexdef')->implode("\n");
+
+    expect($indexes)->toContain('webpages_site_canonical_path_live_idx');
 });
 
 test('it detects iris website', function () {
@@ -449,20 +521,30 @@ test('iris streams a product ingredients label pdf only for its own shop product
     $this->get($url)->assertNotFound();
 });
 
-test('iris attachment routes only serve public product documents and labeling guides', function () {
+test('iris attachment routes serve public product documents and labeling guides to logged-in customers only (HELP-4214)', function () {
     Storage::fake('local');
     [, $product] = createProduct($this->shop);
     $customer    = createCustomer($this->shop);
     $baseUrl     = 'http://'.$this->website->domain.'/attachment/';
 
-    $productSds       = createAttachedMedia('Product', $product->id, 'sds');
-    $tradeUnitIfra    = createAttachedMedia('TradeUnit', 1, 'ifra');
-    $labelingGuide    = createAttachedMedia('TradeUnitFamily', 1, 'labeling_guide');
-    $privateSds       = createAttachedMedia('TradeUnit', 1, 'sds_private');
-    $employeeContract = createAttachedMedia('Employee', 1, 'Contract');
-    $customerNote     = createAttachedMedia('Customer', $customer->id, 'CustomerNote');
+    $productSds        = createAttachedMedia('Product', $product->id, 'sds');
+    $tradeUnitIfra     = createAttachedMedia('TradeUnit', 1, 'ifra');
+    $labelingGuide     = createAttachedMedia('TradeUnitFamily', 1, 'labeling_guide');
+    $webpageAttachment = createAttachedMedia('Webpage', 1, 'webpage');
+    $privateSds        = createAttachedMedia('TradeUnit', 1, 'sds_private');
+    $employeeContract  = createAttachedMedia('Employee', 1, 'Contract');
+    $customerNote      = createAttachedMedia('Customer', $customer->id, 'CustomerNote');
 
     foreach ([$productSds, $tradeUnitIfra, $labelingGuide] as $media) {
+        $this->get($baseUrl.$media->ulid)->assertNotFound();
+        $this->get($baseUrl.$media->ulid.'/download')->assertNotFound();
+    }
+
+    $this->get($baseUrl.$webpageAttachment->ulid.'/download')->assertOk();
+
+    actingAs(createWebUser($customer), 'retina');
+
+    foreach ([$productSds, $tradeUnitIfra, $labelingGuide, $webpageAttachment] as $media) {
         $this->get($baseUrl.$media->ulid)->assertOk();
         $this->get($baseUrl.$media->ulid.'/download')->assertOk();
     }
@@ -559,6 +641,17 @@ test('dropshipping docs are listed in the website language and only for their sh
     }
 });
 
+test('shopify docs explain selling own stock first and following our prices without changing yours', function () {
+    $website = asDropshippingWebsite($this->website, 'dssk', 'en');
+
+    expect(ShowIrisDoc::make()->handle($website, 'shopify-fulfilment-location')['doc']['html'])
+        ->toContain('Selling your own stock of our products')
+        ->toContain('Ranked locations')
+        ->and(ShowIrisDoc::make()->handle($website, 'product-descriptions-after-connecting')['doc']['html'])
+        ->toContain('Following our prices without changing yours')
+        ->toContain('Price managed in your Shopify');
+});
+
 test('docs are not served on a website that is not dropshipping', function () {
     $this->get('http://'.$this->website->domain.'/docs')->assertNotFound();
 });
@@ -617,6 +710,26 @@ test('iris family page does not ship the family products twice', function () {
         ->and($page['props']['data']['family'])->not->toHaveKey('products');
 });
 
+test('iris catalogue product page leaves out the rrp for visitors only (HELP-4214)', function () {
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['rrp' => 30]);
+    $url = 'http://'.$this->website->domain.'/catalogue/products/'.$product->slug;
+
+    $productProp = function () use ($url) {
+        preg_match('/data-page="([^"]+)"/', $this->withoutVite()->get($url)->assertOk()->getContent(), $matches);
+
+        return json_decode(html_entity_decode($matches[1], ENT_QUOTES), true)['props']['data']['product'];
+    };
+
+    $visitorProduct = $productProp();
+    actingAs(createWebUser(createCustomer($this->shop)), 'retina');
+    $customerProduct = $productProp();
+
+    expect($visitorProduct)->toHaveKey('price')
+        ->not->toHaveKeys(['rrp', 'rrp_per_unit', 'margin', 'profit'])
+        ->and($customerProduct['rrp'])->toEqual(30);
+});
+
 test('website lists open appointment types with their free times', function () {
     DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
 
@@ -645,6 +758,29 @@ test('website lists open appointment types with their free times', function () {
         ->and($listed['meeting_mode'])->toBe('store_visit')
         ->and($listed['slots'])->not->toBeEmpty()
         ->and($types->pluck('id'))->not->toContain($closedType->id);
+});
+
+test('iris layout lists the shop active appointment types for the help panel', function () {
+    $sharesAppointments = function () {
+        $request = Request::create('http://'.$this->website->domain.'/', 'GET');
+        $request->merge(['website' => $this->website->fresh()]);
+
+        return (new HandleIrisInertiaRequests())->share($request)['appointment_types'];
+    };
+
+    $this->shop->appointmentTypes()->update(['is_active' => false]);
+    expect($sharesAppointments())->toBe([]);
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'             => 'Showroom visit '.Str::random(6),
+        'meeting_mode'     => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes' => 60,
+    ]);
+    expect($sharesAppointments())->toBe([[
+        'id'           => $appointmentType->id,
+        'name'         => $appointmentType->name,
+        'meeting_mode' => 'store_visit',
+    ]]);
 });
 
 test('a website video call booking needs a WhatsApp number', function () {
@@ -727,6 +863,119 @@ test('visitor books an appointment on the website and becomes a prospect', funct
         ->assertJsonValidationErrors(['website_url' => 'reload the page']);
 });
 
+test('a website booking is confirmed straight away when someone who arranges it is free', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $staff = createShop($this->organisation)[1];
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Confirmed visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $appointmentType->attendees()->syncWithoutDetaching([$staff->id]);
+
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+
+    Queue::fake();
+
+    $this->postJson('http://'.$this->website->domain.'/models/appointment', [
+        'appointment_type_id' => $appointmentType->id,
+        'date'                => $date,
+        'time'                => $slots[$date][0],
+        'contact_name'        => 'Confirmed visitor',
+        'email'               => 'confirmed-'.Str::lower(Str::random(8)).'@example.com',
+    ])
+        ->assertOk()
+        ->assertJsonPath('state', AppointmentStateEnum::ACCEPTED->value);
+
+    $appointment = Appointment::where('appointment_type_id', $appointmentType->id)->sole();
+    $queuedCodes = Queue::pushed(JobDecorator::class, fn ($job) => $job->displayName() === SendAppointmentEmail::class && $job->getParameters()[0] === $appointment->id)
+        ->map(fn ($job) => $job->getParameters()[1])
+        ->values()
+        ->all();
+
+    expect($appointment->state)->toBe(AppointmentStateEnum::ACCEPTED)
+        ->and($appointment->user_id)->toBe($staff->id)
+        ->and($appointment->accepted_at)->not->toBeNull()
+        ->and($queuedCodes)->toBe([OutboxCodeEnum::APPOINTMENT_ACCEPTED->value]);
+});
+
+test('the appointment widget config is served only while the widget is on', function () {
+    $key = EnableShopAppointmentWidget::make()->handle($this->shop)['key'];
+
+    $openType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Widget visit '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+
+    $response = $this->getJson('/app/api/appointments/widget-config?key='.$key)->assertOk();
+
+    expect($response->json('data.shop_name'))->toBe($this->shop->name)
+        ->and(collect($response->json('data.appointment_types'))->pluck('id'))->toContain($openType->id)
+        ->and(AppointmentWidgetKey::make()->embedSnippet($key))->toContain('appointment-widget/v1.js?k='.$key)
+        ->and(AppointmentWidgetKey::make()->embedSnippet($key))->toContain('data-aiku-appointments');
+
+    EnableShopAppointmentWidget::make()->handle($this->shop->fresh(), false);
+
+    $this->getJson('/app/api/appointments/widget-config?key='.$key)->assertNotFound();
+    $this->getJson('/app/api/appointments/widget-config?key=doesnotexist')->assertNotFound();
+    $this->getJson('/app/api/appointments/widget-config')->assertNotFound();
+
+    expect(EnableShopAppointmentWidget::make()->handle($this->shop->fresh())['key'])->toBe($key);
+});
+
+test('a visitor on another website books an appointment through the widget', function () {
+    $key = EnableShopAppointmentWidget::make()->handle($this->shop)['key'];
+
+    $appointmentType = StoreAppointmentType::make()->action($this->shop, [
+        'name'                => 'Widget showroom '.Str::random(6),
+        'meeting_mode'        => AppointmentTypeMeetingModeEnum::STORE_VISIT->value,
+        'duration_minutes'    => 60,
+        'min_notice_hours'    => 0,
+        'booking_window_days' => 14,
+        'capacity_per_slot'   => 1,
+        'availability'        => ['weekly' => array_fill_keys(range(1, 7), [['from' => '09:00', 'to' => '17:00']])],
+    ]);
+    $slots = GetAppointmentTypeAvailableSlots::run($appointmentType);
+    $date  = array_key_last($slots);
+    $time  = $slots[$date][0];
+
+    $payload = [
+        'appointment_type_id' => $appointmentType->id,
+        'date'                => $date,
+        'time'                => $time,
+        'contact_name'        => 'Widget visitor',
+        'email'               => 'widget-visitor-'.Str::lower(Str::random(8)).'@example.com',
+    ];
+
+    $this->postJson('/app/api/appointments/widget-booking?key=doesnotexist', $payload)->assertNotFound();
+
+    $this->postJson('/app/api/appointments/widget-booking?key='.$key, $payload)
+        ->assertOk()
+        ->assertJsonPath('starts_at', $date.' '.$time);
+
+    $appointment = Appointment::where('appointment_type_id', $appointmentType->id)->sole();
+
+    expect($appointment->shop_id)->toBe($this->shop->id)
+        ->and($appointment->state)->toBe(AppointmentStateEnum::REQUESTED);
+
+    $otherShop = \App\Actions\Catalogue\Shop\StoreShop::run($this->organisation, \App\Models\Catalogue\Shop::factory()->make()->toArray());
+    $otherKey  = EnableShopAppointmentWidget::make()->handle($otherShop)['key'];
+
+    $this->postJson('/app/api/appointments/widget-booking?key='.$otherKey, [...$payload, 'time' => $slots[$date][1] ?? $time])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('appointment_type_id');
+});
+
 test('a visitor moves and cancels their appointment from the link in their email', function () {
     DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
     $this->withoutMiddleware(ThrottleRequests::class);
@@ -793,4 +1042,159 @@ test('a visitor moves and cancels their appointment from the link in their email
     $this->postJson($models.'/cancel')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('state');
+});
+
+test('data feeds are rebuilt hourly only while someone reads them', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+    DetectWebsiteFromDomain::mock()
+        ->shouldReceive('parseDomain')
+        ->andReturn($this->website->domain);
+
+    $path = SaveDataFeeds::path($this->shop);
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+
+    $this->get('http://'.$this->website->domain.'/data-feed.csv')->assertOk();
+
+    expect(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Storage::disk('data-feeds')->put($path, 'stale');
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    expect(Storage::disk('data-feeds')->get($path))->toContain('Product code')
+        ->and(Storage::disk('data-feeds')->allFiles('shop'))->toBe([$path]);
+
+    Cache::forget(SaveDataFeeds::readCacheKey($this->shop));
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    Storage::disk('data-feeds')->assertMissing($path);
+});
+
+test('a customer rates their order and its products from the stars in the review reminder email', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    $this->withoutMiddleware(ThrottleRequests::class);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $order       = createOrder(createCustomer($this->shop), $product);
+    $page        = ShowIrisOrderReview::make()->handle($order);
+    $productId   = $page['products'][0]['reviewable_id'];
+
+    $link  = '/review/'.$order->id.'/'.$order->reviewToken();
+    $site  = 'http://'.$this->website->domain;
+    $email = (new ProcessReviewReminderRecipients())->generateReviewLinks((string) $order->id);
+
+    expect($order->reviewUrl())->toBe('https://'.$this->website->domain.$link)
+        ->and($email)->toContain(e($order->reviewUrl(['rating' => 5])))
+        ->and($email)->toContain(e($order->reviewUrl(['product' => $productId, 'rating' => 1])))
+        ->and($page['company']['reviewable_id'])->toBe($order->id);
+
+    $this->get($site.'/review/'.$order->id.'/not-the-token')->assertNotFound();
+    $this->postJson($site.'/models/review/'.$order->id.'/not-the-token', [
+        'reviews' => [['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5]],
+    ])->assertNotFound();
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [
+            ['scope' => 'order', 'reviewable_id' => $order->id, 'rating' => 5, 'message' => 'Fast delivery'],
+            ['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 4],
+        ],
+    ])->assertOk()
+        ->assertJsonPath('company.rating', 5)
+        ->assertJsonPath('company.message', 'Fast delivery')
+        ->assertJsonPath('products.0.rating', 4);
+
+    $orderReviews = fn () => Review::query()->where('order_id', $order->id);
+    $numberReviews = $orderReviews()->count();
+
+    expect($orderReviews()->where('scope', ReviewScopeEnum::ORDER)->value('customer_id'))->toBe($order->customer_id);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => $productId, 'rating' => 2, 'message' => 'Arrived broken']],
+    ])->assertOk()->assertJsonPath('products.0.rating', 2);
+
+    expect($orderReviews()->count())->toBe($numberReviews)
+        ->and((int) $orderReviews()->where('product_id', $productId)->value('rating_main'))->toBe(2);
+
+    $this->postJson($site.'/models'.$link, [
+        'reviews' => [['scope' => 'product', 'reviewable_id' => 999999999, 'rating' => 5]],
+    ])->assertUnprocessable()->assertJsonValidationErrors('reviews.0.reviewable_id');
+});
+
+test('a test review reminder links to a preview of the review page that saves nothing', function () {
+    DetectWebsiteFromDomain::mock()->shouldReceive('parseDomain')->andReturn($this->website->domain);
+    Queue::fake();
+
+    [, $product] = createProduct($this->shop);
+    $product->updateQuietly(['status' => ProductStatusEnum::FOR_SALE]);
+    $outbox = $this->shop->outboxes()->where('code', OutboxCodeEnum::REVIEW_REMINDER)->firstOrFail();
+
+    $links = GetOutboxTestEmailData::run($outbox)['review_reminder_links'];
+    preg_match('#https://'.preg_quote($this->website->domain, '#').'(/review/preview/[^"]+)#', html_entity_decode($links), $match);
+    parse_str((string) parse_url($match[1], PHP_URL_QUERY), $query);
+    $site = 'http://'.$this->website->domain;
+
+    expect($links)->toContain('/review/preview/')
+        ->and(explode(',', $query['products']))->toContain((string) $product->id)
+        ->and($links)->not->toContain('/review/'.$product->id.'/');
+
+    $numberReviews = Review::query()->count();
+
+    $this->get($site.$match[1])
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('OrderReview', false)
+            ->where('isPreview', true)
+            ->where('order.reference', $query['reference'])
+            ->where('order.products', fn ($products) => collect($products)->pluck('reviewable_id')->contains($product->id)));
+
+    $tamperedQuery = http_build_query([...$query, 'products' => $query['products'].',999999999']);
+    $previewPath   = strtok($match[1], '?');
+
+    $this->get($site.$previewPath.'?'.$tamperedQuery)->assertNotFound();
+    $this->get($site.'/review/preview/not-the-token?'.http_build_query($query))->assertNotFound();
+
+    expect(ShowIrisOrderReviewPreview::token($this->shop, $query['reference'], $query['products']))->toBe(basename($previewPath))
+        ->and(Review::query()->count())->toBe($numberReviews);
+});
+
+test('the hourly data feed run checks every read mark of a shop at once and rebuilds the same feeds', function () {
+    Storage::fake('data-feeds');
+    $this->shop->update(['is_aiku' => true, 'state' => ShopStateEnum::OPEN]);
+
+    [, $product] = createProduct($this->shop);
+    $product->update(['state' => \App\Enums\Catalogue\Product\ProductStateEnum::ACTIVE, 'exclusive_for_customer_id' => null]);
+    $department = $product->department;
+    $family     = $product->family;
+    $department->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $family->update(['state' => \App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum::ACTIVE]);
+    $collection = \App\Actions\Catalogue\Collection\StoreCollection::make()->action($this->shop, ['code' => 'feed-'.uniqid(), 'name' => 'Feed collection']);
+    $collection->update(['state' => \App\Enums\Catalogue\Collection\CollectionStateEnum::ACTIVE]);
+    DB::table('collection_has_models')->insert(['collection_id' => $collection->id, 'model_type' => 'Product', 'model_id' => $product->id, 'created_at' => now(), 'updated_at' => now()]);
+
+    $read   = [$this->shop, $department, $collection];
+    $unread = [$family];
+    foreach ($read as $parent) {
+        SaveDataFeeds::markAsRead($parent);
+    }
+    foreach ([...$read, ...$unread] as $parent) {
+        if (in_array($parent, $unread, true)) {
+            Cache::forget(SaveDataFeeds::readCacheKey($parent));
+        }
+        Storage::disk('data-feeds')->put(SaveDataFeeds::path($parent), 'stale');
+    }
+
+    $this->artisan('data_feeds:save')->assertSuccessful();
+
+    foreach ($read as $parent) {
+        expect(Storage::disk('data-feeds')->get(SaveDataFeeds::path($parent)))->toContain('Product code')->toContain($product->code);
+    }
+    Storage::disk('data-feeds')->assertMissing(SaveDataFeeds::path($family));
+
+    $export     = new \App\Exports\Marketing\ProductsInShopExport($this->shop);
+    $fullRows   = $export->query()->select('products.*', 'families.name as family_name', 'families.code as family_code', 'departments.name as department_name', 'departments.code as department_code', 'sub_departments.name as subdepartment_name', 'sub_departments.code as subdepartment_code')->get();
+    $feedRows   = iterator_to_array($export->generator(), false);
+
+    expect(array_map(fn ($row) => $export->map($row), $feedRows))->toBe($fullRows->map(fn ($row) => $export->map($row))->all())
+        ->and(count($feedRows))->toBeGreaterThan(0);
 });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CheckoutComSandboxTestCard from "@/Components/Retina/CheckoutComSandboxTestCard.vue"
 import { Head, usePage, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeadingPublic.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -158,6 +159,7 @@ onMounted(async () => {
     <div class="flex justify-center">
         <div class="mt-6 relative w-full max-w-xl min-h-[200px]">
             <template v-if="!paymentDone">
+                <CheckoutComSandboxTestCard :environment="props.checkout_com_data?.environment" />
                 <div id="flow-container" class="w-full border-b border-gray-300" />
                 <div v-show="isLoading" class="pointer-events-none absolute top-0 h-full w-full z-10">
                     <div class="w-full min-h-[200px] h-full xmd:h-[511px] skeleton">

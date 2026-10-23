@@ -440,9 +440,16 @@ const orgStockRouteProductIndex = (orgStock: OrgStock) => {
         </template>
 
         <template #cell(code)="{ item: stock }">
-            <Link :href="orgStockHref(stock) as string" class="primaryLink">
-                {{ stock["code"] }}
-            </Link>
+            <span class="whitespace-nowrap">
+                <Link :href="orgStockHref(stock) as string" class="primaryLink">
+                    {{ stock["code"] }}
+                </Link>
+                <span v-for="(unNumber, index) in stock.un_numbers ?? []" :key="index"
+                    v-tooltip="unNumber.shipping_name ? ctrans('Dangerous goods: :name', { name: unNumber.shipping_name }) : ctrans('Dangerous goods')"
+                    class="border border-red-700 rounded-sm px-1 text-red-700 bg-amber-500 ml-1">
+                    {{ unNumber.number }}
+                </span>
+            </span>
         </template>
         <template #cell(name)="{ item: stock }">
             <div class="flex gap-3">

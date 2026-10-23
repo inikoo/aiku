@@ -12,6 +12,7 @@ use App\Actions\Helpers\Upload\ImportUpload;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Dispatching\BatchCodeImport;
+use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -51,8 +52,18 @@ class ImportBatchCodes
         return $this->handle($warehouse, $file);
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $warehouse = $request->route('warehouse');
+
+        return $warehouse instanceof Warehouse
+            && $request->user()->authTo(WarehousePermissionsEnum::getStockEditPermissionNames($warehouse->organisation));
+    }
+
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Upload
     {
+        abort_unless($this->authorize($request), 403);
+
         $file = $request->file('file');
 
         return $this->handle($warehouse, $file);

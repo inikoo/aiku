@@ -7,13 +7,11 @@
 
 namespace App\Actions\Web\WebsitePageView;
 
-use App\Enums\Web\Webpage\WebpageStateEnum;
-use App\Models\Web\Webpage;
+use App\Actions\Web\Webpage\ResolveWebpageByPath;
 use App\Models\Web\Website;
 use App\Models\Web\WebsitePageView;
 use App\Models\Web\WebsiteVisitor;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreWebsitePageView implements ShouldBeUnique
@@ -46,7 +44,7 @@ class StoreWebsitePageView implements ShouldBeUnique
             $lastPageView->update(['duration_seconds' => $duration]);
         }
 
-        $webpage = $this->resolveWebpage($website, $path);
+        $webpage = ResolveWebpageByPath::run($website, $path);
 
         return WebsitePageView::on('aiku_no_sticky')->create([
             'group_id'           => $visitor->group_id,
@@ -61,21 +59,5 @@ class StoreWebsitePageView implements ShouldBeUnique
             'page_sub_type'      => $webpage?->sub_type,
             'view_date'          => now()->toDateString(),
         ]);
-    }
-
-    protected function resolveWebpage(Website $website, string $path): ?Webpage
-    {
-        $cacheKey = "webpage_resolve:$website->id:" . md5($path);
-
-        return Cache::remember($cacheKey, 86400, function () use ($website, $path) {
-            return Webpage::on('aiku_no_sticky')
-                ->where('website_id', $website->id)
-                ->where('state', WebpageStateEnum::LIVE)
-                ->where(function ($query) use ($path) {
-                    $query->whereRaw("substring(canonical_url from 'https?://[^/]+(/.*)$') = ?", [$path])
-                        ->orWhere('url', ltrim($path, '/'));
-                })
-                ->first();
-        });
     }
 }

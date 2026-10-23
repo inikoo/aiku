@@ -158,6 +158,7 @@ function portfolioRoute(product: Product) {
 
 const locale = inject("locale", aikuLocaleStructure)
 const layout = inject("layout", retinaLayoutStructure)
+const uploadingPortfolioIds = inject("uploadingPortfolioIds", ref<number[]>([]))
 const isEbay = computed(() => props.platform_data?.type === "ebay")
 const selectedProducts = defineModel<number[]>("selectedProducts")
 
@@ -407,11 +408,9 @@ watch(
 	{ immediate: true }
 )
 
-const listErrorProducts = ref({})
 
 // Section: Modal Error Product (i.e Ebay title too long)
 const selectedEditProduct = ref(null)
-const selectedErrorProduct = ref(null)
 const isOpenModalEditProduct = ref(false)
 const isLoadingSubmitErrorTitle = ref(false)
 
@@ -1167,29 +1166,20 @@ const compTableFilterForSale = computed(() => {
 					"
 					isWithError
 					icon=""
-					:label="ctrans('Create new product')"
+					:label="
+						uploadingPortfolioIds.includes(item.id)
+							? ctrans('Uploading…')
+							: ctrans('Create new product')
+					"
+					:loading="uploadingPortfolioIds.includes(item.id)"
 					size="xxs"
 					type="tertiary"
 					:style="'white-w-outline'"
 					:bindToLink="{
 						preserveScroll: true,
 					}"
-					@success="
-						(a) => {
-							// console.log('zvvcvc', a)
-						}
-					"
-					@error="
-						(e) => {
-							// console.log('aaaaaaaaaaaa', e, item)
-							selectedErrorProduct = {
-								product: item,
-								error: e,
-							}
-							set(listErrorProducts, [`x${item.id}`], e)
-						}
-					"
-					:disabled="disableButtons(item)" />
+					@success="() => uploadingPortfolioIds.push(item.id)"
+					:disabled="disableButtons(item) || uploadingPortfolioIds.includes(item.id)" />
 			</div>
 		</template>
 
@@ -1486,6 +1476,7 @@ const compTableFilterForSale = computed(() => {
 					<InputNumber
 						@update:modelValue="(value) => selectedEditProduct.pricing_value = value"
 						@input="(event) => selectedEditProduct.pricing_value = event.value"
+						highlightOnFocus
 						:modelValue="selectedEditProduct?.pricing_value"
 						:inputClass="'xxs w-[100px]'"
 						:min="-100"

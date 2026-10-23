@@ -10,7 +10,9 @@
 namespace App\Actions\Production\Artefact;
 
 use App\Actions\OrgAction;
+use App\Actions\Production\RawMaterial\Hydrators\RawMaterialHydrateFromOrgStock;
 use App\Actions\Production\JobOrderItemTask\GenerateJobOrderItemTasks;
+use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactureTaskSessions;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\Artefact;
 use App\Models\Production\ArtefactManufactureTask;
@@ -21,6 +23,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class SetArtefactsRecipe extends OrgAction
@@ -85,6 +88,7 @@ class SetArtefactsRecipe extends OrgAction
             ->all();
 
         $artefact->manufactureTasks()->syncWithoutDetaching($recipe);
+        RecalculateUntargetedManufactureTaskSessions::run($artefact);
 
         foreach ($steps as $step) {
             $recipeStep = ArtefactManufactureTask::where('artefact_id', $artefact->id)
@@ -96,6 +100,8 @@ class SetArtefactsRecipe extends OrgAction
             $recipeStep->rawMaterials()->whereNotIn('raw_material_id', $rawMaterials->pluck('raw_material_id'))->delete();
             $rawMaterials->each(fn (array $rawMaterial) => AttachRawMaterialToRecipeStep::make()->handle($recipeStep, $rawMaterial));
         }
+
+        RawMaterialHydrateFromOrgStock::dispatchIntermediatesOf($artefact->id);
 
         JobOrderItem::where('artefact_id', $artefact->id)
             ->whereHas('jobOrder', fn ($query) => $query->whereNotIn('state', [JobOrderStateEnum::RECEIVED, JobOrderStateEnum::NOT_RECEIVED]))
@@ -154,7 +160,52 @@ class SetArtefactsRecipe extends OrgAction
                 Rule::exists('raw_materials', 'id')->where('organisation_id', $this->organisation->id),
             ],
             'steps.*.artefact_raw_materials.*.raw_materials.*.quantity_per_unit' => ['required', 'numeric', 'gt:0'],
+            'confirm_open_jobs'                                                  => ['sometimes', 'boolean'],
         ];
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        if ($this->asAction || $validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $steps     = collect($this->get('steps'));
+        $kgTaskIds = ManufactureTask::whereIn('id', $steps->pluck('manufacture_task_id'))->where('is_recorded_in_kg', true)->pluck('id');
+        $artefacts = Artefact::where('production_id', $this->production->id)
+            ->whereIn('id', $this->get('artefacts'))
+            ->with(['orgStock', 'manufactureTasks'])
+            ->get();
+
+        $packCountedAgain = $artefacts->filter(fn (Artefact $artefact) => $steps->contains(
+            fn (array $step) => (float) $artefact->manufactureTasks->find($step['manufacture_task_id'])?->pivot->units_per_artefact !== (float) $step['units_per_artefact']
+                && ArtefactManufactureTask::countsSkoPackAgain($artefact, $kgTaskIds->contains($step['manufacture_task_id']), $step['units_per_artefact'])
+        ));
+        if ($packCountedAgain->isNotEmpty()) {
+            $validator->errors()->add('steps', ArtefactManufactureTask::skoPackCountedAgainMessage($packCountedAgain));
+
+            return;
+        }
+
+        if (filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
+        $newUnits = $steps->mapWithKeys(fn (array $step) => [(int) $step['manufacture_task_id'] => $step['units_per_artefact']])->all();
+
+        $message = GenerateJobOrderItemTasks::openJobsConfirmationMessage(
+            $artefacts
+                ->map(fn (Artefact $artefact) => GenerateJobOrderItemTasks::make()->openJobsAffectedBy(
+                    $artefact,
+                    $newUnits,
+                    $artefact->manufactureTasks()->pluck('manufacture_tasks.id')->diff(array_keys($newUnits))->values()->all()
+                ))
+                ->all()
+        );
+
+        if ($message) {
+            $validator->errors()->add('confirm_open_jobs', $message);
+        }
     }
 
     public function getValidationMessages(): array

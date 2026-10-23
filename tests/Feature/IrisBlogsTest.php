@@ -1,10 +1,12 @@
 <?php
 
 use App\Actions\Iris\Blog\IndexIrisBlogs;
+use App\Actions\Web\Webpage\ProcessUpdateWebpageUrl;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 
@@ -92,4 +94,20 @@ test('iris blogs without a published date in the layout fall back to the webpage
 
     expect(IndexIrisBlogs::make()->handle($this->website)->pluck('id')->all())
         ->toBe([$withLayoutDate->id, $withoutLayoutDate->id]);
+});
+
+test('renaming a blog url refreshes its canonical url and only redirects the old url once the blog is live', function () {
+    $draft = createBlogWebpage($this->website, 'Draft blog', ['state' => WebpageStateEnum::IN_PROCESS, 'url' => 'draft-blog-renamed']);
+
+    ProcessUpdateWebpageUrl::run($draft, 'draft-blog-old');
+
+    expect($draft->refresh()->canonical_url)->toEndWith('/draft-blog-renamed')
+        ->and(Redirect::where('website_id', $this->website->id)->where('from_path', 'draft-blog-old')->exists())->toBeFalse();
+
+    $live = createBlogWebpage($this->website, 'Live blog', ['url' => 'live-blog-renamed']);
+
+    ProcessUpdateWebpageUrl::run($live, 'live-blog-old');
+
+    expect($live->refresh()->canonical_url)->toEndWith('/live-blog-renamed')
+        ->and(Redirect::where('website_id', $this->website->id)->where('from_path', 'live-blog-old')->value('to_webpage_id'))->toBe($live->id);
 });

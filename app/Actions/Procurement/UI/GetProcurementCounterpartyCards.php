@@ -58,7 +58,7 @@ class GetProcurementCounterpartyCards
                 name: $card['name'],
                 countryCode: $card['country_code'],
                 buckets: collect($agentCover[$orgAgent->id] ?? []),
-                orders: $current->where('type', 'agent_order'),
+                orders: $current->where('type', 'purchase_order'),
                 containers: $current->where('type', 'stock_delivery'),
                 url: route('grp.org.procurement.org_agents.index', [$organisation->slug]),
             );
