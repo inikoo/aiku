@@ -9,6 +9,7 @@
 namespace App\Actions\Dropshipping\WooCommerce;
 
 use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
+use App\Actions\Dropshipping\WooCommerce\Product\DispatchWooUploadQueue;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\CustomerSalesChannelStateEnum;
 use App\Enums\Dropshipping\WooCommerceConnectionFailureEnum;
@@ -27,7 +28,8 @@ class CheckWooChannel
     {
         $platformStatus = $canConnectToPlatform = $existInPlatform = false;
 
-        $probe = $wooCommerceUser->probeConnection();
+        $uploadsWerePaused = DispatchWooUploadQueue::isPaused($wooCommerceUser);
+        $probe             = $wooCommerceUser->probeConnection();
 
         if ($probe['success']) {
             $platformStatus       = true;
@@ -72,7 +74,13 @@ class CheckWooChannel
             $data['state'] = CustomerSalesChannelStateEnum::NOT_READY;
         }
 
-        return UpdateCustomerSalesChannel::run($wooCommerceUser->customerSalesChannel, $data);
+        $customerSalesChannel = UpdateCustomerSalesChannel::run($wooCommerceUser->customerSalesChannel, $data);
+
+        if ($canConnectToPlatform && $uploadsWerePaused) {
+            DispatchWooUploadQueue::resume($wooCommerceUser);
+        }
+
+        return $customerSalesChannel;
     }
 
     /**

@@ -384,6 +384,21 @@ return [
             'balanceMaxShift'     => 1,
             'balanceCooldown'     => 3,
         ],
+        'woo-probe'             => [
+            'connection'          => 'redis',
+            'queue'               => [App\Actions\Dropshipping\WooCommerce\ProbeWooStoreFromServer::serverQueue()],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 1,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory'              => 256,
+            'tries'               => 1,
+            'timeout'             => 120,
+            'nice'                => 0,
+            'balanceMaxShift'     => 1,
+            'balanceCooldown'     => 3,
+        ],
         'dropshipping'         => [
             'connection'          => 'redis',
             'queue'               =>
@@ -636,7 +651,10 @@ return [
             ],
             'shopify-slave' => [
                 'maxProcesses' => env('HORIZON_SHOPIFY_SLAVE_WORKERS', 1),
-            ]
+            ],
+            'woo-probe'     => [
+                'maxProcesses' => 1,
+            ],
 
         ],
         'staging'    => array_map(fn () => ['maxProcesses' => 0], $supervisorDefaults) + [
@@ -767,7 +785,10 @@ return [
             ],
             'shopify-slave' => [
                 'maxProcesses' => env('HORIZON_SHOPIFY_SLAVE_WORKERS', 1),
-            ]
+            ],
+            'woo-probe'     => [
+                'maxProcesses' => 1,
+            ],
 
 
         ],

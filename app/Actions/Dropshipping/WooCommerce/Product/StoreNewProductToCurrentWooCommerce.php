@@ -11,9 +11,13 @@ namespace App\Actions\Dropshipping\WooCommerce\Product;
 use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
 use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
+use App\Actions\Dropshipping\WooCommerce\CheckWooChannel;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
+use App\Enums\Dropshipping\CustomerSalesChannelStateEnum;
+use App\Enums\Dropshipping\WooCommerceConnectionFailureEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Events\UploadProductToSalesChannelProgressEvent;
@@ -60,6 +64,15 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
 
     public int $jobUniqueFor = (self::RETRY_FOR_HOURS + 1) * 3600;
 
+    /**
+     * A shared host under a bulk upload can miss one answer and be fine a minute later: the store is
+     * paused only after this many connection failures in a row, any upload that gets through resets
+     * the count.
+     */
+    public const int CONNECTION_FAILURES_BEFORE_PAUSE = 3;
+
+    private const int CONNECTION_FAILURES_KEPT_SECONDS = 900;
+
     public function getJobUniqueId(WooCommerceUser $wooCommerceUser, Portfolio $portfolio): string
     {
         return $portfolio->id;
@@ -71,16 +84,26 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public function handle(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): Portfolio
     {
         try {
-            $connection = $checkConnection ? $wooCommerceUser->checkConnectionWithError() : ['success' => true, 'message' => null];
+            $probe = $checkConnection ? $wooCommerceUser->probeConnection() : null;
 
-            if ($connection['success']) {
+            if ($probe === null || $probe['success']) {
                 $portfolio = StoreWooCommerceProduct::run($wooCommerceUser, $portfolio);
+
+                if (!$portfolio->platform_product_id && $probe === null) {
+                    $wooCommerceUser->setTimeout(30);
+                    $probe = $wooCommerceUser->probeConnection();
+
+                    if (!$probe['success'] && $probe['failure']) {
+                        UpdatePortfolio::run($portfolio, [
+                            'errors_response' => array_merge($portfolio->errors_response ?? [], ['connection_failure' => $probe['failure']->value])
+                        ]);
+                    }
+                }
             } else {
-                $wooCommerceUser->customerSalesChannel->update([
-                    'ban_stock_update_util' => now()->addSeconds(10)
-                ]);
-                $this->recordConnectionFailure($portfolio, $connection['message'] ?? __('Could not connect to your store, please check your channel connection and try again.'));
+                $this->recordConnectionFailure($portfolio, $probe['failure']);
             }
+
+            $this->countConnection($wooCommerceUser, $portfolio, $probe);
         } catch (\Throwable $e) {
             $this->recordPortfolioUploadFailure($portfolio, $e);
 
@@ -100,8 +123,10 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
      * Must not say "timed out": the nightly RetryTimedOutWooUploads would queue it again while the
      * store is still turning us away.
      */
-    private function recordConnectionFailure(Portfolio $portfolio, string $message): void
+    private function recordConnectionFailure(Portfolio $portfolio, ?WooCommerceConnectionFailureEnum $failure): void
     {
+        $message = $failure?->customerMessage() ?? __('Could not connect to your store, please check your channel connection and try again.');
+
         $log = StorePlatformPortfolioLog::run($portfolio, [
             'type' => PlatformPortfolioLogsTypeEnum::UPLOAD
         ]);
@@ -112,8 +137,53 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         ]);
 
         UpdatePortfolio::run($portfolio, [
-            'errors_response' => $this->portfolioErrorResponse($message)
+            'errors_response' => array_merge($this->portfolioErrorResponse($message) ?? [], array_filter(['connection_failure' => $failure?->value]))
         ]);
+    }
+
+    /**
+     * @param array{success: bool, failure: WooCommerceConnectionFailureEnum|null}|null $probe
+     */
+    private function countConnection(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, ?array $probe): void
+    {
+        $key = 'woo_connection_failures_'.$wooCommerceUser->id;
+
+        if ($portfolio->platform_product_id) {
+            Redis::del($key);
+
+            return;
+        }
+
+        if (!$probe || $probe['success'] || !$probe['failure']) {
+            return;
+        }
+
+        $failures = Redis::incr($key);
+        Redis::expire($key, self::CONNECTION_FAILURES_KEPT_SECONDS);
+
+        if ($failures >= self::CONNECTION_FAILURES_BEFORE_PAUSE) {
+            Redis::del($key);
+            $this->pauseUploads($wooCommerceUser, $probe['failure']);
+        }
+    }
+
+    /**
+     * The channel goes not ready as a failed ping would leave it, so the customer sees why and stock
+     * pushes and order fetches skip it too, and its upload list stops until the six hourly ping or
+     * the customer's try again finds the store answering; CheckWooChannel then resumes it.
+     */
+    private function pauseUploads(WooCommerceUser $wooCommerceUser, WooCommerceConnectionFailureEnum $failure): void
+    {
+        DispatchWooUploadQueue::keepWhilePaused($wooCommerceUser);
+
+        UpdateCustomerSalesChannel::run($wooCommerceUser->customerSalesChannel, array_merge(
+            CheckWooChannel::connectionFailureData($failure),
+            [
+                'platform_status'         => false,
+                'can_connect_to_platform' => false,
+                'state'                   => CustomerSalesChannelStateEnum::NOT_READY,
+            ]
+        ));
     }
 
     /**
@@ -128,6 +198,13 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
      */
     public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
     {
+        if (DispatchWooUploadQueue::isPaused($wooCommerceUser)) {
+            DispatchWooUploadQueue::releaseReservedSlot($wooCommerceUser, $portfolio);
+            DispatchWooUploadQueue::push($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress);
+
+            return;
+        }
+
         $hadSlot = null;
 
         try {

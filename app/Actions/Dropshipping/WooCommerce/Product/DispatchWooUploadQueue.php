@@ -8,7 +8,11 @@
 
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
+use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
+use App\Actions\Dropshipping\WooCommerce\CheckWooChannel;
 use App\Actions\Traits\AsUniqueUntilProcessingAction;
+use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
+use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -44,6 +48,13 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
      */
     public const int RESERVED_SLOT_SECONDS = 600;
 
+    /**
+     * A store that does not answer pauses its uploads instead of failing them one by one, each after
+     * a minute of waiting on the store. Its list is kept this long for the store to come back: an
+     * upload the customer asked for weeks ago must not suddenly appear in their store.
+     */
+    public const int PAUSED_KEEP_DAYS = 7;
+
     public static function push(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): void
     {
         $queue = self::queueKey($wooCommerceUser);
@@ -63,7 +74,12 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
      */
     public function handle(WooCommerceUser $wooCommerceUser): void
     {
-        $queue     = self::queueKey($wooCommerceUser);
+        $queue = self::queueKey($wooCommerceUser);
+
+        if (self::isPaused($wooCommerceUser)) {
+            return;
+        }
+
         $freeSlots = self::freeSlots($wooCommerceUser);
 
         while ($freeSlots > 0 && $entry = Redis::lpop($queue)) {
@@ -83,6 +99,63 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
             self::keepQueue($wooCommerceUser);
             self::checkLater($wooCommerceUser);
         }
+    }
+
+    /**
+     * Counted from the pause: uploads asked for while paused go in the same list and do not keep it
+     * alive any longer.
+     */
+    public static function keepWhilePaused(WooCommerceUser $wooCommerceUser): void
+    {
+        Redis::expire(self::queueKey($wooCommerceUser), self::PAUSED_KEEP_DAYS * 86400);
+    }
+
+    /**
+     * A parked channel only answers again for its uploads: reviving it would import every order the
+     * store still shows as processing, so orders and stock stay off until a person runs woo:check.
+     */
+    public static function unpause(WooCommerceUser $wooCommerceUser): void
+    {
+        UpdateCustomerSalesChannel::run($wooCommerceUser->customerSalesChannel, array_merge(
+            CheckWooChannel::connectionFailureData(null),
+            ['can_connect_to_platform' => true]
+        ));
+
+        self::resume($wooCommerceUser);
+    }
+
+    /**
+     * The store answers again: the uploads that could not connect in the last days go back in the
+     * list behind the ones that waited there.
+     */
+    public static function resume(WooCommerceUser $wooCommerceUser): void
+    {
+        $queue   = self::queueKey($wooCommerceUser);
+        $waiting = collect(Redis::lrange($queue, 0, -1))->map(fn (string $entry) => json_decode($entry, true)['portfolio_id'])->flip();
+
+        $wooCommerceUser->customerSalesChannel->portfolios()
+            ->where('status', true)
+            ->whereNull('platform_product_id')
+            ->whereNotNull('errors_response->connection_failure')
+            ->whereExists(fn ($logs) => $logs->selectRaw('1')
+                ->from('platform_portfolio_logs')
+                ->whereColumn('platform_portfolio_logs.portfolio_id', 'portfolios.id')
+                ->where('platform_portfolio_logs.type', PlatformPortfolioLogsTypeEnum::UPLOAD->value)
+                ->where('platform_portfolio_logs.created_at', '>=', now()->subDays(self::PAUSED_KEEP_DAYS)))
+            ->each(function (Portfolio $portfolio) use ($wooCommerceUser, $waiting) {
+                if (!$waiting->has($portfolio->id)) {
+                    self::push($wooCommerceUser, $portfolio);
+                }
+            });
+
+        if (Redis::llen(self::queueKey($wooCommerceUser))) {
+            self::run($wooCommerceUser);
+        }
+    }
+
+    public static function isPaused(WooCommerceUser $wooCommerceUser): bool
+    {
+        return !CustomerSalesChannel::whereKey($wooCommerceUser->customer_sales_channel_id)->value('can_connect_to_platform');
     }
 
     public static function checkLater(WooCommerceUser $wooCommerceUser): void
@@ -113,7 +186,12 @@ class DispatchWooUploadQueue implements ShouldBeUniqueUntilProcessing
 
     private static function keepQueue(WooCommerceUser $wooCommerceUser): void
     {
-        Redis::expire(self::queueKey($wooCommerceUser), (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600);
+        $queue   = self::queueKey($wooCommerceUser);
+        $seconds = (StoreNewProductToCurrentWooCommerce::RETRY_FOR_HOURS + 1) * 3600;
+
+        if (Redis::ttl($queue) < $seconds) {
+            Redis::expire($queue, $seconds);
+        }
     }
 
     /**

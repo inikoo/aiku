@@ -136,7 +136,7 @@ enum WooCommerceConnectionFailureEnum: string
         return match ($this) {
             self::REFUSED => __('Your store refused our connection because its hosting or firewall is blocking our servers. Ask your hosting provider to allow our IP addresses: :ips', ['ips' => $ips]),
             self::FIREWALL => __('A security plugin, a firewall or Cloudflare on your store is blocking our requests. Ask your hosting provider or developer to allow our IP addresses to reach /wp-json/: :ips', ['ips' => $ips]),
-            self::TIMEOUT => __('Your store did not answer in time. This is usually a firewall blocking our servers or a very slow host. Ask your hosting provider to allow our IP addresses: :ips', ['ips' => $ips]),
+            self::TIMEOUT => __('Your store is not answering us. It may be down or very slow, or its hosting may be blocking our servers. If your store opens in your browser, ask your hosting provider to allow our IP addresses: :ips', ['ips' => $ips]),
             self::DNS => __('Your store domain no longer exists. If your store moved to a new address, reconnect the channel with that address.'),
             self::TLS => __('Your store SSL certificate could not be verified, it may be expired, self signed or incomplete, please renew it with your hosting provider.'),
             self::REDIRECTED => __('Your store address now redirects to another address. Reconnect the channel using the address your store uses now.'),

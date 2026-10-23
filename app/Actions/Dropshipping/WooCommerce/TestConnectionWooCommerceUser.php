@@ -38,10 +38,16 @@ class TestConnectionWooCommerceUser extends RetinaAction
             throw ValidationException::withMessages(['message' => __('We could not find the Woo Commerce account in our side.')]);
         }
 
-        $connection = $wooCommerceUser->checkConnectionWithError();
+        ProbeWooStoreFromServer::start($wooCommerceUser);
+        $results = ProbeWooStoreFromServer::results($wooCommerceUser);
 
-        if (! $connection['success']) {
-            throw ValidationException::withMessages(['message' => $connection['message'] ?? __('Unknown error: contact administrator')]);
+        if ($results['checking']) {
+            return ['checking' => true];
+        }
+
+        $failed = collect($results['servers'])->firstWhere('ok', false);
+        if ($failed) {
+            throw ValidationException::withMessages(['message' => $failed['reason'] ?? __('Unknown error: contact administrator')]);
         }
 
         return null;

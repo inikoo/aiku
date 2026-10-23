@@ -9,6 +9,7 @@
 namespace App\Actions\Dropshipping\WooCommerce;
 
 use App\Actions\Dropshipping\CustomerSalesChannel\UpdateCustomerSalesChannel;
+use App\Actions\Dropshipping\WooCommerce\Product\DispatchWooUploadQueue;
 use App\Actions\Maintenance\Dropshipping\RepairWooChannelReconnects;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dropshipping\CustomerSalesChannelStatusEnum;
@@ -59,6 +60,7 @@ class PingActiveWooChannel
      * again, records why the others still fail, and only reports the ones that do: reviving them here would import every order the
      * store still shows as processing, orders the owner has most likely handled by hand while the
      * channel was dark. A person revives with woo:check once the customer has closed those orders.
+     * Their paused product uploads do start again, as they touch no orders.
      */
     public function handle(Command $command, bool $retryParked = false): void
     {
@@ -79,6 +81,9 @@ class PingActiveWooChannel
                         UpdateCustomerSalesChannel::run($customerSalesChannel, CheckWooChannel::connectionFailureData($probe['failure']));
 
                         if ($probe['success']) {
+                            if (DispatchWooUploadQueue::isPaused($customerSalesChannel->user)) {
+                                DispatchWooUploadQueue::unpause($customerSalesChannel->user);
+                            }
                             $answeringAgain[] = [$customerSalesChannel->slug, $customerSalesChannel->number_portfolios, $customerSalesChannel->number_orders, $customerSalesChannel->user->store_url];
                             Sentry::captureMessage('Parked WooCommerce channel '.$customerSalesChannel->slug.' answers again, revive with woo:check once the customer has closed the orders they handled themselves');
                         }

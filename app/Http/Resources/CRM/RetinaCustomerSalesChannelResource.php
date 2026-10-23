@@ -8,14 +8,18 @@
 
 namespace App\Http\Resources\CRM;
 
+use App\Actions\Dropshipping\WooCommerce\Product\DispatchWooUploadQueue;
+use App\Actions\Dropshipping\WooCommerce\ProbeWooStoreFromServer;
 use App\Actions\Retina\UI\Layout\GetPlatformLogo;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Dropshipping\EbayUser;
 use App\Models\Dropshipping\TiktokUser;
+use App\Models\Dropshipping\WooCommerceUser;
 use App\Models\Helpers\TaxCategory;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * @property mixed $type
@@ -134,6 +138,8 @@ class RetinaCustomerSalesChannelResource extends JsonResource
             'vat_rate'               => $taxCategory?->rate,
             'store_url' => $siteUrl,
             'not_ready_reason' => Arr::get($this->settings, $customerSalesChannels->platform->type->value.'.not_ready_reason'),
+            'woo_uploads_waiting' => $this->user instanceof WooCommerceUser ? (int) Redis::llen(DispatchWooUploadQueue::queueKey($this->user)) : 0,
+            'woo_server_probe'    => $this->user instanceof WooCommerceUser ? ProbeWooStoreFromServer::results($this->user) : null,
             'stock_management_off' => (bool) Arr::get($this->settings, 'woocommerce.stock_management_off'),
             'platform_completion' => $platformCompletion,
             'tiktok_shop_has_no_warehouse' => $tiktokShopHasNoWarehouse,

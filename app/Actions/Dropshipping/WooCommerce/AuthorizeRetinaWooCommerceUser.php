@@ -169,7 +169,7 @@ class AuthorizeRetinaWooCommerceUser extends OrgAction
             WooCommerceConnectionFailureEnum::DNS => __('We could not resolve your store domain, please check the store url is spelled correctly and the domain is live.'),
             WooCommerceConnectionFailureEnum::TLS => __('Your store SSL certificate could not be verified, it may be expired, self signed or incomplete, please renew it with your hosting provider.'),
             WooCommerceConnectionFailureEnum::REFUSED => __('Your store refused our connection because its hosting or firewall is blocking our servers. Ask your hosting provider to allow our IP addresses: :ips', ['ips' => config('app.outgoing_ips')]),
-            WooCommerceConnectionFailureEnum::TIMEOUT => __('Your store did not answer within 2 minutes. This is usually a firewall blocking our servers or a very slow host. Ask your hosting provider to allow our IP addresses: :ips', ['ips' => config('app.outgoing_ips')]),
+            WooCommerceConnectionFailureEnum::TIMEOUT => WooCommerceConnectionFailureEnum::TIMEOUT->customerMessage(),
             WooCommerceConnectionFailureEnum::REDIRECTED => __('Your store url redirects in a loop, please enter the final address of your store.'),
             default => __('Unable to connect to the WooCommerce store, please check your store url.'),
         };

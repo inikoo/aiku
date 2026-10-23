@@ -33,6 +33,12 @@ export interface CustomerSalesChannel {
     exist_in_platform: boolean
     platform_status: boolean
     not_ready_reason?: string | null
+    woo_uploads_waiting?: number
+    woo_server_probe?: {
+        requested_at: string
+        checking: boolean
+        servers: { ip: string | null, ok: boolean, reason: string | null }[]
+    } | null
     stock_management_off?: boolean
 
     customer_company_name: string
