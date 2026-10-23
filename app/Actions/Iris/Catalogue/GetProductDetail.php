@@ -100,12 +100,14 @@ class GetProductDetail extends IrisAction
         $dimensions  = $this->dimensions($product->marketing_dimensions);
         $cpnp        = $product->cpnp_number;
         $components  = [];
+        $attachments = $this->getProductAttachments($product->id);
 
         if ($tradeUnits->count() > 1) {
             $ingredients = null;
             $dimensions  = null;
             $cpnp        = null;
-            $components  = $this->components($product, $tradeUnits);
+            [$components, $componentAttachments] = $this->components($product, $tradeUnits);
+            $attachments = array_merge($attachments, $componentAttachments);
         }
 
         $specifications = [
@@ -137,7 +139,7 @@ class GetProductDetail extends IrisAction
             'tags'                       => TagResource::collection($product->tags)->toArray($request),
             'specifications'             => $specifications,
             'components'                 => $components,
-            'attachments'                => $this->getProductAttachments($product->id),
+            'attachments'                => $attachments,
             'allow_stocks_to_be_shown_on_iris'          => $isStockShown,
             'allow_incoming_stocks_to_be_shown_on_iris' => $isIncomingStockShown,
             'incoming_stock'                            => $isIncomingStockShown ? GetProductIncomingStock::run($product, true) : [],
@@ -154,29 +156,39 @@ class GetProductDetail extends IrisAction
      * A product made of several trade units, a bundle or a starter, lists its components
      * instead of merging their ingredients, sizes and CPNP numbers into one unreadable
      * value. Each component links to the page of the product sold on its own in the same
-     * shop, where its full specification is; one without such a page keeps its ingredients.
+     * shop, where its full specification is; one without such a page keeps its ingredients,
+     * and the documents of its single product that is not for sale are shown on this page.
+     * A single product counts as having a page by the same rule the product page uses to
+     * show it, so a component never links to a page that returns 404.
      *
-     * @return array<int, array{code: string, name: string, quantity: float, url: ?string, ingredients: ?string}>
+     * @return array{0: array<int, array{code: string, name: string, quantity: float, url: ?string, ingredients: ?string}>, 1: array<int, array<string, mixed>>}
      */
     private function components(Product $product, Collection $tradeUnits): array
     {
         $componentProducts = Product::where('shop_id', $product->shop_id)
             ->where('is_single_trade_unit', true)
             ->whereIn('state', [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING])
-            ->whereHas('webpage', fn ($query) => $query->where('state', WebpageStateEnum::LIVE))
             ->whereHas('tradeUnits', fn ($query) => $query->whereIn('trade_units.id', $tradeUnits->pluck('id')))
             ->with(['webpage', 'tradeUnits'])
             ->orderBy('id')
             ->get();
 
-        $productByTradeUnit = [];
+        $productByTradeUnit       = [];
+        $hiddenProductByTradeUnit = [];
         foreach ($componentProducts as $componentProduct) {
+            $hasVisiblePage = ($componentProduct->is_for_sale || $componentProduct->is_variant_leader)
+                && $componentProduct->webpage?->state === WebpageStateEnum::LIVE;
             foreach ($componentProduct->tradeUnits as $tradeUnit) {
-                $productByTradeUnit[$tradeUnit->id] ??= $componentProduct;
+                if ($hasVisiblePage) {
+                    $productByTradeUnit[$tradeUnit->id] ??= $componentProduct;
+                } else {
+                    $hiddenProductByTradeUnit[$tradeUnit->id] ??= $componentProduct;
+                }
             }
         }
 
-        $components = [];
+        $components  = [];
+        $attachments = [];
         foreach ($tradeUnits->sortBy('code', SORT_NATURAL | SORT_FLAG_CASE) as $tradeUnit) {
             /** @var Product|null $componentProduct */
             $componentProduct = $productByTradeUnit[$tradeUnit->id] ?? null;
@@ -188,9 +200,17 @@ class GetProductDetail extends IrisAction
                 'url'         => $componentProduct?->webpage->getCanonicalUrl(),
                 'ingredients' => $componentProduct || blank($tradeUnit->marketing_ingredients) ? null : $tradeUnit->marketing_ingredients,
             ];
+
+            $hiddenProduct = $componentProduct ? null : ($hiddenProductByTradeUnit[$tradeUnit->id] ?? null);
+            if ($hiddenProduct) {
+                foreach ($this->getProductAttachments($hiddenProduct->id) as $attachment) {
+                    $attachment['caption'] = trim($tradeUnit->name.' '.($attachment['caption'] ?? ''));
+                    $attachments[]         = $attachment;
+                }
+            }
         }
 
-        return $components;
+        return [$components, $attachments];
     }
 
     public function asController(Product $product, ActionRequest $request): Product

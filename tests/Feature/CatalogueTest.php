@@ -1324,6 +1324,19 @@ test('a starter spec block lists its components with a link to each one sold on 
 
     expect($single['components'])->toBe([])
         ->and($single['specifications']['ingredients'])->toBe('Aqua, Glycerin');
+
+    DB::table('products')->where('id', $lotionProduct->id)->update(['is_for_sale' => false, 'is_variant_leader' => false]);
+    $lotionDocument = createAttachedMedia('Product', $lotionProduct->id, 'doc');
+
+    $hiddenSingleDetail = \App\Actions\Iris\Catalogue\GetProductDetail::make()->jsonResponse(Product::find($starter->id), $request);
+    $hiddenComponents   = collect($hiddenSingleDetail['components'])->keyBy('code');
+
+    expect($hiddenComponents[$lotion->code]['url'])->toBeNull()
+        ->and($hiddenComponents[$lotion->code]['ingredients'])->toBe('Aqua, Glycerin')
+        ->and(collect($hiddenSingleDetail['attachments'])->pluck('media_ulid')->all())->toContain($lotionDocument->ulid);
+
+    DB::table('model_has_attachments')->where('media_id', $lotionDocument->id)->delete();
+    DB::table('products')->where('id', $lotionProduct->id)->update(['is_for_sale' => true]);
 });
 
 test('product detail carries the public documents of the selected variant', function () {
