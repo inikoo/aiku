@@ -2518,3 +2518,18 @@ test('a stored item shows where a pallet without a location was last picked from
         $pallet->updateQuietly(['location_id' => $savedLocation]);
     }
 });
+
+test('a whole pallet return opened on a stored item return page goes to its whole pallet page', function () {
+    $wholePalletReturn = StorePalletReturn::make()->action(
+        $this->customer->fulfilmentCustomer,
+        ['warehouse_id' => $this->warehouse->id]
+    );
+
+    expect($wholePalletReturn->type)->toBe(PalletReturnTypeEnum::PALLET);
+
+    get(route('grp.org.fulfilments.show.backlogs.pallet-returns-backlog.dropship.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $wholePalletReturn->slug]))
+        ->assertRedirect(route('grp.org.fulfilments.show.backlogs.pallet-returns-backlog.wholesale.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $wholePalletReturn->slug]));
+
+    get(route('grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show', [$this->organisation->slug, $this->fulfilment->slug, $wholePalletReturn->slug]))
+        ->assertRedirect(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $wholePalletReturn->slug]));
+});

@@ -20,6 +20,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\WithFulfilmentShopAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsWithStoredItemsResource;
@@ -31,7 +32,9 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -80,8 +83,19 @@ class ShowStoredItemReturn extends OrgAction
         return $this->handle($palletReturn);
     }
 
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response|RedirectResponse
     {
+        $wholePalletRouteName = match ($request->route()->getName()) {
+            'grp.org.fulfilments.show.backlogs.pallet-returns-backlog.dropship.pallet-returns.show' => 'grp.org.fulfilments.show.backlogs.pallet-returns-backlog.wholesale.pallet-returns.show',
+            'grp.org.fulfilments.show.operations.pallet-return-with-stored-items.show' => 'grp.org.fulfilments.show.operations.pallet-returns.show',
+            'grp.org.fulfilments.show.crm.customers.show.pallet_returns.with_stored_items.show' => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+            default => null,
+        };
+
+        if ($wholePalletRouteName && $palletReturn->type === PalletReturnTypeEnum::PALLET) {
+            return Redirect::route($wholePalletRouteName, $request->route()->originalParameters());
+        }
+
         $subNavigation = [];
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
