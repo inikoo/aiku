@@ -73,6 +73,9 @@ const props = defineProps<{
 	// allow_waiting: boolean
 	// allow_picker_set_not_picked: boolean
 	is_editable: boolean
+	shop?: {
+		type: string
+	}
 	quick_pickers: {
 		id: number,
 		contact_name: string
@@ -244,10 +247,12 @@ const replacementSummary = computed(() => {
 	}
 })
 
+const isMarketplace = computed(() => props.shop?.type === 'external')
+
 const finishProcessingRefund = (routeData: any) => {
 	pendingRouteData.value = routeData;
-	createRefund.value = refundSummary.value.totalAmount > 0;
-	createReplacement.value = replacementSummary.value.totalQuantity > 0;
+	createRefund.value = !isMarketplace.value && refundSummary.value.totalAmount > 0;
+	createReplacement.value = !isMarketplace.value && replacementSummary.value.totalQuantity > 0;
 	isFinishReturnModal.value = true
 }
 
@@ -444,11 +449,16 @@ const confirmAndSubmitRefund = () => {
 					{{ ctrans("Return Summary") }}
 				</div>
 
-				<div class="text-center italic text-xs opacity-70 text-balance">
+				<div v-if="!isMarketplace" class="text-center italic text-xs opacity-70 text-balance">
 					{{ ctrans("Check the summary of items to be refunded/replaced. If the return needs no action, turn both off and finish it.") }}
 				</div>
 			</div>
 
+			<div v-if="isMarketplace" class="rounded bg-gray-50 px-4 py-3 text-sm text-gray-600">
+				{{ ctrans("This is a marketplace order: refund or replace it on the marketplace. Finishing here only records the goods that came back.") }}
+			</div>
+
+			<template v-else>
 			<!-- Refund Data -->
 			<div class="flex items-center gap-x-6 bg-gray-50 rounded px-4 text-sm">
 				<div class="flex flex-col items-center text-xl font-bold">
@@ -564,7 +574,9 @@ const confirmAndSubmitRefund = () => {
 				</table>
 			</div>
 
-			<div v-if="!createRefund && !createReplacement" class="rounded bg-gray-50 px-4 py-3 text-sm text-gray-600">
+			</template>
+
+			<div v-if="!isMarketplace && !createRefund && !createReplacement" class="rounded bg-gray-50 px-4 py-3 text-sm text-gray-600">
 				{{ ctrans("No refund or replacement: the return is closed as done, no further action.") }}
 			</div>
 

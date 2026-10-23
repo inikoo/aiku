@@ -5898,6 +5898,46 @@ test('finishing a return with a replacement needs a reason per replaced item and
         ->toBe(\App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value);
 });
 
+test('a marketplace return is finished without a refund or a replacement, both are made on the marketplace (HELP-4270)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);
+    $deliveryNoteItem->update(['quantity_dispatched' => 2]);
+    $order = $deliveryNote->orders()->first();
+    \App\Actions\Accounting\Invoice\StoreInvoice::make()->action($order, array_merge(\App\Models\Accounting\Invoice::factory()->definition(), [
+        'billing_address' => new Address(Address::factory()->definition()),
+    ]), strict: false);
+
+    $returnDeliveryNote = \App\Actions\GoodsIn\ReturnDeliveryNote\ProcessReturnDeliveryNote::make()->handle($deliveryNote, []);
+    $returnDeliveryNote->update(['state' => \App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED]);
+    $originalShopType = $order->shop->type;
+    $order->shop->update(['type' => \App\Enums\Catalogue\Shop\ShopTypeEnum::EXTERNAL]);
+
+    request()->setUserResolver(fn () => $this->user);
+    $finish = fn (bool $refund, bool $replacement) => \App\Actions\GoodsIn\ReturnDeliveryNote\SetDoneReturnDeliveryNote::make()->handle($returnDeliveryNote->refresh(), [
+        'createRefund'      => $refund,
+        'createReplacement' => $replacement,
+        'refundedData'      => [
+            $deliveryNoteItem->transaction_id => [
+                'delivery_note_items_id' => $deliveryNoteItem->id,
+                'refund_amount'          => 1,
+                'replaced_quantity'      => 1,
+                'reason'                 => \App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum::DAMAGED_IN_TRANSIT->value,
+            ],
+        ],
+    ]);
+
+    expect(fn () => $finish(false, true))->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and(fn () => $finish(true, false))->toThrow(\Illuminate\Validation\ValidationException::class)
+        ->and($returnDeliveryNote->refresh()->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::RETURNED);
+
+    $finished = $finish(false, false);
+    $order->shop->update(['type' => $originalShopType]);
+
+    expect($finished->state)->toBe(\App\Enums\GoodsIn\ReturnDeliveryNote\ReturnDeliveryNoteStateEnum::DONE)
+        ->and($finished->refund_id)->toBeNull()
+        ->and($finished->replacement_id)->toBeNull();
+});
+
 test('customer services finish a return from the order shop without warehouse returns permissions (HELP-3569)', function () {
     [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::DISPATCHED]);

@@ -69,9 +69,13 @@ class SetDoneReturnDeliveryNote extends OrgAction
             ]);
         }
 
-        if (Arr::get($modelData, 'createRefund') && $returnDeliveryNote->order->shop->type === ShopTypeEnum::EXTERNAL) {
+        /**
+         * The marketplace owns the order: a refund or a replacement made here never reaches it, and
+         * the retailer can still claim there and be paid or sent the goods twice (HELP-4270).
+         */
+        if ((Arr::get($modelData, 'createRefund') || Arr::get($modelData, 'createReplacement')) && $returnDeliveryNote->order->shop->type === ShopTypeEnum::EXTERNAL) {
             throw ValidationException::withMessages([
-                'message' => __('A marketplace order is refunded on the marketplace. The goods can be received back here, but no refund is issued in Aiku.'),
+                'message' => __('A marketplace order is refunded or replaced on the marketplace. The goods can be received back here, but no refund or replacement is made in Aiku.'),
             ]);
         }
 
