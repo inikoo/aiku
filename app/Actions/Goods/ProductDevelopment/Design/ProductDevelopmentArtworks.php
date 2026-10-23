@@ -104,6 +104,25 @@ class ProductDevelopmentArtworks
         return !ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment);
     }
 
+    /**
+     * Keeps the history row of the artwork's current version in step with it: written when a version is
+     * sent for review and updated when it is reviewed.
+     */
+    public static function recordVersion(ProductDevelopmentArtwork $artwork): void
+    {
+        $artwork->versions()->updateOrCreate(['version' => $artwork->version], [
+            'source'          => $artwork->source,
+            'media_id'        => $artwork->source === ProductDevelopmentArtwork::SOURCE_UPLOAD ? $artwork->media_id : null,
+            'status'          => $artwork->status,
+            'update_note'     => $artwork->update_note,
+            'submitted_by_id' => $artwork->updated_by_id,
+            'submitted_at'    => $artwork->artwork_updated_at,
+            'review_comment'  => $artwork->review_comment,
+            'reviewed_by_id'  => $artwork->reviewed_by_id,
+            'reviewed_at'     => $artwork->reviewed_at,
+        ]);
+    }
+
     public static function statusPayload(?ProductDevelopmentArtwork $artwork): array
     {
         $status = $artwork?->status ?? ProductDevelopmentArtworkStatusEnum::NOT_SUBMITTED;

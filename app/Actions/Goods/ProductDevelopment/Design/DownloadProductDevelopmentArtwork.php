@@ -25,9 +25,13 @@ class DownloadProductDevelopmentArtwork extends OrgAction
 {
     use WithProductDevelopmentAuthorisation;
 
-    public function handle(ProductDevelopment $productDevelopment, ProductDevelopmentArtwork $artwork): string
+    public function handle(ProductDevelopment $productDevelopment, ProductDevelopmentArtwork $artwork, ?int $version = null): string
     {
         abort_unless($artwork->product_development_id === $productDevelopment->id, 404);
+
+        if ($version !== null && $version !== $artwork->version) {
+            $artwork = self::asVersion($artwork, $version);
+        }
 
         $pdf = self::bytes($artwork);
         abort_unless($pdf !== null, 404);
@@ -52,6 +56,18 @@ class DownloadProductDevelopmentArtwork extends OrgAction
         }
     }
 
+    /**
+     * An earlier uploaded version, as an unsaved copy of the artwork carrying that version's file. Versions
+     * made in Aiku keep no file of their own, only the latest layout.
+     */
+    private static function asVersion(ProductDevelopmentArtwork $artwork, int $version): ProductDevelopmentArtwork
+    {
+        $earlier = $artwork->versions()->where('version', $version)->whereNotNull('media_id')->with('media')->first();
+        abort_unless($earlier !== null, 404);
+
+        return (clone $artwork)->forceFill(['version' => $earlier->version, 'source' => ProductDevelopmentArtwork::SOURCE_UPLOAD, 'media_id' => $earlier->media_id])->setRelation('media', $earlier->media);
+    }
+
     public static function fileName(ProductDevelopmentArtwork $artwork): string
     {
         return preg_replace('/[^A-Za-z0-9._-]+/', '-', ProductDevelopmentDesignPdf::title($artwork)).'.pdf';
@@ -61,9 +77,12 @@ class DownloadProductDevelopmentArtwork extends OrgAction
     {
         $this->initialisationFromGroup(group(), $request);
 
-        return response($this->handle($productDevelopment, $artwork), 200, [
+        $version  = $request->integer('version') ?: null;
+        $fileName = self::fileName($version ? (clone $artwork)->forceFill(['version' => $version]) : $artwork);
+
+        return response($this->handle($productDevelopment, $artwork, $version), 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => ($request->boolean('inline') ? 'inline' : 'attachment').'; filename="'.self::fileName($artwork).'"',
+            'Content-Disposition' => ($request->boolean('inline') ? 'inline' : 'attachment').'; filename="'.$fileName.'"',
         ]);
     }
 }

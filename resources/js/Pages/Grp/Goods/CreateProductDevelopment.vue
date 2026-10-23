@@ -11,6 +11,7 @@ import axios from "axios"
 import { Head, router } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import InputText from "primevue/inputtext"
 import Textarea from "primevue/textarea"
 import Select from "primevue/select"
@@ -235,10 +236,6 @@ function codeError(sku: SkuRow, index: number): string | null {
 const formElement = ref<HTMLFormElement | null>(null)
 const { height: formHeight } = useFitToViewport(formElement)
 
-const choiceClass = (active: boolean) => active
-    ? "border-[--app-accent] bg-[--app-accent-soft] text-[--app-accent-deep]"
-    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-
 function submit() {
     if (hasCodeProblems.value) {
         return
@@ -359,60 +356,49 @@ function submit() {
                     <p class="text-xs text-gray-500">{{ ctrans("New SKUs are created as trade units in process") }}</p>
 
                     <div class="mt-3 space-y-3">
-                        <div v-for="(sku, index) in skus" :key="index" class="grid gap-2 md:grid-cols-[auto_1fr_auto] md:items-start">
-                            <div class="flex gap-1.5">
-                                <button
-                                    v-for="mode in skuModes"
-                                    :key="mode.value"
-                                    type="button"
-                                    class="h-10 rounded-md border px-3 text-sm"
-                                    :class="choiceClass(sku.mode === mode.value)"
-                                    @click="sku.mode = mode.value as SkuRow['mode']"
-                                >
-                                    {{ mode.label }}
-                                </button>
-                            </div>
+                        <div v-for="(sku, index) in skus" :key="index" class="space-y-2.5 rounded-lg border border-gray-200 p-3">
+                            <div class="grid gap-2 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-start">
+                                <SegmentedToggle v-model="sku.mode" :options="skuModes" :ariaLabel="ctrans('New or existing SKU')" />
 
-                            <div v-if="sku.mode === 'new'" class="grid gap-2 sm:grid-cols-[10rem_1fr]">
-                                <div>
-                                    <InputText
-                                        v-model="sku.code"
-                                        :placeholder="ctrans('Code')"
-                                        class="w-full"
-                                        :class="codeError(sku, index) ? '!border-red-500 focus:!border-red-500 focus:!ring-red-200' : ''"
-                                        :invalid="!!codeError(sku, index)"
-                                        @update:modelValue="onCodeInput(sku, index)"
-                                    />
-                                    <p v-if="codeError(sku, index)" class="mt-1 text-xs text-red-600">{{ codeError(sku, index) }}</p>
-                                    <p v-else-if="sku.checking" class="mt-1 text-xs text-gray-400">{{ ctrans("Checking…") }}</p>
-                                </div>
-                                <div>
-                                    <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="w-full" :class="error(`items.${index}.name`) ? '!border-red-500' : ''" :invalid="!!error(`items.${index}.name`)" />
-                                    <p v-if="error(`items.${index}.name`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.name`) }}</p>
-                                </div>
-                            </div>
-                            <ProductDevelopmentRemoteSelect v-else v-model="sku.trade_unit_id" :searchRoute="searchRoutes.trade_units" :placeholder="ctrans('Search trade units')" />
-
-                            <Button type="tertiary" :tooltip="ctrans('Remove')" class="h-10 w-10 justify-center justify-self-end" @click="skus.splice(index, 1)">
-                                <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                            </Button>
-
-                            <div class="grid gap-2 md:col-span-3 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
-                                <div class="flex flex-wrap items-center gap-1.5">
-                                    <div v-for="(image, imageIndex) in sku.images" :key="image.url" class="group relative h-12 w-12 overflow-hidden rounded-md border border-gray-200">
-                                        <img :src="image.url" :alt="image.file.name" class="h-full w-full object-cover" />
-                                        <button type="button" class="absolute right-0.5 top-0.5 hidden h-5 w-5 items-center justify-center rounded-full bg-white/90 text-xs text-red-500 shadow group-hover:flex" :aria-label="ctrans('Remove')" @click="removeImage(sku, imageIndex)">
-                                            <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
-                                        </button>
+                                <div v-if="sku.mode === 'new'" class="grid gap-2 sm:grid-cols-[10rem_minmax(0,1fr)]">
+                                    <div>
+                                        <InputText
+                                            v-model="sku.code"
+                                            :placeholder="ctrans('Code')"
+                                            class="w-full"
+                                            :class="codeError(sku, index) ? '!border-red-500 focus:!border-red-500 focus:!ring-red-200' : ''"
+                                            :invalid="!!codeError(sku, index)"
+                                            @update:modelValue="onCodeInput(sku, index)"
+                                        />
+                                        <p v-if="codeError(sku, index)" class="mt-1 text-xs text-red-600">{{ codeError(sku, index) }}</p>
+                                        <p v-else-if="sku.checking" class="mt-1 text-xs text-gray-400">{{ ctrans("Checking…") }}</p>
                                     </div>
-                                    <button type="button" class="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-gray-300 text-gray-400 hover:border-[--app-accent] hover:text-[--app-accent]" v-tooltip="ctrans('Add reference images')" :aria-label="ctrans('Add reference images')" @click="pickImages(sku)">
-                                        <FontAwesomeIcon icon="fal fa-plus" fixed-width aria-hidden="true" />
+                                    <div>
+                                        <InputText v-model="sku.name" :placeholder="ctrans('Name')" class="w-full" :class="error(`items.${index}.name`) ? '!border-red-500' : ''" :invalid="!!error(`items.${index}.name`)" />
+                                        <p v-if="error(`items.${index}.name`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.name`) }}</p>
+                                    </div>
+                                </div>
+                                <ProductDevelopmentRemoteSelect v-else v-model="sku.trade_unit_id" :searchRoute="searchRoutes.trade_units" :placeholder="ctrans('Search trade units')" />
+
+                                <Button type="tertiary" :tooltip="ctrans('Remove SKU')" class="h-10 w-10 justify-center justify-self-end" @click="skus.splice(index, 1)">
+                                    <template #icon><FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                                </Button>
+                            </div>
+
+                            <Textarea v-model="sku.brief" rows="2" autoResize class="w-full text-sm" :placeholder="ctrans('Short brief for this product (optional): fragrance, colour, look…')" />
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div v-for="(image, imageIndex) in sku.images" :key="image.url" class="group relative h-10 w-10 overflow-hidden rounded-md border border-gray-200">
+                                    <img :src="image.url" :alt="image.file.name" class="h-full w-full object-cover" />
+                                    <button type="button" class="absolute right-0.5 top-0.5 hidden h-4 w-4 items-center justify-center rounded-full bg-white/90 text-[10px] text-red-500 shadow group-hover:flex" :aria-label="ctrans('Remove')" @click="removeImage(sku, imageIndex)">
+                                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
                                     </button>
                                 </div>
-                                <div>
-                                    <Textarea v-model="sku.brief" rows="1" autoResize class="w-full text-sm" :placeholder="ctrans('Add a short brief for this product…')" />
-                                    <p v-if="error(`items.${index}.images.0`)" class="mt-1 text-xs text-red-600">{{ error(`items.${index}.images.0`) }}</p>
-                                </div>
+                                <button type="button" class="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[--app-accent]" @click="pickImages(sku)">
+                                    <FontAwesomeIcon icon="fal fa-image" class="text-[--app-accent]" fixed-width aria-hidden="true" />
+                                    {{ sku.images.length ? ctrans("Add more images") : ctrans("Add reference images (optional)") }}
+                                </button>
+                                <p v-if="error(`items.${index}.images.0`)" class="w-full text-xs text-red-600">{{ error(`items.${index}.images.0`) }}</p>
                             </div>
                         </div>
                     </div>

@@ -1018,7 +1018,7 @@ test('waiting on me lists what the person has to do across developments, and the
                 && $row['fields'][0]['can_edit'] === true)));
 });
 
-test('an artwork built in Aiku shows the SKU pack text from compliance and its three barcodes, saves its layout and is sent for review', function () {
+test('an artwork built in Aiku shows the SKU pack text from compliance and its three barcodes, saves its layout and is sent for review, and once in review a PDF can replace it and the other way round', function () {
     [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
     $item                          = $productDevelopment->items->first();
     $label                         = $productDevelopment->designSections()->where('name', 'Label')->firstOrFail();
@@ -1033,7 +1033,7 @@ test('an artwork built in Aiku shows the SKU pack text from compliance and its t
         ->and(fn () => uploadArtwork($label, $people['designer'], $item->id))->toThrow(ValidationException::class);
 
     $box = $productDevelopment->designSections()->where('name', 'Box')->firstOrFail();
-    uploadArtwork($box, $people['designer'], $item->id);
+    \App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork::make()->action(uploadArtwork($box, $people['designer'], $item->id)->fresh(), $people['buyer'], ['operation' => 'request_changes', 'comment' => 'Redo the barcode']);
     expect(fn () => \App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku::make()->action($box, $people['designer'], ['product_development_item_id' => $item->id]))->toThrow(ValidationException::class);
 
     actingAs($people['designer']);
@@ -1076,6 +1076,18 @@ test('an artwork built in Aiku shows the SKU pack text from compliance and its t
     expect($reopened->id)->toBe($artwork->id)
         ->and($reopened->status)->toBe(\App\Enums\Goods\ProductDevelopment\ProductDevelopmentArtworkStatusEnum::NOT_SUBMITTED)
         ->and($reopened->layout['width'])->toEqual(100);
+
+    \App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentArtwork::make()->action($reopened->fresh(), $people['designer'], []);
+    $asPdf = uploadArtwork($label, $people['designer'], $item->id, 'Redone in Illustrator');
+    expect($asPdf->id)->toBe($artwork->id)
+        ->and($asPdf->source)->toBe('upload')
+        ->and($asPdf->version)->toBe(3);
+
+    uploadArtwork($box, $people['designer'], $item->id, 'New barcode');
+    $inAiku = \App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku::make()->action($box, $people['designer'], ['product_development_item_id' => $item->id]);
+    expect($inAiku->source)->toBe('aiku')
+        ->and($inAiku->status)->toBe(\App\Enums\Goods\ProductDevelopment\ProductDevelopmentArtworkStatusEnum::NOT_SUBMITTED)
+        ->and($inAiku->layout['kind'])->toBe('box');
 });
 
 test('the agent completes factory photos angle by angle, and a new photo for an angle keeps the old one as an earlier version', function () {
@@ -1505,4 +1517,76 @@ test('the brief takes PDF references for the range and a short brief with refere
     $other = UploadProductDevelopmentFiles::make()->action($productDevelopment, $this->user, ['files' => [UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf')], 'scope' => 'other'])[0];
     \Pest\Laravel\delete(route('grp.models.product_development.brief_file.remove', ['productDevelopmentFile' => $other->id]))->assertSessionHasErrors('file');
     expect($productDevelopment->files()->whereKey($other->id)->exists())->toBeTrue();
+});
+
+test('each SKU artwork has its own discussion with roles, the review comment joins it, and the general feed leaves it out, HELP-4254', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items()->firstOrFail();
+    $box                           = $productDevelopment->designSections()->where('name', 'Box')->firstOrFail();
+    $artwork                       = uploadArtwork($box, $people['designer'], $item->id, 'First draft');
+
+    \App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment::make()->action($productDevelopment, $people['designer'], ['body' => 'Barcode moved to the back', 'artwork_id' => $artwork->id]);
+    \App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment::make()->action($productDevelopment, $people['buyer'], ['body' => 'General note on the range']);
+    \App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork::make()->action($artwork->fresh(), $people['buyer'], ['operation' => 'request_changes', 'comment' => 'Text too small']);
+
+    $otherDevelopment = storeDevelopmentWithNewSkus($this, 1);
+    expect(fn () => \App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment::make()->action($otherDevelopment, $this->user, ['body' => 'Wrong place', 'artwork_id' => $artwork->id]))->toThrow(ValidationException::class);
+
+    actingAs($people['buyer']);
+    $thread = get(route('grp.product_developments.json.artwork_comments', ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]))
+        ->assertOk()
+        ->json('threads');
+    $byBody = collect($thread)->keyBy('body');
+    expect($thread)->toHaveCount(2)
+        ->and($byBody['Barcode moved to the back']['role'])->toBe('Designer')
+        ->and($byBody['Text too small']['role'])->toBe('Buyer')
+        ->and($byBody['Text too small']['review'])->toBe('request_changes')
+        ->and($byBody['Text too small']['version'])->toBe(1);
+
+    expect(collect(\App\Actions\Goods\ProductDevelopment\UI\GetProductDevelopmentComments::run($productDevelopment)['threads'])->pluck('body')->all())->toBe(['General note on the range']);
+
+    get(route('grp.product_developments.show', [$productDevelopment->slug, 'tab' => 'design']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('design.sections.0.rows.0.artwork.comments', 2)
+            ->where('design.sections.0.rows.0.artwork.update_note', 'First draft')
+            ->where('design.sections.0.rows.0.artwork.comments_route.name', 'grp.product_developments.json.artwork_comments'));
+
+    actingAs($this->user);
+    get(route('grp.product_developments.json.artwork_comments', ['productDevelopment' => $otherDevelopment->slug, 'artwork' => $artwork->id]))->assertNotFound();
+
+    actingAs(newGuestUser($this));
+    get(route('grp.product_developments.json.artwork_comments', ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]))->assertForbidden();
+});
+
+test('every artwork version sent for review is kept with its file, note and review, and an earlier PDF still downloads, HELP-4254', function () {
+    [$productDevelopment, $people] = developmentWithDesignTeam($this, 1);
+    $item                          = $productDevelopment->items()->firstOrFail();
+    $box                           = $productDevelopment->designSections()->where('name', 'Box')->firstOrFail();
+    $review                        = \App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork::make();
+
+    $review->action(uploadArtwork($box, $people['designer'], $item->id, 'First draft')->fresh(), $people['buyer'], ['operation' => 'request_changes', 'comment' => 'Logo too big']);
+    uploadArtwork($box, $people['designer'], $item->id, 'Smaller logo');
+    $artwork = uploadArtwork($box, $people['designer'], $item->id, 'Fixed a typo');
+    $review->action($artwork->fresh(), $people['buyer'], ['operation' => 'approve']);
+
+    expect($artwork->versions()->pluck('status', 'version')->map->value->all())->toBe([3 => 'approved', 2 => 'in_review', 1 => 'changes_required']);
+
+    actingAs($people['buyer']);
+    get(route('grp.product_developments.show', [$productDevelopment->slug, 'tab' => 'design']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('design.sections.0.rows.0.artwork.versions', 3)
+            ->where('design.sections.0.rows.0.artwork.versions.0.version', 3)
+            ->where('design.sections.0.rows.0.artwork.versions.0.is_current', true)
+            ->where('design.sections.0.rows.0.artwork.versions.0.status.value', 'approved')
+            ->where('design.sections.0.rows.0.artwork.versions.2.update_note', 'First draft')
+            ->where('design.sections.0.rows.0.artwork.versions.2.review_comment', 'Logo too big')
+            ->where('design.sections.0.rows.0.artwork.versions.2.reviewed_by', $people['buyer']->contact_name ?: $people['buyer']->username)
+            ->where('design.sections.0.rows.0.artwork.versions.2.pdf_route.parameters.version', 1));
+
+    get(route('grp.product_developments.artwork.pdf', ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id, 'version' => 1]))
+        ->assertOk()
+        ->assertHeader('Content-Disposition', 'attachment; filename="'.$item->tradeUnit->code.'_Box_V1.pdf"');
+    get(route('grp.product_developments.artwork.pdf', ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id, 'version' => 9]))->assertNotFound();
 });

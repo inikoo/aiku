@@ -22,6 +22,7 @@ use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundEnum;
 use App\Enums\Goods\ProductDevelopment\ProductDevelopmentDesignRoundStatusEnum;
 use App\Models\Goods\ProductDevelopment;
 use App\Models\Goods\ProductDevelopmentArtwork;
+use App\Models\Goods\ProductDevelopmentArtworkVersion;
 use App\Models\Goods\ProductDevelopmentDesignSection;
 use App\Models\Goods\ProductDevelopmentItem;
 use App\Models\SysAdmin\User;
@@ -30,12 +31,17 @@ use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
  * The Design tab: the concept at the top, then each design section with one row per SKU showing its
- * current artwork, status and the reviewer's last comment.
+ * current artwork and status. The review and its discussion open in a side panel per SKU.
  */
 class GetProductDevelopmentDesignOverview
 {
     use AsAction;
     use WithProductDevelopmentAuthorisation;
+
+    /**
+     * @var array<int, int> comment count by artwork id
+     */
+    private array $commentCounts = [];
 
     /**
      * @return array<string, mixed>
@@ -47,7 +53,14 @@ class GetProductDevelopmentDesignOverview
         $canReview = $access->canApproveDesign($viewer, $productDevelopment);
         $locked    = ProductDevelopmentDesignRounds::isArtworkLocked($productDevelopment);
         $items     = $productDevelopment->items()->with('tradeUnit')->orderBy('position')->orderBy('id')->get();
-        $sections  = $productDevelopment->designSections()->with(['artworks.media', 'artworks.updatedBy', 'artworks.reviewedBy'])->get();
+        $sections  = $productDevelopment->designSections()->with(['artworks.media', 'artworks.updatedBy', 'artworks.reviewedBy', 'artworks.versions.submittedBy', 'artworks.versions.reviewedBy'])->get();
+
+        $this->commentCounts = $productDevelopment->comments()
+            ->where('model_type', 'ProductDevelopmentArtwork')
+            ->selectRaw('model_id, count(*) as total')
+            ->groupBy('model_id')
+            ->pluck('total', 'model_id')
+            ->all();
 
         return [
             'concept'   => $this->concept($productDevelopment),
@@ -117,6 +130,29 @@ class GetProductDevelopmentDesignOverview
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function version(ProductDevelopment $productDevelopment, ProductDevelopmentArtwork $artwork, ProductDevelopmentArtworkVersion $version): array
+    {
+        $isCurrent = $version->version === $artwork->version;
+        $hasFile   = $isCurrent ? $this->hasFile($artwork) : (bool) $version->media_id;
+
+        return [
+            'version'        => $version->version,
+            'is_current'     => $isCurrent,
+            'status'         => ProductDevelopmentArtworks::statusPayload((new ProductDevelopmentArtwork())->forceFill(['status' => $version->status])),
+            'source'         => $version->source,
+            'update_note'    => $version->update_note,
+            'submitted_by'   => $version->submittedBy?->contact_name ?: $version->submittedBy?->username,
+            'submitted_at'   => $version->submitted_at?->toIso8601String(),
+            'review_comment' => $version->review_comment,
+            'reviewed_by'    => $version->reviewedBy?->contact_name ?: $version->reviewedBy?->username,
+            'reviewed_at'    => $version->reviewed_at?->toIso8601String(),
+            'pdf_route'      => $hasFile ? ['name' => 'grp.product_developments.artwork.pdf', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id, 'version' => $version->version]] : null,
+        ];
+    }
+
     private function hasFile(?ProductDevelopmentArtwork $artwork): bool
     {
         if (!$artwork) {
@@ -162,6 +198,9 @@ class GetProductDevelopmentDesignOverview
                 'can_review'     => $canReview && $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW,
                 'approval_blocked' => $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW ? ProductDevelopmentArtworks::approvalBlockedReason($artwork) : null,
                 'review_route'   => ['name' => 'grp.models.product_development.artwork.review', 'parameters' => ['productDevelopmentArtwork' => $artwork->id]],
+                'comments'       => (int) ($this->commentCounts[$artwork->id] ?? 0),
+                'versions'       => $artwork->versions->map(fn (ProductDevelopmentArtworkVersion $version) => $this->version($productDevelopment, $artwork, $version))->values()->all(),
+                'comments_route' => ['name' => 'grp.product_developments.json.artwork_comments', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]],
             ] : null,
             'can_upload' => $canManage,
             'label_content_route' => ['name' => 'grp.product_developments.json.label_content', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'item' => $item->id]],
