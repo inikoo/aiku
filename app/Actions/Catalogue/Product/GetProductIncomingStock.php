@@ -56,7 +56,7 @@ class GetProductIncomingStock
         StockDeliveryStateEnum::BOOKING_IN,
     ];
 
-    private const string PURCHASE_ORDER_TYPED_DATE = "coalesce(purchase_orders.estimated_received_at::date, nullif(purchase_orders.data->>'estimated_receiving_date', '')::date)";
+    private const string PURCHASE_ORDER_TYPED_DATE = "coalesce(nullif(purchase_orders.data->>'estimated_receiving_date', '')::date, purchase_orders.estimated_received_at::date)";
 
     private const string PURCHASE_ORDER_STAFF_DATE = "nullif(purchase_orders.data->>'estimated_receiving_date', '')::date";
 

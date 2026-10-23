@@ -453,6 +453,10 @@ test('incoming stock tells the customer when an out of stock product is expected
 
     expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(30)->toDateString(), 'is_estimate' => false]);
 
+    $purchaseOrder->update(['estimated_received_at' => now()->addDays(90)]);
+
+    expect(GetProductIncomingStock::make()->earliestIncoming($product))->toBe(['eta' => now()->addDays(30)->toDateString(), 'is_estimate' => false]);
+
     $expectedEta = now()->addDays(9)->toDateString();
     $stockDelivery->update(['data' => array_merge($stockDelivery->data ?? [], ['estimated_receiving_date' => $expectedEta])]);
 
