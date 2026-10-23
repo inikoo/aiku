@@ -21,6 +21,7 @@ use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum
 use App\Enums\Helpers\Ticket\TicketTypeEnum;
 use App\Models\Helpers\Ticket;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use App\Actions\Chat\ChatSession\ConfirmSuggestedChatCustomer;
 use App\Actions\Chat\ChatSession\LinkChatSessionCustomer;
@@ -48,6 +49,8 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
 {
     use WithMcpChangeLog;
 
+    public const array QUESTION_STATUSES = ['answered', 'gap'];
+
     private const array ACTIONS = ['save_draft', 'reply', 'assign_to_me', 'close', 'wait_for_reply', 'stop_waiting', 'link_customer', 'unlink_customer', 'add_note', 'record_outcome', 'start_run', 'finish_run'];
 
     private const array BOOKKEEPING = ['add_note', 'record_outcome', 'start_run', 'finish_run'];
@@ -63,6 +66,9 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'staff_note'   => ['sometimes', 'nullable', 'string', 'max:2000'],
             'checked'      => ['sometimes', 'nullable', 'array', 'max:12'],
             'checked.*'    => ['string', 'max:300'],
+            'questions'          => ['sometimes', 'nullable', 'array', 'max:20'],
+            'questions.*.text'   => ['required', 'string', 'max:300'],
+            'questions.*.status' => ['required', 'in:'.implode(',', self::QUESTION_STATUSES)],
             'premonitions'   => ['sometimes', 'nullable', 'array', 'max:3'],
             'premonitions.*' => ['string', 'max:20'],
             'actions'                    => ['sometimes', 'nullable', 'array', 'max:4'],
@@ -223,11 +229,18 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             $request->sessionId() ? Cache::get(RememberMcpClientName::key($request->sessionId())) : null
         );
 
+        $questions = array_values(array_filter(array_map(fn (array $question) => [
+            'text'   => trim($question['text']),
+            'status' => $question['status'],
+        ], $request->get('questions') ?? []), fn (array $question) => $question['text'] !== ''));
+
         $draft->update(['facts' => $draft->facts + array_filter([
-            'staff_note'   => trim((string) $request->get('staff_note')) ?: null,
-            'checked'      => array_values(array_filter(array_map('trim', $request->get('checked') ?? []))),
-            'premonitions' => $premonitions,
-            'actions'      => $actions,
+            'staff_note'       => trim((string) $request->get('staff_note')) ?: null,
+            'checked'          => array_values(array_filter(array_map('trim', $request->get('checked') ?? []))),
+            'premonitions'     => $premonitions,
+            'actions'          => $actions,
+            'questions'        => $questions,
+            'since_last_reply' => $questions ? $this->sinceLastReply($chatSession) : null,
         ])]);
 
         StoreChatAiOutcome::run($chatSession, ChatAiOutcomeEnum::DRAFT, [
@@ -242,6 +255,34 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'draft_id'  => $draft->id,
             'next_step' => 'Nothing was sent. The draft is waiting on the chat in Aiku, where the user can send it, edit it or discard it. Any [[gap]] left in it must be filled there before it can be sent.',
         ]);
+    }
+
+    /**
+     * What the customer wrote after our last reply, as it stood when the draft answering it was saved.
+     *
+     * @return array{count: int, first_at: string, last_at: string, after_reply: bool}|null
+     */
+    private function sinceLastReply(ChatSession $chatSession): ?array
+    {
+        $lastReplyId = $chatSession->messages()->whereIn('sender_type', [ChatSenderTypeEnum::AGENT, ChatSenderTypeEnum::AI])->max('id');
+
+        $written = $chatSession->messages()
+            ->whereIn('sender_type', [ChatSenderTypeEnum::GUEST, ChatSenderTypeEnum::USER])
+            ->when($lastReplyId, fn ($query) => $query->where('id', '>', $lastReplyId))
+            ->selectRaw('count(*) as count, min(created_at) as first_at, max(created_at) as last_at')
+            ->toBase()
+            ->first();
+
+        if (!$written?->count) {
+            return null;
+        }
+
+        return [
+            'count'       => (int) $written->count,
+            'first_at'    => Carbon::parse($written->first_at)->toIso8601String(),
+            'last_at'     => Carbon::parse($written->last_at)->toIso8601String(),
+            'after_reply' => (bool) $lastReplyId,
+        ];
     }
 
     /**
@@ -449,6 +490,10 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'message'      => $schema->string()->description('For add_note: the note for staff. For save_draft and reply: the full text for the customer, plain text, in the language reply_in names, signed as the user would sign it. In a draft, [[what to check]] marks something only the user can decide'),
             'staff_note'   => $schema->string()->description('For save_draft only: a short note for staff shown on the draft itself, never sent to the customer, in the user\'s language. Start it with "Before sending:" when staff must do something first (refund, credit, replacement); otherwise what was checked and anything uncertain'),
             'checked'      => $schema->array()->items($schema->string())->description('For save_draft only: up to 12 short lines of what was checked in Aiku for this answer, each a fact with its reference (e.g. "AWD196419 dispatched 13 Oct, Royal Mail XQ573801258GB"), shown to staff on the draft'),
+            'questions'    => $schema->array()->items($schema->object([
+                'text'   => $schema->string()->description('one short line, in the user\'s language')->required(),
+                'status' => $schema->string()->enum(self::QUESTION_STATUSES)->description('answered when the draft answers it, gap when the draft leaves it to staff as a [[...]]')->required(),
+            ]))->description('For save_draft only: every distinct question or request the customer sent since our last reply, up to 20, in the order they came, shown to staff as a checklist with how many times the customer wrote and their other open chats, so nothing is missed'),
             'premonitions' => $schema->array()->items($schema->string())->description('For save_draft only: PRE ticket references raised or found for a problem in this chat, shown to staff on the draft with their live status'),
             'actions'      => $schema->array()->items($schema->object([
                 'type'        => $schema->string()->enum(['claim', 'task'])->required(),

@@ -10,6 +10,7 @@ namespace App\Actions\Chat\ChatSession;
 
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
+use App\Enums\CRM\Livechat\ChatSessionStatusEnum;
 use App\Enums\Helpers\Ticket\TicketStatusEnum;
 use App\Enums\Helpers\Ticket\TicketTypeEnum;
 use App\Models\Helpers\Ticket;
@@ -22,6 +23,7 @@ use App\Models\Chat\MetaChatSession;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
@@ -121,9 +123,51 @@ class HandleChatAiDraft
                     'url'       => route('grp.tickets.show', $ticket->reference),
                 ])->all(),
             'actions'     => $chatSession instanceof ChatSession ? RunChatAiDraftAction::views($chatSession, $draft) : [],
+            'questions'        => data_get($draft->facts, 'questions', []),
+            'since_last_reply' => data_get($draft->facts, 'since_last_reply'),
+            'other_chats'      => $chatSession instanceof ChatSession && data_get($draft->facts, 'questions') ? self::otherOpenChats($chatSession) : [],
             'rating'      => $draft->rating,
             'reason'      => $draft->rating_reason,
         ] : null]);
+    }
+
+    /**
+     * The same customer still waiting in another chat, in any shop of the group: another inbox, or
+     * the website as well as email. Found by login, by customer, or by email address.
+     *
+     * @return list<array{ulid: string, shop: string|null, channel: string|null, url: string}>
+     */
+    public static function otherOpenChats(ChatSession $chatSession): array
+    {
+        $webUser = $chatSession->webUser;
+        $emails  = array_values(array_unique(array_filter(array_map(
+            fn (?string $email) => $email ? strtolower(trim($email)) : null,
+            [data_get($chatSession->metadata, 'email'), $webUser?->email, $webUser?->customer?->email]
+        ))));
+
+        if (!$webUser && !$emails) {
+            return [];
+        }
+
+        return ChatSession::with('shop.organisation')
+            ->where('id', '!=', $chatSession->id)
+            ->whereNotIn('status', [ChatSessionStatusEnum::CLOSED, ChatSessionStatusEnum::RESOLVED])
+            ->where('is_spam', false)
+            ->whereHas('shop', fn ($query) => $query->where('group_id', $chatSession->shop->group_id))
+            ->where(fn ($query) => $query
+                ->when($webUser, fn ($query) => $query
+                    ->where('web_user_id', $webUser->id)
+                    ->orWhereHas('webUser', fn ($query) => $query->where('customer_id', $webUser->customer_id)))
+                ->when($emails, fn ($query) => $query->orWhereIn(DB::raw("lower(metadata->>'email')"), $emails)))
+            ->latest('id')
+            ->limit(5)
+            ->get()
+            ->map(fn (ChatSession $other) => [
+                'ulid'    => $other->ulid,
+                'shop'    => $other->shop?->name,
+                'channel' => $other->channel?->value,
+                'url'     => route('grp.org.chat.inbox.conversation', [$other->shop->organisation->slug, $other->ulid]),
+            ])->all();
     }
 
     /**
@@ -143,7 +187,8 @@ class HandleChatAiDraft
         $note     = (string) data_get($chatAiDraft->facts, 'staff_note', '');
         $checked  = data_get($chatAiDraft->facts, 'checked', []);
         $labels   = collect(data_get($chatAiDraft->facts, 'actions', []))->filter(fn (array $action) => isset($action['label']))->map(fn (array $action) => $action['label']);
-        $from     = DetectLanguageWithJev::run(trim($note.' '.implode(' ', $checked).' '.$labels->implode(' '))) ?? Language::where('code', 'en')->firstOrFail();
+        $questions = array_column(data_get($chatAiDraft->facts, 'questions', []), 'text');
+        $from     = DetectLanguageWithJev::run(trim($note.' '.implode(' ', $checked).' '.$labels->implode(' ').' '.implode(' ', $questions))) ?? Language::where('code', 'en')->firstOrFail();
         $translate = fn (string $text) => Translate::run($text, $from, $to);
 
         return response()->json(['success' => true, 'data' => [
@@ -151,6 +196,7 @@ class HandleChatAiDraft
             'staff_note' => $note !== '' ? $translate($note) : null,
             'checked'    => array_map($translate, $checked),
             'labels'     => $labels->map($translate)->all(),
+            'questions'  => array_map($translate, $questions),
         ]]);
     }
 

@@ -3026,6 +3026,59 @@ describe('customer service tools', function () {
             ->assertHasErrors(['not enabled for this user']);
     });
 
+    test('a draft lists what the customer asked since our last reply, each answered or left to staff, with their other open chats', function () {
+        App\Actions\Helpers\Translations\DetectLanguageWithJev::shouldRun()->andReturn(App\Models\Helpers\Language::firstWhere('code', 'en'));
+        Illuminate\Support\Facades\Event::fake([App\Events\BroadcastChatAiDraft::class]);
+        $message = fn (App\Models\Chat\ChatSession $chat, App\Enums\CRM\Livechat\ChatSenderTypeEnum $sender, string $text) => App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $chat->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => $sender,
+            'message_text'    => $text,
+        ]);
+        $message($this->chat, App\Enums\CRM\Livechat\ChatSenderTypeEnum::AGENT, 'Sorry, could you send a photo?');
+        $message($this->chat, App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER, 'Here is the photo');
+        $message($this->chat, App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER, 'Also, when does my next order ship?');
+
+        $otherChat = fn (array $attributes) => App\Models\Chat\ChatSession::create([
+            'ulid'             => (string) Illuminate\Support\Str::ulid(),
+            'shop_id'          => $this->shop->id,
+            'language_id'      => 68,
+            'ai_model_version' => 'default',
+            ...$attributes,
+        ]);
+        $sameLogin = $otherChat(['status' => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value, 'channel' => App\Enums\CRM\Livechat\ChatChannelEnum::WEBSITE, 'web_user_id' => $this->chat->web_user_id]);
+        $sameEmail = $otherChat(['status' => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value, 'channel' => App\Enums\CRM\Livechat\ChatChannelEnum::EMAIL, 'metadata' => ['email' => strtoupper($this->chat->webUser->email)]]);
+        $closed    = $otherChat(['status' => App\Enums\CRM\Livechat\ChatSessionStatusEnum::CLOSED->value, 'channel' => App\Enums\CRM\Livechat\ChatChannelEnum::WEBSITE, 'web_user_id' => $this->chat->web_user_id]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Thanks for the photo.', 'questions' => [['text' => 'Photo of the broken holder', 'status' => 'maybe']]])
+            ->assertHasErrors(['status']);
+
+        $this->actingAs($this->user);
+        $shown = fn () => App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($this->chat)->getData(true)['data'];
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Thanks for the photo.'])->assertOk();
+        expect(App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat)->facts)->not->toHaveKeys(['questions', 'since_last_reply'])
+            ->and($shown()['questions'])->toBe([])
+            ->and($shown()['other_chats'])->toBe([]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Thanks for the photo, we are sending a new one. Your order ships [[when?]].', 'questions' => [
+            ['text' => ' Photo of the broken holder ', 'status' => 'answered'],
+            ['text' => 'When the next order ships', 'status' => 'gap'],
+        ]])->assertOk();
+
+        $facts = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat)->facts;
+        expect($facts['questions'])->toBe([['text' => 'Photo of the broken holder', 'status' => 'answered'], ['text' => 'When the next order ships', 'status' => 'gap']])
+            ->and($facts['since_last_reply']['count'])->toBe(2)
+            ->and($facts['since_last_reply']['after_reply'])->toBeTrue()
+            ->and($facts['since_last_reply']['first_at'])->not->toBeEmpty();
+
+        $data = $shown();
+        expect($data['questions'])->toBe($facts['questions'])
+            ->and($data['since_last_reply']['count'])->toBe(2)
+            ->and(array_column($data['other_chats'], 'ulid'))->toContain($sameLogin->ulid, $sameEmail->ulid)
+            ->not->toContain($closed->ulid, $this->chat->ulid);
+    });
+
     test('the draft records the name the assistant announced when it connected', function () {
         App\Actions\Helpers\Translations\DetectLanguageWithJev::shouldRun()->andReturn(App\Models\Helpers\Language::firstWhere('code', 'en'));
         $headers = [

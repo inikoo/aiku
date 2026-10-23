@@ -9,9 +9,10 @@ import { ref, computed, watch, onBeforeUnmount } from "vue"
 import axios from "axios"
 import { onClickOutside } from "@vueuse/core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage, faTimes, faArrowDown, faUserCheck } from "@fal"
+import { faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage, faTimes, faArrowDown, faUserCheck, faCommentsAlt } from "@fal"
 import { faStar } from "@fas"
 import { ctrans } from "@/Composables/useTrans"
+import { formatChatTime } from "@/Composables/chatTime"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
 const props = defineProps<{
@@ -44,13 +45,16 @@ interface Draft {
     checked?: string[]
     premonitions?: { reference: string, subject: string, fixed: boolean, url: string }[]
     actions?: DraftAction[]
+    questions?: { text: string, status: "answered" | "gap" }[]
+    since_last_reply?: { count: number, first_at: string, last_at: string, after_reply: boolean } | null
+    other_chats?: { ulid: string, shop: string | null, channel: string | null, url: string }[]
     rating: number | null
     reason: string | null
 }
 
 const draft = ref<Draft | null>(null)
 const checkedOpen = ref(false)
-const staffTranslation = ref<{ language: string, staff_note: string | null, checked: string[], labels: Record<number, string> } | null>(null)
+const staffTranslation = ref<{ language: string, staff_note: string | null, checked: string[], labels: Record<number, string>, questions?: string[] } | null>(null)
 const showTranslation = ref(false)
 const translating = ref(false)
 const confirming = ref<string | null>(null)
@@ -196,8 +200,18 @@ const toggleTranslation = async () => {
 
 const staffNote = computed(() => showTranslation.value && staffTranslation.value ? staffTranslation.value.staff_note : draft.value?.staff_note)
 const checkedLines = computed(() => showTranslation.value && staffTranslation.value ? staffTranslation.value.checked : (draft.value?.checked ?? []))
+const questionText = (position: number) => (showTranslation.value && staffTranslation.value?.questions?.[position]) || draft.value?.questions?.[position]?.text
+const sinceLine = computed(() => {
+    const since = draft.value?.since_last_reply
+    if (!since) return null
+    const replacements = { count: since.count, first: formatChatTime(Date.parse(since.first_at)), last: formatChatTime(Date.parse(since.last_at)) }
+    if (since.count === 1) return since.after_reply ? ctrans("Customer wrote once since our last reply (at :first).", replacements) : ctrans("Customer wrote once (at :first).", replacements)
+    return since.after_reply
+        ? ctrans("Customer wrote :count times since our last reply (first at :first, last at :last).", replacements)
+        : ctrans("Customer wrote :count times (first at :first, last at :last).", replacements)
+})
 const actionLabel = (action: DraftAction) => !action.done && showTranslation.value && staffTranslation.value?.labels?.[action.index] ? staffTranslation.value.labels[action.index] : action.label
-const hasStaffText = computed(() => !!(draft.value?.staff_note || draft.value?.checked?.length || draft.value?.actions?.some((action) => action.type === "task")))
+const hasStaffText = computed(() => !!(draft.value?.staff_note || draft.value?.checked?.length || draft.value?.questions?.length || draft.value?.actions?.some((action) => action.type === "task")))
 
 const ratingReasons = computed(() => [
     { key: "missing_info", label: ctrans("Missing info we know") },
@@ -291,6 +305,27 @@ onBeforeUnmount(stopListening)
                         <FontAwesomeIcon :icon="faBowlingBall" fixed-width />
                         {{ premonition.reference }} · {{ premonition.fixed ? ctrans("fixed") : ctrans("engineers are on it") }}
                     </a>
+                </div>
+                <div v-if="draft.questions?.length" class="mt-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-[11px] text-gray-700">
+                    <p class="font-semibold text-gray-800">{{ ctrans("Since our last reply") }}</p>
+                    <p v-if="sinceLine" class="text-gray-500">{{ sinceLine }}</p>
+                    <ol class="mt-0.5 space-y-0.5">
+                        <li v-for="(question, position) in draft.questions" :key="position" class="flex items-start gap-1.5">
+                            <span class="w-4 shrink-0 text-right tabular-nums text-gray-400">{{ position + 1 }}.</span>
+                            <FontAwesomeIcon :icon="question.status === 'answered' ? faCheck : faExclamationTriangle" :class="question.status === 'answered' ? 'text-green-600' : 'text-amber-500'" class="mt-0.5" fixed-width aria-hidden="true" />
+                            <span class="min-w-0 flex-1">{{ questionText(position) }}</span>
+                            <span class="whitespace-nowrap" :class="question.status === 'answered' ? 'text-green-700' : 'font-medium text-amber-700'">
+                                {{ question.status === "answered" ? ctrans("answered") : ctrans("gap for staff") }}
+                            </span>
+                        </li>
+                    </ol>
+                    <div v-if="draft.other_chats?.length" class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 border-t border-gray-100 pt-1 text-gray-500">
+                        <FontAwesomeIcon :icon="faCommentsAlt" fixed-width aria-hidden="true" />
+                        <span>{{ ctrans("Also open for this customer:") }}</span>
+                        <a v-for="other in draft.other_chats" :key="other.ulid" :href="other.url" target="_blank" rel="noopener" class="whitespace-nowrap text-gray-700 underline hover:text-gray-900">
+                            {{ [other.shop, other.channel].filter(Boolean).join(" · ") }}
+                        </a>
+                    </div>
                 </div>
                 <p v-if="!inline" role="button" tabindex="0" :aria-expanded="draftOpen" :title="draftOpen ? undefined : draft.text" class="mt-1 cursor-pointer whitespace-pre-line text-gray-800" :class="draftOpen ? 'max-h-48 overflow-y-auto' : 'line-clamp-3'" @click="toggleDraft" @keydown.enter.prevent="toggleDraft">{{ draft.text }}</p>
                 <p v-if="draft.text.includes('[[')" class="mt-1 text-[11px] text-amber-700">{{ ctrans("Fill in or delete the parts marked [[ ]] before sending.") }}</p>
