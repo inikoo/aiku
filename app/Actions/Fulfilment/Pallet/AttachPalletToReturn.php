@@ -27,9 +27,11 @@ class AttachPalletToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
     {
-        $palletReturn->pallets()->attach($pallet->id, [
-            'quantity_ordered'     => 1,
-            'type'                 => 'Pallet'
+        $palletReturn->pallets()->syncWithoutDetaching([
+            $pallet->id => [
+                'quantity_ordered' => 1,
+                'type'             => 'Pallet'
+            ]
         ]);
 
         $pallet = UpdatePallet::make()->action($pallet, [

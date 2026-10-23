@@ -48,10 +48,8 @@ trait WithSubmitConformPalletReturn
                     hydrateParents: false
                 );
 
-                $palletReturn->pallets()->syncWithoutDetaching([
-                    $pallet->id => [
-                        'state' => $state == PalletReturnStateEnum::SUBMITTED ? PalletReturnItemStateEnum::SUBMITTED : PalletReturnItemStateEnum::CONFIRMED
-                    ]
+                $palletReturn->pallets()->updateExistingPivot($pallet->id, [
+                    'state' => $state == PalletReturnStateEnum::SUBMITTED ? PalletReturnItemStateEnum::SUBMITTED : PalletReturnItemStateEnum::CONFIRMED
                 ]);
             }
         }

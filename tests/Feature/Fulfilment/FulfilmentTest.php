@@ -36,6 +36,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
@@ -1707,6 +1708,47 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 
     return $palletReturn;
 })->depends('create pallet return');
+
+test('a pallet ticked twice and a pallet unticked during submit do not break the return', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $keptPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+    $untickedPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    AttachPalletToReturn::make()->action($palletReturn, $keptPallet);
+    AttachPalletToReturn::make()->action($palletReturn, $keptPallet);
+    AttachPalletToReturn::make()->action($palletReturn, $untickedPallet);
+
+    expect(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $keptPallet->id)->count())->toBe(1);
+
+    $palletReturn->refresh()->load('pallets');
+    $palletReturn->pallets()->detach($untickedPallet->id);
+
+    $submittedPalletReturn = SubmitPalletReturn::run($palletReturn, []);
+
+    $keptItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $keptPallet->id)->sole();
+
+    expect($submittedPalletReturn->refresh()->state)->toBe(PalletReturnStateEnum::SUBMITTED)
+        ->and($keptItem->state)->toBe(PalletReturnItemStateEnum::SUBMITTED)
+        ->and((float) $keptItem->quantity_ordered)->toBe(1.0)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $untickedPallet->id)->exists())->toBeFalse();
+})->depends('set pallet delivery as booked in');
 
 test('Update pallet reference', function (PalletReturn $palletReturn) {
     /** @var Pallet $pallet */
