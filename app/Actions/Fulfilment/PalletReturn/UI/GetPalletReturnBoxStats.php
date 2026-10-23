@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Actions\Fulfilment\PalletReturn\Pdf\WithPalletReturnPrintDocuments;
 use App\Enums\Catalogue\Leaflet\LeafletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
@@ -25,6 +26,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 class GetPalletReturnBoxStats
 {
     use AsObject;
+    use WithPalletReturnPrintDocuments;
 
     public function handle(PalletReturn $palletReturn, FulfilmentCustomer|Fulfilment $parent, bool $fromRetina = false): array
     {
@@ -55,6 +57,7 @@ class GetPalletReturnBoxStats
                 'shipping_label'  => $this->getCustomerShippingLabel($palletReturn, $fromRetina),
             ],
             'leaflets'          => $fromRetina ? null : $this->getLeaflets($palletReturn),
+            'print_all_route'   => $fromRetina ? null : $this->getPrintAllRoute($palletReturn),
             'delivery_state'      => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
             'order_summary'       => [
                 [
@@ -204,7 +207,7 @@ class GetPalletReturnBoxStats
 
 
     /**
-     * @return array{items: array<int, array{id: int, name: string, type_label: string, state: string, printable: bool}>, print_all_route: array{name: string, parameters: array<string, int>}}|null
+     * @return array{items: array<int, array{id: int, name: string, type_label: string, state: string, printable: bool}>}|null
      */
     private function getLeaflets(PalletReturn $palletReturn): ?array
     {
@@ -222,11 +225,23 @@ class GetPalletReturnBoxStats
                 'state'      => $leaflet->state->value,
                 'printable'  => $leaflet->isPrintable(),
             ])->all(),
-            'print_all_route' => [
-                'name'       => 'grp.models.pallet-return.leaflets.print',
-                'parameters' => ['palletReturn' => $palletReturn->id],
-            ],
         ];
+    }
+
+    /**
+     * @return array{name: string, parameters: array<string, int>}|null
+     */
+    private function getPrintAllRoute(PalletReturn $palletReturn): ?array
+    {
+        $hasSomethingToPrint = $palletReturn->attachments()->wherePivotIn('scope', [PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value, ...PalletReturnAttachmentScopeEnum::parcelDocumentScopes()])->exists()
+            || $palletReturn->shipments()->exists()
+            || $this->productManualsQuery($palletReturn)->exists()
+            || $palletReturn->leaflets()->printable()->exists();
+
+        return $hasSomethingToPrint ? [
+            'name'       => 'grp.models.pallet-return.print.all',
+            'parameters' => ['palletReturn' => $palletReturn->id],
+        ] : null;
     }
 
     private function getCustomerShippingLabel(PalletReturn $palletReturn, bool $fromRetina): ?array

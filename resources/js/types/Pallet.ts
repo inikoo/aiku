@@ -196,6 +196,7 @@ export interface BoxStats {
     }[]
     customer_shipping?: CustomerShipping
     leaflets?: PalletReturnLeaflets | null
+    print_all_route?: routeType | null
 }
 
 export interface PalletReturnLeaflets {
@@ -206,7 +207,6 @@ export interface PalletReturnLeaflets {
         state: string
         printable: boolean
     }[]
-    print_all_route: routeType
 }
 
 export interface CustomerShipping {

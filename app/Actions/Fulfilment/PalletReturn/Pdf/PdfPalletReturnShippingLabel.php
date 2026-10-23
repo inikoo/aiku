@@ -23,27 +23,34 @@ class PdfPalletReturnShippingLabel
     use AsAction;
     use WithPalletReturnPrintDocuments;
 
-    /**
-     * The label the customer attached wins; without one, the labels of the shipments staff created.
-     */
     public function handle(PalletReturn $palletReturn): Response
     {
-        $documents = $this->attachmentDocuments($palletReturn, [PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value]);
-
-        if (!$documents) {
-            $documents = $palletReturn->shipments()
-                ->get()
-                ->map(fn (Shipment $shipment) => $this->shipmentLabel($shipment))
-                ->filter()
-                ->values()
-                ->all();
-        }
-
         return $this->mergedPdfResponse(
-            $documents,
+            $this->documents($palletReturn),
             'shipping-label-'.$palletReturn->slug.'.pdf',
             __('There is no shipping label yet: the customer has not attached one and no shipment with a label has been created.')
         );
+    }
+
+    /**
+     * The label the customer attached wins; without one, the labels of the shipments staff created.
+     *
+     * @return array<int, array{name: string, pdf: string}>
+     */
+    public function documents(PalletReturn $palletReturn): array
+    {
+        $documents = $this->attachmentDocuments($palletReturn, [PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value]);
+
+        if ($documents) {
+            return $documents;
+        }
+
+        return $palletReturn->shipments()
+            ->get()
+            ->map(fn (Shipment $shipment) => $this->shipmentLabel($shipment))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**

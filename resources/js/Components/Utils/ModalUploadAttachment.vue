@@ -166,6 +166,10 @@ const submitUpload = async () => {
 	isLoadingUpload.value = false
 }
 
+const resetSelectedType = () => {
+	selectedType.value = typeEmployee.length === 1 ? typeEmployee[0] : undefined
+}
+
 // Method: refresh all like new open the modal
 const clearAll = () => {
 	selectedFiles.value = []
@@ -179,12 +183,11 @@ const closeModal = () => {
 	model.value = false
 	selectedFiles.value = []
 	caption.value = ""
+	resetSelectedType()
 }
 
 onMounted(() => {
-	if (typeEmployee.length === 1) {
-		selectedType.value = typeEmployee[0]
-	}
+	resetSelectedType()
 })
 </script>
 

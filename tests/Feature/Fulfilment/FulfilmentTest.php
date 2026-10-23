@@ -191,6 +191,7 @@ use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
 use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
+use App\Actions\Fulfilment\PalletReturn\PrintPalletReturnDocuments;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
@@ -3168,6 +3169,38 @@ test('customer documents of a return print in one click and its own shipping lab
 
     expect(PalletReturnAttachmentScopeEnum::tryFrom('Manual'))->toBeNull()
         ->and($palletStoredItem->storedItem->attachments()->wherePivot('scope', StoredItemAttachmentScopeEnum::MANUAL->value)->count())->toBe(1);
+
+    $user                  = \App\Models\SysAdmin\User::where('group_id', $documentsReturn->group_id)->firstOrFail();
+    $originalUserSettings  = $user->settings;
+    $originalGroupSettings = $user->group->settings;
+    $user->update(['settings' => array_merge($originalUserSettings ?? [], ['preferred_printer_id' => 9101, 'preferred_leaflet_printer_id' => 9102])]);
+
+    $printJobs = [];
+    $printer   = PrintPalletReturnDocuments::partialMock();
+    $printer->shouldAllowMockingProtectedMethods();
+    $printer->shouldReceive('leafletPaperOption')->andReturn([]);
+    $printer->shouldReceive('printPdf')->andReturnUsing(function (string $title, int $printId) use (&$printJobs) {
+        $printJobs[] = [$title, $printId];
+
+        return Mockery::mock(\Rawilk\Printing\Api\PrintNode\Resources\PrintJob::class);
+    });
+
+    $user->group->update(['settings' => array_replace_recursive($originalGroupSettings ?? [], ['printnode' => ['print_by_printnode' => false]])]);
+
+    expect(fn () => PrintPalletReturnDocuments::make()->handle($documentsReturn->refresh(), $user->refresh()))->toThrow(ValidationException::class, 'Print by Printnode is not enabled for your group!');
+
+    $user->group->update(['settings' => array_replace_recursive($originalGroupSettings ?? [], ['printnode' => ['print_by_printnode' => true]])]);
+
+    expect(GetPalletReturnBoxStats::run($documentsReturn, $documentsReturn->fulfilmentCustomer)['print_all_route']['name'])->toBe('grp.models.pallet-return.print.all')
+        ->and(PrintPalletReturnDocuments::make()->handle($documentsReturn->refresh(), $user->refresh()))->toBe(3)
+        ->and($printJobs)->toBe([
+            ['Shipping label '.$documentsReturn->reference, 9101],
+            ['Documents '.$documentsReturn->reference, 9101],
+            ['Thank you card', 9102],
+        ]);
+
+    $user->update(['settings' => $originalUserSettings]);
+    $user->group->update(['settings' => $originalGroupSettings]);
 
     $palletStoredItem->storedItem->attachments()->detach();
     $documentsReturn->leaflets()->delete();

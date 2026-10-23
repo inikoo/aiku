@@ -103,20 +103,20 @@ const onPrintLeafletInBrowser = async (leaflet: { id: number }) => {
 	}
 }
 
-const isPrintingAllLeaflets = ref(false)
-const onPrintAllLeaflets = () => {
-	if (!props.boxStats.leaflets) {
+const isPrintingAll = ref(false)
+const onPrintAll = () => {
+	if (!props.boxStats.print_all_route) {
 		return
 	}
 
 	router.post(
-		route(props.boxStats.leaflets.print_all_route.name, props.boxStats.leaflets.print_all_route.parameters),
+		route(props.boxStats.print_all_route.name, props.boxStats.print_all_route.parameters),
 		{},
 		{
 			preserveScroll: true,
-			onStart: () => (isPrintingAllLeaflets.value = true),
-			onFinish: () => (isPrintingAllLeaflets.value = false),
-			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print inserts"), type: "error" }),
+			onStart: () => (isPrintingAll.value = true),
+			onFinish: () => (isPrintingAll.value = false),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print the documents"), type: "error" }),
 		}
 	)
 }
@@ -847,6 +847,21 @@ const base64HtmlToPdf = async (base64: string, index) => {
 				</div>
 			</div>
 
+			<!-- Section: Print all -->
+			<div v-if="boxStats.print_all_route" class="flex justify-end py-0.5">
+				<Button
+					:label="ctrans('Print all')"
+					type="tertiary"
+					size="xs"
+					:loading="isPrintingAll"
+					v-tooltip="ctrans('Shipping label, invoice, delivery note and manuals to your printer, inserts to your leaflet printer')"
+					@click="onPrintAll">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-print" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</div>
+
 			<!-- Section: Customer's courier and shipping label -->
 			<div v-if="!dataPalletReturn.is_collection && (boxStats.customer_shipping?.courier || boxStats.customer_shipping?.shipping_label)" class="flex gap-x-1 py-0.5">
 				<FontAwesomeIcon v-tooltip="ctrans('Customer shipping')" icon="fal fa-shipping-fast" class="text-gray-400" fixed-width aria-hidden="true" />
@@ -870,19 +885,7 @@ const base64HtmlToPdf = async (base64: string, index) => {
 			<div v-if="boxStats.leaflets?.items?.length" class="flex gap-x-1 py-0.5">
 				<FontAwesomeIcon v-tooltip="ctrans('Customer inserts')" icon="fal fa-gift" class="text-gray-400" fixed-width aria-hidden="true" />
 				<div class="w-full text-sm">
-					<div class="flex items-center justify-between">
-						<span>{{ ctrans("Inserts") }} ({{ boxStats.leaflets.items.length }})</span>
-						<Button
-							:label="ctrans('Print all')"
-							type="tertiary"
-							size="xs"
-							:loading="isPrintingAllLeaflets"
-							@click="onPrintAllLeaflets">
-							<template #icon>
-								<FontAwesomeIcon icon="fal fa-print" class="text-green-600" fixed-width aria-hidden="true" />
-							</template>
-						</Button>
-					</div>
+					<div>{{ ctrans("Inserts") }} ({{ boxStats.leaflets.items.length }})</div>
 					<ul class="mt-1 space-y-1">
 						<li v-for="leaflet in boxStats.leaflets.items" :key="leaflet.id" class="flex items-center justify-between gap-x-2">
 							<span class="truncate" v-tooltip="leaflet.type_label">

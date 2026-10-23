@@ -653,7 +653,7 @@ function getRequestedPalletStoredItems(item: any) {
                                         pallet_stored_item.selected_quantity = newVal
                                         emits('isStoredItemAdded', newVal > 0 ? true : false)
                                         router.reload({
-                                            only: ['pageHead'],
+                                            only: ['pageHead', 'box_stats', 'tabs', 'data'],
                                         })
                                     }"
                                     :modelValue="pallet_stored_item.selected_quantity"

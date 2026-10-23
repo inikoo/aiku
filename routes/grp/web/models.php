@@ -296,7 +296,7 @@ use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchPalletReturn;
 use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeaflet;
 use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeafletInBrowser;
-use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeaflets;
+use App\Actions\Fulfilment\PalletReturn\PrintPalletReturnDocuments;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnShippingLabel;
@@ -1272,7 +1272,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPalletReturn'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
-    Route::post('leaflets/print', PrintPalletReturnLeaflets::class)->name('leaflets.print');
+    Route::post('print-all', PrintPalletReturnDocuments::class)->name('print.all');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletReturn'])->name('transaction.store');
     Route::post('transactions', [BulkStoreFulfilmentTransactions::class, 'inPalletReturn'])->name('transaction.bulk_store');

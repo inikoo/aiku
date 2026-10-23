@@ -233,7 +233,8 @@ const setUpChecked = () => {
 
 const debounceReloadBoxStats = debounce(() => {
     router.reload({
-        only: ['pageHead', 'box_stats'],
+        only: ['pageHead', 'box_stats', 'tabs', 'data', props.tab ?? 'pallets'],
+        preserveScroll: true,
     })
 }, 500)
 
@@ -255,7 +256,6 @@ const onCheckAllTable = async (payload: { data: {}[]; allChecked: boolean }) => 
             { pallets: palletIds }
         )
         debounceReloadBoxStats()
-        router.reload({ only: ['pallets'], preserveScroll: true })
     } catch (error) {
         notify({
             title: ctrans('Something went wrong'),
