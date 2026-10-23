@@ -104,6 +104,7 @@ const layout = inject('layout', aikuLocaleStructure)
                     <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600 mb-3">
                         <li>{{ ctrans("Staging is a separate copy of the site. Log in with the same email and password as here.") }}</li>
                         <li>{{ ctrans("Every Sunday at 03:00 UTC staging is reset with a fresh copy of production. Anything you created in staging is erased, so start your tests over after each reset.") }}</li>
+                        <li>{{ ctrans("A new account, or a password changed here, only reaches staging at the next reset. Until then the staging login will not accept it.") }}</li>
                         <li>{{ ctrans("Production API tokens do not work in staging. Generate a separate token in staging for your tests — it will stop working at the next reset, so generate a new one each week.") }}</li>
                         <li>{{ ctrans("The API documentation applies to staging unchanged — the only difference is the base URL:") }} <code class="bg-gray-200 px-1 rounded">https://api.aiku-sandbox.uk</code></li>
                     </ul>
