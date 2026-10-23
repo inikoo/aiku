@@ -33,7 +33,7 @@ class UndoPickingPalletFromReturn extends OrgAction
         if ($palletReturnItem->type == 'Pallet') {
             UpdatePallet::run($palletReturnItem->pallet, [
                 'state'     => PalletStateEnum::PICKING,
-                'status'    => PalletStatusEnum::RETURNING,
+                'status'    => PalletStatusEnum::STORING,
                 'picked_at' => null,
             ]);
 

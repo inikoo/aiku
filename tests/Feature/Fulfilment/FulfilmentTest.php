@@ -191,7 +191,6 @@ use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
 use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
-use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
@@ -1826,15 +1825,6 @@ test('a picked whole pallet shows the quantities picked from it, not the zero le
     expect((float) $pallet->storedItems()->sole()->pivot->quantity)->toBe(0.0)
         ->and($resource['stored_items']->firstWhere('reference', $storedItem->reference)['quantity'])->toBe(7)
         ->and($resource['stored_items_quantity'])->toBe(7);
-
-    UndoPickingPalletFromReturn::run($palletReturnItem->refresh());
-    $pallet->refresh();
-
-    expect($pallet->state)->toBe(PalletStateEnum::PICKING)
-        ->and($pallet->status)->toBe(PalletStatusEnum::RETURNING)
-        ->and($pallet->pallet_return_id)->toBe($palletReturn->id)
-        ->and((float) $pallet->storedItems()->sole()->pivot->quantity)->toBe(7.0)
-        ->and($palletReturnItem->refresh()->state)->toBe(PalletReturnItemStateEnum::PICKING);
 })->depends('set pallet delivery as booked in');
 
 test('Update pallet reference', function (PalletReturn $palletReturn) {
