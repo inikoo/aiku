@@ -226,7 +226,7 @@ class Kernel extends HttpKernel
             SetWebUserLocale::class,
             HandleRetinaInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            //CaptureTrafficSourceMiddleWare::class,
+            CaptureTrafficSourceMiddleWare::class,
             AddFrameOptionsHeader::class
         ],
         'pupil'       => [

@@ -7,7 +7,11 @@
  */
 
 use App\Actions\Iris\CaptureTrafficSource;
+use App\Http\Middleware\CaptureTrafficSourceMiddleWare;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 
 function irisAjaxRequest(string $referer, array $cookies = [], ?string $originalReferer = null): Request
 {
@@ -198,4 +202,52 @@ it('appends a new touch to an existing history', function () {
 
     expect($cookies['aiku_tsd']['value'])->toStartWith('1700000000a|');
     expect($cookies['aiku_tsd']['value'])->toEndWith('b99887766');
+});
+
+function retinaPageLoad(string $url, array $headers = []): array
+{
+    $request = Request::create($url, 'GET', [], [], [], $headers);
+    $request->setRouteResolver(fn () => (new Route('GET', '/app/registration-form', []))->name('retina.register'));
+
+    app()->instance('request', $request);
+    Cookie::flushQueuedCookies();
+    Cache::flush();
+
+    (new CaptureTrafficSourceMiddleWare())->handle($request, fn () => response(''));
+
+    return array_map(fn ($cookie) => $cookie->getName(), Cookie::getQueuedCookies());
+}
+
+function retinaCaptureOutcomes(): array
+{
+    return collect(['direct', 'internal', 'unmatched', 'matched', 'repeat'])
+        ->filter(fn (string $outcome) => Cache::has('traffic_capture:'.now()->toDateString().':anon:'.$outcome))
+        ->values()
+        ->all();
+}
+
+it('captures a google ads click landing on a logged out /app/ page', function () {
+    expect(retinaPageLoad('https://ecom.test/app/registration-form?gad_campaignid=99887766&gclid=ABC123'))
+        ->toContain('aiku_lts')
+        ->and(retinaCaptureOutcomes())->toBe(['matched']);
+});
+
+it('does not capture a logged out /app/ page load with no source in its url', function () {
+    expect(retinaPageLoad('https://ecom.test/app/login'))->toBe([])
+        ->and(retinaCaptureOutcomes())->toBe([]);
+});
+
+it('does not capture the hop from a storefront page that still carries the click id', function () {
+    expect(retinaPageLoad(
+        'https://ecom.test/app/registration-form',
+        ['HTTP_REFERER' => 'https://ecom.test/?gad_campaignid=99887766&gclid=ABC123']
+    ))->toBe([])
+        ->and(retinaCaptureOutcomes())->toBe([]);
+});
+
+it('leaves inertia visits on /app/ to the first-hit capture', function () {
+    expect(retinaPageLoad(
+        'https://ecom.test/app/registration-form?gad_campaignid=99887766&gclid=ABC123',
+        ['HTTP_X_INERTIA' => 'true']
+    ))->toBe([]);
 });

@@ -9,6 +9,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\CRM\TrafficSource\GetTrafficSourceFromUrl;
 use App\Actions\Iris\CaptureTrafficSource;
 use Closure;
 use Illuminate\Http\Request;
@@ -22,19 +23,24 @@ class CaptureTrafficSourceMiddleWare
      */
     public function handle(Request $request, Closure $next)
     {
-
-        if (!CaptureTrafficSource::make()->canCaptureTrafficSource()) {
+        if (!$this->isLoggedOutArrivalFromSource($request) || !CaptureTrafficSource::make()->canCaptureTrafficSource()) {
             return $next($request);
         }
 
-        $cookies = CaptureTrafficSource::make()->getCookies();
-
-        foreach ($cookies as $key => $value) {
-            Cookie::queue($key, $value['value'], $value['duration']);
+        foreach (CaptureTrafficSource::make()->getCookies() as $name => $cookie) {
+            Cookie::queue(Cookie::make($name, $cookie['value'], $cookie['duration'], '/', null, null, false));
         }
+
         return $next($request);
     }
 
-
-
+    private function isLoggedOutArrivalFromSource(Request $request): bool
+    {
+        return $request->isMethod('GET')
+            && !$request->ajax()
+            && !$request->header('X-Inertia')
+            && !$request->expectsJson()
+            && GetTrafficSourceFromUrl::run($request->fullUrl()) !== null
+            && !auth('retina')->check();
+    }
 }

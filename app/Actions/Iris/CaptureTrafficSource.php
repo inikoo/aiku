@@ -383,8 +383,9 @@ class CaptureTrafficSource
         $routeName = request()->route() ? request()->route()->getName() : null;
 
         // Allow only if the route name starts with 'iris' or 'retina', these are the storefront and
-        // customer-portal routes served behind Varnish, where CaptureTrafficSourceMiddleWare cannot run,
-        // so this action is invoked directly from the AJAX first-hit endpoints and registration actions instead.
+        // customer-portal routes. Cached storefront pages never reach the backend, so this action is invoked
+        // from the AJAX first-hit endpoints and registration actions; CaptureTrafficSourceMiddleWare also runs
+        // it on logged-out /app/ page loads whose URL carries a source, since those bypass the Varnish cache.
         if (!($routeName && (str_starts_with($routeName, 'iris') || str_starts_with($routeName, 'retina')))) {
             return false;
         }
