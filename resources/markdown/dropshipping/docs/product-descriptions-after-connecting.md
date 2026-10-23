@@ -1,7 +1,7 @@
 ---
 title: What happens to your product descriptions
-summary: Which texts, pictures and prices we write to Shopify when you create or match a product, what we keep updated afterwards, and the one action that replaces your own title and description.
-date: 2026-10-19
+summary: Which texts, pictures and prices we write to Shopify when you create or match a product, what we keep updated afterwards, and what Edit Price sends.
+date: 2026-10-23
 tags: shopify, product description, title, seo, match, create new product, price
 category: products
 series: shopify
@@ -11,7 +11,7 @@ shops: awd, dssk, dse
 ---
 
 <aside class="tldr">
-<b>Create new product</b> makes a new Shopify product with our title, description and pictures. <b>Match</b> links a product you already have and keeps your title, description, pictures and SEO. After that we only keep the stock up to date, so later changes to our descriptions do not reach Shopify. One thing does change your text: <b>Edit Price</b> with <b>Save & Publish</b> also sends our title and description to Shopify.
+<b>Create new product</b> makes a new Shopify product with our title, description and pictures. <b>Match</b> links a product you already have and keeps your title, description, pictures and SEO. After that we only keep the stock up to date, so later changes to our descriptions do not reach Shopify. <b>Edit Price</b> with <b>Save & Publish</b> sends the price only, never the title or description.
 </aside>
 
 ## When you press Create new product
@@ -24,7 +24,7 @@ We make a new product in your Shopify store with:
 - one variant with our SKU, barcode, weight, cost and your selling price;
 - the stock, kept at the <b>aiku-</b> location.
 
-The selling price is our RRP, changed by the <b>Pricing Policy</b> of your channel if you set one before adding the product. You can change the texts and pictures in Shopify afterwards. We do not overwrite them later, except in the case below.
+The selling price is our RRP, changed by the <b>Pricing Policy</b> of your channel if you set one before adding the product. You can change the texts and pictures in Shopify afterwards. We do not overwrite them later.
 
 ## When you match a product you already have
 
@@ -51,13 +51,11 @@ We do not send later changes to the title, description or pictures. If we improv
 
 The weight and size are sent again only when you press <b>Update all dimensions</b> in <b>My Products</b>.
 
-## Careful: Edit Price replaces your title and description
+## Edit Price sends the price only
 
-When you tick products in <b>My Products</b>, press <b>Edit Price (...)</b> and then <b>Save & Publish</b>, we send the new price to Shopify. At the same time we also send our title and description, as they were when you added the product. Your own title and description in Shopify are replaced.
+When you tick products in <b>My Products</b>, press <b>Edit Price (...)</b> and then <b>Save & Publish</b>, we send the new price to Shopify. Your title, description and pictures in Shopify stay as they are.
 
-This does not happen with <b>Save as Draft</b>: that only saves the price with us and sends nothing to Shopify. It also does not happen for products linked to an existing variant.
-
-If you wrote your own texts in Shopify and only want a new price, change the price in Shopify.
+<b>Save as Draft</b> only saves the price with us and sends nothing to Shopify. A matched product gets the new price only when it shows <b>Price managed by us</b>; with <b>Price managed in your Shopify</b> nothing is sent.
 
 ## Following our prices without changing yours
 
@@ -76,8 +74,6 @@ When our price changes, your selling price in Shopify stays as it is. We never c
 ## When something goes wrong
 
 **My Shopify descriptions do not update when yours change.** This is normal: we do not send description changes after a product is connected. Copy the new text into Shopify yourself.
-
-**My own title and description were replaced.** This happens after <b>Edit Price</b> with <b>Save & Publish</b>. Put your text back in Shopify, and change prices in Shopify from now on.
 
 **I got a second copy of a product I already sell.** It was created with <b>Create new product</b> instead of matched. Delete the new copy in Shopify, then use <b>Connect with other product</b> in <b>My Products</b> to link our product to your original one. Before you match, check that your product has the same SKU as our product code.
 

@@ -1,7 +1,7 @@
 ---
 title: Was mit Ihren Produktbeschreibungen passiert
-summary: Welche Texte, Bilder und Preise wir zu Shopify übertragen, wenn Sie ein Produkt anlegen oder zuordnen, was wir danach aktuell halten, und die eine Aktion, die Ihren eigenen Titel und Ihre Beschreibung ersetzt.
-date: 2026-09-25
+summary: Welche Texte, Bilder und Preise wir zu Shopify übertragen, wenn Sie ein Produkt anlegen oder zuordnen, was wir danach aktuell halten, und was Edit Price sendet.
+date: 2026-10-23
 source_date: 2026-09-25
 tags: Shopify, Produktbeschreibung, Titel, SEO, Zuordnung, Neues Produkt erstellen, Preis
 category: products
@@ -11,7 +11,7 @@ shops: awd, dssk, dse
 ---
 
 <aside class="tldr">
-<b>Create new product</b> legt ein neues Shopify-Produkt mit unserem Titel, unserer Beschreibung und unseren Bildern an. <b>Match</b> verknüpft ein Produkt, das Sie bereits haben, und behält Ihren Titel, Ihre Beschreibung, Ihre Bilder und SEO. Danach halten wir nur noch den Bestand aktuell, spätere Änderungen an unseren Beschreibungen erreichen Shopify also nicht. Eine Sache ändert Ihren Text doch: <b>Edit Price</b> mit <b>Save & Publish</b> sendet auch unseren Titel und unsere Beschreibung an Shopify.
+<b>Create new product</b> legt ein neues Shopify-Produkt mit unserem Titel, unserer Beschreibung und unseren Bildern an. <b>Match</b> verknüpft ein Produkt, das Sie bereits haben, und behält Ihren Titel, Ihre Beschreibung, Ihre Bilder und SEO. Danach halten wir nur noch den Bestand aktuell, spätere Änderungen an unseren Beschreibungen erreichen Shopify also nicht. <b>Edit Price</b> mit <b>Save & Publish</b> sendet nur den Preis, nie den Titel oder die Beschreibung.
 </aside>
 
 ## Wenn Sie Create new product drücken
@@ -24,7 +24,7 @@ Wir legen in Ihrem Shopify-Shop ein neues Produkt an mit:
 - einer Variante mit unserer SKU, unserem Barcode, Gewicht, Einkaufspreis und Ihrem Verkaufspreis;
 - dem Bestand, geführt am Standort <b>aiku-</b>.
 
-Der Verkaufspreis ist unsere UVP, angepasst durch die <b>Pricing Policy</b> Ihres Kanals, falls Sie eine festgelegt haben, bevor Sie das Produkt hinzugefügt haben. Sie können die Texte und Bilder danach in Shopify ändern. Wir überschreiben sie später nicht, außer im folgenden Fall.
+Der Verkaufspreis ist unsere UVP, angepasst durch die <b>Pricing Policy</b> Ihres Kanals, falls Sie eine festgelegt haben, bevor Sie das Produkt hinzugefügt haben. Sie können die Texte und Bilder danach in Shopify ändern. Wir überschreiben sie später nicht.
 
 ## Wenn Sie ein bereits vorhandenes Produkt zuordnen
 
@@ -51,13 +51,11 @@ Wir senden spätere Änderungen an Titel, Beschreibung oder Bildern nicht. Verbe
 
 Gewicht und Größe werden nur erneut gesendet, wenn Sie in <b>My Products</b> <b>Update all dimensions</b> drücken.
 
-## Achtung: Edit Price ersetzt Ihren Titel und Ihre Beschreibung
+## Edit Price sendet nur den Preis
 
-Wenn Sie in <b>My Products</b> Produkte ankreuzen, <b>Edit Price (...)</b> und dann <b>Save & Publish</b> drücken, senden wir den neuen Preis an Shopify. Gleichzeitig senden wir auch unseren Titel und unsere Beschreibung, so wie sie waren, als Sie das Produkt hinzugefügt haben. Ihr eigener Titel und Ihre Beschreibung in Shopify werden dadurch ersetzt.
+Wenn Sie in <b>My Products</b> Produkte ankreuzen, <b>Edit Price (...)</b> und dann <b>Save & Publish</b> drücken, senden wir den neuen Preis an Shopify. Ihr Titel, Ihre Beschreibung und Ihre Bilder in Shopify bleiben, wie sie sind.
 
-Das passiert nicht mit <b>Save as Draft</b>: das speichert nur den Preis bei uns und sendet nichts an Shopify. Es passiert auch nicht bei Produkten, die mit einer bestehenden Variante verknüpft sind.
-
-Haben Sie eigene Texte in Shopify geschrieben und wollen nur einen neuen Preis, ändern Sie den Preis in Shopify.
+<b>Save as Draft</b> speichert nur den Preis bei uns und sendet nichts an Shopify. Ein zugeordnetes Produkt erhält den neuen Preis nur, wenn es <b>Price managed by us</b> anzeigt; bei <b>Price managed in your Shopify</b> wird nichts gesendet.
 
 ## Ein sicherer Einstieg
 
@@ -68,11 +66,9 @@ Haben Sie eigene Texte in Shopify geschrieben und wollen nur einen neuen Preis, 
 
 ## Wenn etwas schiefgeht
 
-**My Shopify descriptions do not update when yours change.** Das ist normal: Wir senden Beschreibungsänderungen nach Verbindung eines Produkts nicht mehr. Kopieren Sie den neuen Text selbst in Shopify.
+**Meine Shopify-Beschreibungen ändern sich nicht, wenn sich Ihre ändern.** Das ist normal: Wir senden Beschreibungsänderungen nach Verbindung eines Produkts nicht mehr. Kopieren Sie den neuen Text selbst in Shopify.
 
-**My own title and description were replaced.** Das passiert nach <b>Edit Price</b> mit <b>Save & Publish</b>. Setzen Sie Ihren Text in Shopify zurück, und ändern Sie Preise von nun an in Shopify.
-
-**I got a second copy of a product I already sell.** Es wurde mit <b>Create new product</b> statt zugeordnet angelegt. Löschen Sie die neue Kopie in Shopify, und nutzen Sie dann <b>Connect with other product</b> in <b>My Products</b>, um unser Produkt mit Ihrem ursprünglichen zu verknüpfen. Prüfen Sie vor dem Zuordnen, dass Ihr Produkt dieselbe SKU wie unser Produktcode hat.
+**Ich habe eine zweite Kopie eines Produkts, das ich bereits verkaufe.** Es wurde mit <b>Create new product</b> statt zugeordnet angelegt. Löschen Sie die neue Kopie in Shopify, und nutzen Sie dann <b>Connect with other product</b> in <b>My Products</b>, um unser Produkt mit Ihrem ursprünglichen zu verknüpfen. Prüfen Sie vor dem Zuordnen, dass Ihr Produkt dieselbe SKU wie unser Produktcode hat.
 
 <aside class="wayfinder"><strong>Wo Sie klicken</strong>
 <ul>

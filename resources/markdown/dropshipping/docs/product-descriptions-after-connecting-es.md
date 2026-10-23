@@ -1,7 +1,7 @@
 ---
 title: Qué pasa con tus descripciones de producto
-summary: Qué textos, imágenes y precios escribimos en Shopify cuando creas o vinculas un producto, qué mantenemos actualizado después, y la única acción que sustituye tu propio título y descripción.
-date: 2026-09-25
+summary: Qué textos, imágenes y precios escribimos en Shopify cuando creas o vinculas un producto, qué mantenemos actualizado después, y qué envía Edit Price.
+date: 2026-10-23
 source_date: 2026-09-25
 tags: shopify, descripción de producto, título, seo, vincular, crear nuevo producto, precio
 category: products
@@ -11,7 +11,7 @@ shops: awd, dssk, dse
 ---
 
 <aside class="tldr">
-<b>Crear nuevo producto</b> crea un producto nuevo en Shopify con nuestro título, descripción e imágenes. <b>Match</b> vincula un producto que ya tienes y mantiene tu título, descripción, imágenes y SEO. Después de eso solo mantenemos el stock actualizado, así que los cambios posteriores en nuestras descripciones no llegan a Shopify. Una cosa sí cambia tu texto: <b>Edit Price</b> con <b>Guardar y publicar</b> también envía nuestro título y descripción a Shopify.
+<b>Crear nuevo producto</b> crea un producto nuevo en Shopify con nuestro título, descripción e imágenes. <b>Match</b> vincula un producto que ya tienes y mantiene tu título, descripción, imágenes y SEO. Después de eso solo mantenemos el stock actualizado, así que los cambios posteriores en nuestras descripciones no llegan a Shopify. <b>Edit Price</b> con <b>Guardar y publicar</b> envía solo el precio, nunca el título ni la descripción.
 </aside>
 
 ## Cuando pulsas Create new product
@@ -24,7 +24,7 @@ Creamos un producto nuevo en tu tienda de Shopify con:
 - una variante con nuestro SKU, código de barras, peso, coste y tu precio de venta;
 - el stock, guardado en la ubicación <b>aiku-</b>.
 
-El precio de venta es nuestro PVPR, modificado por la <b>Pricing Policy</b> de tu canal si la configuraste antes de añadir el producto. Después puedes cambiar los textos e imágenes en Shopify. No los sobrescribimos más adelante, salvo en el caso de abajo.
+El precio de venta es nuestro PVPR, modificado por la <b>Pricing Policy</b> de tu canal si la configuraste antes de añadir el producto. Después puedes cambiar los textos e imágenes en Shopify. No los sobrescribimos más adelante.
 
 ## Cuando vinculas un producto que ya tienes
 
@@ -51,13 +51,11 @@ No enviamos cambios posteriores del título, la descripción o las imágenes. Si
 
 El peso y las medidas se vuelven a enviar solo cuando pulsas <b>Update all dimensions</b> en <b>Mis productos</b>.
 
-## Cuidado: Edit Price sustituye tu título y descripción
+## Edit Price envía solo el precio
 
-Cuando marcas productos en <b>Mis productos</b>, pulsas <b>Edit Price (...)</b> y luego <b>Guardar y publicar</b>, enviamos el nuevo precio a Shopify. A la vez también enviamos nuestro título y descripción, tal como estaban cuando añadiste el producto. Tu propio título y descripción en Shopify se sustituyen.
+Cuando marcas productos en <b>Mis productos</b>, pulsas <b>Edit Price (...)</b> y luego <b>Guardar y publicar</b>, enviamos el nuevo precio a Shopify. Tu título, descripción e imágenes en Shopify se quedan como están.
 
-Esto no pasa con <b>Guardar como borrador</b>: eso solo guarda el precio con nosotros y no envía nada a Shopify. Tampoco pasa con los productos vinculados a una variante existente.
-
-Si escribiste tus propios textos en Shopify y solo quieres un precio nuevo, cambia el precio en Shopify.
+<b>Guardar como borrador</b> solo guarda el precio con nosotros y no envía nada a Shopify. Un producto vinculado recibe el nuevo precio solo cuando muestra <b>Price managed by us</b>; con <b>Price managed in your Shopify</b> no se envía nada.
 
 ## Una forma segura de empezar
 
@@ -69,8 +67,6 @@ Si escribiste tus propios textos en Shopify y solo quieres un precio nuevo, camb
 ## Cuando algo falla
 
 **Mis descripciones de Shopify no se actualizan cuando cambian las mías.** Esto es normal: no enviamos cambios de descripción después de conectar un producto. Copia el texto nuevo en Shopify tú mismo.
-
-**Mi propio título y descripción se sustituyeron.** Esto ocurre después de <b>Edit Price</b> con <b>Guardar y publicar</b>. Vuelve a poner tu texto en Shopify, y a partir de ahora cambia los precios en Shopify.
 
 **Tengo una copia duplicada de un producto que ya vendo.** Se creó con <b>Crear nuevo producto</b> en vez de vincularse. Elimina la copia nueva en Shopify, y luego usa <b>Conectar con otros productos</b> en <b>Mis productos</b> para vincular nuestro producto con el tuyo original. Antes de vincular, comprueba que tu producto tiene el mismo SKU que nuestro código de producto.
 

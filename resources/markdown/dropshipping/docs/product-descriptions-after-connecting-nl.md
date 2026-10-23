@@ -1,7 +1,7 @@
 ---
 title: Wat er met uw productomschrijvingen gebeurt
-summary: Welke teksten, foto's en prijzen we naar Shopify schrijven wanneer u een product aanmaakt of matcht, wat we daarna bijgewerkt houden, en de ene actie die uw eigen titel en omschrijving vervangt.
-date: 2026-09-25
+summary: Welke teksten, foto's en prijzen we naar Shopify schrijven wanneer u een product aanmaakt of matcht, wat we daarna bijgewerkt houden, en wat Edit Price verstuurt.
+date: 2026-10-23
 source_date: 2026-09-25
 tags: shopify, productomschrijving, titel, seo, match, nieuw product maken, prijs
 category: products
@@ -11,7 +11,7 @@ shops: awd, dssk, dse
 ---
 
 <aside class="tldr">
-<b>Create new product</b> maakt een nieuw Shopify-product met onze titel, omschrijving en foto's. <b>Match</b> koppelt een product dat u al heeft en behoudt uw titel, omschrijving, foto's en SEO. Daarna houden we alleen de voorraad bij, dus latere wijzigingen aan onze omschrijvingen bereiken Shopify niet. Eén ding verandert uw tekst wel: <b>Edit Price</b> met <b>Save & Publish</b> stuurt ook onze titel en omschrijving naar Shopify.
+<b>Create new product</b> maakt een nieuw Shopify-product met onze titel, omschrijving en foto's. <b>Match</b> koppelt een product dat u al heeft en behoudt uw titel, omschrijving, foto's en SEO. Daarna houden we alleen de voorraad bij, dus latere wijzigingen aan onze omschrijvingen bereiken Shopify niet. <b>Edit Price</b> met <b>Save & Publish</b> stuurt alleen de prijs, nooit de titel of omschrijving.
 </aside>
 
 ## Wanneer u op Create new product drukt
@@ -24,7 +24,7 @@ Wij maken een nieuw product aan in uw Shopify-winkel met:
 - één variant met onze SKU, streepjescode, gewicht, kostprijs en uw verkoopprijs;
 - de voorraad, bijgehouden op de locatie <b>aiku-</b>.
 
-De verkoopprijs is onze RRP, aangepast door het <b>Pricing Policy</b> van uw kanaal als u er een heeft ingesteld voordat u het product toevoegde. U kunt de teksten en foto's daarna in Shopify wijzigen. Wij overschrijven ze later niet, behalve in het geval hieronder.
+De verkoopprijs is onze RRP, aangepast door het <b>Pricing Policy</b> van uw kanaal als u er een heeft ingesteld voordat u het product toevoegde. U kunt de teksten en foto's daarna in Shopify wijzigen. Wij overschrijven ze later niet.
 
 ## Wanneer u een product matcht dat u al heeft
 
@@ -51,13 +51,11 @@ Wij sturen latere wijzigingen aan titel, omschrijving of foto's niet door. Verbe
 
 Gewicht en afmetingen worden alleen opnieuw verstuurd wanneer u op <b>Update all dimensions</b> drukt in <b>My Products</b>.
 
-## Let op: Edit Price vervangt uw titel en omschrijving
+## Edit Price stuurt alleen de prijs
 
-Wanneer u producten aanvinkt in <b>My Products</b>, op <b>Edit Price (...)</b> drukt en vervolgens op <b>Save & Publish</b>, sturen wij de nieuwe prijs naar Shopify. Tegelijkertijd sturen wij ook onze titel en omschrijving, zoals die waren toen u het product toevoegde. Uw eigen titel en omschrijving in Shopify worden vervangen.
+Wanneer u producten aanvinkt in <b>My Products</b>, op <b>Edit Price (...)</b> drukt en vervolgens op <b>Save & Publish</b>, sturen wij de nieuwe prijs naar Shopify. Uw titel, omschrijving en foto's in Shopify blijven zoals ze zijn.
 
-Dit gebeurt niet met <b>Save as Draft</b>: dat slaat alleen de prijs bij ons op en stuurt niets naar Shopify. Het gebeurt ook niet voor producten die aan een bestaande variant zijn gekoppeld.
-
-Heeft u uw eigen teksten in Shopify geschreven en wilt u alleen een nieuwe prijs, wijzig de prijs dan in Shopify.
+<b>Save as Draft</b> slaat alleen de prijs bij ons op en stuurt niets naar Shopify. Een gematcht product krijgt de nieuwe prijs alleen wanneer het <b>Price managed by us</b> toont; bij <b>Price managed in your Shopify</b> wordt niets verstuurd.
 
 ## Een veilige manier om te beginnen
 
@@ -69,8 +67,6 @@ Heeft u uw eigen teksten in Shopify geschreven en wilt u alleen een nieuwe prijs
 ## Als er iets misgaat
 
 **Mijn Shopify-omschrijvingen worden niet bijgewerkt wanneer die van mij veranderen.** Dit is normaal: wij sturen geen wijzigingen aan omschrijvingen door nadat een product gekoppeld is. Kopieer de nieuwe tekst zelf naar Shopify.
-
-**Mijn eigen titel en omschrijving zijn vervangen.** Dit gebeurt na <b>Edit Price</b> met <b>Save & Publish</b>. Zet uw tekst terug in Shopify en wijzig prijzen voortaan in Shopify.
 
 **Ik kreeg een dubbel exemplaar van een product dat ik al verkoop.** Het is aangemaakt met <b>Create new product</b> in plaats van gematcht. Verwijder het nieuwe exemplaar in Shopify en gebruik dan <b>Connect with other product</b> in <b>My Products</b> om ons product aan uw oorspronkelijke te koppelen. Controleer voordat u matcht of uw product dezelfde SKU heeft als onze productcode.
 

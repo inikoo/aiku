@@ -1,7 +1,7 @@
 ---
 title: Cosa succede alle descrizioni dei tuoi prodotti
-summary: Quali testi, immagini e prezzi scriviamo su Shopify quando crei o abbini un prodotto, cosa teniamo aggiornato dopo, e l'unica azione che sostituisce il tuo titolo e la tua descrizione.
-date: 2026-09-25
+summary: Quali testi, immagini e prezzi scriviamo su Shopify quando crei o abbini un prodotto, cosa teniamo aggiornato dopo, e cosa invia Edit Price.
+date: 2026-10-23
 source_date: 2026-09-25
 tags: shopify, descrizione prodotto, titolo, seo, abbinamento, create new product, prezzo
 category: products
@@ -11,7 +11,7 @@ shops: awd, dssk, dse
 ---
 
 <aside class="tldr">
-<b>Create new product</b> crea un nuovo prodotto Shopify con il nostro titolo, descrizione e immagini. <b>Match</b> collega un prodotto che hai già e mantiene il tuo titolo, descrizione, immagini e SEO. Da quel momento teniamo aggiornato solo lo stock, quindi le modifiche successive alle nostre descrizioni non arrivano a Shopify. Una cosa cambia il tuo testo: <b>Edit Price</b> con <b>Save & Publish</b> invia anche il nostro titolo e la nostra descrizione a Shopify.
+<b>Create new product</b> crea un nuovo prodotto Shopify con il nostro titolo, descrizione e immagini. <b>Match</b> collega un prodotto che hai già e mantiene il tuo titolo, descrizione, immagini e SEO. Da quel momento teniamo aggiornato solo lo stock, quindi le modifiche successive alle nostre descrizioni non arrivano a Shopify. <b>Edit Price</b> con <b>Save & Publish</b> invia solo il prezzo, mai il titolo o la descrizione.
 </aside>
 
 ## Quando premi Create new product
@@ -24,7 +24,7 @@ Creiamo un nuovo prodotto nel tuo negozio Shopify con:
 - una variante con il nostro SKU, codice a barre, peso, costo e il tuo prezzo di vendita;
 - lo stock, tenuto nella sede <b>aiku-</b>.
 
-Il prezzo di vendita è il nostro RRP, modificato dalla <b>Pricing Policy</b> del tuo canale se ne hai impostata una prima di aggiungere il prodotto. Puoi cambiare testi e immagini in Shopify in seguito. Non li sovrascriviamo dopo, tranne nel caso qui sotto.
+Il prezzo di vendita è il nostro RRP, modificato dalla <b>Pricing Policy</b> del tuo canale se ne hai impostata una prima di aggiungere il prodotto. Puoi cambiare testi e immagini in Shopify in seguito. Non li sovrascriviamo dopo.
 
 ## Quando abbini un prodotto che hai già
 
@@ -51,13 +51,11 @@ Non inviamo le modifiche successive a titolo, descrizione o immagini. Se miglior
 
 Peso e dimensioni vengono inviati di nuovo solo quando premi <b>Update all dimensions</b> in <b>My Products</b>.
 
-## Attenzione: Edit Price sostituisce il tuo titolo e la tua descrizione
+## Edit Price invia solo il prezzo
 
-Quando spunti dei prodotti in <b>My Products</b>, premi <b>Edit Price (...)</b> e poi <b>Save & Publish</b>, inviamo il nuovo prezzo a Shopify. Allo stesso tempo inviamo anche il nostro titolo e la nostra descrizione, come erano quando hai aggiunto il prodotto. Il tuo titolo e la tua descrizione in Shopify vengono sostituiti.
+Quando spunti dei prodotti in <b>My Products</b>, premi <b>Edit Price (...)</b> e poi <b>Save & Publish</b>, inviamo il nuovo prezzo a Shopify. Il tuo titolo, la tua descrizione e le tue immagini in Shopify restano come sono.
 
-Questo non succede con <b>Save as Draft</b>: quello salva solo il prezzo presso di noi e non invia nulla a Shopify. Non succede nemmeno per i prodotti collegati a una variante esistente.
-
-Se hai scritto i tuoi testi in Shopify e vuoi solo un nuovo prezzo, cambia il prezzo in Shopify.
+<b>Save as Draft</b> salva solo il prezzo presso di noi e non invia nulla a Shopify. Un prodotto abbinato riceve il nuovo prezzo solo quando mostra <b>Price managed by us</b>; con <b>Price managed in your Shopify</b> non viene inviato nulla.
 
 ## Un modo sicuro per iniziare
 
@@ -69,8 +67,6 @@ Se hai scritto i tuoi testi in Shopify e vuoi solo un nuovo prezzo, cambia il pr
 ## Quando qualcosa non funziona
 
 **Le mie descrizioni Shopify non si aggiornano quando cambiano le vostre.** È normale: non inviamo le modifiche alla descrizione dopo che un prodotto è collegato. Copia tu stesso il nuovo testo in Shopify.
-
-**Il mio titolo e la mia descrizione sono stati sostituiti.** Succede dopo <b>Edit Price</b> con <b>Save & Publish</b>. Rimetti il tuo testo in Shopify, e cambia i prezzi in Shopify da ora in poi.
 
 **Ho ottenuto una seconda copia di un prodotto che vendo già.** È stato creato con <b>Create new product</b> invece che abbinato. Elimina la nuova copia in Shopify, poi usa <b>Connect with other product</b> in <b>My Products</b> per collegare il nostro prodotto al tuo originale. Prima di abbinare, controlla che il tuo prodotto abbia lo stesso SKU del nostro codice prodotto.
 
