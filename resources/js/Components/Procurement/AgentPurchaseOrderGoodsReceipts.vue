@@ -6,8 +6,10 @@
 -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import { Link } from "@inertiajs/vue3"
+import { computed, ref, watch } from "vue"
+import { Link, router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
+import Checkbox from "primevue/checkbox"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faInboxIn, faClipboardCheck, faChevronDown, faChevronRight, faImage, faBoxCheck, faFilePdf, faPencil } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -56,6 +58,7 @@ type Line = {
 const props = defineProps<{
 	receiving: {
 		can_edit: boolean
+		check_many_route: routeType | null
 		lines: Line[]
 		receive: { scopes: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] }; purchase_order_id: number } | null
 		goods_receipts: { reference: string; received_at: string; show_route: routeType; receipt_note_route: routeType }[]
@@ -82,6 +85,40 @@ const expanded = ref<Record<number, boolean>>({})
 const isExpanded = (line: Line) => expanded.value[line.id] ?? line.unchecked > 0
 
 const checkingItem = ref<CheckableItem | null>(null)
+
+const checkableItemIds = computed(() => props.receiving.lines.flatMap((line) =>
+	line.items.filter((item) => item.check_route && !item.is_checked).map((item) => item.id)
+))
+
+const selectedItemIds = ref<number[]>([])
+
+watch(checkableItemIds, (ids) => {
+	selectedItemIds.value = selectedItemIds.value.filter((id) => ids.includes(id))
+})
+
+const isAllSelected = computed({
+	get: () => checkableItemIds.value.length > 0 && checkableItemIds.value.every((id) => selectedItemIds.value.includes(id)),
+	set: (selectAll: boolean) => {
+		selectedItemIds.value = selectAll ? [...checkableItemIds.value] : []
+	},
+})
+
+const isCheckingMany = ref(false)
+
+function checkSelected() {
+	const checkManyRoute = props.receiving.check_many_route
+	if (!checkManyRoute || !selectedItemIds.value.length) {
+		return
+	}
+
+	router.post(route(checkManyRoute.name, checkManyRoute.parameters), { items: selectedItemIds.value }, {
+		preserveScroll: true,
+		onStart: () => (isCheckingMany.value = true),
+		onSuccess: () => (selectedItemIds.value = []),
+		onError: (errors) => notify({ title: ctrans("Could not check the goods"), text: errors.items ?? Object.values(errors)[0] ?? "", type: "error" }),
+		onFinish: () => (isCheckingMany.value = false),
+	})
+}
 
 function openCheck(line: Line, item: ReceiptItem) {
 	checkingItem.value = { ...item, code: line.code, units_per_sko: line.units_per_pack }
@@ -130,6 +167,26 @@ function itemStatus(item: ReceiptItem) {
 					<FontAwesomeIcon :icon="faFilePdf" fixed-width aria-hidden="true" />
 				</a>
 			</span>
+		</div>
+
+		<div v-if="receiving.check_many_route && checkableItemIds.length" class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+			<label class="flex cursor-pointer items-center gap-2 text-gray-700">
+				<Checkbox v-model="isAllSelected" binary size="small" />
+				{{ ctrans("Select all :count not checked yet", { count: checkableItemIds.length }) }}
+			</label>
+			<Button
+				type="tertiary"
+				size="xs"
+				:label="ctrans('Check selected: no rejects (:count)', { count: selectedItemIds.length })"
+				:tooltip="ctrans('Mark the selected goods as checked with no rejects. Check goods with rejects one by one.')"
+				:disabled="!selectedItemIds.length"
+				:loading="isCheckingMany"
+				@click="checkSelected"
+			>
+				<template #icon>
+					<FontAwesomeIcon :icon="faClipboardCheck" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
 		</div>
 
 		<div class="mt-3 overflow-x-auto">
@@ -188,7 +245,9 @@ function itemStatus(item: ReceiptItem) {
 
 						<template v-if="isExpanded(line)">
 							<tr v-for="item in line.items" :key="`item-${item.id}`" class="border-b border-gray-100 bg-gray-50/60 text-xs">
-								<td></td>
+								<td class="text-center align-top pt-1.5">
+									<Checkbox v-if="receiving.check_many_route && item.check_route && !item.is_checked" v-model="selectedItemIds" :value="item.id" size="small" :aria-label="ctrans('Select :reference', { reference: item.reference })" />
+								</td>
 								<td class="py-1.5 pr-3" colspan="2">
 									<div class="text-gray-700">
 										<Link :href="route(item.show_route.name, item.show_route.parameters)" class="secondaryLink whitespace-nowrap">{{ item.reference }}</Link>

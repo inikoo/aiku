@@ -27,6 +27,7 @@ use App\Actions\Procurement\AgentLabel\UI\IndexAgentBarcodes;
 use App\Actions\Procurement\AgentLabel\UI\IndexAgentLabels;
 use App\Actions\Procurement\AgentGoodsReceipt\CancelAgentGoodsReceipt;
 use App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem;
+use App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItems;
 use App\Actions\Procurement\AgentGoodsReceipt\DeleteAgentGoodsReceiptAttachment;
 use App\Actions\Procurement\AgentGoodsReceipt\PdfAgentGoodsReceiptNote;
 use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
@@ -164,6 +165,7 @@ Route::post('warehouse/in-production/receive', StoreAgentGoodsReceipt::class)->n
 Route::prefix('warehouse/received')->as('warehouse.received.')->group(function () {
     Route::get('', IndexAgentReceivedProducts::class)->name('index');
     Route::get('goods-receipts', IndexAgentGoodsReceipts::class)->name('goods_receipts.index');
+    Route::post('goods-receipts/items/check', CheckAgentGoodsReceiptItems::class)->name('goods_receipts.items.check_many');
     Route::get('goods-receipts/{agentGoodsReceipt}', ShowAgentGoodsReceipt::class)->name('goods_receipts.show');
     Route::post('goods-receipts/{agentGoodsReceipt}/cancel', CancelAgentGoodsReceipt::class)->name('goods_receipts.cancel');
     Route::post('goods-receipts/{agentGoodsReceipt}/photos', UploadAgentGoodsReceiptAttachments::class)->name('goods_receipts.photos.store');

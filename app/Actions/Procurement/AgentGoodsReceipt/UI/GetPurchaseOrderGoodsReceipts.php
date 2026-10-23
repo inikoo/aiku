@@ -58,6 +58,10 @@ class GetPurchaseOrderGoodsReceipts
 
         return [
             'can_edit'       => $canEdit,
+            'check_many_route' => $canEdit ? [
+                'name'       => 'grp.org.agent.warehouse.received.goods_receipts.items.check_many',
+                'parameters' => [$agentOrganisation->slug],
+            ] : null,
             'lines'          => $lines,
             'receive'        => $receivable ? [
                 'scopes'            => $scopes,
