@@ -107,7 +107,7 @@ class IndexArtisans extends OrgAction
             ->when($activity && $activity != 'production', fn ($query) => $query->whereNull('job_order_item_task_id')->where('activity_type', $activity))
             ->when($preparationReason == 'none', fn ($query) => $query->whereNull('preparation_reason_id'))
             ->when($preparationReason && $preparationReason != 'none', fn ($query) => $query->where('preparation_reason_id', (int) $preparationReason))
-            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder', 'preparationReason'])
+            ->with(['user', 'employee', 'manufactureTask', 'underTargetReviewer', 'timeEditor', 'jobOrderItemTask.jobOrderItem.artefact', 'jobOrderItemTask.jobOrderItem.tasks.manufactureTask', 'jobOrderItemTask.jobOrder', 'jobOrder', 'preparationReason', 'movedInto.manufactureTask', 'movedPreparation'])
             ->orderByDesc('ended_at')
             ->get();
 
@@ -178,6 +178,7 @@ class IndexArtisans extends OrgAction
                     'quantity_left'     => max(0, (float)$step->quantity_required - (float)$step->quantity_made),
                 ])->values()->all() : [],
             'quantity_rejected'   => (float)$session->quantity_rejected,
+            'preparation_minutes' => $session->movedPreparation ? (int) round($session->movedPreparation->started_at->diffInSeconds($session->movedPreparation->ended_at) / 60) : null,
             'earned'              => $this->canSeePay ? round((float)$session->pay, 2) : null,
             'units_per_hour'      => $session->paidHours() > 0 ? round($session->quantity_made / $session->paidHours(), 1) : null,
             'standard_rate'       => $session->standard_rate === null ? null : (float)$session->standard_rate,
@@ -318,6 +319,11 @@ class IndexArtisans extends OrgAction
                     'name'       => 'grp.org.productions.show.artisans.break_overrun_tolerance',
                     'parameters' => ['organisation' => $this->organisation->slug, 'production' => $production->slug],
                 ] : null,
+                'short_preparation_minutes' => ManufactureTaskSession::shortPreparationMinutes($production),
+                'short_preparation_route'   => $this->canSeePay ? [
+                    'name'       => 'grp.org.productions.show.artisans.short_preparation',
+                    'parameters' => ['organisation' => $this->organisation->slug, 'production' => $production->slug],
+                ] : null,
                 'breaks'                    => $this->breakDays($production, $from, $to, $breakTolerance, $breakOverrunOnly),
                 'break_issues'              => $this->breakIssues($production, $breakTolerance, $request->user()->id),
                 'artisans' => $artisans,
@@ -368,6 +374,11 @@ class IndexArtisans extends OrgAction
                 'ended_at'            => $session->ended_at,
                 'break_minutes'       => (int) $session->break_minutes,
                 'pay'                 => !$this->canSeePay || $session->pay === null ? null : (float) $session->pay,
+                'moved_into'          => $session->movedInto?->manufactureTask?->name,
+                'undo_move_route'     => $this->canEdit && $session->movedInto ? [
+                    'name'       => 'grp.models.manufacture-task-session.undo_preparation_move',
+                    'parameters' => ['manufactureTaskSession' => $session->id],
+                ] : null,
                 'void_route'          => $this->canEdit && $session->state == ManufactureTaskSessionStateEnum::CLOSED ? [
                     'name'       => 'grp.models.manufacture-task-session.void',
                     'parameters' => ['manufactureTaskSession' => $session->id],
@@ -436,6 +447,7 @@ class IndexArtisans extends OrgAction
                 'worker'          => $breaks->first()->user->contact_name ?: $breaks->first()->user->username,
                 'date'            => $breaks->first()->started_at->toDateString(),
                 'number_breaks'   => $breaks->count(),
+                'times'           => $breaks->map(fn (ManufactureBreak $break) => ['started_at' => $break->started_at, 'ended_at' => $break->ended_at])->values()->all(),
                 'planned_minutes' => $breaks->sum('planned_minutes'),
                 'actual_minutes'  => $breaks->sum(fn (ManufactureBreak $break) => $break->actualMinutes()),
                 'overrun_minutes' => $breaks->sum(fn (ManufactureBreak $break) => $break->overrunMinutes()),
