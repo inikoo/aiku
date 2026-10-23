@@ -23,7 +23,8 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * Approves an artwork in review, or sends it back with a comment saying exactly what to fix.
+ * Approves an artwork in review, or sends it back with a comment saying exactly what to fix. The comment
+ * also goes into the artwork's discussion, so earlier reviews stay readable after the next one.
  */
 class ReviewProductDevelopmentArtwork extends OrgAction
 {
@@ -57,6 +58,18 @@ class ReviewProductDevelopmentArtwork extends OrgAction
             'reviewed_by_id' => $user->id,
             'reviewed_at'    => now(),
         ]);
+        ProductDevelopmentArtworks::recordVersion($artwork);
+
+        if ($artwork->review_comment) {
+            $artwork->productDevelopment->comments()->create([
+                'user_id'    => $user->id,
+                'body'       => $artwork->review_comment,
+                'mentions'   => [],
+                'model_type' => $artwork->getMorphClass(),
+                'model_id'   => $artwork->id,
+                'data'       => ['review' => $modelData['operation'], 'version' => $artwork->version],
+            ]);
+        }
 
         RecordProductDevelopmentActivity::record(
             $artwork->productDevelopment,

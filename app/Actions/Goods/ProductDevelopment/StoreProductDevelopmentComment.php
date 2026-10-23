@@ -108,6 +108,7 @@ class StoreProductDevelopmentComment extends OrgAction
             'images.*'  => ProductDevelopmentComment::ticketFileRules(),
             'parent_id' => ['sometimes', 'nullable', 'integer', Rule::exists('product_development_comments', 'id')->where('product_development_id', $this->target()->id)],
             'design_round_id' => ['sometimes', 'nullable', 'integer', Rule::exists('product_development_design_rounds', 'id')->where('product_development_id', $this->target()->id)],
+            'artwork_id'      => ['sometimes', 'nullable', 'integer', 'prohibits:design_round_id', Rule::exists('product_development_artworks', 'id')->where('product_development_id', $this->target()->id)],
             'pin'             => ['sometimes', 'nullable', 'array'],
             'pin.x'           => ['required_with:pin', 'numeric', 'between:0,1'],
             'pin.y'           => ['required_with:pin', 'numeric', 'between:0,1'],
@@ -121,7 +122,7 @@ class StoreProductDevelopmentComment extends OrgAction
     }
 
     /**
-     * A comment on a design version belongs to it, and a top-level one may carry a numbered pin at a point
+     * A comment on a SKU's artwork belongs to that artwork. A comment on a design version belongs to it, and a top-level one may carry a numbered pin at a point
      * of the box net (x and y as fractions of the net's width and height). A reply follows its parent.
      *
      * @return array<string, mixed>
@@ -133,6 +134,11 @@ class StoreProductDevelopmentComment extends OrgAction
             $parent = $productDevelopment->comments()->find($parentId);
 
             return $parent?->model_type ? ['model_type' => $parent->model_type, 'model_id' => $parent->model_id] : [];
+        }
+
+        $artworkId = Arr::get($modelData, 'artwork_id');
+        if ($artworkId) {
+            return ['model_type' => 'ProductDevelopmentArtwork', 'model_id' => $artworkId];
         }
 
         $designRoundId = Arr::get($modelData, 'design_round_id');

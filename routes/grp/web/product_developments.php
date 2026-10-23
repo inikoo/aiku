@@ -14,6 +14,7 @@ use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentDesign
 use App\Actions\Goods\ProductDevelopment\UI\ShowProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Json\CheckProductDevelopmentMemberAccess;
 use App\Actions\Goods\ProductDevelopment\Json\GetProductDevelopmentWaitingBadge;
+use App\Actions\Goods\ProductDevelopment\Json\GetProductDevelopmentArtworkComments;
 use App\Actions\Goods\ProductDevelopment\Json\GetProductDevelopmentItemLabelContent;
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentPurchaseOrders;
 use App\Actions\Goods\ProductDevelopment\Json\SearchProductDevelopmentSupplierProducts;
@@ -35,6 +36,7 @@ Route::get('/json/sku-code', CheckProductDevelopmentSkuCode::class)->name('json.
 Route::get('/json/{scope}', SearchProductDevelopmentOptions::class)->name('json.search')->whereIn('scope', SearchProductDevelopmentOptions::SCOPES);
 Route::get('/{productDevelopment:slug}/json/purchase-orders', SearchProductDevelopmentPurchaseOrders::class)->name('json.purchase_orders');
 Route::get('/{productDevelopment:slug}/json/label-content/{item:id}', GetProductDevelopmentItemLabelContent::class)->name('json.label_content')->withoutScopedBindings();
+Route::get('/{productDevelopment:slug}/json/artwork/{artwork:id}/comments', GetProductDevelopmentArtworkComments::class)->name('json.artwork_comments')->withoutScopedBindings();
 Route::get('/{productDevelopment:slug}/json/supplier-products', SearchProductDevelopmentSupplierProducts::class)->name('json.supplier_products');
 Route::get('/{productDevelopment:slug}/artwork/{artwork:id}/pdf', DownloadProductDevelopmentArtwork::class)->name('artwork.pdf')->withoutScopedBindings();
 Route::get('/{productDevelopment:slug}/artwork/{artwork:id}', ShowProductDevelopmentArtwork::class)->name('artwork')->withoutScopedBindings();

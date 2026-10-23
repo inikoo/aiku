@@ -20,6 +20,7 @@ import SegmentedToggle from "@/Components/Utils/SegmentedToggle.vue"
 import Image from "@common/Components/Image.vue"
 import DesignArtworkViewer from "@/Components/Goods/ProductDevelopment/Design/DesignArtworkViewer.vue"
 import DesignLabelContent from "@/Components/Goods/ProductDevelopment/Design/DesignLabelContent.vue"
+import DesignArtworkPanel, { type Artwork, type ArtworkRow as Row, type ArtworkStatus as Status, type ArtworkVersion } from "@/Components/Goods/ProductDevelopment/Design/DesignArtworkPanel.vue"
 import TicketAttachmentPreview, { type TicketAttachment } from "@/Components/Tickets/TicketAttachmentPreview.vue"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { ctrans } from "@/Composables/useTrans"
@@ -27,47 +28,8 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faLightbulbOn, faBoxOpen, faTag, faLock, faPlus, faPencil, faChevronDown, faEye, faDownload, faEllipsisH, faFilePdf, faCloudUpload, faPencilRuler, faCheck, faUndo, faTimes, faTrashAlt, faSpinner, faCircle, faClock, faExclamationCircle, faCheckCircle, faArrowRight, faImage, faShieldCheck } from "@fal"
-library.add(faLightbulbOn, faBoxOpen, faTag, faLock, faPlus, faPencil, faChevronDown, faEye, faDownload, faEllipsisH, faFilePdf, faCloudUpload, faPencilRuler, faCheck, faUndo, faTimes, faTrashAlt, faSpinner, faCircle, faClock, faExclamationCircle, faCheckCircle, faArrowRight, faImage, faShieldCheck)
-
-interface Status {
-    value: string
-    label: string
-    color: string
-    icon: string
-}
-
-interface Artwork {
-    id: number
-    source: "upload" | "aiku" | null
-    version: number
-    file_name: string | null
-    original_name: string | null
-    size: number | null
-    updated_at: string | null
-    updated_by: string | null
-    update_note: string | null
-    review_comment: string | null
-    reviewed_by: string | null
-    reviewed_at: string | null
-    pdf_route: routeType | null
-    editor_route: routeType | null
-    can_edit_layout: boolean
-    can_review: boolean
-    approval_blocked: string | null
-    review_route: routeType
-}
-
-interface Row {
-    item_id: number
-    code: string
-    name: string
-    image: (Record<string, string> & { original: string }) | null
-    status: Status
-    artwork: Artwork | null
-    can_upload: boolean
-    label_content_route: routeType
-}
+import { faLightbulbOn, faBoxOpen, faTag, faLock, faPlus, faPencil, faChevronDown, faEye, faDownload, faEllipsisH, faFilePdf, faCloudUpload, faPencilRuler, faCheck, faUndo, faTimes, faTrashAlt, faSpinner, faCircle, faClock, faExclamationCircle, faCheckCircle, faArrowRight, faImage, faShieldCheck, faComments } from "@fal"
+library.add(faLightbulbOn, faBoxOpen, faTag, faLock, faPlus, faPencil, faChevronDown, faEye, faDownload, faEllipsisH, faFilePdf, faCloudUpload, faPencilRuler, faCheck, faUndo, faTimes, faTrashAlt, faSpinner, faCircle, faClock, faExclamationCircle, faCheckCircle, faArrowRight, faImage, faShieldCheck, faComments)
 
 interface Section {
     id: number
@@ -101,6 +63,7 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 const formatSize = (bytes: number | null) => !bytes ? "" : bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
 const sectionIcon = (section: Section) => section.editor_kind === "box" ? "fal fa-box-open" : "fal fa-tag"
 const firstError = (errors: Record<string, string>) => Object.values(errors)[0]
+const uploadedTooltip = (artwork: Artwork) => artwork.updated_at ? ctrans("Uploaded :date by :name", { date: formatDate(artwork.updated_at), name: artwork.updated_by ?? "" }) : artwork.file_name ?? undefined
 
 /* Expand and collapse */
 
@@ -193,6 +156,47 @@ function openMenu(event: Event, section: Section, row: Row) {
     rowMenu.value?.toggle(event)
 }
 
+/* Side panel: the SKU's design, its review and discussion */
+
+const panel = ref<{ sectionId: number, itemId: number } | null>(null)
+const panelSection = computed(() => props.data.sections.find((section) => section.id === panel.value?.sectionId) ?? null)
+const panelRow = computed(() => panelSection.value?.rows.find((row) => row.item_id === panel.value?.itemId) ?? null)
+const panelVisible = computed({
+    get: () => !!panelRow.value,
+    set: (visible: boolean) => !visible && (panel.value = null),
+})
+
+function openPanel(section: Section, row: Row) {
+    rowMenu.value?.hide()
+    panel.value = { sectionId: section.id, itemId: row.item_id }
+}
+
+/* Versions: every version sent for review, newest first */
+
+const versionsFor = ref<{ section: Section, row: Row } | null>(null)
+
+function openVersions(section: Section, row: Row) {
+    if (!row.artwork?.versions.length) {
+        openPanel(section, row)
+        return
+    }
+    versionsFor.value = { section, row }
+}
+
+const versionUrl = (version: ArtworkVersion, inline = false) => version.pdf_route ? route(version.pdf_route.name, { ...(version.pdf_route.parameters as Record<string, unknown>), ...(inline ? { inline: 1 } : {}) }) : ""
+
+function previewVersion(version: ArtworkVersion) {
+    const dialog = versionsFor.value
+    if (!dialog?.row.artwork) {
+        return
+    }
+    const withFiles = dialog.row.artwork.versions.filter((candidate) => candidate.pdf_route)
+    preview.value = {
+        files: withFiles.map((candidate) => ({ name: `${dialog.row.code}_${dialog.section.name}_V${candidate.version}.pdf`, url: versionUrl(candidate, true), mime: "application/pdf" })),
+        index: withFiles.findIndex((candidate) => candidate.version === version.version),
+    }
+}
+
 /* Upload or replace a PDF */
 
 const uploadDialog = ref<{ section: Section, row: Row, file: File | null, note: string } | null>(null)
@@ -238,7 +242,7 @@ function sendUpload() {
 
 function openInAiku(section: Section, row: Row) {
     rowMenu.value?.hide()
-    if (row.artwork?.editor_route && row.artwork.can_edit_layout) {
+    if (row.artwork?.editor_route && (row.artwork.can_edit_layout || !row.can_upload)) {
         router.visit(route(row.artwork.editor_route.name, row.artwork.editor_route.parameters))
         return
     }
@@ -373,15 +377,12 @@ function sendReview(operation: "approve" | "request_changes") {
 
             <div v-show="!collapsed[section.id]">
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[44rem] text-sm">
+                    <table class="w-full min-w-[38rem] text-sm">
                         <thead class="whitespace-nowrap bg-gray-50 text-left text-xs font-medium text-gray-500">
                             <tr>
                                 <th class="px-4 py-2">{{ ctrans("SKU") }}</th>
                                 <th class="px-2 py-2">{{ ctrans("Artwork file") }}</th>
-                                <th class="px-2 py-2">{{ ctrans("Version") }}</th>
-                                <th class="px-2 py-2">{{ ctrans("Updated") }}</th>
-                                <th class="px-2 py-2">{{ ctrans("Status") }}</th>
-                                <th class="px-2 py-2">{{ ctrans("Reviewer comment") }}</th>
+                                <th class="px-2 py-2">{{ ctrans("Design status") }}</th>
                                 <th class="px-4 py-2 text-right">{{ ctrans("Actions") }}</th>
                             </tr>
                         </thead>
@@ -395,18 +396,19 @@ function sendReview(operation: "approve" | "request_changes") {
                                                 <FontAwesomeIcon icon="fal fa-image" fixed-width aria-hidden="true" />
                                             </div>
                                         </div>
-                                        <span class="min-w-0">
-                                            <span class="block whitespace-nowrap font-medium text-gray-900">{{ row.code }}</span>
+                                        <button type="button" class="min-w-0 text-left" @click="openPanel(section, row)">
+                                            <span class="block whitespace-nowrap font-medium text-gray-900 hover:text-[--app-accent]">{{ row.code }}</span>
                                             <span class="block max-w-[14rem] truncate text-xs text-gray-500" v-tooltip="row.name">{{ row.name }}</span>
-                                        </span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td class="px-2 py-2">
                                     <button v-if="row.artwork?.pdf_route" type="button" class="flex items-center gap-2 text-left" @click="previewArtwork(section, row)">
                                         <FontAwesomeIcon icon="fal fa-file-pdf" class="text-xl text-red-500" fixed-width aria-hidden="true" />
                                         <span class="min-w-0">
-                                            <span class="block max-w-[14rem] truncate font-medium text-gray-900 hover:text-[--app-accent]" v-tooltip="row.artwork.file_name">{{ row.artwork.file_name }}</span>
-                                            <span class="block text-xs text-gray-500">{{ row.artwork.source === "aiku" ? ctrans("Made in Aiku") : formatSize(row.artwork.size) }}</span>
+                                            <span class="block max-w-[16rem] truncate font-medium text-gray-900 hover:text-[--app-accent]" v-tooltip="uploadedTooltip(row.artwork)">{{ row.artwork.file_name }}</span>
+                                            <span v-if="row.artwork.update_note" class="block max-w-[16rem] truncate text-xs text-gray-600" v-tooltip="row.artwork.update_note">{{ row.artwork.update_note }}</span>
+                                            <span v-else class="block text-xs text-gray-500">{{ row.artwork.source === "aiku" ? ctrans("Made in Aiku") : formatSize(row.artwork.size) }}</span>
                                         </span>
                                     </button>
                                     <Link
@@ -428,24 +430,21 @@ function sendReview(operation: "approve" | "request_changes") {
                                     </button>
                                     <span v-else class="text-xs text-amber-700">{{ ctrans("Missing artwork") }}</span>
                                 </td>
-                                <td class="px-2 py-2 tabular-nums text-gray-700">{{ row.artwork?.version ? `V${row.artwork.version}` : "—" }}</td>
-                                <td class="px-2 py-2 text-gray-700">
-                                    <template v-if="row.artwork?.updated_at">
-                                        <div class="whitespace-nowrap">{{ formatDate(row.artwork.updated_at) }}</div>
-                                        <div class="text-xs text-gray-500">{{ row.artwork.updated_by }}</div>
-                                    </template>
-                                    <span v-else>—</span>
-                                </td>
                                 <td class="px-2 py-2">
-                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium" :class="productDevelopmentColor(row.status.color).active">
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium hover:opacity-80"
+                                        :class="productDevelopmentColor(row.status.color).active"
+                                        v-tooltip="row.artwork?.versions.length ? ctrans('See all versions') : undefined"
+                                        @click="openVersions(section, row)"
+                                    >
+                                        <template v-if="row.artwork?.version">
+                                            <span class="tabular-nums">V{{ row.artwork.version }}</span>
+                                            <span class="h-3 w-px bg-current opacity-30" aria-hidden="true" />
+                                        </template>
                                         <FontAwesomeIcon :icon="row.status.icon" fixed-width aria-hidden="true" />
                                         {{ row.status.label }}
-                                    </span>
-                                    <div v-if="row.artwork?.update_note && row.status.value === 'in_review'" class="mt-1 max-w-[14rem] truncate text-xs text-gray-500" v-tooltip="row.artwork.update_note">{{ row.artwork.update_note }}</div>
-                                </td>
-                                <td class="max-w-[16rem] px-2 py-2 text-gray-700">
-                                    <span v-if="row.artwork?.review_comment" class="line-clamp-2" v-tooltip="row.artwork.reviewed_by ? `${row.artwork.reviewed_by} · ${formatDate(row.artwork.reviewed_at)}` : undefined">{{ row.artwork.review_comment }}</span>
-                                    <span v-else class="text-gray-400">—</span>
+                                    </button>
                                 </td>
                                 <td class="px-4 py-2">
                                     <div class="flex items-center justify-end gap-1">
@@ -455,6 +454,10 @@ function sendReview(operation: "approve" | "request_changes") {
                                         <a v-if="row.artwork?.pdf_route" :href="pdfUrl(row.artwork)" class="flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-800" v-tooltip="ctrans('Download')" :aria-label="ctrans('Download')">
                                             <FontAwesomeIcon icon="fal fa-download" fixed-width aria-hidden="true" />
                                         </a>
+                                        <button type="button" class="relative flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-800" v-tooltip="ctrans('Review and discussion')" :aria-label="ctrans('Review and discussion')" @click="openPanel(section, row)">
+                                            <FontAwesomeIcon icon="fal fa-comments" fixed-width aria-hidden="true" />
+                                            <span v-if="row.artwork?.comments" class="absolute -right-0.5 -top-0.5 min-w-[1rem] rounded-full bg-[--app-accent] px-1 text-[10px] leading-4 text-[--app-accent-text] tabular-nums">{{ row.artwork.comments }}</span>
+                                        </button>
                                         <button
                                             v-if="row.can_upload || row.artwork?.can_review || row.artwork?.editor_route"
                                             type="button"
@@ -469,7 +472,7 @@ function sendReview(operation: "approve" | "request_changes") {
                                 </td>
                             </tr>
                             <tr v-if="!section.rows.length">
-                                <td colspan="7" class="px-4 py-3 text-sm text-gray-400">{{ ctrans("This development has no SKUs yet") }}</td>
+                                <td colspan="4" class="px-4 py-3 text-sm text-gray-400">{{ ctrans("This development has no SKUs yet") }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -489,16 +492,16 @@ function sendReview(operation: "approve" | "request_changes") {
         <Popover ref="rowMenu">
             <div v-if="menuFor" class="w-60 text-sm" role="menu">
                 <p class="px-2 pb-1.5 text-xs text-gray-500">{{ menuFor.section.name }} · {{ menuFor.row.code }}</p>
-                <button v-if="menuFor.row.artwork?.can_review" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="startReview(menuFor.section, menuFor.row)">
+                <button v-if="menuFor.row.artwork?.can_review" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="openPanel(menuFor.section, menuFor.row)">
                     <FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
                     {{ ctrans("Review") }}
                 </button>
                 <template v-if="menuFor.row.can_upload">
-                    <button v-if="menuFor.row.artwork?.source !== 'aiku'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="startUpload(menuFor.section, menuFor.row)">
+                    <button v-if="menuFor.row.artwork?.source !== 'aiku' || menuFor.row.status.value === 'in_review'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="startUpload(menuFor.section, menuFor.row)">
                         <FontAwesomeIcon icon="fal fa-cloud-upload" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                         {{ menuFor.row.artwork ? ctrans("Replace with a PDF") : ctrans("Upload PDF") }}
                     </button>
-                    <button v-if="menuFor.row.artwork?.source !== 'upload'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="openInAiku(menuFor.section, menuFor.row)">
+                    <button v-if="menuFor.row.artwork?.source !== 'upload' || menuFor.row.status.value === 'in_review'" type="button" role="menuitem" class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-gray-800 hover:bg-gray-50" @click="openInAiku(menuFor.section, menuFor.row)">
                         <FontAwesomeIcon icon="fal fa-pencil-ruler" class="text-[--app-accent]" fixed-width aria-hidden="true" />
                         {{ menuFor.row.artwork?.source === "aiku" ? (menuFor.row.artwork.can_edit_layout ? ctrans("Continue in Aiku") : ctrans("Make changes in Aiku")) : ctrans("Create in Aiku") }}
                     </button>
@@ -609,6 +612,50 @@ function sendReview(operation: "approve" | "request_changes") {
                     <template #icon><FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" /></template>
                 </Button>
             </template>
+        </Dialog>
+
+        <DesignArtworkPanel
+            v-model:visible="panelVisible"
+            :sectionName="panelSection?.name ?? ''"
+            :row="panelRow"
+            :pdfUrl="panelRow?.artwork ? pdfUrl(panelRow.artwork) : ''"
+            @preview="panelSection && panelRow && previewArtwork(panelSection, panelRow)"
+            @compare="panelSection && panelRow && startReview(panelSection, panelRow)"
+            @upload="panelSection && panelRow && startUpload(panelSection, panelRow)"
+            @aiku="panelSection && panelRow && openInAiku(panelSection, panelRow)"
+        />
+
+        <Dialog :visible="!!versionsFor" modal :header="versionsFor ? ctrans(':section · :sku · versions', { section: versionsFor.section.name, sku: versionsFor.row.code }) : ''" :style="{ width: '32rem' }" :breakpoints="{ '640px': '94vw' }" @update:visible="(visible) => !visible && (versionsFor = null)">
+            <ol v-if="versionsFor?.row.artwork" class="divide-y divide-gray-100 text-sm">
+                <li v-for="version in versionsFor.row.artwork.versions" :key="version.version" class="flex items-start gap-3 py-2.5">
+                    <span class="w-8 shrink-0 pt-0.5 font-semibold tabular-nums text-gray-800">V{{ version.version }}</span>
+                    <div class="min-w-0 flex-1 space-y-1">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium" :class="productDevelopmentColor(version.status.color).active">
+                                <FontAwesomeIcon :icon="version.status.icon" fixed-width aria-hidden="true" />
+                                {{ version.status.value !== "in_review" ? version.status.label : !version.is_current ? ctrans("Replaced before review") : versionsFor.row.status.value !== "in_review" ? ctrans("Taken back before review") : version.status.label }}
+                            </span>
+                            <span v-if="version.is_current" class="text-xs text-gray-500">{{ ctrans("Current") }}</span>
+                        </div>
+                        <p v-if="version.submitted_at" class="text-xs text-gray-500">
+                            {{ version.source === "aiku" ? ctrans("Made in Aiku, sent :date by :name", { date: formatDate(version.submitted_at), name: version.submitted_by ?? "" }) : ctrans("Uploaded :date by :name", { date: formatDate(version.submitted_at), name: version.submitted_by ?? "" }) }}
+                        </p>
+                        <p v-if="version.update_note" class="text-xs text-gray-700">{{ version.update_note }}</p>
+                        <p v-if="version.reviewed_at" class="text-xs text-gray-500">
+                            {{ version.status.value === "approved" ? ctrans("Approved by :name on :date", { name: version.reviewed_by ?? "", date: formatDate(version.reviewed_at) }) : ctrans("Changes asked by :name on :date", { name: version.reviewed_by ?? "", date: formatDate(version.reviewed_at) }) }}
+                        </p>
+                        <p v-if="version.review_comment" class="rounded bg-gray-50 px-2 py-1 text-xs text-gray-700">{{ version.review_comment }}</p>
+                    </div>
+                    <div v-if="version.pdf_route" class="flex shrink-0 items-center gap-0.5">
+                        <button type="button" class="flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-800" v-tooltip="ctrans('Preview')" :aria-label="ctrans('Preview')" @click="previewVersion(version)">
+                            <FontAwesomeIcon icon="fal fa-eye" fixed-width aria-hidden="true" />
+                        </button>
+                        <a :href="versionUrl(version)" class="flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-800" v-tooltip="ctrans('Download')" :aria-label="ctrans('Download')">
+                            <FontAwesomeIcon icon="fal fa-download" fixed-width aria-hidden="true" />
+                        </a>
+                    </div>
+                </li>
+            </ol>
         </Dialog>
 
         <TicketAttachmentPreview v-model:index="preview.index" :files="preview.files" />

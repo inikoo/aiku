@@ -31,6 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * Uploads or replaces the PDF of one SKU in a design section. The new file replaces the old one, goes
  * straight to review (an approved artwork loses its approval) and can carry a note on what changed.
+ * A layout made in Aiku can be replaced by a PDF once it is in review, not while it is being drawn.
  */
 class UploadProductDevelopmentArtwork extends OrgAction
 {
@@ -77,6 +78,7 @@ class UploadProductDevelopmentArtwork extends OrgAction
                 'reviewed_by_id'         => null,
                 'reviewed_at'            => null,
             ])->save();
+            ProductDevelopmentArtworks::recordVersion($artwork);
 
             RecordProductDevelopmentActivity::record($productDevelopment, RecordProductDevelopmentActivity::ARTWORK_UPLOADED, [], [
                 'artwork' => ProductDevelopmentArtworks::label($artwork),
@@ -120,8 +122,8 @@ class UploadProductDevelopmentArtwork extends OrgAction
             return;
         }
 
-        if ($this->section->artworks()->where('product_development_item_id', (int) $this->get('product_development_item_id'))->where('source', ProductDevelopmentArtwork::SOURCE_AIKU)->exists()) {
-            $validator->errors()->add('file', __('This artwork is being made in Aiku'));
+        if ($this->section->artworks()->where('product_development_item_id', (int) $this->get('product_development_item_id'))->where('source', ProductDevelopmentArtwork::SOURCE_AIKU)->where('status', '!=', ProductDevelopmentArtworkStatusEnum::IN_REVIEW)->exists()) {
+            $validator->errors()->add('file', __('This artwork is being made in Aiku: a PDF can replace it once it is in review'));
         }
     }
 

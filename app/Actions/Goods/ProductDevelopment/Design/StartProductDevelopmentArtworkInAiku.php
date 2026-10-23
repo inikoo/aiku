@@ -26,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * Opens the artwork of one SKU in the Aiku editor: a new layout (a box sized from the SKU, or a blank
  * page), the layout it already had, or a reopened approved or in-review layout, which then needs a new
- * review once it is submitted again.
+ * review once it is submitted again. An uploaded PDF can be redone in Aiku once it is in review.
  */
 class StartProductDevelopmentArtworkInAiku extends OrgAction
 {
@@ -89,8 +89,8 @@ class StartProductDevelopmentArtworkInAiku extends OrgAction
             return;
         }
 
-        if ($this->section->artworks()->where('product_development_item_id', (int) $this->get('product_development_item_id'))->where('source', ProductDevelopmentArtwork::SOURCE_UPLOAD)->exists()) {
-            $validator->errors()->add('product_development_item_id', __('This artwork is an uploaded PDF: replace it with a new PDF'));
+        if ($this->section->artworks()->where('product_development_item_id', (int) $this->get('product_development_item_id'))->where('source', ProductDevelopmentArtwork::SOURCE_UPLOAD)->where('status', '!=', ProductDevelopmentArtworkStatusEnum::IN_REVIEW)->exists()) {
+            $validator->errors()->add('product_development_item_id', __('This artwork is an uploaded PDF: it can be made in Aiku instead once it is in review'));
         }
     }
 
