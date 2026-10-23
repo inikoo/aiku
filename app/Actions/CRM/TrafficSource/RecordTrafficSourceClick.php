@@ -81,7 +81,7 @@ class RecordTrafficSourceClick
      * analytics needs the landing page; both need the bot verdict. Runs queued so the storefront
      * first hit pays nothing beyond the dispatch.
      *
-     * @param array{shop_id: int, website_id: int|null, type: string, campaign_ref: string|null, click_id: string|null, session_id?: string|null, web_user_id?: int|null, ip: string|null, country_code: string|null, user_agent: string|null, url: string|null, is_repeat: bool} $click
+     * @param array{shop_id: int, website_id: int|null, type: string, campaign_ref: string|null, click_id: string|null, click_id_type?: string|null, session_id?: string|null, web_user_id?: int|null, ip: string|null, country_code: string|null, user_agent: string|null, url: string|null, is_repeat: bool} $click
      */
     public function handle(array $click): void
     {

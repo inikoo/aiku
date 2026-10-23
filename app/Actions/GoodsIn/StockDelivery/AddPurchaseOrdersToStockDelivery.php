@@ -51,6 +51,9 @@ class AddPurchaseOrdersToStockDelivery extends OrgAction
     }
 
     /**
+     * A purchase order still on a container Aurora brought in stays with that container. One of its lines put there
+     * from Aiku does not count: the rest of the order can go in other containers.
+     *
      * @return Builder<PurchaseOrder>
      */
     public static function addablePurchaseOrders(StockDelivery $stockDelivery): Builder
@@ -72,7 +75,13 @@ class AddPurchaseOrdersToStockDelivery extends OrgAction
                     StockDeliveryStateEnum::PLACED,
                     StockDeliveryStateEnum::CANCELLED,
                     StockDeliveryStateEnum::NOT_RECEIVED,
-                ]))
+                ])
+                ->whereNotExists(fn ($items) => $items->from('stock_delivery_items')
+                    ->whereColumn('stock_delivery_items.stock_delivery_id', 'stock_deliveries.id')
+                    ->whereIn(
+                        DB::raw("(stock_delivery_items.data->>'purchase_order_transaction_id')::bigint"),
+                        fn ($lines) => $lines->from('purchase_order_transactions')->select('purchase_order_transactions.id')->whereColumn('purchase_order_transactions.purchase_order_id', 'purchase_orders.id')
+                    )))
             ->withCount(['purchaseOrderTransactions as number_items_awaiting_delivery' => $itemsAwaitingDelivery])
             ->orderBy('reference');
     }
