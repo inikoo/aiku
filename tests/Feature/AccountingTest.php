@@ -4399,6 +4399,7 @@ test('accounting and organisation reports answer only report readers or accounta
         route('grp.org.reports.customer-credit', [$org->slug]),
         route('grp.org.reports.sage-invoices', [$org->slug]),
         route('grp.org.reports.montana-invoices', [$org->slug]),
+        route('grp.org.reports.cogs', [$org->slug]),
     ];
     $shopReports = [
         route('grp.org.shops.show.dashboard.invoices.sage.index', [$org->slug, $this->shop->slug]),
@@ -4489,4 +4490,58 @@ test('accounting pages follow the overview, accounting module or shop they are o
     foreach ($groupOverview as $url) {
         get($url)->assertOk();
     }
+});
+
+test('cost of goods sold report splits an Aurora pick across shops by revenue and reports its margin, HELP-4274', function () {
+    require_once __DIR__.'/../Support/InventoryHelpers.php';
+
+    [$orgStock, $location] = \Tests\Feature\costFixStockInLocation($this->group, $this->organisation, 'COGS-'.Str::random(6));
+
+    $product            = StoreProduct::make()->action($this->shop, array_merge(Product::factory()->definition(), [
+        'trade_units' => [['id' => $this->tradeUnit1->id, 'quantity' => 1]],
+        'price'       => 100,
+        'unit'        => 'unit',
+    ]));
+    $invoice            = StoreInvoice::make()->action(createCustomer($this->shop), Invoice::factory()->definition());
+    $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $product->historicAsset, [
+        'date'            => now(),
+        'tax_category_id' => $invoice->tax_category_id,
+        'quantity'        => 10,
+        'gross_amount'    => 1000,
+        'net_amount'      => 1000,
+    ]);
+    DB::table('invoice_transactions')->where('id', $invoiceTransaction->id)->update(['date' => '2001-03-15']);
+    DB::table('invoice_transaction_has_org_stocks')->where('invoice_transaction_id', $invoiceTransaction->id)->delete();
+    DB::table('invoice_transaction_has_org_stocks')->insert([
+        'invoice_transaction_id' => $invoiceTransaction->id,
+        'org_stock_id'           => $orgStock->id,
+        'org_stock_family_id'    => $orgStock->org_stock_family_id,
+        'net_amount'             => 1000,
+        'org_net_amount'         => 1000,
+        'grp_net_amount'         => 1000,
+    ]);
+
+    \App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement::make()->action($orgStock, $location, [
+        'quantity' => -4,
+        'type'     => \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::PICKED,
+    ]);
+    DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->where('type', 'picked')
+        ->update(['date' => '2001-03-10', 'org_amount' => -400, 'parent_type' => null, 'parent_id' => null]);
+
+    $rows = (new \App\Exports\Reports\CostOfGoodsSoldExport($this->organisation->id, '2001-03-01', '2001-03-31'))->collection()
+        ->filter(fn ($row) => $row->shop === $this->shop->code)
+        ->map(fn ($row) => (new \App\Exports\Reports\CostOfGoodsSoldExport($this->organisation->id, '2001-03-01', '2001-03-31'))->map($row))
+        ->values();
+
+    expect($rows)->toHaveCount(1)
+        ->and($rows[0][0])->toBe('2001-03')
+        ->and($rows[0][4])->toBe(1000.0)
+        ->and($rows[0][5])->toBe(400.0)
+        ->and($rows[0][6])->toBe(600.0)
+        ->and($rows[0][7])->toBe(60.0)
+        ->and($rows[0][8])->toBe(400.0);
+
+    get(route('grp.org.reports.cogs.export', [$this->organisation->slug, 'start_date' => '2001-03-01', 'end_date' => '2001-03-31']))->assertOk();
+    get(route('grp.org.reports.cogs', [$this->organisation->slug]))->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Org/Reports/CostOfGoodsSoldReport'));
 });

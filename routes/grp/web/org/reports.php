@@ -24,11 +24,13 @@ use App\Actions\Accounting\Reports\SageInvoices\UI\IndexSageInvoicesReport;
 use App\Actions\Dispatching\Reports\IndexPackerPerformanceReport;
 use App\Actions\Dispatching\Reports\IndexPickerPerformanceReport;
 use App\Actions\Reports\DownloadPackagingReport;
+use App\Actions\Reports\ExportCostOfGoodsSold;
 use App\Actions\Reports\ExportUkManufacturingSurvey;
 use App\Actions\Reports\ExportEprSnapshot;
 use App\Actions\Reports\ExportEuPackagingReturn;
 use App\Actions\Reports\ExportUkPackagingReturn;
 use App\Actions\Reports\GetEprImportCartons;
+use App\Actions\Reports\UI\IndexCostOfGoodsSoldReport;
 use App\Actions\Reports\UI\IndexPackagingReport;
 use App\Actions\Reports\UI\IndexUkManufacturingSurveyReport;
 use App\Actions\UI\Reports\IndexReports;
@@ -69,3 +71,6 @@ Route::get('/uk-manufacturing-survey/export', ExportUkManufacturingSurvey::class
 
 Route::get('/customer-credit', IndexCustomerCredit::class)->name('customer-credit');
 Route::get('/customer-credit/export', ExportCustomerCredit::class)->name('customer-credit.export');
+
+Route::get('/cogs', IndexCostOfGoodsSoldReport::class)->name('cogs');
+Route::get('/cogs/export', ExportCostOfGoodsSold::class)->name('cogs.export');

@@ -101,6 +101,12 @@ class GetReports extends OrgAction
                 'count' => null,
             ],
             [
+                'name'  => __('Cost of goods sold'),
+                'icon'  => 'fal fa-coins',
+                'route' => route('grp.org.reports.cogs', $organisation),
+                'count' => null,
+            ],
+            [
                 'name'  => __('Customer Credit'),
                 'icon'  => 'fal fa-credit-card',
                 'route' => route('grp.org.reports.customer-credit', $organisation),
