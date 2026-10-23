@@ -17,9 +17,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachRetinaPalletToReturn extends RetinaAction
 {
-    public function handle(PalletReturn $palletReturn, Pallet $pallet): PalletReturn
+    public function handle(PalletReturn $palletReturn, Pallet $pallet, bool $onlyWhileInProcess = false): PalletReturn
     {
-        return AttachPalletToReturn::run($palletReturn, $pallet);
+        return AttachPalletToReturn::run($palletReturn, $pallet, $onlyWhileInProcess);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -41,7 +41,7 @@ class AttachRetinaPalletToReturn extends RetinaAction
     {
         $this->initialisation($request);
 
-        $this->handle($palletReturn, $pallet);
+        $this->handle($palletReturn, $pallet, onlyWhileInProcess: true);
     }
 
     public function action(PalletReturn $palletReturn, Pallet $pallet)

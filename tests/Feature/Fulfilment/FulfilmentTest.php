@@ -187,6 +187,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Exceptions\Fulfilment\PalletReturnStockShortException;
+use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
@@ -1748,6 +1749,44 @@ test('a pallet ticked twice and a pallet unticked during submit do not break the
         ->and($keptItem->state)->toBe(PalletReturnItemStateEnum::SUBMITTED)
         ->and((float) $keptItem->quantity_ordered)->toBe(1.0)
         ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $untickedPallet->id)->exists())->toBeFalse();
+})->depends('set pallet delivery as booked in');
+
+test('pallets on a submitted return can no longer be ticked, unticked or selected all', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $returnedPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+    $latePallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    AttachPalletToReturn::run($palletReturn, $returnedPallet, onlyWhileInProcess: true);
+
+    expect($returnedPallet->refresh()->pallet_return_id)->toBe($palletReturn->id)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $returnedPallet->id)->exists())->toBeTrue();
+
+    SubmitPalletReturn::run($palletReturn->refresh(), []);
+
+    expect(fn () => AttachPalletToReturn::run($palletReturn, $latePallet, onlyWhileInProcess: true))->toThrow(ValidationException::class, 'This return is Submitted, its pallets can no longer be changed.')
+        ->and(fn () => AttachPalletsToReturn::run($palletReturn, ['pallets' => [$returnedPallet->id, $latePallet->id]], onlyWhileInProcess: true))->toThrow(ValidationException::class)
+        ->and(fn () => DetachPalletFromReturn::run($palletReturn, $returnedPallet, onlyWhileInProcess: true))->toThrow(ValidationException::class)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $latePallet->id)->exists())->toBeFalse()
+        ->and($latePallet->refresh()->pallet_return_id)->toBeNull()
+        ->and($returnedPallet->refresh()->pallet_return_id)->toBe($palletReturn->id)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $returnedPallet->id)->value('state'))->toBe(PalletReturnItemStateEnum::SUBMITTED);
 })->depends('set pallet delivery as booked in');
 
 test('Update pallet reference', function (PalletReturn $palletReturn) {

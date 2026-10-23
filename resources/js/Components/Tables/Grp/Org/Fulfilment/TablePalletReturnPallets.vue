@@ -259,9 +259,9 @@ const onCheckAllTable = async (payload: { data: {}[]; allChecked: boolean }) => 
     } catch (error) {
         notify({
             title: ctrans('Something went wrong'),
-            text: payload.allChecked
+            text: error?.response?.data?.message ?? (payload.allChecked
                 ? ctrans('Failed to select all pallets')
-                : ctrans('Failed to unselect all pallets'),
+                : ctrans('Failed to unselect all pallets')),
             type: 'error',
         })
     }
@@ -292,8 +292,8 @@ const onCheckTable = async (item: {}) => {
             debounceReloadBoxStats()
         } catch (error) {
             notify({
-                title: 'Something went wrong',
-                text: 'Failed to select the data',
+                title: ctrans('Something went wrong'),
+                text: error?.response?.data?.message ?? ctrans('Failed to select the data'),
                 type: 'error',
             })
 
@@ -313,8 +313,8 @@ const onCheckTable = async (item: {}) => {
             debounceReloadBoxStats()
         } catch (error) {
             notify({
-                title: 'Something went wrong',
-                text: 'Failed to unselect the data',
+                title: ctrans('Something went wrong'),
+                text: error?.response?.data?.message ?? ctrans('Failed to unselect the data'),
                 type: 'error',
             })
 

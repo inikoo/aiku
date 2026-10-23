@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\SetPalletReturnAutoServices;
+use App\Actions\Fulfilment\PalletReturn\WithPalletReturnPalletChanges;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -18,6 +19,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
@@ -25,11 +27,21 @@ use Lorisleiva\Actions\Concerns\AsCommand;
 class AttachPalletsToReturn extends OrgAction
 {
     use AsCommand;
+    use WithPalletReturnPalletChanges;
 
 
     private PalletReturn $parent;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData, bool $onlyWhileInProcess = false): PalletReturn
+    {
+        return DB::transaction(function () use ($palletReturn, $modelData, $onlyWhileInProcess) {
+            $this->lockPalletReturnForPalletChanges($palletReturn, $onlyWhileInProcess);
+
+            return $this->selectPallets($palletReturn, $modelData);
+        });
+    }
+
+    private function selectPallets(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $selectedPalletIds = Arr::get($modelData, 'pallets', []);
 
@@ -121,7 +133,7 @@ class AttachPalletsToReturn extends OrgAction
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        return $this->handle($palletReturn, $this->validatedData, onlyWhileInProcess: true);
     }
 
     public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
