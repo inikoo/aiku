@@ -426,9 +426,9 @@ const disableBeforeToday = (date: Date) => {
               optionLabel="name"
               optionValue="code"
               :placeholder="ctrans('Courier of your label')"
-              :disabled="data_pallet.state !== 'in_process' || isLoadingCourier"
+              :disabled="['dispatched', 'cancel'].includes(data_pallet.state) || isLoadingCourier"
               :loading="isLoadingCourier"
-              showClear
+              :showClear="data_pallet.state === 'in_process'"
               size="small"
               class="w-full"
               @change="updateCourier"
