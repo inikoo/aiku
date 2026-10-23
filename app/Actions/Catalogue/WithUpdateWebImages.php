@@ -213,7 +213,7 @@ trait WithUpdateWebImages
         $images = [];
 
         /** @var Media $media */
-        foreach ($model->images()->orderBy('model_has_media.position')->get() as $media) {
+        foreach ($model->images()->whereRaw("model_has_media.scope IS DISTINCT FROM 'audio'")->orderBy('model_has_media.position')->get() as $media) {
             $imageOriginal  = $media->getImage();
             $imageGallery   = $media->getImage()->resize(0, 600);
             $imageThumbnail = $media->getImage()->resize(0, 48);
