@@ -57,6 +57,7 @@ use App\Actions\Inventory\OrgStockMovement\CalculateRunningQuantityOrgStockMovem
 use App\Actions\Inventory\OrgStockMovement\DeleteOrgStockMovement;
 use App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement;
 use App\Actions\Maintenance\Inventory\OrgStockMovement\RepairPickedOrgStockMovementCost;
+use App\Actions\Maintenance\Inventory\OrgStockMovement\RecostAuroraStockCountMovements;
 use App\Actions\Maintenance\Inventory\OrgStock\EraseOrgStockHistory;
 use App\Actions\Maintenance\Inventory\OrgStock\ZeroOrgStockValue;
 use App\Actions\Inventory\OrgStockMovement\UpdateOrgStockMovement;
@@ -939,4 +940,46 @@ test('zero org stock value keeps quantities, backs up and clears amounts and lea
         ->and((float)$kept->refresh()->org_amount)->toBe(10.0)
         ->and($zero->handle($orgStock, false)['movements_with_value'])->toBe(0)
         ->and(DB::table('help4274_zeroed_org_stock_movements')->where('id', $found->id)->count())->toBe(1);
+});
+
+test('recost aurora stock counts prices only far-off aurora counts at the last purchase cost, backing them up first', function () {
+    [$orgStock, $location] = costFixStockInLocation($this->group, $this->organisation, 'RCST-'.Str::random(4));
+
+    $movement = fn (string $type, float $quantity, float $amount, string $date, ?string $sourceId, ?float $costPerSku = null) => tap(
+        StoreOrgStockMovement::make()->action($orgStock, $location, ['type' => $type, 'quantity' => $quantity, 'org_amount' => $amount], strict: false),
+        fn ($stored) => DB::table('org_stock_movements')->where('id', $stored->id)->update(['date' => $date, 'source_id' => $sourceId, 'cost_per_sku' => $costPerSku])
+    );
+
+    $movement(OrgStockMovementTypeEnum::PURCHASE->value, 100, 50, '2025-01-01', null, 0.5);
+    $movement(OrgStockMovementTypeEnum::PURCHASE->value, 100, 60, '2025-01-05', null, 0.5);
+    $crazy      = $movement(OrgStockMovementTypeEnum::WRITE_OFF->value, -10, -2940, '2025-02-01', '1:rcst1');
+    $fine       = $movement(OrgStockMovementTypeEnum::FOUND->value, 10, 6, '2025-02-02', '1:rcst2');
+    $madeInAiku = $movement(OrgStockMovementTypeEnum::FOUND->value, 10, 9000, '2025-02-03', null);
+
+    [$boxPricedOrgStock, $boxLocation] = costFixStockInLocation($this->group, $this->organisation, 'RCSB-'.Str::random(4));
+    foreach ([[0.57, '2025-01-01'], [220.25, '2025-01-05']] as [$cost, $date]) {
+        $purchase = StoreOrgStockMovement::make()->action($boxPricedOrgStock, $boxLocation, ['type' => OrgStockMovementTypeEnum::PURCHASE->value, 'quantity' => 10, 'org_amount' => $cost * 10], strict: false);
+        DB::table('org_stock_movements')->where('id', $purchase->id)->update(['date' => $date, 'cost_per_sku' => $cost]);
+    }
+    $untrusted = StoreOrgStockMovement::make()->action($boxPricedOrgStock, $boxLocation, ['type' => OrgStockMovementTypeEnum::WRITE_OFF->value, 'quantity' => -5, 'org_amount' => -9000], strict: false);
+    DB::table('org_stock_movements')->where('id', $untrusted->id)->update(['date' => '2025-02-01', 'source_id' => '1:rcst3']);
+
+    $recost = RecostAuroraStockCountMovements::make();
+    $ours   = fn () => $recost->mispricedCounts($this->organisation, '2025-01-01')->where('org_stock_id', $orgStock->id);
+
+    expect($ours()->pluck('id')->all())->toBe([$crazy->id]);
+
+    $recost->handle($this->organisation, '2025-01-01', true);
+    expect((float)$crazy->refresh()->org_amount)->toBe(-2940.0);
+
+    $recost->handle($this->organisation, '2025-01-01', false);
+
+    expect((float)$crazy->refresh()->org_amount)->toBe(-5.0)
+        ->and((float)$crazy->quantity)->toBe(-10.0)
+        ->and((float)$crazy->cost_per_sku)->toBe(0.5)
+        ->and((float)DB::table('help4274_recosted_org_stock_movements')->where('id', $crazy->id)->value('org_amount'))->toBe(-2940.0)
+        ->and((float)$fine->refresh()->org_amount)->toBe(6.0)
+        ->and((float)$madeInAiku->refresh()->org_amount)->toBe(9000.0)
+        ->and((float)$untrusted->refresh()->org_amount)->toBe(-9000.0)
+        ->and($ours())->toBeEmpty();
 });
