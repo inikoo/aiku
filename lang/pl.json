@@ -11808,5 +11808,6 @@
     "Finish break": "Zakończ przerwę",
     "Planned: :minutes min": "Zaplanowano: :minutes min",
     ":duration over": ":duration ponad plan",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Wyjście odbite. Po powrocie naciśnij Zakończ przerwę, aby ponownie odbić wejście."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Wyjście odbite. Po powrocie naciśnij Zakończ przerwę, aby ponownie odbić wejście.",
+    "Finish your break first": "Najpierw zakończ przerwę"
 }

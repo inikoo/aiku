@@ -9321,5 +9321,6 @@
     "Finish break": "Termină pauza",
     "Planned: :minutes min": "Planificat: :minutes min",
     ":duration over": ":duration peste",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Ieșire pontată. Când vă întoarceți, apăsați Termină pauza pentru a ponta din nou intrarea."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Ieșire pontată. Când vă întoarceți, apăsați Termină pauza pentru a ponta din nou intrarea.",
+    "Finish your break first": "Mai întâi terminați pauza"
 }

@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\GetUserCurrentEmployee;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
+use App\Models\Production\ManufactureBreak;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
 use App\Models\SysAdmin\User;
@@ -35,6 +36,11 @@ class StartManufactureNonProductiveSession extends OrgAction
         if ($hasOpenSession) {
             throw ValidationException::withMessages([
                 'activity_type' => __('Finish what you are working on first'),
+            ]);
+        }
+        if (ManufactureBreak::where('user_id', $user->id)->open()->exists()) {
+            throw ValidationException::withMessages([
+                'activity_type' => __('Finish your break first'),
             ]);
         }
 

@@ -17,6 +17,7 @@ use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
+use App\Models\Production\ManufactureBreak;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -35,6 +36,12 @@ class StartManufactureTaskSession extends OrgAction
 
     private function startSession(User $user, JobOrderItemTask $jobOrderItemTask): ManufactureTaskSession
     {
+        if (ManufactureBreak::where('user_id', $user->id)->open()->exists()) {
+            throw ValidationException::withMessages([
+                'job_order_item_task_id' => __('Finish your break first'),
+            ]);
+        }
+
         $group = JobOrderItemTask::find($jobOrderItemTask->id)?->combinedGroup() ?? collect();
         JobOrder::whereIn('id', $group->pluck('job_order_id'))->orderBy('id')->lockForUpdate()->get();
         $group = $group->map(fn (JobOrderItemTask $task) => JobOrderItemTask::with(['jobOrder', 'jobOrderItem', 'manufactureTask.artisans'])->find($task->id));

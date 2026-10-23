@@ -1372,7 +1372,7 @@ describe('production reward pay bands', function () {
             ->and($leftOpen->refresh()->left_open_after_shift_at->equalTo($shiftEnd))->toBeTrue()
             ->and($leftOpen->ended_at)->toBeNull();
 
-        $props = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->toDateString(), 'to' => $shiftEnd->toDateString()]))
+        $props = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->copy()->subDay()->toDateString(), 'to' => $shiftEnd->toDateString()]))
             ->assertOk()->original->getData()['page']['props'];
         $day   = collect($props['breaks'])->firstWhere('user_id', $operator->id);
         $issue = collect($props['break_issues'])->firstWhere('id', $leftOpen->id);
@@ -1385,12 +1385,12 @@ describe('production reward pay bands', function () {
             ->and($issue['correct_route']['name'])->toBe('grp.models.manufacture-break.correct_end')
             ->and($props['break_overrun_tolerance_minutes'])->toBe(10);
 
-        $overranOnly = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->toDateString(), 'to' => $shiftEnd->toDateString(), 'break_overrun' => 1]))
+        $overranOnly = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->copy()->subDay()->toDateString(), 'to' => $shiftEnd->toDateString(), 'break_overrun' => 1]))
             ->assertOk()->original->getData()['page']['props']['breaks'];
         expect(collect($overranOnly)->firstWhere('user_id', $operator->id)['number_breaks'])->toBe(1);
 
         $correct = fn (array $data, $editor = null) => \App\Actions\Production\ManufactureBreak\CorrectManufactureBreakEnd::make()->action($leftOpen, $data, $editor ?? $supervisor);
-        expect(fn () => $correct(['ended_at' => $leftOpen->started_at->copy()->subMinute()]))->toThrow(ValidationException::class, 'after the start')
+        expect(fn () => $correct(['ended_at' => $leftOpen->started_at->copy()]))->toThrow(ValidationException::class, 'after the start')
             ->and(fn () => $correct(['ended_at' => now()->addHour()]))->toThrow(ValidationException::class, 'future')
             ->and(fn () => $correct(['ended_at' => $leftOpen->started_at->copy()->addMinutes(25)], $operator))->toThrow(ValidationException::class, 'your own break');
 

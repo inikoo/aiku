@@ -232,7 +232,9 @@ test('breaks belong to the artisan, last until they are finished and only their 
     $breakBetweenJobs = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 20]);
     expect($breakBetweenJobs->ended_at)->toBeNull();
     expect(fn () => \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 5]))
-        ->toThrow(ValidationException::class);
+        ->toThrow(ValidationException::class)
+        ->and(fn () => StartManufactureTaskSession::make()->action($user, $task))->toThrow(ValidationException::class, 'Finish your break first')
+        ->and(fn () => StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'cleaning']))->toThrow(ValidationException::class, 'Finish your break first');
 
     $this->travel(4)->minutes();
     $breakBetweenJobs = \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($breakBetweenJobs);

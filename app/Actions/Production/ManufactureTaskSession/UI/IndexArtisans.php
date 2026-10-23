@@ -457,6 +457,7 @@ class IndexArtisans extends OrgAction
         return ManufactureBreak::where('production_id', $production->id)
             ->whereNotNull('planned_minutes')
             ->whereNull('corrected_at')
+            ->where('started_at', '>=', now()->subDays(ManufactureBreak::ISSUES_LOOKBACK_DAYS))
             ->where(fn ($query) => $query->whereNotNull('left_open_after_shift_at')->orWhereNull('ended_at'))
             ->with('user')
             ->orderBy('started_at')

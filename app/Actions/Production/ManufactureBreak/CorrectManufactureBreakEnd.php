@@ -37,10 +37,13 @@ class CorrectManufactureBreakEnd extends OrgAction
             $break   = ManufactureBreak::lockForUpdate()->find($break->id);
             $endedAt = Carbon::parse($modelData['ended_at'])->setTimezone(config('app.timezone'))->startOfMinute();
 
+            if ($break->planned_minutes === null) {
+                $this->refuse(__('A clock-out at the kiosk ends when the artisan clocks back in'));
+            }
             if ($this->editor && $this->editor->id == $break->user_id) {
                 $this->refuse(__('You cannot change your own break, ask a supervisor'));
             }
-            if ($endedAt->lessThan($break->started_at)) {
+            if ($endedAt->lessThanOrEqualTo($break->started_at)) {
                 $this->refuse(__('The end must be after the start of the break'));
             }
             if ($endedAt->greaterThan(now())) {
@@ -53,7 +56,7 @@ class CorrectManufactureBreakEnd extends OrgAction
             $previousEnd = $break->ended_at ?? now();
             $break->update([
                 'ended_at'             => $endedAt,
-                'minutes'              => (int) round($break->started_at->diffInSeconds($endedAt) / 60),
+                'minutes'              => min(ManufactureBreak::MAX_MINUTES, (int) round($break->started_at->diffInSeconds($endedAt) / 60)),
                 'original_ended_at'    => $break->original_ended_at ?? $break->ended_at,
                 'corrected_at'         => now(),
                 'corrected_by_user_id' => $this->editor?->id,

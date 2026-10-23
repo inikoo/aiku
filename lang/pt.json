@@ -22196,5 +22196,6 @@
     "Finish break": "Terminar pausa",
     "Planned: :minutes min": "Planeado: :minutes min",
     ":duration over": ":duration a mais",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Saída registada. Quando voltar, carregue em Terminar pausa para registar a entrada novamente."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Saída registada. Quando voltar, carregue em Terminar pausa para registar a entrada novamente.",
+    "Finish your break first": "Termine primeiro a pausa"
 }

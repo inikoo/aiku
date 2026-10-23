@@ -22062,5 +22062,6 @@
     "Finish break": "Pause beenden",
     "Planned: :minutes min": "Geplant: :minutes min",
     ":duration over": ":duration zu lang",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Ausgestempelt. Drücken Sie nach Ihrer Rückkehr auf Pause beenden, um wieder einzustempeln."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Ausgestempelt. Drücken Sie nach Ihrer Rückkehr auf Pause beenden, um wieder einzustempeln.",
+    "Finish your break first": "Beenden Sie zuerst Ihre Pause"
 }

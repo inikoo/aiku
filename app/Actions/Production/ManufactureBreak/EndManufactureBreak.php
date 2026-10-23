@@ -37,7 +37,7 @@ class EndManufactureBreak extends OrgAction
             $endedAt = now();
             $break->update([
                 'ended_at'             => $endedAt,
-                'minutes'              => (int) round($break->started_at->diffInSeconds($endedAt) / 60),
+                'minutes'              => min(ManufactureBreak::MAX_MINUTES, (int) round($break->started_at->diffInSeconds($endedAt) / 60)),
                 'clock_in_clocking_id' => $this->clockIn($break, $endedAt)?->id,
             ]);
 

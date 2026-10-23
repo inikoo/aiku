@@ -20912,5 +20912,6 @@
     "Finish break": "Terminar descanso",
     "Planned: :minutes min": "Planificado: :minutes min",
     ":duration over": ":duration de más",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Salida fichada. Cuando vuelva, pulse Terminar descanso para fichar la entrada de nuevo."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Salida fichada. Cuando vuelva, pulse Terminar descanso para fichar la entrada de nuevo.",
+    "Finish your break first": "Termine primero el descanso"
 }

@@ -42,6 +42,8 @@ use Illuminate\Support\Carbon;
 class ManufactureBreak extends Model
 {
     public const int DEFAULT_OVERRUN_TOLERANCE_MINUTES = 5;
+    public const int MAX_MINUTES = 32767;
+    public const int ISSUES_LOOKBACK_DAYS = 14;
 
     protected static function booted(): void
     {

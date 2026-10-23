@@ -41,14 +41,17 @@ class PauseManufactureTaskSessionOnClocking
                 return null;
             }
 
-            $openBreak->update([
+            $ended = ManufactureBreak::whereKey($openBreak->id)->whereNull('ended_at')->update([
                 'ended_at'             => $clocking->clocked_at,
-                'minutes'              => (int) round($openBreak->started_at->diffInSeconds($clocking->clocked_at) / 60),
+                'minutes'              => min(ManufactureBreak::MAX_MINUTES, (int) round($openBreak->started_at->diffInSeconds($clocking->clocked_at) / 60)),
                 'clock_in_clocking_id' => $clocking->id,
             ]);
+            if (!$ended) {
+                return null;
+            }
             $this->recalculateOpenSession($user->id, $clocking);
 
-            return $openBreak;
+            return $openBreak->refresh();
         }
 
         $openSession = $this->openSession($user->id);

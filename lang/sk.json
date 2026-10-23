@@ -21099,5 +21099,6 @@
     "Finish break": "Ukončiť prestávku",
     "Planned: :minutes min": "Naplánované: :minutes min",
     ":duration over": ":duration navyše",
-    "Clocked out. Press Finish break when you are back to clock in again.": "Odchod zaznamenaný. Keď sa vrátite, stlačte Ukončiť prestávku a znova sa vám zaznamená príchod."
+    "Clocked out. Press Finish break when you are back to clock in again.": "Odchod zaznamenaný. Keď sa vrátite, stlačte Ukončiť prestávku a znova sa vám zaznamená príchod.",
+    "Finish your break first": "Najprv ukončite prestávku"
 }
