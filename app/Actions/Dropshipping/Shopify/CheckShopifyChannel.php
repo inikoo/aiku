@@ -360,6 +360,7 @@ class CheckShopifyChannel
                 email
                 url
                 myshopifyDomain
+                currencyCode
                 description
                 fulfillmentServices{
                     id
