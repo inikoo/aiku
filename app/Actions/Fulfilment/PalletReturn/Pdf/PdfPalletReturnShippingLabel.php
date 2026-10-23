@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\Pdf;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Enums\Dispatching\Shipment\ShipmentLabelTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Models\Dispatching\Shipment;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfPalletReturnShippingLabel
 {
+    use WithPalletDocumentAuthorisation;
     use AsAction;
     use WithPalletReturnPrintDocuments;
 

@@ -8,6 +8,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\Pdf;
 
+use App\Actions\Traits\Authorisations\WithPalletDocumentAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PdfPalletReturnParcelDocuments
 {
+    use WithPalletDocumentAuthorisation;
     use AsAction;
     use WithPalletReturnPrintDocuments;
 

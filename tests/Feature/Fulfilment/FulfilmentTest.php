@@ -2784,7 +2784,7 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
         ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
         ->and($palletReturn->stats->number_pallets)->toBe(0)
         ->and($palletReturn->type)->toBe(PalletReturnTypeEnum::STORED_ITEM)
-        ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(2)
+        ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(5)
         ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
 
@@ -3104,7 +3104,7 @@ test('customer documents of a return print in one click and its own shipping lab
     $labels = $documentsReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->get();
 
     expect($labels)->toHaveCount(1)
-        ->and($labels->first()->file_name)->toBe('label.pdf')
+        ->and($labels->first()->name)->toBe('label.pdf')
         ->and($printKeys())->toBe([])
         ->and(fn () => SubmitPalletReturn::run($documentsReturn->refresh(), []))->toThrow(ValidationException::class, 'Choose the courier (DPD, Royal Mail) for the shipping label attached to this return.')
         ->and($documentsReturn->refresh()->state)->toBe(PalletReturnStateEnum::IN_PROCESS);

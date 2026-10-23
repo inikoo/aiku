@@ -23,7 +23,7 @@ class PalletReturnAttachmentApiResource extends JsonResource
             'id'         => $this->id,
             'scope'      => $this->pivot?->scope,
             'caption'    => $this->pivot?->caption,
-            'file_name'  => $this->file_name,
+            'file_name'  => $this->pivot?->caption ? $this->pivot->caption.'.'.pathinfo($this->file_name, PATHINFO_EXTENSION) : $this->file_name,
             'mime_type'  => $this->mime_type,
             'size'       => $this->size,
             'created_at' => $this->created_at,
