@@ -369,6 +369,7 @@ class ShowSupplyChainPurchaseOrderJourney extends OrgAction
             'status'            => $journeyData['status'],
             'days_overdue'      => $journeyData['days_overdue'],
             'eta'               => $journeyData['eta'],
+            'lead_time'         => $journeyData['lead_time'],
             'segments'          => $journeyData['segments'],
             'route'             => [
                 'name'       => 'grp.org.procurement.purchase_orders.show',

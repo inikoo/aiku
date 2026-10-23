@@ -49,6 +49,7 @@ interface Stage {
     date: string | null
     by: string | null
     expected: string | null
+    expected_note: string | null
     days_late: number
     deliveries: { reached: number, total: number } | null
     not_required?: boolean
@@ -209,7 +210,7 @@ function save() {
                 <span v-if="stage.by" class="text-xs text-gray-500"> · {{ stage.by }}</span>
             </div>
 
-            <div v-if="!stage.reached && stage.expected" class="mt-0.5 text-xs tabular-nums" :class="stage.days_late ? 'text-red-600' : 'text-gray-500'">
+            <div v-if="!stage.reached && stage.expected" class="mt-0.5 w-fit cursor-help text-xs tabular-nums" :class="stage.days_late ? 'text-red-600' : 'text-gray-500'" v-tooltip="stage.expected_note">
                 {{ ctrans("Expected :date", { date: formatDate(stage.expected) as string }) }}
                 <template v-if="stage.days_late"> · {{ ctrans(":days days late", { days: stage.days_late }) }}</template>
             </div>

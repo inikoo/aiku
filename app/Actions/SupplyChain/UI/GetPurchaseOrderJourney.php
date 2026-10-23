@@ -60,16 +60,17 @@ class GetPurchaseOrderJourney
      *     stage_days?: array<string, int|string|null>
      * } $facts
      *
-     * @return array{segments: array<int, array<string, mixed>>, current_stage: ?string, status: string, days_overdue: int, eta: ?string}
+     * @return array{segments: array<int, array<string, mixed>>, current_stage: ?string, status: string, days_overdue: int, eta: ?string, lead_time: int}
      */
     public function handle(array $facts, ?Carbon $today = null): array
     {
         $today  = ($today ?? now())->copy()->startOfDay();
         $stages = $this->stages($facts);
-        $days   = $this->stageDays($facts, array_keys($stages));
+        [$days, $dayBases] = $this->stageDays($facts, array_keys($stages));
 
         if (!$stages['shipped']['done'] && !$stages['shipped']['target'] && $stages['received']['target']) {
             $stages['shipped']['target'] = Carbon::parse($stages['received']['target'])->subDays($days['received'] + $days['arrived'])->toDateString();
+            $stages['shipped']['basis']  = 'before_arrival';
         }
 
         $keys     = array_keys($stages);
@@ -86,6 +87,7 @@ class GetPurchaseOrderJourney
         $descriptions = Stage::descriptions();
         $anchor       = Carbon::parse($facts['created_at'])->startOfDay();
         $forecast     = $anchor->copy();
+        $anchorKey    = null;
         $segments     = [];
         $current      = null;
         $daysOverdue  = 0;
@@ -136,11 +138,17 @@ class GetPurchaseOrderJourney
                 'state'        => $state,
                 'done_at'      => $doneAt?->toDateString(),
                 'planned_at'   => $planned->toDateString(),
+                'planned_from' => [
+                    'basis' => $stage['target'] ? $stage['basis'] : $dayBases[$key],
+                    'days'  => $stage['basis'] === 'before_arrival' ? $days['received'] + $days['arrived'] : $days[$key],
+                    'after' => $anchorKey,
+                ],
                 'forecast_at'  => $forecastAt->toDateString(),
                 'behind_plan'  => in_array($state, ['future', 'untracked']) && $planned->lt($today),
                 'days_overdue' => $overdue,
                 'mark_column'  => Stage::from($key)->markColumn(),
             ];
+            $anchorKey  = $key;
         }
 
         $last = end($segments);
@@ -151,6 +159,7 @@ class GetPurchaseOrderJourney
             'status'        => $status,
             'days_overdue'  => $daysOverdue,
             'eta'           => $current ? $last['forecast_at'] : ($last['done_at'] ?? $last['planned_at']),
+            'lead_time'     => (int) ($facts['delivery_time'] ?? 0),
         ];
     }
 
@@ -176,14 +185,14 @@ class GetPurchaseOrderJourney
             $stages['in_production'] = $this->stage(false, $facts['production_started_at'] ?? null);
         }
         if ($isAgent || !empty($facts['qc_passed_at']) || !empty($facts['produced_at']) || !empty($facts['estimated_production_at'])) {
-            $stages['ready'] = $this->stage(false, $facts['qc_passed_at'] ?? null, $readyAt?->toDateString() ?? ($facts['estimated_production_at'] ?? null));
+            $stages['ready'] = $this->stage(false, $facts['qc_passed_at'] ?? null, $readyAt?->toDateString() ?? ($facts['estimated_production_at'] ?? null), $readyAt ? 'approved_ready' : 'estimated_production');
         }
 
         $isReceived = in_array($deliveryState, self::RECEIVED_STATES);
 
-        $stages['shipped']  = $this->stage(in_array($deliveryState, self::DISPATCHED_STATES), $facts['dispatched_at'] ?? null, $readyAt?->copy()->addDays(self::HANDOVER_DAYS_AFTER_READY)->toDateString());
+        $stages['shipped']  = $this->stage(in_array($deliveryState, self::DISPATCHED_STATES), $facts['dispatched_at'] ?? null, $readyAt?->copy()->addDays(self::HANDOVER_DAYS_AFTER_READY)->toDateString(), 'after_ready');
         $stages['arrived']  = $this->stage($isReceived || ($facts['arrived'] ?? false), $facts['arrived_at'] ?? null);
-        $stages['received'] = $this->stage($isReceived, $facts['received_at'] ?? null, $facts['estimated_received_at'] ?? null);
+        $stages['received'] = $this->stage($isReceived, $facts['received_at'] ?? null, $facts['estimated_received_at'] ?? null, 'arrival_estimate');
 
         $sellable = (int) ($facts['sellable_products'] ?? 0);
         if ($sellable > 0) {
@@ -197,14 +206,15 @@ class GetPurchaseOrderJourney
     }
 
     /**
-     * @return array{done: bool, done_at: ?string, target: ?string}
+     * @return array{done: bool, done_at: ?string, target: ?string, basis: ?string}
      */
-    private function stage(bool $done, ?string $doneAt, ?string $target = null): array
+    private function stage(bool $done, ?string $doneAt, ?string $target = null, ?string $basis = null): array
     {
         return [
             'done'    => $done || $doneAt !== null,
             'done_at' => $doneAt,
             'target'  => $target,
+            'basis'   => $target ? $basis : null,
         ];
     }
 
@@ -214,20 +224,23 @@ class GetPurchaseOrderJourney
      *
      * @param array<int, string> $keys
      *
-     * @return array<string, int>
+     * @return array{0: array<string, int>, 1: array<string, string>} the days of each stage, and what set them
      */
     private function stageDays(array $facts, array $keys): array
     {
         $overrides = array_filter($facts['stage_days'] ?? [], fn ($value) => is_numeric($value));
         $days      = [];
         $fixed     = [];
+        $bases     = [];
 
         foreach ($keys as $key) {
             if (array_key_exists($key, $overrides)) {
                 $days[$key]  = (int) $overrides[$key];
                 $fixed[$key] = true;
+                $bases[$key] = 'stage_days';
             } else {
-                $days[$key] = Stage::from($key)->defaultDays($facts['journey']);
+                $days[$key]  = Stage::from($key)->defaultDays($facts['journey']);
+                $bases[$key] = 'standard';
             }
         }
 
@@ -235,6 +248,7 @@ class GetPurchaseOrderJourney
         if (isset($days['ready']) && !isset($fixed['ready']) && $productionDays > 0) {
             $days['ready']  = $productionDays;
             $fixed['ready'] = true;
+            $bases['ready'] = 'production_time';
         }
 
         $leadTime   = (int) ($facts['delivery_time'] ?? 0);
@@ -246,11 +260,12 @@ class GetPurchaseOrderJourney
         if ($leadTime > 0 && $flexDays > 0 && $remaining > 0) {
             foreach ($leadStages as $key) {
                 if (!isset($fixed[$key])) {
-                    $days[$key] = max(1, (int) round($days[$key] * $remaining / $flexDays));
+                    $days[$key]  = max(1, (int) round($days[$key] * $remaining / $flexDays));
+                    $bases[$key] = 'lead_time';
                 }
             }
         }
 
-        return $days;
+        return [$days, $bases];
     }
 }

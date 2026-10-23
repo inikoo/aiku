@@ -21,6 +21,7 @@ use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\User;
+use App\Actions\SupplyChain\UI\GetPurchaseOrderJourney;
 use App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -194,9 +195,10 @@ class GetPurchaseOrderStages
             'current'     => $stage->value === $current,
             'date'        => $stages[$stage->value]['date'],
             'by'          => $names->get($stages[$stage->value]['user_id']),
-            'expected'    => $expected[$stage->value] ?? null,
-            'days_late'   => !$stages[$stage->value]['reached'] && isset($expected[$stage->value]) && Carbon::parse($expected[$stage->value])->lt($today)
-                ? (int) Carbon::parse($expected[$stage->value])->diffInDays($today)
+            'expected'    => $expected[$stage->value]['date'] ?? null,
+            'expected_note' => $expected[$stage->value]['note'] ?? null,
+            'days_late'   => !$stages[$stage->value]['reached'] && isset($expected[$stage->value]) && Carbon::parse($expected[$stage->value]['date'])->lt($today)
+                ? (int) Carbon::parse($expected[$stage->value]['date'])->diffInDays($today)
                 : 0,
             'deliveries'  => $stages[$stage->value]['deliveries'],
             'note'        => $stage === Stage::SUBMITTED && $purchaseOrder->agent_reference ? __('Agent\'s number: :number', ['number' => $purchaseOrder->agent_reference]) : null,
@@ -234,8 +236,9 @@ class GetPurchaseOrderStages
      * Each stage's expected date, from the plan the PO journey board draws for the order: the agent's or
      * supplier's lead time stretched over the stages, and the approved ready date for QC. The board works the
      * shipping date back from the arrival estimate, so a stage is never expected before the one ahead of it.
+     * Each date carries a note saying where it came from, so a buyer can tell a plan from a promise.
      *
-     * @return array<string, string>
+     * @return array<string, array{date: string, note: string}>
      */
     public function expectedDates(PurchaseOrder $purchaseOrder): array
     {
@@ -244,19 +247,56 @@ class GetPurchaseOrderStages
             return [];
         }
 
-        $planned  = collect($ribbon['segments'])->mapWithKeys(fn (array $segment) => [$segment['key'] => $segment['done_at'] ?: $segment['planned_at']]);
+        $segments = collect($ribbon['segments'])->keyBy('key');
         $expected = [];
         $previous = null;
 
         foreach (Stage::cases() as $stage) {
-            $date = $planned->get($stage->value);
-            if ($date) {
-                $previous                = $previous ? max($previous, $date) : $date;
-                $expected[$stage->value] = $previous;
+            $segment = $segments->get($stage->value);
+            $date    = $segment ? ($segment['done_at'] ?: $segment['planned_at']) : null;
+            if (!$date) {
+                continue;
             }
+
+            if ($previous && $previous['date'] > $date) {
+                $expected[$stage->value] = [
+                    'date' => $previous['date'],
+                    'note' => __('The plan puts it before :stage, so it takes that stage\'s date.', ['stage' => Stage::labels()[$previous['stage']]]),
+                ];
+                continue;
+            }
+
+            $expected[$stage->value] = [
+                'date' => $date,
+                'note' => $segment['done_at'] ? __('The date the PO journey board recorded for this stage.') : $this->expectedNote($segment['planned_from'], $ribbon),
+            ];
+            $previous = ['stage' => $stage->value, 'date' => $date];
         }
 
         return $expected;
+    }
+
+    /**
+     * @param array{basis: ?string, days: int, after: ?string} $plannedFrom
+     */
+    private function expectedNote(array $plannedFrom, array $ribbon): string
+    {
+        $replacements = [
+            'days'  => $plannedFrom['days'],
+            'stage' => $plannedFrom['after'] ? (Stage::labels()[$plannedFrom['after']] ?? $plannedFrom['after']) : __('the order was created'),
+        ];
+
+        return match ($plannedFrom['basis']) {
+            'lead_time'            => __(':days days after :stage: this stage\'s share of the :lead-day lead time set on :parent.', [...$replacements, 'lead' => $ribbon['lead_time'], 'parent' => $ribbon['parent_name']]),
+            'stage_days'           => __(':days days after :stage, as set in the journey stage days of :parent.', [...$replacements, 'parent' => $ribbon['parent_name']]),
+            'production_time'      => __(':days days after :stage, the production time set on :supplier.', [...$replacements, 'supplier' => $ribbon['supplier_name'] ?? $ribbon['parent_name']]),
+            'approved_ready'       => __('The approved ready date.'),
+            'estimated_production' => __('The estimated production date given for this order.'),
+            'after_ready'          => __(':days days after the approved ready date, to hand the goods over.', ['days' => GetPurchaseOrderJourney::HANDOVER_DAYS_AFTER_READY]),
+            'arrival_estimate'     => __('The estimated arrival date of the delivery, or of the order while it has no delivery.'),
+            'before_arrival'       => __(':days days before the estimated arrival, worked back from it.', $replacements),
+            default                => __(':days days after :stage, the standard length of this stage.', $replacements),
+        };
     }
 
     /**
