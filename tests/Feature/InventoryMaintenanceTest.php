@@ -60,6 +60,7 @@ use App\Actions\Maintenance\Inventory\OrgStockMovement\RepairPickedOrgStockMovem
 use App\Actions\Maintenance\Inventory\OrgStockMovement\RecostAuroraStockCountMovements;
 use App\Actions\Maintenance\Inventory\OrgStock\EraseOrgStockHistory;
 use App\Actions\Maintenance\Inventory\OrgStock\ZeroOrgStockValue;
+use App\Actions\Maintenance\Inventory\OrgStock\RepriceOrgStockCounts;
 use App\Actions\Inventory\OrgStockMovement\UpdateOrgStockMovement;
 use App\Actions\Inventory\Warehouse\DeleteWarehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
@@ -982,4 +983,36 @@ test('recost aurora stock counts prices only far-off aurora counts at the last p
         ->and((float)$madeInAiku->refresh()->org_amount)->toBe(9000.0)
         ->and((float)$untrusted->refresh()->org_amount)->toBe(-9000.0)
         ->and($ours())->toBeEmpty();
+});
+
+test('reprice org stock counts prices counts from a date at the given cost and leaves purchases, picks and earlier counts alone', function () {
+    [$orgStock, $location] = costFixStockInLocation($this->group, $this->organisation, 'RPRC-'.Str::random(4));
+
+    $movement = fn (string $type, float $quantity, float $amount, string $date) => tap(
+        StoreOrgStockMovement::make()->action($orgStock, $location, ['type' => $type, 'quantity' => $quantity, 'org_amount' => $amount], strict: false),
+        fn ($stored) => DB::table('org_stock_movements')->where('id', $stored->id)->update(['date' => $date])
+    );
+
+    $purchase = $movement(OrgStockMovementTypeEnum::PURCHASE->value, 10, 125.8, '2025-07-01');
+    $earlier  = $movement(OrgStockMovementTypeEnum::FOUND->value, 5, 62.9, '2025-07-10');
+    $found    = $movement(OrgStockMovementTypeEnum::FOUND->value, 2500, 31450, '2025-07-17');
+    $pick     = $movement(OrgStockMovementTypeEnum::PICKED->value, -1, -12.58, '2025-08-01');
+    $marker   = $movement(OrgStockMovementTypeEnum::AUDIT->value, 2500, 0, '2025-07-17');
+    $recount  = $movement(OrgStockMovementTypeEnum::AUDIT->value, -2450, -30821, '2026-10-30');
+
+    $reprice = RepriceOrgStockCounts::make();
+
+    expect($reprice->handle($orgStock, '2025-07-17', 0.2516, true)['movements'])->toBe(2)
+        ->and((float)$found->refresh()->org_amount)->toBe(31450.0);
+
+    $reprice->handle($orgStock, '2025-07-17', 0.2516, false);
+
+    expect((float)$found->refresh()->org_amount)->toBe(629.0)
+        ->and((float)$found->quantity)->toBe(2500.0)
+        ->and((float)$recount->refresh()->org_amount)->toBe(-616.42)
+        ->and((float)DB::table('help4274_repriced_org_stock_movements')->where('id', $found->id)->value('org_amount'))->toBe(31450.0)
+        ->and((float)$purchase->refresh()->org_amount)->toBe(125.8)
+        ->and((float)$pick->refresh()->org_amount)->toBe(-12.58)
+        ->and((float)$earlier->refresh()->org_amount)->toBe(62.9)
+        ->and((float)$marker->refresh()->org_amount)->toBe(0.0);
 });
