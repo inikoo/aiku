@@ -147,7 +147,7 @@ class StockDeliveryCostsTool extends Tool
             'change_log_id' => $this->mcpChange?->id,
             'stock_delivery' => $stockDelivery->reference,
             'costs'         => $this->rows($stockDelivery),
-            'missing'       => $stockDelivery->costsMissingForPutAway(),
+            'missing'       => $stockDelivery->costsMissing(),
             'is_costed'     => (bool) $stockDelivery->is_costed,
             'note'          => 'Entering the last cost completes the costing and values the stock put away from this delivery.',
         ]);
@@ -334,7 +334,7 @@ class StockDeliveryCostsTool extends Tool
             'goods_value'           => round((float) DB::table('stock_delivery_items')->where('stock_delivery_id', $stockDelivery->id)->sum('org_net_amount'), 2),
             'goods_value_currency'  => $organisationCurrency,
             'costs'                 => $this->rows($stockDelivery),
-            'missing'               => $stockDelivery->costsMissingForPutAway(),
+            'missing'               => $stockDelivery->costsMissing(),
             'extra_kinds'           => $extraKinds,
         ];
     }

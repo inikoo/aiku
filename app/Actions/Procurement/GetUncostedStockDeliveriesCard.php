@@ -40,16 +40,24 @@ class GetUncostedStockDeliveriesCard
             ->where('placed_at', '>=', $agentSince)
             ->count();
 
-        $putAwayBlocked = StockDelivery::where('organisation_id', $organisation->id)->withCostsMissingForPutAway()->count();
+        $costsMissing = StockDelivery::where('organisation_id', $organisation->id)->withCostsMissing()->count();
 
         $estimated = StockDelivery::where('organisation_id', $organisation->id)
             ->where('is_costed', true)
             ->whereHas('costs', fn ($query) => $query->where('is_estimate', true))
             ->count();
 
-        if (!$stale->total && !$agentNotCosted && !$putAwayBlocked && !$estimated) {
+        if (!$stale->total && !$agentNotCosted && !$costsMissing && !$estimated) {
             return null;
         }
+
+        $total = StockDelivery::where('organisation_id', $organisation->id)
+            ->where(fn ($query) => $query
+                ->where(fn ($query) => $query->where('state', StockDeliveryStateEnum::BOOKED_IN)->where('booked_in_at', '<', $bookedInCutoff))
+                ->orWhere(fn ($query) => $query->where('parent_type', 'OrgAgent')->where('state', StockDeliveryStateEnum::PLACED)->where('is_costed', false)->where('placed_at', '>=', $agentSince))
+                ->orWhere(fn ($query) => $query->withCostsMissing())
+                ->orWhere(fn ($query) => $query->where('is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))))
+            ->count();
 
         $staleRoute = $this->route($organisation, [
             'elements[state]'       => StockDeliveryStateEnum::BOOKED_IN->value,
@@ -67,12 +75,12 @@ class GetUncostedStockDeliveriesCard
             'label'       => __('Not costed'),
             'description' => __('Stock deliveries waiting for costing'),
             'icon'        => 'fal fa-exclamation-triangle',
-            'value'       => $stale->total + $agentNotCosted + $putAwayBlocked + $estimated,
+            'value'       => $total,
             'tone'        => 'amber',
             'attention'   => true,
             'route'       => match (true) {
-                $stale->total + $agentNotCosted + $putAwayBlocked + $estimated > max($stale->total, $agentNotCosted, $putAwayBlocked, $estimated) => null,
-                (bool) $putAwayBlocked           => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
+                count(array_filter([$stale->total, $agentNotCosted, $costsMissing, $estimated])) > 1 => null,
+                (bool) $costsMissing           => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
                 (bool) $estimated                => $this->route($organisation, ['elements[costing]' => 'estimated']),
                 (bool) $stale->total             => $staleRoute,
                 default                          => $agentRoute,
@@ -92,8 +100,8 @@ class GetUncostedStockDeliveriesCard
                 ],
                 [
                     'label'       => __('Costs missing'),
-                    'description' => __('Book in blocked'),
-                    'value' => $putAwayBlocked,
+                    'description' => __('Invoice, shipping or duty not entered'),
+                    'value' => $costsMissing,
                     'route' => $this->route($organisation, ['elements[costing]' => 'costs_missing']),
                 ],
                 [

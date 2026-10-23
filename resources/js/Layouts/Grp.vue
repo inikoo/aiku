@@ -33,6 +33,7 @@ import { useStaffMessaging } from "@/Stores/staff-messaging"
 import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 import CloneFromMasterProgress from "@/Components/Catalogue/CloneFromMasterProgress.vue"
+import StockDeliveriesCostingReminder from "@/Components/Procurement/StockDeliveriesCostingReminder.vue"
 import { useColorTheme } from "@/Composables/useStockList"
 import { computed } from "vue"
 import { useAppAccentVariables } from "@/Composables/useAppAccent"
@@ -333,6 +334,7 @@ const safeTheme = computed(() => {
     <Footer />
 
     <CloneFromMasterProgress />
+    <StockDeliveriesCostingReminder v-if="!isEmbedded" />
 
     <Dialog
         v-model:visible="isModalOpen"

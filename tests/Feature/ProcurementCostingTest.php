@@ -2869,7 +2869,8 @@ test('procurement and accounting dashboards warn about stock deliveries waiting 
 
     expect($card['metrics'][0]['value'])->toBe(($before['metrics'][0]['value'] ?? 0) + 1)
         ->and($card['metrics'][1]['value'])->toBe(($before['metrics'][1]['value'] ?? 0) + 1)
-        ->and($card['value'])->toBe(array_sum(array_column($card['metrics'], 'value')))
+        ->and($card['value'])->toBeLessThanOrEqual(array_sum(array_column($card['metrics'], 'value')))
+        ->and($card['value'])->toBeGreaterThanOrEqual(max(array_column($card['metrics'], 'value')))
         ->and($card['metrics'][0]['route']['parameters']['_query']['between[booked_in_at]'])->toEndWith('-'.now()->subDays(4)->format('Ymd'));
 
     $toCost = StockDelivery::where('organisation_id', $this->organisation->id)->toCost()->count();
@@ -3892,7 +3893,7 @@ test('agent order stage rejects an unknown stage', function () {
 test('a delivery from a supplier in the organisation country starts with shipping and duty not applicable and its invoice estimated', function () {
     $stockDelivery = createStockDeliveryWithItems($this, 'DOM-'.Str::random(6), [10, 4]);
     $stockDelivery->items()->orderBy('id')->get()->each(fn ($item, $index) => $item->updateQuietly(['net_amount' => [100, 40][$index]]));
-    $stockDelivery->updateQuietly(['agent_id' => null, 'created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+    $stockDelivery->updateQuietly(['agent_id' => null, 'created_at' => StockDelivery::COSTS_REQUIRED_FROM]);
     $address = $stockDelivery->parent->supplier->address;
 
     $address->updateQuietly(['country_id' => App\Models\Helpers\Country::where('id', '!=', $this->organisation->country_id)->value('id')]);
@@ -3903,7 +3904,7 @@ test('a delivery from a supplier in the organisation country starts with shippin
     $address->updateQuietly(['country_id' => $this->organisation->country_id]);
     PrefillDomesticStockDeliveryCosts::run(StockDelivery::find($stockDelivery->id));
     $stockDelivery = StockDelivery::find($stockDelivery->id);
-    expect($stockDelivery->costsMissingForPutAway())->toBe([])
+    expect($stockDelivery->costsMissing())->toBe([])
         ->and($stockDelivery->is_costed)->toBeFalse()
         ->and($stockDelivery->costs()->where('is_na', true)->pluck('type')->map->value->sort()->values()->all())->toBe(['duty', 'shipping'])
         ->and($stockDelivery->supplierInvoice->source)->toBe(StockDeliveryInvoiceSourceEnum::ESTIMATED)

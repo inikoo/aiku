@@ -65,7 +65,15 @@ class UpdateStockDeliveryStateFromGoodsIn
             return $stockDelivery;
         }
 
+        $bookingInStarts = in_array($newState, [StockDeliveryStateEnum::BOOKING_IN, StockDeliveryStateEnum::BOOKED_IN], true)
+            && in_array($stockDelivery->state, [StockDeliveryStateEnum::RECEIVED, StockDeliveryStateEnum::CHECKED], true);
+        $missingCosts    = $bookingInStarts ? $stockDelivery->costsMissing() : [];
+
         $stockDelivery->update($this->stateTimestamps($stockDelivery, $newState));
+
+        if ($missingCosts) {
+            ReportStockDeliveryBookedInWithoutCosts::dispatch($stockDelivery, $missingCosts)->afterCommit();
+        }
 
         UpdatePurchaseOrdersDeliveryStateFromStockDelivery::run($stockDelivery);
 

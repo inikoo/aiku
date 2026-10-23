@@ -112,8 +112,6 @@ class ShowStockDelivery extends OrgAction
     private bool $viewedByAgent = false;
     private bool $goodsIn = false;
     private bool $canAddPurchaseOrders = false;
-    private bool $procurementPageCanEditPayments = false;
-    private bool $procurementPageCanUpdateCosting = false;
     private bool $canRemovePurchaseOrders = false;
 
     private const array BOOKING_IN_TABS = [
@@ -132,10 +130,6 @@ class ShowStockDelivery extends OrgAction
         if ($this->goodsIn) {
             $this->canBookIn    = $this->authToBookIn($request, 'incoming.%d.edit');
             $this->canUnreceive = $this->authToBookIn($request, 'supervisor-incoming.%d');
-            $isAgent            = $this->organisation->type === OrganisationTypeEnum::AGENT;
-
-            $this->procurementPageCanEditPayments  = !$isAgent && $request->user()->authTo(["procurement.{$this->organisation->id}.edit", "accounting.{$this->organisation->id}.edit"]);
-            $this->procurementPageCanUpdateCosting = !$isAgent && $this->stockDelivery->canUpdateCosting($request->user());
 
             return $request->user()->authTo("incoming.{$this->warehouse->id}.view");
         }
@@ -261,16 +255,16 @@ class ShowStockDelivery extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => $this->getTabsNavigation($stockDelivery, $missingEvidence),
                 ],
-                'costing'          => $this->getCosting($stockDelivery),
+                'costing'          => $this->goodsIn ? null : $this->getCosting($stockDelivery),
                 'missing_evidence' => $missingEvidence,
                 'add_purchase_orders' => $this->canAddPurchaseOrders ? $this->getAddPurchaseOrders($stockDelivery) : null,
                 'add_purchase_order_items' => $this->canAddPurchaseOrders ? Inertia::optional(fn () => $this->getAddPurchaseOrderItems($stockDelivery)) : null,
                 'remove_purchase_orders' => $this->canRemovePurchaseOrders ? $this->getRemovePurchaseOrders($stockDelivery) : null,
                 'attachmentScopes' => PurchaseOrderAttachmentScopeEnum::options(),
-                'invoice_costing'  => $this->viewedByAgent ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
-                'service_invoices' => $this->getServiceInvoices($stockDelivery),
-                'agreed_term_differences' => $this->viewedByAgent ? null : CheckAgainstAgreedTerms::make()->forPage($stockDelivery),
-                'agentInvoice'     => $stockDelivery->agent_id && $stockDelivery->agent_id === $this->getOrganisationAgent($this->organisation)?->id
+                'invoice_costing'  => $this->viewedByAgent || $this->goodsIn ? [] : GetStockDeliveryInvoiceCosting::run($stockDelivery),
+                'service_invoices' => $this->goodsIn ? null : $this->getServiceInvoices($stockDelivery),
+                'agreed_term_differences' => $this->viewedByAgent || $this->goodsIn ? null : CheckAgainstAgreedTerms::make()->forPage($stockDelivery),
+                'agentInvoice'     => !$this->goodsIn && $stockDelivery->agent_id && $stockDelivery->agent_id === $this->getOrganisationAgent($this->organisation)?->id
                     ? GetAgentContainerInvoiceData::run($this->organisation, $stockDelivery)
                     : null,
                 'attachmentRoutes' => [
@@ -1231,12 +1225,7 @@ class ShowStockDelivery extends OrgAction
             'currencies'                 => Currency::orderBy('code')->get(['id', 'code'])->toArray(),
             'checklist'                  => $checklist,
             'extra_types'                => StockDeliveryServiceInvoiceTypeEnum::extraOptions(),
-            'costs_are_users_job'        => $this->canEdit,
-            'costed_on_route'            => $this->goodsIn && $this->isCostingEditable($stockDelivery, $this->procurementPageCanEditPayments, $this->procurementPageCanUpdateCosting) ? [
-                'name'       => 'grp.org.procurement.stock_deliveries.show',
-                'parameters' => [$this->organisation->slug, $stockDelivery->slug],
-            ] : null,
-            'put_away_blocked'           => $this->viewedByAgent ? [] : $stockDelivery->costsMissingForPutAway(),
+            'costs_missing'              => $this->viewedByAgent ? [] : $stockDelivery->costsMissing(),
             'shipping_basis'             => DistributeStockDeliveryExtraCost::shippingBasis($stockDelivery),
             'agent_invoice_missing'      => !$agentInvoice?->received_at,
             'storeCostRoute'             => [

@@ -142,7 +142,7 @@ class IndexStockDeliveries extends OrgAction
                     'costed'        => [__('Costed'), $costedCounts[1] ?? 0],
                     'not_costed'    => [__('Not costed'), $costedCounts[0] ?? 0],
                     'to_cost'       => [__('To cost'), $this->facetQuery('costing', $filters, $prefix)->toCost()->count()],
-                    'costs_missing' => [__('Costs missing, put-away blocked'), $this->facetQuery('costing', $filters, $prefix)->withCostsMissingForPutAway()->count()],
+                    'costs_missing' => [__('Costs missing'), $this->facetQuery('costing', $filters, $prefix)->withCostsMissing()->count()],
                     'estimated'     => [__('Costed with an estimate'), $this->facetQuery('costing', $filters, $prefix)->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true))->count()],
                 ],
                 'engine'   => $filters['costing']['engine'],
@@ -193,7 +193,7 @@ class IndexStockDeliveries extends OrgAction
                             $query->orWhere(fn ($query) => $query->where('stock_deliveries.is_costed', true)->whereHas('costs', fn ($query) => $query->where('is_estimate', true)));
                         }
                         if (in_array('costs_missing', $elements)) {
-                            $query->orWhere(fn ($query) => $query->withCostsMissingForPutAway());
+                            $query->orWhere(fn ($query) => $query->withCostsMissing());
                         }
                     });
                 },
