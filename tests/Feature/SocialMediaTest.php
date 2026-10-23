@@ -9,14 +9,19 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\CRM\SocialMedia\GetSocialMediaPerformance;
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\CRM\SocialMedia\ImportSocialMediaInsights;
 use App\Actions\CRM\SocialMedia\SyncShopFromMeta;
 use App\Console\Commands\FetchMetaSocialInsights;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
+use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
 use App\Models\CRM\SocialMediaAccount;
 use App\Models\CRM\SocialMediaPost;
+use App\Models\CRM\TrafficSourceCampaign;
+use App\Models\CRM\TrafficSourceCampaignMetric;
+use App\Models\Helpers\Currency;
 use App\Models\Helpers\Upload;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -270,6 +275,45 @@ it('reports a period with its previous one, formats, platforms and top posts', f
         ->and($performance['accounts'][0]['posts'])->toBe(2)
         ->and($performance['trend']['bucket'])->toBe('day')
         ->and($performance['trend']['points'])->toHaveCount(31);
+});
+
+it('converts what meta reports from each ad account\'s currency into the parent\'s at the day\'s rate', function () {
+    $metaAds         = createTrafficSource($this->shop, TrafficSourcesTypeEnum::META_ADS->value, 'Meta Ads');
+    $currency        = $this->organisation->currency;
+    $foreignCurrency = Currency::whereNot('id', $currency->id)->where('code', $currency->code === 'EUR' ? 'HUF' : 'EUR')->firstOrFail();
+
+    $metrics = function (string $reference, Currency $sourceCurrency, array $days) use ($metaAds) {
+        $campaign = TrafficSourceCampaign::create(['traffic_source_id' => $metaAds->id, 'reference' => $reference.'-'.uniqid(), 'name' => $reference, 'type' => 'campaign']);
+        foreach ($days as $date => [$value, $cost]) {
+            TrafficSourceCampaignMetric::create([
+                'traffic_source_campaign_id' => $campaign->id,
+                'date'                       => $date,
+                'impressions'                => 100,
+                'clicks'                     => 5,
+                'conversions'                => 1,
+                'source_conversions_value'   => $value,
+                'source_cost'                => $cost,
+                'source_currency_id'         => $sourceCurrency->id,
+            ]);
+        }
+    };
+
+    $metrics('home', $currency, ['2026-08-10' => [100, 10]]);
+    $metrics('abroad', $foreignCurrency, ['2026-08-10' => [400, 8], '2026-08-11' => [600, 12]]);
+
+    GetHistoricCurrencyExchange::shouldRun()->andReturnUsing(fn (Currency $from, Currency $to, Carbon $date) => $date->toDateString() === '2026-08-10' ? 0.5 : 0.25);
+
+    $channel = collect(GetSocialMediaPerformance::run(
+        $this->organisation,
+        Carbon::parse('2026-08-01')->startOfDay(),
+        Carbon::parse('2026-08-31')->endOfDay(),
+        ['shop' => $this->shop->slug, 'compare' => 'none']
+    )['paid']['channels'])->firstWhere('type', TrafficSourcesTypeEnum::META_ADS->value);
+
+    expect($channel['meta_value'])->toBe(100 + 400 * 0.5 + 600 * 0.25)
+        ->and($channel['meta_cost'])->toBe(10 + 8 * 0.5 + 12 * 0.25)
+        ->and($channel['meta_roas'])->toBe(round(450 / 17, 2))
+        ->and($channel['meta_purchases'])->toBe(3.0);
 });
 
 it('takes views, viewers and visits from the accounts\' daily figures over their posts, and says what moved', function () {
