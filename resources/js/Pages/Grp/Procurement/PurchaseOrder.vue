@@ -880,6 +880,12 @@ const stageActions = computed<Record<string, Action[]>>(() => {
 	)
 })
 
+const isReceiveGoodsNextStep = computed(() => {
+	const currentStage = props.stages?.stages.find((stage) => stage.current)?.key
+
+	return !!props.agent_receiving?.receive && ["in_production", "in_warehouse"].includes(currentStage ?? "")
+})
+
 const stageActionLoading: Record<string, () => boolean> = {
 	undo_confirm_purchase_order: () => undoConfirmLoading.value,
 	cancel_purchase_order: () => cancelLoading.value,
@@ -1149,6 +1155,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					v-if="stageKey === 'in_warehouse' && agent_receiving?.receive"
 					:scopes="agent_receiving.receive.scopes"
 					:purchaseOrderId="agent_receiving.receive.purchase_order_id"
+					:isNextStep="isReceiveGoodsNextStep"
 					size="xs"
 					full
 				/>
