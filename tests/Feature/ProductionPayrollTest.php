@@ -1396,6 +1396,9 @@ describe('production reward pay bands', function () {
             ->and($day['times'])->toHaveCount(2)
             ->and($day['times'][0]['started_at']->equalTo($overran->started_at))->toBeTrue()
             ->and($day['times'][1]['ended_at'])->toBeNull()
+            ->and($day['times'][0]['is_overrun'])->toBeFalse()
+            ->and($day['times'][0]['overrun_minutes'])->toBe(6)
+            ->and($day['times'][1]['is_overrun'])->toBeTrue()
             ->and($issue['correct_route']['name'])->toBe('grp.models.manufacture-break.correct_end')
             ->and($props['break_overrun_tolerance_minutes'])->toBe(10);
 

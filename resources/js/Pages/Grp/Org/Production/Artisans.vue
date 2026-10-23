@@ -155,7 +155,7 @@ type Props = {
     break_overrun_tolerance_route: null | { name: string, parameters: Record<string, string> }
     short_preparation_minutes: number
     short_preparation_route: null | { name: string, parameters: Record<string, string> }
-    breaks: { user_id: number, worker: string, date: string, number_breaks: number, times: { started_at: string, ended_at: string | null }[], planned_minutes: number, actual_minutes: number, overrun_minutes: number, number_overrun: number, is_open: boolean }[]
+    breaks: { user_id: number, worker: string, date: string, number_breaks: number, times: { id: number, started_at: string, ended_at: string | null, planned_minutes: number, actual_minutes: number, overrun_minutes: number, is_overrun: boolean }[], planned_minutes: number, actual_minutes: number, overrun_minutes: number, number_overrun: number, is_open: boolean }[]
     break_issues: { id: number, worker: string, started_at: string, ended_at: string | null, planned_minutes: number, actual_minutes: number, overrun_minutes: number, left_open_after_shift_at: string | null, correct_route: null | { name: string, parameters: object } }[]
     artisans: {
         user_id: number
@@ -265,6 +265,15 @@ const shownBreaks = computed(() => {
     const search = nameSearch.value.trim().toLocaleLowerCase()
     return search ? props.breaks.filter((row) => row.worker.toLocaleLowerCase().includes(search)) : props.breaks
 })
+const expandedBreakDays = ref<Set<string>>(new Set())
+function toggleBreakDay(key: string) {
+    if (expandedBreakDays.value.has(key)) {
+        expandedBreakDays.value.delete(key)
+    } else {
+        expandedBreakDays.value.add(key)
+    }
+    expandedBreakDays.value = new Set(expandedBreakDays.value)
+}
 const processing = ref(false)
 
 const correctingBreak = ref<Props['break_issues'][number] | null>(null)
@@ -564,10 +573,10 @@ function saveTimes() {
     )
 }
 
-const hourMinute = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "…"
+const hourMinute = (iso: string | null) => iso ? new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) : "…"
 
 function clockTime(iso: string | null) {
-    return iso ? new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"
+    return iso ? new Date(iso).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) : "—"
 }
 
 const clockHours = (hours: number | string) => {
@@ -980,19 +989,39 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="row in shownBreaks" :key="row.user_id + row.date" class="border-b border-gray-100 text-gray-700">
-                            <td class="py-1.5 pr-6 whitespace-nowrap">{{ longDate(row.date) }}</td>
-                            <td class="py-1.5 pr-6 whitespace-nowrap">{{ row.worker }}</td>
-                            <td class="py-1.5 px-3 text-right">{{ row.number_breaks }}</td>
-                            <td class="py-1.5 px-3 whitespace-nowrap text-gray-500"><span v-for="(time, index) in row.times" :key="index"><template v-if="index">, </template>{{ hourMinute(time.started_at) }} – {{ hourMinute(time.ended_at) }}</span></td>
-                            <td class="py-1.5 px-3 text-right">{{ row.planned_minutes }}</td>
-                            <td class="py-1.5 px-3 text-right">{{ row.actual_minutes }}</td>
-                            <td class="py-1.5 px-3 text-right" :class="row.number_overrun ? 'font-medium text-red-700' : 'text-gray-400'">{{ row.overrun_minutes }}</td>
-                            <td class="py-1.5 pl-3 whitespace-nowrap">
-                                <span v-if="row.number_overrun" class="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800">{{ ctransChoice(':count overrun|:count overruns', row.number_overrun, { count: row.number_overrun }) }}</span>
-                                <span v-if="row.is_open" class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ ctrans('On break') }}</span>
-                            </td>
-                        </tr>
+                        <template v-for="row in shownBreaks" :key="row.user_id + row.date">
+                            <tr class="cursor-pointer border-b border-gray-100 text-gray-700 hover:bg-gray-50" @click="toggleBreakDay(row.user_id + row.date)">
+                                <td class="py-1.5 pr-6 whitespace-nowrap">
+                                    <FontAwesomeIcon :icon="['fal', expandedBreakDays.has(row.user_id + row.date) ? 'chevron-up' : 'chevron-down']" fixed-width class="mr-1 text-gray-400" aria-hidden="true" />
+                                    {{ longDate(row.date) }}
+                                </td>
+                                <td class="py-1.5 pr-6 whitespace-nowrap">{{ row.worker }}</td>
+                                <td class="py-1.5 px-3 text-right">{{ row.number_breaks }}</td>
+                                <td class="py-1.5 px-3"></td>
+                                <td class="py-1.5 px-3 text-right">{{ row.planned_minutes }}</td>
+                                <td class="py-1.5 px-3 text-right">{{ row.actual_minutes }}</td>
+                                <td class="py-1.5 px-3 text-right" :class="row.number_overrun ? 'font-medium text-red-700' : 'text-gray-400'">{{ row.overrun_minutes }}</td>
+                                <td class="py-1.5 pl-3 whitespace-nowrap">
+                                    <span v-if="row.number_overrun" class="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800">{{ ctransChoice(':count overrun|:count overruns', row.number_overrun, { count: row.number_overrun }) }}</span>
+                                    <span v-if="row.is_open" class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ ctrans('On break') }}</span>
+                                </td>
+                            </tr>
+                            <template v-if="expandedBreakDays.has(row.user_id + row.date)">
+                                <tr v-for="time in row.times" :key="time.id" class="border-b border-gray-50 text-xs" :class="time.is_overrun ? 'bg-red-50 text-red-800' : 'text-gray-500'">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="py-1 px-3 whitespace-nowrap">
+                                        <span v-if="time.ended_at">{{ hourMinute(time.started_at) }} – {{ hourMinute(time.ended_at) }}</span>
+                                        <span v-else class="font-medium text-amber-800">{{ ctrans('On break since :time (:minutes min)', { time: hourMinute(time.started_at), minutes: time.actual_minutes }) }}</span>
+                                    </td>
+                                    <td class="py-1 px-3 text-right">{{ time.planned_minutes }}</td>
+                                    <td class="py-1 px-3 text-right">{{ time.actual_minutes }}</td>
+                                    <td class="py-1 px-3 text-right" :class="time.is_overrun ? 'font-medium' : ''">{{ time.overrun_minutes }}</td>
+                                    <td></td>
+                                </tr>
+                            </template>
+                        </template>
                     </tbody>
                 </table>
             </div>
