@@ -743,14 +743,23 @@ test('compliance labels place icons, wrapped texts, free texts and a text per la
         ],
     ]);
     $orgStock->tradeUnits()->sync([$tradeUnit->id => ['quantity' => 1]]);
+    $this->organisation->update(['settings' => array_merge($this->organisation->settings ?? [], ['gpsr' => ['operator' => [
+        'code'     => 'SK',
+        'position' => 3,
+        'role'     => 'Dovozca / EU Responsible Person:',
+        'name'     => 'Ancient Wisdom s.r.o.',
+        'short'    => 'SK & EU RP Ancient Wisdom s.r.o.',
+        'address'  => 'Prílohy 583/57, 919 26 Zavar, Slovensko',
+        'email'    => 'contact@awgifts.eu',
+    ]]])]);
+    $this->group->update(['settings' => array_merge($this->group->settings ?? [], ['gpsr' => ['eu_responsible_organisation_id' => $this->organisation->id]])]);
 
     $information = \App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelInformation::run($orgStock->refresh());
     expect($information['packaging_materials'])->toBe('pet_1,pap_21')
         ->and($information['hazard_pictograms'])->toBe('flammable')
         ->and($information['ce_marking'])->toBe('ce')
         ->and($information['ukca_marking'])->toBe('')
-        ->and($information['eu_responsible_person'])->toBe(\App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelData::EU_RESPONSIBLE_PERSON)
-        ->and($information['es_importer'])->toBe(\App\Actions\Inventory\OrgStock\UI\GetOrgStockLabelData::ES_IMPORTER)
+        ->and($information['eu_responsible_person'])->toBe("RP in EU: Ancient Wisdom s.r.o.\nPrílohy 583/57, 919 26 Zavar, Slovensko\ncontact@awgifts.eu")
         ->and($information['warnings:de'])->toBe('')
         ->and($information['directions_for_use:de'])->toBe('')
         ->and($information['product_name:de'])->toBe('')

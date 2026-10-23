@@ -189,7 +189,7 @@ enum ProductDevelopmentTargetFieldEnum: string
     {
         return match ($this) {
             self::TRADE_UNIT_GPSR_MANUFACTURER => __('Name and postal address of the manufacturer. Shown on the product page. If empty, the Part GPSR is used.'),
-            self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => __('Name and postal address of the economic operator responsible for the product in the EU. If empty, the Part GPSR is used.'),
+            self::TRADE_UNIT_GPSR_EU_RESPONSIBLE => __('Name and postal address of the economic operator responsible for the product in the EU. Leave empty to use the EU responsible person of the organisation.'),
             self::TRADE_UNIT_GPSR_WARNINGS => __('Safety warnings printed on the label and shown on the product page. If empty, the Part GPSR is used.'),
             self::TRADE_UNIT_PICTOGRAMS => __('CLP / GHS hazard pictograms. Each one turned on is shown on the product page.'),
             default => null,

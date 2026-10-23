@@ -13,6 +13,7 @@ use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
 use Locale;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -37,16 +38,6 @@ class GetOrgStockUnifiedLabelData
     public const MANDATORY_LANGUAGES = ['es', 'sk'];
 
     public const BATCH_PATTERN = '/^[A-Z0-9-]{1,20}$/';
-
-    /**
-     * Printed word for word on every unit label in every centre, never per organisation: the label
-     * names all three importers whoever prints it.
-     */
-    public const OPERATORS = [
-        ['code' => 'UK', 'role' => 'Imported by:', 'name' => 'Ancient Wisdom Ltd', 'short' => 'UK Ancient Wisdom Ltd', 'address' => 'Affinity Park, Europa Drive, Sheffield S9 1XT, United Kingdom'],
-        ['code' => 'ES', 'role' => 'Importado por:', 'name' => 'AW Artisan S.L.', 'short' => 'ES AW Artisan S.L.', 'address' => 'Calle Caleta de Velez 39, 29004 Málaga, España · hola@awartisan.es'],
-        ['code' => 'SK', 'role' => 'Dovozca / EU Responsible Person:', 'name' => 'Ancient Wisdom s.r.o.', 'short' => 'SK & EU RP Ancient Wisdom s.r.o.', 'address' => 'Prílohy 583/57, 919 26 Zavar, Slovensko · info@awgifts.eu'],
-    ];
 
     /**
      * @return array<string, mixed>
@@ -88,12 +79,36 @@ class GetOrgStockUnifiedLabelData
             'gtin14'           => $level === 'unit' ? null : $gtin14,
             'gs1_128_data'     => $level === 'unit' || !$gtin14 ? null : chr(241).'01'.$gtin14.'10'.$batch,
             'hri'              => $level === 'unit' || !$gtin14 ? null : '(01) '.$gtin14.' (10) '.$batch,
-            'operators'        => self::OPERATORS,
+            'operators'        => $this->getOperators($orgStock),
         ];
 
         $label['blockers'] = $this->getBlockers($label, $tradeUnit, $validEan, $indicator);
 
         return $label;
+    }
+
+    /**
+     * Every importer in the group is printed whoever prints the label, so stock moves between
+     * centres without relabelling.
+     *
+     * @return array<int, array{code: string, role: string, name: string, short: string, address: string}>
+     */
+    private function getOperators(OrgStock $orgStock): array
+    {
+        return Organisation::where('group_id', $orgStock->group_id)
+            ->get()
+            ->map(fn (Organisation $organisation) => $organisation->getGpsrOperator())
+            ->filter(fn (?array $operator) => filled($operator['code'] ?? null) && filled($operator['address'] ?? null))
+            ->sortBy('position')
+            ->map(fn (array $operator) => [
+                'code'    => $operator['code'],
+                'role'    => $operator['role'] ?? '',
+                'name'    => $operator['name'],
+                'short'   => $operator['short'] ?? $operator['name'],
+                'address' => implode(' · ', array_filter([$operator['address'], $operator['email'] ?? null], 'filled')),
+            ])
+            ->values()
+            ->all();
     }
 
     /**
@@ -316,6 +331,10 @@ class GetOrgStockUnifiedLabelData
 
         if (!$tradeUnit) {
             $blockers[] = __('This SKO does not hold exactly one trade unit');
+        }
+
+        if (!$label['operators']) {
+            $blockers[] = __('No organisation has its importer details set');
         }
 
         if (blank($label['unit_ean13'])) {

@@ -10,13 +10,14 @@ namespace App\Mcp\Tools;
 
 use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
 use App\Models\Catalogue\Product;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
-#[Description('Find products in a shop by code, name or barcode and return their price, RRP, status, stock available, family, department, units, images web page URL and the aiku (grp) page URL to open it in the browser. Use this to answer "tell me about product X" or "what does SKU X cost / is it in stock".')]
+#[Description('Find products in a shop by code, name or barcode and return their price, RRP, status, stock available, family, department, units, images web page URL, the GPSR EU and UK responsible person (name, postal address, email) and the aiku (grp) page URL to open it in the browser. Use this to answer "tell me about product X", "what does SKU X cost / is it in stock" or "who is your EU responsible person for X".')]
 #[IsReadOnly]
 class ProductLookupTool extends AikuTool
 {
@@ -43,7 +44,7 @@ class ProductLookupTool extends AikuTool
 
         $products = Product::where('shop_id', $shop->id)
             ->where('is_main', true)
-            ->with(['organisation:id,slug', 'shop:id,slug', 'family:id,code,name', 'department:id,code,name', 'webpage:id,model_type,model_id,url,website_id', 'webpage.website:id,domain', 'stats:product_id,number_public_images'])
+            ->with(['organisation:id,slug,group_id,settings', 'organisation.group:id,settings', 'tradeUnits', 'shop:id,slug', 'family:id,code,name', 'department:id,code,name', 'webpage:id,model_type,model_id,url,website_id', 'webpage.website:id,domain', 'stats:product_id,number_public_images'])
             ->where(function ($q) use ($query, $like) {
                 $q->whereRaw('lower(code) = ?', [strtolower($query)])
                     ->orWhere('code', 'ilike', $like)
@@ -76,6 +77,8 @@ class ProductLookupTool extends AikuTool
                 'number_public_images' => $product->stats?->number_public_images ?? 0,
                 'is_in_website'        => $product->is_in_website,
                 'url'                  => $product->webpage?->website ? $product->webpage->getUrl() : null,
+                'eu_responsible_person' => $product->getEffectiveGpsrEuResponsible(),
+                'uk_responsible_person' => Organisation::formatGpsrOperator($product->organisation->getGpsrResponsiblePerson('uk'), ', '),
                 'grp_url'              => route('grp.org.shops.show.catalogue.products.all_products.show', [$product->organisation->slug, $product->shop->slug, $product->slug]),
             ])->values(),
         ]);

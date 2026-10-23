@@ -937,6 +937,38 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->settings['hr']['probation_period_days'] ?? 90;
     }
 
+    /**
+     * The organisation as the economic operator printed on labels and GPSR pages: its legal name and
+     * registered address, which need not be the warehouse address.
+     *
+     * @return array{code: string, position: int, role: string, short: string, name: string, address: string, email: ?string}|null
+     */
+    public function getGpsrOperator(): ?array
+    {
+        $operator = data_get($this->settings, 'gpsr.operator');
+
+        return filled($operator['name'] ?? null) ? $operator : null;
+    }
+
+    /**
+     * @return array{code: string, position: int, role: string, short: string, name: string, address: string, email: ?string}|null
+     */
+    public function getGpsrResponsiblePerson(string $market): ?array
+    {
+        $organisationId = data_get($this->settings, "gpsr.{$market}_responsible_organisation_id");
+
+        return $organisationId ? Organisation::find($organisationId)?->getGpsrOperator() : $this->group->getGpsrResponsiblePerson($market);
+    }
+
+    public static function formatGpsrOperator(?array $operator, string $separator = "\n"): ?string
+    {
+        if (!$operator) {
+            return null;
+        }
+
+        return implode($separator, array_filter([$operator['name'] ?? null, $operator['address'] ?? null, $operator['email'] ?? null], 'filled'));
+    }
+
     public function setDefaultLeaveQuota(array $quota): void
     {
         $settings                      = $this->settings ?? [];

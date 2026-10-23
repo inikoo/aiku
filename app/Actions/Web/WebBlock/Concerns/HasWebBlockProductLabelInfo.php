@@ -16,7 +16,6 @@ use App\Enums\Goods\TradeUnit\TradeUnitMarketEnum;
 use App\Enums\Goods\TradeUnit\TradeUnitPackagingMaterialEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Country;
-use App\Models\SysAdmin\Organisation;
 
 trait HasWebBlockProductLabelInfo
 {
@@ -36,8 +35,8 @@ trait HasWebBlockProductLabelInfo
             'country_of_origin'             => $this->getCountryOfOrigin($product),
             'barcode'                       => $this->textItem(__('Barcode / EAN'), $product->barcode),
             'manufacturer'                  => $this->textItem(__('Manufacturer Details'), $product->gpsr_manufacturer),
-            'uk_responsible_person'         => $this->getResponsiblePerson(__('UK Responsible Person'), 'aw', in_array(TradeUnitMarketEnum::UK->value, $markets, true)),
-            'eu_responsible_person'         => $this->getResponsiblePerson(__('EU Responsible Person'), 'sk', in_array(TradeUnitMarketEnum::EU->value, $markets, true)),
+            'uk_responsible_person'         => $this->getResponsiblePerson(__('UK Responsible Person'), $product, 'uk', in_array(TradeUnitMarketEnum::UK->value, $markets, true)),
+            'eu_responsible_person'         => $this->getResponsiblePerson(__('EU Responsible Person'), $product, 'eu', in_array(TradeUnitMarketEnum::EU->value, $markets, true)),
             'languages'                     => $this->labelInfoItem(__('Languages'), $languagesData['show'], $languagesData['value']),
             'best_before'                   => $this->getBestBefore($bestBeforeData),
             'ingredients'                   => $this->textItem(__('Ingredients'), $product->marketing_ingredients),
@@ -125,16 +124,18 @@ trait HasWebBlockProductLabelInfo
         );
     }
 
-    private function getResponsiblePerson(string $label, string $organisationSlug, bool $isMarketSelected): array
+    private function getResponsiblePerson(string $label, Product $product, string $market, bool $isMarketSelected): array
     {
-        $organisation = Organisation::where('slug', $organisationSlug)->with('address')->first();
+        $override          = $market === 'eu' ? $product->getGpsrEuResponsibleOverride() : null;
+        $responsiblePerson = $override ? ['name' => $override] : $product->organisation->getGpsrResponsiblePerson($market);
 
         return $this->labelInfoItem(
             $label,
             $isMarketSelected,
-            $organisation ? [
-                'name'    => $organisation->name,
-                'address' => $organisation->address?->formatted_address,
+            $responsiblePerson ? [
+                'name'    => $responsiblePerson['name'],
+                'address' => $responsiblePerson['address'] ?? null,
+                'email'   => $responsiblePerson['email'] ?? null,
             ] : null
         );
     }

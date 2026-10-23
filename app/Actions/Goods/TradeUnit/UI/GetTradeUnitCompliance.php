@@ -51,7 +51,7 @@ class GetTradeUnitCompliance
         return [
             'gpsr' => [
                 ['label' => __('Manufacturer'), 'value' => $tradeUnit->gpsr_manufacturer],
-                ['label' => __('EU responsible person'), 'value' => $tradeUnit->gpsr_eu_responsible],
+                ['label' => __('EU responsible person'), 'value' => $tradeUnit->getEffectiveGpsrEuResponsible()],
                 ['label' => __('Warnings'), 'value' => $tradeUnit->gpsr_warnings],
                 ['label' => __('Instructions'), 'value' => $tradeUnit->gpsr_manual],
                 ['label' => __('Languages'), 'value' => $tradeUnit->gpsr_class_languages],

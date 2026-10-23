@@ -21,6 +21,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Masters\MasterAsset;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -362,6 +363,11 @@ class TradeUnit extends Model implements HasMedia, Auditable
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function getEffectiveGpsrEuResponsible(): ?string
+    {
+        return $this->gpsr_eu_responsible ?: Organisation::formatGpsrOperator($this->group->getGpsrResponsiblePerson('eu'));
     }
 
     public function stocks(): MorphToMany

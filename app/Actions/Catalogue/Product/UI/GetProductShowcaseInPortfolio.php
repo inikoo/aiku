@@ -44,7 +44,7 @@ class GetProductShowcaseInPortfolio
 
         $gpsr = [
             'manufacturer'               => $product->gpsr_manufacturer,
-            'eu_responsible'             => $product->gpsr_eu_responsible,
+            'eu_responsible'             => $product->getEffectiveGpsrEuResponsible(),
             'warnings'                   => $product->gpsr_warnings,
             'how_to_use'                 => $product->gpsr_manual,
             'gpsr_class_category_danger' => $product->gpsr_class_category_danger,

@@ -205,8 +205,9 @@ onMounted(() => {
 
 						<div
 							v-else-if="card.key === 'uk_responsible_person' || card.key === 'eu_responsible_person'">
-							<div class="font-medium">{{ card.value?.name }}</div>
+							<div class="font-medium whitespace-pre-line">{{ card.value?.name }}</div>
 							<div class="text-[11px] text-[#64748b]">{{ card.value?.address }}</div>
+							<div v-if="card.value?.email" class="text-[11px] text-[#64748b]">{{ card.value.email }}</div>
 						</div>
 
 						<div v-else-if="isPresenceRow(card.key)">

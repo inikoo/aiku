@@ -344,6 +344,11 @@ class EditOrganisationSettings extends OrgAction
                                 ],
                             ],
                         ],
+                        ...(request()->user()->authTo('sysadmin.edit') ? [[
+                            'label'  => __('GPSR'),
+                            'icon'   => 'fa-light fa-shield-check',
+                            'fields' => $this->getGpsrFields($organisation),
+                        ]] : []),
                         [
                             'label' => __('Margins'),
                             'icon' => 'fa-light fa-percent',
@@ -525,5 +530,71 @@ class EditOrganisationSettings extends OrgAction
                     ]
                 ]
             );
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function getGpsrFields(Organisation $organisation): array
+    {
+        $operator      = (array) data_get($organisation->settings, 'gpsr.operator', []);
+        $organisations = Organisation::where('group_id', $organisation->group_id)->orderBy('id')->get(['id', 'name', 'settings'])
+            ->filter(fn (Organisation $candidate) => $candidate->getGpsrOperator())
+            ->map(fn (Organisation $candidate) => ['value' => $candidate->id, 'label' => $candidate->getGpsrOperator()['name']])
+            ->values()
+            ->all();
+
+        $responsibleField = fn (string $market, string $label) => [
+            'type'        => 'select',
+            'label'       => $label,
+            'information' => __('Leave empty to use the group default.'),
+            'placeholder' => __('Group default: :name', ['name' => $organisation->group->getGpsrResponsiblePerson($market)['name'] ?? __('none')]),
+            'options'     => $organisations,
+            'value'       => data_get($organisation->settings, "gpsr.{$market}_responsible_organisation_id"),
+        ];
+
+        return [
+            'gpsr_operator_name'    => [
+                'type'        => 'input',
+                'label'       => __('Importer legal name'),
+                'information' => __('Printed on labels and product pages as the importer, and as the responsible person when another organisation points at this one.'),
+                'value'       => $operator['name'] ?? null,
+            ],
+            'gpsr_operator_address' => [
+                'type'        => 'input',
+                'label'       => __('Importer registered address'),
+                'information' => __('One line, as printed on the label. This is the registered address, not the warehouse address.'),
+                'value'       => $operator['address'] ?? null,
+            ],
+            'gpsr_operator_email'   => [
+                'type'  => 'input',
+                'label' => __('Importer contact email'),
+                'value' => $operator['email'] ?? null,
+            ],
+            'gpsr_operator_role'    => [
+                'type'        => 'input',
+                'label'       => __('Label wording before the name'),
+                'information' => __('E.g. "Imported by:" or "Importado por:".'),
+                'value'       => $operator['role'] ?? null,
+            ],
+            'gpsr_operator_short'   => [
+                'type'        => 'input',
+                'label'       => __('Short name on SKO labels'),
+                'value'       => $operator['short'] ?? null,
+            ],
+            'gpsr_operator_code'    => [
+                'type'        => 'input',
+                'label'       => __('Code on unified labels'),
+                'information' => __('E.g. UK, ES, SK.'),
+                'value'       => $operator['code'] ?? null,
+            ],
+            'gpsr_operator_position' => [
+                'type'        => 'input_number',
+                'label'       => __('Order on unified labels'),
+                'value'       => $operator['position'] ?? null,
+            ],
+            'gpsr_eu_responsible_organisation_id' => $responsibleField('eu', __('EU responsible person')),
+            'gpsr_uk_responsible_organisation_id' => $responsibleField('uk', __('UK responsible person')),
+        ];
     }
 }

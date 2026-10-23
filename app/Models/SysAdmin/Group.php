@@ -324,6 +324,16 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return is_array($timezones) && $timezones !== [] ? array_values($timezones) : self::DEFAULT_WORLD_CLOCK_TIMEZONES;
     }
 
+    /**
+     * @return array{code: string, position: int, role: string, short: string, name: string, address: string, email: ?string}|null
+     */
+    public function getGpsrResponsiblePerson(string $market): ?array
+    {
+        $organisationId = data_get($this->settings, "gpsr.{$market}_responsible_organisation_id");
+
+        return $organisationId ? Organisation::find($organisationId)?->getGpsrOperator() : null;
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

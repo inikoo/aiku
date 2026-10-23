@@ -148,7 +148,7 @@ class SeedProductDevelopmentChecklistTemplates
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_TARIFF_CODE),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_INGREDIENTS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_MANUFACTURER),
-            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_EU_RESPONSIBLE),
+            $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_EU_RESPONSIBLE, false),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_GPSR_WARNINGS),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_UFI_NUMBER, false),
             $fieldItem(ProductDevelopmentMemberRoleEnum::COMPLIANCE, ProductDevelopmentTargetFieldEnum::TRADE_UNIT_UN_NUMBER, false),

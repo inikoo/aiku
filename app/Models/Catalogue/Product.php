@@ -567,6 +567,18 @@ class Product extends Model implements Auditable, HasMedia
         return $this->belongsTo(Organisation::class, 'organisation_id');
     }
 
+    public function getGpsrEuResponsibleOverride(): ?string
+    {
+        $tradeUnits = $this->tradeUnits;
+
+        return $tradeUnits->count() === 1 ? $tradeUnits->first()->gpsr_eu_responsible : null;
+    }
+
+    public function getEffectiveGpsrEuResponsible(): ?string
+    {
+        return $this->getGpsrEuResponsibleOverride() ?: Organisation::formatGpsrOperator($this->organisation->getGpsrResponsiblePerson('eu'));
+    }
+
     public function subDepartment(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'sub_department_id');

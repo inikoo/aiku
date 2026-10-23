@@ -162,6 +162,18 @@ class UpdateOrganisation extends OrgAction
             data_set($modelData, 'settings.procurement.purchase_order_cc', self::emailList(Arr::pull($modelData, 'purchase_order_cc')));
         }
 
+        foreach (['name', 'address', 'email', 'role', 'short', 'code', 'position'] as $operatorField) {
+            if (Arr::has($modelData, 'gpsr_operator_'.$operatorField)) {
+                data_set($modelData, 'settings.gpsr.operator.'.$operatorField, Arr::pull($modelData, 'gpsr_operator_'.$operatorField));
+            }
+        }
+
+        foreach (['eu', 'uk'] as $market) {
+            if (Arr::has($modelData, "gpsr_{$market}_responsible_organisation_id")) {
+                data_set($modelData, "settings.gpsr.{$market}_responsible_organisation_id", Arr::pull($modelData, "gpsr_{$market}_responsible_organisation_id"));
+            }
+        }
+
         if (Arr::has($modelData, 'allow_scan_to_pack')) {
             data_set($modelData, 'settings.orders.allow_scan_to_pack', Arr::pull($modelData, 'allow_scan_to_pack'));
         }
@@ -286,6 +298,10 @@ class UpdateOrganisation extends OrgAction
             return true;
         }
 
+        if (collect($request->keys())->contains(fn (string $key) => str_starts_with($key, 'gpsr_')) && !$request->user()->authTo('sysadmin.edit')) {
+            return false;
+        }
+
         return $request->user()->authTo(
             [
                 'org-admin.'.$this->organisation->id
@@ -299,6 +315,15 @@ class UpdateOrganisation extends OrgAction
     public static function emailList(?string $emails): array
     {
         return array_values(array_unique(array_filter(array_map(fn (string $email) => Str::lower(trim($email)), preg_split('/[\s,;]+/', (string) $emails)))));
+    }
+
+    private function hasGpsrOperatorRule(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail) {
+            if ($value && !Organisation::find($value)?->getGpsrOperator()) {
+                $fail(__('That organisation has no importer details yet.'));
+            }
+        };
     }
 
     public function rules(): array
@@ -353,6 +378,15 @@ class UpdateOrganisation extends OrgAction
             'allow_scan_to_pick'                    => ['sometimes', 'boolean'],
             'allow_scan_to_pack'                    => ['sometimes', 'boolean'],
             'compliance_buffer_days'                => ['sometimes', 'integer', 'min:0', 'max:120'],
+            'gpsr_operator_name'                    => ['sometimes', 'required', 'string', 'max:255'],
+            'gpsr_operator_address'                 => ['sometimes', 'required', 'string', 'max:255'],
+            'gpsr_operator_email'                   => ['sometimes', 'nullable', 'email'],
+            'gpsr_operator_role'                    => ['sometimes', 'nullable', 'string', 'max:64'],
+            'gpsr_operator_short'                   => ['sometimes', 'nullable', 'string', 'max:64'],
+            'gpsr_operator_code'                    => ['sometimes', 'nullable', 'string', 'max:8'],
+            'gpsr_operator_position'                => ['sometimes', 'nullable', 'integer', 'min:0', 'max:99'],
+            'gpsr_eu_responsible_organisation_id'   => ['sometimes', 'nullable', Rule::exists('organisations', 'id')->where('group_id', $this->organisation->group_id), $this->hasGpsrOperatorRule()],
+            'gpsr_uk_responsible_organisation_id'   => ['sometimes', 'nullable', Rule::exists('organisations', 'id')->where('group_id', $this->organisation->group_id), $this->hasGpsrOperatorRule()],
             'purchase_order_cc'                     => [
                 'sometimes',
                 'nullable',

@@ -168,7 +168,7 @@ class GetTradeUnitShowcase
 
         $gpsr = [
             'manufacturer' => $tradeUnit->gpsr_manufacturer,
-            'eu_responsible' => $tradeUnit->gpsr_eu_responsible,
+            'eu_responsible' => $tradeUnit->getEffectiveGpsrEuResponsible(),
             'warnings' => $tradeUnit->gpsr_warnings,
             'how_to_use' => $tradeUnit->gpsr_manual,
             'gpsr_class_category_danger' => $tradeUnit->gpsr_class_category_danger,

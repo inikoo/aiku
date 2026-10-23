@@ -77,7 +77,27 @@ beforeEach(function () {
 
         return $orgStock->refresh()->load('tradeUnits');
     };
+
+    storeGpsrResponsiblePersons($this->organisation);
 });
+
+function storeGpsrResponsiblePersons(\App\Models\SysAdmin\Organisation $organisation): void
+{
+    $organisation->update(['settings' => array_merge($organisation->settings ?? [], ['gpsr' => ['operator' => [
+        'code'     => 'SK',
+        'position' => 3,
+        'role'     => 'Dovozca / EU Responsible Person:',
+        'name'     => 'Ancient Wisdom s.r.o.',
+        'short'    => 'SK & EU RP Ancient Wisdom s.r.o.',
+        'address'  => 'Prílohy 583/57, 919 26 Zavar, Slovensko',
+        'email'    => 'contact@awgifts.eu',
+    ]]])]);
+
+    $organisation->group->update(['settings' => array_merge($organisation->group->settings ?? [], ['gpsr' => [
+        'eu_responsible_organisation_id' => $organisation->id,
+        'uk_responsible_organisation_id' => $organisation->id,
+    ]])]);
+}
 
 test('label wording puts the country of origin and the organisation into one sentence', function () {
     $orgStock = ($this->makeOrgStock)([[
@@ -473,4 +493,93 @@ test('the label route answers only inventory staff of the organisation, INI-076'
 
     actingAsUserWithOnlyPermissions($user, ["inventory.{$this->organisation->id}.view"]);
     get($url)->assertOk();
+});
+
+test('the EU responsible person is stored once on the organisation and a trade unit can override it', function () {
+    $orgStock  = ($this->makeOrgStock)([['gpsr_eu_responsible' => null]]);
+    $tradeUnit = $orgStock->tradeUnits->first();
+
+    $stored = "Ancient Wisdom s.r.o.\nPrílohy 583/57, 919 26 Zavar, Slovensko\ncontact@awgifts.eu";
+
+    expect($tradeUnit->getEffectiveGpsrEuResponsible())->toBe($stored)
+        ->and(GetOrgStockLabelData::run($orgStock)['eu_responsible_person'])->toBe('RP in EU: '.$stored)
+        ->and(\App\Actions\Goods\TradeUnit\UI\GetTradeUnitCompliance::run($tradeUnit)['gpsr'][1]['value'])->toBe($stored);
+
+    $tradeUnit->update(['gpsr_eu_responsible' => 'Other RP s.r.o., Bratislava']);
+    $orgStock = $orgStock->refresh()->load('tradeUnits');
+
+    expect($orgStock->tradeUnits->first()->getEffectiveGpsrEuResponsible())->toBe('Other RP s.r.o., Bratislava')
+        ->and(GetOrgStockLabelData::run($orgStock)['eu_responsible_person'])->toBe('RP in EU: Other RP s.r.o., Bratislava');
+});
+
+test('the unified label prints the importers stored on the organisations and refuses to print without them', function () {
+    $orgStock = ($this->makeOrgStock)([[
+        'name_i8n'          => ['en' => 'Bali Dreamcatcher', 'es' => 'Atrapasueños Bali', 'sk' => 'Lapač Snov Bali'],
+        'country_of_origin' => $this->country->code,
+        'origin_country_id' => $this->country->id,
+    ]]);
+
+    $label = GetOrgStockUnifiedLabelData::run($orgStock, 'unit', null, 'PKS202610');
+
+    expect($label['operators'])->toContain([
+        'code'    => 'SK',
+        'role'    => 'Dovozca / EU Responsible Person:',
+        'name'    => 'Ancient Wisdom s.r.o.',
+        'short'   => 'SK & EU RP Ancient Wisdom s.r.o.',
+        'address' => 'Prílohy 583/57, 919 26 Zavar, Slovensko · contact@awgifts.eu',
+    ])
+        ->and($label['blockers'])->not->toContain('No organisation has its importer details set');
+
+    $withOperators = \App\Models\SysAdmin\Organisation::where('group_id', $this->group->id)->get()->filter(fn ($organisation) => $organisation->getGpsrOperator());
+    $savedSettings = $withOperators->mapWithKeys(fn ($organisation) => [$organisation->id => $organisation->settings]);
+    foreach ($withOperators as $organisation) {
+        $organisation->update(['settings' => array_merge($organisation->settings, ['gpsr' => []])]);
+    }
+
+    $blockers = GetOrgStockUnifiedLabelData::run($orgStock, 'unit', null, 'PKS202610')['blockers'];
+
+    foreach ($withOperators as $organisation) {
+        $organisation->update(['settings' => $savedSettings[$organisation->id]]);
+    }
+
+    expect($blockers)->toContain('No organisation has its importer details set');
+});
+
+test('the GPSR section of the organisation settings saves the importer and the responsible organisation the labels print', function () {
+    \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($this->organisation, [
+        'gpsr_operator_email'                 => 'eu-rp@example.com',
+        'gpsr_eu_responsible_organisation_id' => $this->organisation->id,
+    ]);
+    $organisation = $this->organisation->refresh();
+
+    expect($organisation->getGpsrOperator())->toMatchArray(['code' => 'SK', 'name' => 'Ancient Wisdom s.r.o.', 'email' => 'eu-rp@example.com'])
+        ->and(data_get($organisation->settings, 'gpsr.eu_responsible_organisation_id'))->toBe($organisation->id)
+        ->and(GetOrgStockLabelData::run(($this->makeOrgStock)([[]]))['eu_responsible_person'])->toEndWith('eu-rp@example.com');
+
+    $this->withoutVite();
+    get(route('grp.org.settings.edit', $organisation->slug))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('formData.blueprint', fn ($blueprint) => collect($blueprint)->contains(
+            fn ($section) => data_get($section, 'fields.gpsr_operator_email.value') === 'eu-rp@example.com'
+        )));
+
+    storeGpsrResponsiblePersons($organisation);
+    expect(fn () => \App\Actions\SysAdmin\Organisation\UpdateOrganisation::make()->action($organisation, ['gpsr_operator_name' => null]))->toThrow(ValidationException::class);
+});
+
+test('only a group admin sees and saves the GPSR settings of an organisation', function () {
+    $user = \App\Models\SysAdmin\User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    $url  = route('grp.models.org.settings.update', $this->organisation->id);
+    $this->withoutVite();
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.{$this->organisation->id}"]);
+    \Pest\Laravel\patch($url, ['gpsr_operator_email' => 'not-allowed@example.com'])->assertForbidden();
+    \Pest\Laravel\patch($url, ['compliance_buffer_days' => 14])->assertRedirect();
+    get(route('grp.org.settings.edit', $this->organisation->slug))
+        ->assertInertia(fn ($page) => $page->where('formData.blueprint', fn ($blueprint) => !collect($blueprint)->contains(fn ($section) => data_get($section, 'fields.gpsr_operator_email'))));
+
+    actingAsUserWithOnlyPermissions($user, ["org-admin.{$this->organisation->id}", 'sysadmin.edit']);
+    \Pest\Laravel\patch($url, ['gpsr_operator_email' => 'contact@awgifts.eu'])->assertRedirect();
+
+    expect($this->organisation->refresh()->getGpsrOperator()['email'])->toBe('contact@awgifts.eu');
 });

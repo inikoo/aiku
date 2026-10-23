@@ -28,10 +28,6 @@ class GetOrgStockLabelInformation
 {
     use AsObject;
 
-    private const RESPONSIBLE_PERSON_ORGANISATIONS = [
-        'uk_responsible_person' => ['market' => TradeUnitMarketEnum::UK, 'organisation' => 'aw'],
-    ];
-
     private const TRANSLATIONS = [
         'product_name'       => 'name_i8n',
         'warnings'           => 'gpsr_warnings_i8n',
@@ -57,9 +53,9 @@ class GetOrgStockLabelInformation
             ArtefactLabelInformationEnum::MADE_IN->value               => (string) $labelData['made_in'],
             ArtefactLabelInformationEnum::MANUFACTURED_BY->value       => (string) $labelData['manufactured_by'],
             ArtefactLabelInformationEnum::IMPORTER->value              => (string) $labelData['signature'],
-            ArtefactLabelInformationEnum::UK_RESPONSIBLE_PERSON->value => $this->getResponsiblePerson($tradeUnits, 'uk_responsible_person'),
-            ArtefactLabelInformationEnum::EU_RESPONSIBLE_PERSON->value => GetOrgStockLabelData::EU_RESPONSIBLE_PERSON,
-            ArtefactLabelInformationEnum::ES_IMPORTER->value           => GetOrgStockLabelData::ES_IMPORTER,
+            ArtefactLabelInformationEnum::UK_RESPONSIBLE_PERSON->value => $this->getUkResponsiblePerson($orgStock, $tradeUnits),
+            ArtefactLabelInformationEnum::EU_RESPONSIBLE_PERSON->value => (string) $labelData['eu_responsible_person'],
+            ArtefactLabelInformationEnum::ES_IMPORTER->value           => (string) $labelData['es_importer'],
             ArtefactLabelInformationEnum::INGREDIENTS->value           => $shared('marketing_ingredients'),
             ArtefactLabelInformationEnum::CPNP_NUMBER->value           => $shared('cpnp_number'),
             ArtefactLabelInformationEnum::UFI_NUMBER->value            => $shared('ufi_number'),
@@ -85,17 +81,13 @@ class GetOrgStockLabelInformation
     /**
      * Only offered for a market the product record says it is sold in.
      */
-    private function getResponsiblePerson(Collection $tradeUnits, string $information): string
+    private function getUkResponsiblePerson(OrgStock $orgStock, Collection $tradeUnits): string
     {
-        $responsiblePerson = self::RESPONSIBLE_PERSON_ORGANISATIONS[$information];
-
-        if (!in_array($responsiblePerson['market']->value, $this->getLabelInfoList($tradeUnits, 'markets'), true)) {
+        if (!in_array(TradeUnitMarketEnum::UK->value, $this->getLabelInfoList($tradeUnits, 'markets'), true)) {
             return '';
         }
 
-        $organisation = Organisation::where('slug', $responsiblePerson['organisation'])->first();
-
-        return $organisation ? (string) GetOrgStockLabelData::make()->getSignature($organisation) : '';
+        return (string) Organisation::formatGpsrOperator($orgStock->organisation->getGpsrResponsiblePerson('uk'));
     }
 
     /**

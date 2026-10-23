@@ -100,7 +100,7 @@ class ProductResourceForRetinaShowcase extends JsonResource
             'proper_shipping_name'          => $product->proper_shipping_name,
             'hazard_identification_number'  => $product->hazard_identification_number,
             'gpsr_manufacturer'             => $product->gpsr_manufacturer,
-            'gpsr_eu_responsible'           => $product->gpsr_eu_responsible,
+            'gpsr_eu_responsible'           => $product->getEffectiveGpsrEuResponsible(),
             'gpsr_warnings'                 => $product->gpsr_warnings,
             'gpsr_manual'                   => $product->gpsr_manual,
             'gpsr_class_category_danger'    => $product->gpsr_class_category_danger,
