@@ -148,6 +148,18 @@ class UpdateFaireOrder extends OrgAction
                 'quantity_ordered'  => $quantity,
             ];
 
+            /**
+             * The line is restated in today's units, so its submitted snapshot is restated with it.
+             * The invoice prices a submitted line as submitted net / submitted quantity x picked: a
+             * product flipped from a pack of 4 to singles left "1 for 14.72" beside 4 picked and
+             * billed 58.88 (HELP-4266).
+             */
+            if ($transaction->submitted_at) {
+                $dataToUpdate['submitted_quantity_ordered'] = $quantity;
+                $dataToUpdate['submitted_gross_amount']     = $netAmount;
+                $dataToUpdate['submitted_net_amount']       = $netAmount;
+            }
+
 
             if ($order->state == OrderStateEnum::DISPATCHED) {
                 $dataToUpdate['quantity_dispatched'] = $quantity;

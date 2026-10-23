@@ -867,3 +867,38 @@ test('a line whose historic asset is deleted falls back to the master map, and o
     DB::table('assets')->where('id', $tea->asset_id)->update(['deleted_at' => null]);
     DB::table('historic_assets')->where('id', $line->historic_asset_id)->update(['deleted_at' => null, 'tax_category' => $originalMap]);
 });
+
+/** HELP-4266: a Faire product went from a pack of 4 to singles after the order came in; a Faire refresh restated the line as 4 singles while its submitted snapshot still read 1 for 14.72, and the invoice billed 58.88. */
+test('a faire line restated in new units is invoiced at what faire billed', function () {
+    $product       = $this->standardProduct;
+    $originalPrice = $product->price;
+    $originalUnits = $product->units;
+    $faireItemId   = 'oi_help4266_'.uniqid();
+
+    $order = StoreOrder::make()->action($this->customer, []);
+    $order->updateQuietly(['external_id' => 'help4266_'.uniqid()]);
+    StoreTransaction::make()->action(
+        order: $order->refresh(),
+        historicAsset: $product->historicAsset,
+        modelData: ['quantity_ordered' => 1, 'gross_amount' => 14.72, 'net_amount' => 14.72, 'marketplace_id' => $faireItemId],
+        strict: false
+    );
+    createWarehouse();
+    SubmitOrder::make()->action($order->refresh());
+
+    $product->updateQuietly(['units' => 1]);
+    Http::fake(['*faire.com/*' => Http::response([
+        'state'        => 'PROCESSING',
+        'items'        => [['id' => $faireItemId, 'quantity' => 4, 'price' => ['amount_minor' => 368, 'currency' => $this->shop->currency->code]]],
+        'payout_costs' => [],
+    ])]);
+
+    UpdateFaireOrder::make()->handle($order->refresh());
+    $invoice = GenerateInvoiceFromOrder::make()->handle($order->refresh());
+
+    expect((float)$invoice->invoiceTransactions()->where('model_type', 'Product')->value('quantity'))->toBe(4.0)
+        ->and((float)$invoice->invoiceTransactions()->where('model_type', 'Product')->value('net_amount'))->toBe(14.72);
+
+    $invoice->delete();
+    UpdateProduct::run($product->refresh(), ['units' => $originalUnits, 'price' => $originalPrice]);
+});
