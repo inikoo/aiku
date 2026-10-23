@@ -37,7 +37,7 @@ const screenType = inject('screenType', ref('desktop'))
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote, faPaperPlane, faBackspace, faDebug, faSkull, faHandHoldingBox)
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: {}
     tab?: string
     state?: string
@@ -45,7 +45,9 @@ const props = defineProps<{
     palletReturn: {}
     can_edit_transactions?: boolean
     detachRoute?: routeType
-}>()
+}>(), {
+    can_edit_transactions: true
+})
 
 const emit = defineEmits<{
     (e: 'isStoredItemAdded', value: boolean): void
