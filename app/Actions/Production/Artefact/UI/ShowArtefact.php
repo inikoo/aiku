@@ -15,6 +15,7 @@ use App\Actions\CRM\Customer\StoreCustomerProductFromArtefact;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ArtefactTabsEnum;
@@ -76,6 +77,7 @@ class ShowArtefact extends OrgAction
                     'next'     => $this->getNext($artefact, $request),
                 ],
                 'customer_product'                     => fn () => $this->getCustomerProduct($artefact, $request),
+                'exclusive_products'                   => fn () => $this->getExclusiveProducts($artefact),
                 'pageHead'                             => [
                     'icon'    =>
                         [
@@ -319,5 +321,36 @@ class ShowArtefact extends OrgAction
             ->all();
 
         return $shops ? ['artefact_id' => $artefact->id, 'shops' => $shops] : null;
+    }
+
+    /**
+     * Products made from this artefact that only one customer may buy.
+     *
+     * @return array<int, array{code: string, customer: string, route: array{name: string, parameters: array<int, string>}}>
+     */
+    private function getExclusiveProducts(Artefact $artefact): array
+    {
+        if (!$artefact->tradeUnit) {
+            return [];
+        }
+
+        return $artefact->tradeUnit->products()
+            ->whereNotNull('exclusive_for_customer_id')
+            ->with('exclusiveForCustomer.shop', 'exclusiveForCustomer.organisation')
+            ->get()
+            ->map(fn (Product $product) => [
+                'code'     => $product->code,
+                'customer' => $product->exclusiveForCustomer->name,
+                'route'    => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show',
+                    'parameters' => [
+                        $product->exclusiveForCustomer->organisation->slug,
+                        $product->exclusiveForCustomer->shop->slug,
+                        $product->exclusiveForCustomer->slug,
+                    ],
+                ],
+            ])
+            ->values()
+            ->all();
     }
 }

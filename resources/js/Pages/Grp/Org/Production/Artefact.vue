@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
+import { ctrans } from "@/Composables/useTrans"
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 
@@ -17,7 +18,12 @@ import TableArtefactBatches from "@/Components/Tables/Grp/Org/Production/TableAr
 import ArtefactShowcase from "@/Components/Showcases/Grp/ArtefactShowcase.vue"
 import ArtefactLabels from "@/Components/Production/Artefact/ArtefactLabels.vue"
 import ArtisanAssignments from "@/Components/Production/ArtisanAssignments.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faUserLock } from "@fal"
 import ModalAssignArtefactToCustomer from "@/Components/Production/Artefact/ModalAssignArtefactToCustomer.vue"
+
+library.add(faUserLock)
 
 const props = defineProps<{
     title: string,
@@ -32,6 +38,7 @@ const props = defineProps<{
     history?: {}
     artisans: {}
     customer_product?: { artefact_id: number, shops: Array<{ id: number, slug: string, code: string, name: string }> } | null
+    exclusive_products?: Array<{ code: string, customer: string, route: { name: string, parameters: string[] } }>
 
 
 }>()
@@ -65,6 +72,11 @@ const component = computed(() => {
             <ModalAssignArtefactToCustomer v-if="customer_product" :artefact-id="customer_product.artefact_id" :shops="customer_product.shops" />
         </template>
     </PageHeading>
+    <div v-for="product in exclusive_products" :key="product.code" class="mx-4 mt-3 flex items-center gap-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <FontAwesomeIcon icon="fal fa-user-lock" fixed-width aria-hidden="true" />
+        <span>{{ ctrans("Custom product :code, sold only to", { code: product.code }) }}</span>
+        <Link :href="route(product.route.name, product.route.parameters)" class="font-semibold underline">{{ product.customer }}</Link>
+    </div>
     <ArtisanAssignments :data="artisans" />
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 

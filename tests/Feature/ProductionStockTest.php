@@ -1281,5 +1281,8 @@ test('a custom product is made for one customer from an artefact waiting for its
         ->and(\App\Models\Catalogue\Product::where('shop_id', $shop->id)->where('code', 'CUS-OLD-'.$suffix)->exists())->toBeFalse();
 
     get(route('grp.org.productions.show.crafts.artefacts.show', [$organisation->slug, $production->slug, $artefact->slug]))
-        ->assertInertia(fn (AssertableInertia $page) => $page->where('customer_product', null));
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('customer_product', null)
+            ->where('exclusive_products.0.code', 'CUS-'.$suffix)
+            ->where('exclusive_products.0.customer', $customer->name));
 });
