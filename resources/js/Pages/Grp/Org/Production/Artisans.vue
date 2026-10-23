@@ -62,7 +62,6 @@ interface ArtisanSession extends TimeEditFields {
     under_target_review: null | { reason: string, note: string | null, reviewed_by: string | null, reviewed_at: string }
     review_route: null | { name: string, parameters: object }
     void_route: null | { name: string, parameters: object }
-    preparation_minutes: number | null
 }
 
 interface ArtisanJobStep {
@@ -100,8 +99,6 @@ interface NonProductiveSummary {
         ended_at: string
         break_minutes: number
         pay: number | null
-        moved_into: string | null
-        undo_move_route: null | { name: string, parameters: object }
         void_route: null | { name: string, parameters: object }
     })[]
 }
@@ -153,8 +150,6 @@ type Props = {
     break_overrun: boolean
     break_overrun_tolerance_minutes: number
     break_overrun_tolerance_route: null | { name: string, parameters: Record<string, string> }
-    short_preparation_minutes: number
-    short_preparation_route: null | { name: string, parameters: Record<string, string> }
     breaks: { user_id: number, worker: string, date: string, number_breaks: number, times: { started_at: string, ended_at: string | null }[], planned_minutes: number, actual_minutes: number, overrun_minutes: number, number_overrun: number, is_open: boolean }[]
     break_issues: { id: number, worker: string, started_at: string, ended_at: string | null, planned_minutes: number, actual_minutes: number, overrun_minutes: number, left_open_after_shift_at: string | null, correct_route: null | { name: string, parameters: object } }[]
     artisans: {
@@ -311,40 +306,6 @@ function saveBreakTolerance() {
             onError: (errors) => breakToleranceErrors.value = errors,
             onFinish: () => processing.value = false,
         }
-    )
-}
-
-const editingShortPreparation = ref(false)
-const shortPreparationMinutes = ref<number | null>(props.short_preparation_minutes)
-const shortPreparationErrors = ref<Record<string, string>>({})
-function openShortPreparation() {
-    shortPreparationMinutes.value = props.short_preparation_minutes
-    shortPreparationErrors.value = {}
-    editingShortPreparation.value = true
-}
-function saveShortPreparation() {
-    if (!props.short_preparation_route) return
-    processing.value = true
-    router.post(
-        route(props.short_preparation_route.name, props.short_preparation_route.parameters),
-        { minutes: shortPreparationMinutes.value },
-        {
-            preserveScroll: true,
-            onSuccess: () => editingShortPreparation.value = false,
-            onError: (errors) => shortPreparationErrors.value = errors,
-            onFinish: () => processing.value = false,
-        }
-    )
-}
-
-function undoPreparationMove(session: { undo_move_route: null | { name: string, parameters: object } }) {
-    if (!session.undo_move_route) return
-    if (!window.confirm(ctrans('Keep this as Preparation instead of adding it to the job step?'))) return
-    processing.value = true
-    router.patch(
-        route(session.undo_move_route.name, session.undo_move_route.parameters),
-        {},
-        { preserveScroll: true, onError: (errors) => window.alert(Object.values(errors).join('\n')), onFinish: () => processing.value = false }
     )
 }
 
@@ -638,9 +599,6 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
             <Button v-if="preparation_reasons_route" type="tertiary" :label="ctrans('Preparation reasons')" class="ml-auto" @click="openReasons">
                 <template #icon><FontAwesomeIcon :icon="['fal', 'cog']" fixed-width aria-hidden="true" /></template>
             </Button>
-            <Button v-if="short_preparation_route" type="tertiary" :label="ctrans('Short preparation: :minutes min', { minutes: short_preparation_minutes })" :class="preparation_reasons_route ? '' : 'ml-auto'" @click="openShortPreparation">
-                <template #icon><FontAwesomeIcon :icon="['fal', 'cog']" fixed-width aria-hidden="true" /></template>
-            </Button>
         </div>
 
         <div v-if="activity_totals" class="mb-6 flex flex-wrap gap-10">
@@ -803,7 +761,7 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                             <td></td>
                         </tr>
                         <template v-for="session in expandedNonProductive.has(artisan.user_id) ? artisan.non_productive.sessions : []" :key="session.id">
-                            <tr class="text-gray-600" :class="session.state == 'voided' && !session.moved_into ? 'opacity-40 line-through' : ''">
+                            <tr class="text-gray-600" :class="session.state == 'voided' ? 'opacity-40 line-through' : ''">
                                 <td class="py-1.5 pl-8 pr-4">
                                     <div class="flex items-center gap-2 whitespace-nowrap text-gray-400">
                                         {{ useFormatTime(session.ended_at) }}
@@ -813,7 +771,6 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                         <span class="text-xs">{{ session.job_order_reference ?? ctrans('General') }}</span>
                                         <span v-if="session.break_minutes" class="text-xs">{{ ctrans(':minutes m break', { minutes: session.break_minutes }) }}</span>
                                         <span v-if="session.time_edit" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Times edited') }}</span>
-                                        <span v-if="session.moved_into" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600" v-tooltip="ctrans('Shorter than :minutes min, so its time counts in the job step started straight after it', { minutes: short_preparation_minutes })">{{ ctrans('Added to :step', { step: session.moved_into }) }}</span>
                                     </div>
                                 </td>
                                 <td></td>
@@ -822,7 +779,6 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                                 <td v-if="can_see_pay" class="py-1.5 px-3 text-right">{{ session.pay === null ? '—' : money(session.pay) }}</td>
                                 <td class="py-1.5 pl-3 text-right whitespace-nowrap">
                                     <button v-if="session.times_route" type="button" class="text-xs font-medium text-gray-700 hover:underline" @click="openTimes(session, artisan.worker)">{{ ctrans('Edit times') }}</button>
-                                    <button v-if="session.undo_move_route" type="button" class="text-xs font-medium text-gray-700 hover:underline disabled:opacity-40" :disabled="processing" @click="undoPreparationMove(session)">{{ ctrans('Keep as preparation') }}</button>
                                     <button v-if="session.void_route" type="button" class="ml-3 text-xs text-red-600 hover:underline disabled:opacity-40" :disabled="processing" @click="voidSession(session)">{{ ctrans('Void') }}</button>
                                 </td>
                             </tr>
@@ -867,7 +823,6 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
 <span class="text-gray-600">{{ hourMinute(session.started_at) }} – {{ hourMinute(session.ended_at) }}</span>
                                             <span v-if="session.break_minutes" class="text-xs">{{ ctrans(':minutes m break', { minutes: session.break_minutes }) }}</span>
                                             <span v-if="session.is_hourly" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ artisan_pay_types.hourly }}</span>
-                                            <span v-if="session.preparation_minutes !== null" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Includes :minutes min preparation', { minutes: session.preparation_minutes }) }}</span>
                                             <span v-if="session.time_edit" class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{{ ctrans('Times edited') }}</span>
                                             <span v-else-if="session.left_open_after_shift_at" class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ ctrans('Left running after shift') }}</span>
                                         </div>
@@ -1147,24 +1102,6 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                         <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
                     </Button>
                     <Button type="tertiary" :label="ctrans('Save')" :loading="processing" :disabled="breakToleranceMinutes === null" @click="saveBreakTolerance">
-                        <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
-                    </Button>
-                </div>
-            </div>
-        </Dialog>
-
-        <Dialog :visible="editingShortPreparation" modal :closable="!processing" :header="ctrans('Short preparation')" :style="{ width: '24rem' }" @update:visible="(visible: boolean) => { if (!visible && !processing) editingShortPreparation = false }">
-            <div class="space-y-3 text-sm">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Preparation shorter than this is added to the job step started straight after it, and asks for no reason. 0 keeps every preparation.') }}</label>
-                    <InputNumber v-model="shortPreparationMinutes" :min="0" :max="60" suffix=" min" fluid :class="fieldFocusClass" :aria-label="ctrans('Minutes')" />
-                </div>
-                <div v-for="(message, field) in shortPreparationErrors" :key="field" class="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-700">{{ message }}</div>
-                <div class="flex justify-end gap-2">
-                    <Button type="tertiary" :label="ctrans('Cancel')" :disabled="processing" @click="editingShortPreparation = false">
-                        <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
-                    </Button>
-                    <Button type="tertiary" :label="ctrans('Save')" :loading="processing" :disabled="shortPreparationMinutes === null" @click="saveShortPreparation">
                         <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
