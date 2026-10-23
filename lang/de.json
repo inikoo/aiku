@@ -22058,5 +22058,9 @@
     "≈ :amount potential sales": "≈ :Potenzieller Umsatz",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :Potenzieller Umsatz zu aktuellen Preisen, exkl. MwSt.",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 Dies ist eine Vorbestellung, für die der Kunde eine Anzahlung geleistet hat. Entsperren Sie sie im Vorbestellungsmenü, bevor Sie Änderungen vornehmen.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Diese Seite ist geschützt. Änderungen bedürfen der Genehmigung des Inhabers."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Diese Seite ist geschützt. Änderungen bedürfen der Genehmigung des Inhabers.",
+    "Finish break": "Pause beenden",
+    "Planned: :minutes min": "Geplant: :minutes min",
+    ":duration over": ":duration zu lang",
+    "Clocked out. Press Finish break when you are back to clock in again.": "Ausgestempelt. Drücken Sie nach Ihrer Rückkehr auf Pause beenden, um wieder einzustempeln."
 }

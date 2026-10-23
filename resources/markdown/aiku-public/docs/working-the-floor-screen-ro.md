@@ -1,8 +1,8 @@
 ---
 title: Lucrul cu ecranul de fabrică
-summary: Ghidul meșteșugarului - ecranul Sarcinile mele, lista de sarcini care se actualizează singură, START și DONE, și ce apeși dacă ai făcut mai puțin decât ți s-a cerut.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: Ghidul meșteșugarului - ecranul Sarcinile mele, lista de sarcini care se actualizează singură, START și DONE, ce apeși dacă ai făcut mai puțin decât ți s-a cerut, și cum iei o pauză.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ Pasul următor rămâne blocat cu **Waiting for** (se așteaptă) și numele pas
 
 **Configurare (manageri).** Pe pagina sarcinii de fabricație, **Only these artisans can do it** (doar acești meșteșugari o pot face) arată cine o poate face; acolo se adaugă sau se scot oameni. Formularul de editare are **Paid by piece rate** (plată la bucată; oprit pentru munca la oră) și **Recorded in kg** (înregistrat în kg). Câte kg de amestec intră într-o bucată se trec la pasul din rețeta fiecărui produs.
 
+## Pauza
+
+Sub zona de lucru e un rând **Break:** (pauză) cu **5m**, **20m** și **30m**. Apasă durata pe care o iei și confirmă cu **Yes, start break** (da, începe pauza).
+
+- Dacă ești pontat la intrare, pauza te pontează la ieșire.
+- Dacă ai o sarcină deschisă, ceasul ei se oprește pe durata pauzei: timpul de pauză nu se numără ca timp lucrat la sarcină.
+- Ecranul devine un panou mare **On break** (în pauză): timpul scurs de la începutul pauzei, **Planned:** (planificat) cu durata aleasă de tine și un buton mare **Finish break** (termină pauza).
+
+**Pauza nu se termină singură.** Când te întorci la locul tău de lucru, apasă **Finish break**. Asta te pontează din nou la intrare și înregistrează cât a durat pauza în realitate. Pontarea cu codul tău QR la kiosk încheie și ea pauza.
+
+Dacă o pauză depășește durata planificată, panoul arată cu cât a depășit-o. Când depășirea e de mai mult de câteva minute (5, dacă Managerul de producție nu a schimbat valoarea), panoul devine roșu, iar pauza apare ca depășită pentru supervizori și manager în fila **Performance** (performanță).
+
+Artizanii plătiți la oră nu au butoane de pauză. Ei fac pauză pontând la ieșire cu codul QR, iar sarcina continuă când se pontează din nou la intrare.
+
+**Pentru supervizori și manageri.** Fila **Performance** are un tabel **Breaks** (pauze): pentru fiecare artizan și zi, numărul de pauze, minutele planificate, minutele luate de fapt și minutele peste plan. Bifează **Breaks over plan only** (doar pauzele peste plan) și apasă **Apply** (aplică) ca să vezi doar pauzele care au depășit. O casetă roșie sus listează pauzele care depășesc chiar acum și pauzele rămase deschise după terminarea turei. Pentru o pauză lăsată deschisă după tură, apasă **Set end** (setează sfârșitul), introdu ora la care s-a întors artizanul și salvează; orele și plata sarcinilor peste care trece pauza se recalculează, iar sfârșitul înregistrat prima dată se păstrează. Pontajele nu se schimbă acolo: se corectează în Human Resources. Managerul de producție stabilește toleranța cu rotița de lângă titlul **Breaks**.
+
 ## Lucruri bune de știut
 
 - **O sarcină pe rând.** Cât timp ai o sarcină deschisă, butoanele START sunt dezactivate. Închide-o mai întâi.
@@ -112,6 +128,8 @@ Pasul următor rămâne blocat cu **Waiting for** (se așteaptă) și numele pas
 <li><b>Începe:</b> apasă pe rând → <b>START</b>.</li>
 <li><b>Termină:</b> scrie <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Mai puțin decât cerut:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> sau <b>Job finished</b>.</li>
+<li><b>Pauza:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> sau <b>30m</b> → <b>Yes, start break</b>. La întoarcere: <b>Finish break</b>.</li>
+<li><b>Pauză lăsată deschisă după tură (supervizori):</b> <b>Factory</b> (Fabrică) → <b>Artisans</b> (Artizani) → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Un lot pentru mai multe linii:</b> apasă pe o linie → <b>Combine … with other lines into one batch</b> → bifează liniile → <b>Combine</b>. Pentru a anula: apasă pe rândul combinat → <b>Separate</b>.</li>
 </ul>
 </aside>

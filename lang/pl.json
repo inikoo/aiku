@@ -11804,5 +11804,9 @@
     "{1} :count order has not been dispatched and was placed at the current pack size. Its lines keep the quantity and the price already agreed, so the warehouse would ship the new pack size at the old price. Check the order before saving.|[2,*] :count orders have not been dispatched and were placed at the current pack size. Their lines keep the quantity and the price already agreed, so the warehouse would ship the new pack size at the old price. Check them before saving.": "{1} :count zamówienie nie zostało wysłane i zostało złożone w aktualnej wielkości opakowania. Jego wiersze zachowują uzgodnioną ilość i cenę, więc magazyn wyśle nowy rozmiar opakowania po starej cenie. Sprawdź zamówienie przed zapisaniem.|[2,*] :count zamówienia(-eń) nie zostały(-o) wysłane(-ych) i zostały(-o) złożone(-ych) w aktualnej wielkości opakowania. Ich wiersze zachowują uzgodnioną ilość i cenę, więc magazyn wyśle nowy rozmiar opakowania po starej cenie. Sprawdź je przed zapisaniem.",
     "{1} Saving updates 1 shop product and translates it with AI into that shop language.|[2,*] Saving updates all :count shop products and translates them with AI into each shop language.": "{1} Zapisanie zaktualizuje 1 produkt w sklepie i przetłumaczy go za pomocą AI na język tego sklepu.|[2,*] Zapisanie zaktualizuje wszystkie produkty w sklepach (:count) i przetłumaczy je za pomocą AI na język każdego sklepu.",
     "{1} This will change what 1 open order means|[2,*] This will change what :count open orders mean": "{1} To zmieni znaczenie 1 otwartego zamówienia|[2,*] To zmieni znaczenie :count otwartych zamówień",
-    "Δ 1Y": "Δ 1Y"
+    "Δ 1Y": "Δ 1Y",
+    "Finish break": "Zakończ przerwę",
+    "Planned: :minutes min": "Zaplanowano: :minutes min",
+    ":duration over": ":duration ponad plan",
+    "Clocked out. Press Finish break when you are back to clock in again.": "Wyjście odbite. Po powrocie naciśnij Zakończ przerwę, aby ponownie odbić wejście."
 }

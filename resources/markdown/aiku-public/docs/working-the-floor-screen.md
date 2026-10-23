@@ -1,7 +1,7 @@
 ---
 title: Working the floor screen
-summary: The artisan's guide - the My tasks screen, the job list that updates on its own, START and DONE, and what to press when you made fewer than asked.
-date: 2026-10-13
+summary: The artisan's guide - the My tasks screen, the job list that updates on its own, START and DONE, what to press when you made fewer than asked, and taking a break.
+date: 2026-10-23
 tags: production, floor, artisan
 category: production
 help_routes: grp.org.productions.show.floor
@@ -100,6 +100,22 @@ The next step stays locked with **Waiting for** and the name of the mixing step 
 
 **Setting it up (managers).** On the page of the manufacture task, **Only these artisans can do it** lists who may do it; add or remove people there. Its edit form has **Paid by piece rate** (off for hourly work) and **Recorded in kg**. The kg of mix one unit takes goes on the recipe step of each product.
 
+## Taking a break
+
+Under the working area there is a row **Break:** with **5m**, **20m** and **30m**. Tap the length you are taking and confirm with **Yes, start break**.
+
+- If you are clocked in, the break clocks you out.
+- If a job is open, its clock stops for the break: break time is not counted as time on the job.
+- The screen turns into a large **On break** panel: the time since the break started, **Planned:** with the length you chose, and a big **Finish break** button.
+
+**The break does not end on its own.** When you are back at your bench, press **Finish break**. That clocks you back in and records how long the break really was. Clocking in with your QR code at the kiosk also ends the break.
+
+When a break runs past the planned length, the panel says how far over it is. Once it is more than a few minutes over (5 unless the Production Manager has changed it), the panel turns red, and the break shows as overrun to the supervisors and the manager on the **Performance** tab.
+
+Hourly artisans have no break buttons. They take breaks by clocking out with their QR code, and the job carries on when they clock back in.
+
+**For supervisors and managers.** The **Performance** tab has a **Breaks** table: for each artisan and day, the number of breaks, the minutes planned, the minutes actually taken and the minutes over the plan. Tick **Breaks over plan only** and press **Apply** to see only the breaks that ran over. A red box at the top lists breaks running over right now and breaks still open after the shift ended. For a break left open after the shift, press **Set end**, enter the time the artisan really came back and save; the hours and pay of the jobs the break overlaps are worked out again, and the end first recorded is kept. Clockings are not changed there: they are corrected in Human Resources. The Production Manager sets the allowance with the cog next to the **Breaks** heading.
+
 ## Things worth knowing
 
 - **One job at a time.** While you have a job open the START buttons are disabled. Close it first.
@@ -112,6 +128,8 @@ The next step stays locked with **Waiting for** and the name of the mixing step 
 <li><b>Start:</b> tap the row → <b>START</b>.</li>
 <li><b>Finish:</b> type <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Fewer than asked:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> or <b>Job finished</b>.</li>
+<li><b>Taking a break:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> or <b>30m</b> → <b>Yes, start break</b>. Back: <b>Finish break</b>.</li>
+<li><b>Break left open after the shift (supervisors):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>One batch for several lines:</b> tap a line → <b>Combine … with other lines into one batch</b> → tick the lines → <b>Combine</b>. To undo: tap the combined row → <b>Separate</b>.</li>
 </ul>
 </aside>

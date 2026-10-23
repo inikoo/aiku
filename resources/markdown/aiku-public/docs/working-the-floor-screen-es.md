@@ -1,8 +1,8 @@
 ---
 title: Trabajar la pantalla de planta
-summary: La guía del artesano - la pantalla Mis tareas, la lista de trabajos que se actualiza sola, START y DONE, y qué pulsar cuando hiciste menos de lo pedido.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: La guía del artesano - la pantalla Mis tareas, la lista de trabajos que se actualiza sola, START y DONE, qué pulsar cuando hiciste menos de lo pedido, y tomarte un descanso.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ El paso siguiente queda bloqueado con **Waiting for** (Esperando) y el nombre de
 
 **Configuración (encargados).** En la página de la tarea de fabricación, **Only these artisans can do it** (Solo estos artesanos pueden hacerla) lista quién puede hacerla; ahí se añade o se quita gente. Su formulario de edición tiene **Paid by piece rate** (Pago a destajo; apagado para trabajo por horas) y **Recorded in kg** (Registrado en kg). Los kg de mezcla que lleva una unidad van en el paso de la receta de cada producto.
 
+## Tomarte un descanso
+
+Bajo la zona de trabajo hay una fila **Break:** (Descanso) con **5m**, **20m** y **30m**. Toca la duración que vas a tomar y confirma con **Yes, start break** (Sí, empezar descanso).
+
+- Si has fichado la entrada, el descanso te ficha la salida.
+- Si hay un trabajo abierto, su reloj se detiene durante el descanso: el tiempo de descanso no cuenta como tiempo en el trabajo.
+- La pantalla pasa a ser un panel grande **On break** (En descanso): el tiempo desde que empezó el descanso, **Planned:** (Previsto) con la duración que elegiste, y un botón grande **Finish break** (Terminar descanso).
+
+**El descanso no termina solo.** Cuando vuelvas a tu puesto, pulsa **Finish break**. Eso te ficha de nuevo la entrada y registra cuánto duró de verdad el descanso. Fichar con tu código QR en el quiosco también termina el descanso.
+
+Cuando un descanso supera la duración prevista, el panel indica cuánto se ha pasado. Si se pasa en más de unos pocos minutos (5, salvo que el responsable de producción lo haya cambiado), el panel se pone rojo y el descanso aparece como excedido para los supervisores y el responsable en la pestaña **Performance** (Rendimiento).
+
+Los artesanos que trabajan por horas no tienen botones de descanso. Hacen sus descansos fichando la salida con su código QR, y el trabajo sigue cuando vuelven a fichar la entrada.
+
+**Para supervisores y responsables.** La pestaña **Performance** tiene una tabla **Breaks** (Descansos): por cada artesano y día, el número de descansos, los minutos previstos, los minutos realmente tomados y los minutos por encima de lo previsto. Marca **Breaks over plan only** (Solo descansos por encima de lo previsto) y pulsa **Apply** (Aplicar) para ver solo los descansos que se pasaron. Un recuadro rojo arriba lista los descansos que se están pasando ahora mismo y los que siguen abiertos después de terminar el turno. Para un descanso que quedó abierto tras el turno, pulsa **Set end** (Fijar fin), escribe la hora a la que el artesano volvió de verdad y guarda; las horas y el pago de los trabajos que el descanso solapa se calculan de nuevo, y se conserva el fin registrado primero. Los fichajes no se cambian ahí: se corrigen en Human Resources. El responsable de producción fija la tolerancia con el engranaje junto al título **Breaks**.
+
 ## Cosas que conviene saber
 
 - **Un trabajo a la vez.** Mientras tienes un trabajo abierto, los botones START están desactivados. Ciérralo primero.
@@ -112,6 +128,8 @@ El paso siguiente queda bloqueado con **Waiting for** (Esperando) y el nombre de
 <li><b>Empezar:</b> toca la fila → <b>START</b>.</li>
 <li><b>Terminar:</b> escribe <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Menos de lo pedido:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> o <b>Job finished</b>.</li>
+<li><b>Tomarte un descanso:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> o <b>30m</b> → <b>Yes, start break</b>. Al volver: <b>Finish break</b>.</li>
+<li><b>Descanso que quedó abierto tras el turno (supervisores):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Un lote para varias líneas:</b> toca una línea → <b>Combine … with other lines into one batch</b> → marca las líneas → <b>Combine</b>. Para deshacer: toca la fila combinada → <b>Separate</b>.</li>
 </ul>
 </aside>

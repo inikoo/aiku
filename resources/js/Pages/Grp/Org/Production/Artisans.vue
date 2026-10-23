@@ -147,6 +147,11 @@ type Props = {
         reasons: (ActivityTotal & { key: string, label: string, notes: (ActivityTotal & { label: string })[] })[]
         artisans: (ActivityTotal & { worker: string })[]
     }
+    break_overrun: boolean
+    break_overrun_tolerance_minutes: number
+    break_overrun_tolerance_route: null | { name: string, parameters: Record<string, string> }
+    breaks: { user_id: number, worker: string, date: string, number_breaks: number, planned_minutes: number, actual_minutes: number, overrun_minutes: number, number_overrun: number, is_open: boolean }[]
+    break_issues: { id: number, worker: string, started_at: string, ended_at: string | null, planned_minutes: number, actual_minutes: number, overrun_minutes: number, left_open_after_shift_at: string | null, correct_route: null | { name: string, parameters: object } }[]
     artisans: {
         user_id: number
         worker: string
@@ -233,6 +238,7 @@ function saveReasons() {
 }
 const underTargetOnly = ref(props.under_target)
 const timeEditedOnly = ref(props.time_edited)
+const breakOverrunOnly = ref(props.break_overrun)
 const reviewing = ref<number | null>(null)
 const reviewReason = ref<string | null>(null)
 const reviewNote = ref('')
@@ -250,12 +256,63 @@ const shownArtisans = computed(() => {
     const search = nameSearch.value.trim().toLocaleLowerCase()
     return search ? props.artisans.filter((artisan) => artisan.worker.toLocaleLowerCase().includes(search)) : props.artisans
 })
+const shownBreaks = computed(() => {
+    const search = nameSearch.value.trim().toLocaleLowerCase()
+    return search ? props.breaks.filter((row) => row.worker.toLocaleLowerCase().includes(search)) : props.breaks
+})
 const processing = ref(false)
+
+const correctingBreak = ref<Props['break_issues'][number] | null>(null)
+const breakEnd = ref<Date | null>(null)
+const breakEndErrors = ref<Record<string, string>>({})
+function openBreakEnd(issue: Props['break_issues'][number]) {
+    correctingBreak.value = issue
+    breakEnd.value = null
+    breakEndErrors.value = {}
+}
+function saveBreakEnd() {
+    const issue = correctingBreak.value
+    if (!issue?.correct_route || !breakEnd.value) return
+    processing.value = true
+    router.patch(
+        route(issue.correct_route.name, issue.correct_route.parameters),
+        { ended_at: breakEnd.value.toISOString() },
+        {
+            preserveScroll: true,
+            onSuccess: () => correctingBreak.value = null,
+            onError: (errors) => breakEndErrors.value = errors,
+            onFinish: () => processing.value = false,
+        }
+    )
+}
+
+const editingBreakTolerance = ref(false)
+const breakToleranceMinutes = ref<number | null>(props.break_overrun_tolerance_minutes)
+const breakToleranceErrors = ref<Record<string, string>>({})
+function openBreakTolerance() {
+    breakToleranceMinutes.value = props.break_overrun_tolerance_minutes
+    breakToleranceErrors.value = {}
+    editingBreakTolerance.value = true
+}
+function saveBreakTolerance() {
+    if (!props.break_overrun_tolerance_route) return
+    processing.value = true
+    router.post(
+        route(props.break_overrun_tolerance_route.name, props.break_overrun_tolerance_route.parameters),
+        { tolerance_minutes: breakToleranceMinutes.value },
+        {
+            preserveScroll: true,
+            onSuccess: () => editingBreakTolerance.value = false,
+            onError: (errors) => breakToleranceErrors.value = errors,
+            onFinish: () => processing.value = false,
+        }
+    )
+}
 
 function applyPeriod() {
     router.get(
         window.location.pathname,
-        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, time_edited: timeEditedOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined, activity: activityFilter.value || undefined, preparation_reason: activityFilter.value === 'preparation' ? preparationReasonFilter.value || undefined : undefined },
+        { from: from.value, to: to.value, manufacture_task_id: manufactureTaskId.value || undefined, under_target: underTargetOnly.value ? 1 : undefined, time_edited: timeEditedOnly.value ? 1 : undefined, break_overrun: breakOverrunOnly.value ? 1 : undefined, artisan_pay_type: payTypeFilter.value || undefined, activity: activityFilter.value || undefined, preparation_reason: activityFilter.value === 'preparation' ? preparationReasonFilter.value || undefined : undefined },
         { preserveState: false }
     )
 }
@@ -530,6 +587,10 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                 <Checkbox v-model="timeEditedOnly" binary />
                 {{ ctrans('Edited times only') }}
             </label>
+            <label class="flex items-center gap-2 pb-2 text-sm text-gray-600 whitespace-nowrap">
+                <Checkbox v-model="breakOverrunOnly" binary />
+                {{ ctrans('Breaks over plan only') }}
+            </label>
             <Button type="tertiary" :label="ctrans('Apply')" @click="applyPeriod">
                 <template #icon><FontAwesomeIcon :icon="['fal', 'filter']" fixed-width aria-hidden="true" /></template>
             </Button>
@@ -605,6 +666,24 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                 <span v-if="open.status === 'paused'">{{ ctrans('paused since :time', { time: clockTime(open.paused_at) }) }}</span>
                 <span v-else-if="open.status === 'closed'">{{ ctrans('closed :time', { time: clockTime(open.ended_at) }) }}</span>
                 <span v-else>{{ ctrans('still running') }}</span>
+            </div>
+        </div>
+
+        <div v-if="break_issues.length" class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900">
+            <div class="flex items-center gap-2 font-semibold">
+                <FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" fixed-width aria-hidden="true" />
+                {{ ctrans('Breaks running over, or left open at the end of the shift') }}
+            </div>
+            <div class="mt-1 text-xs text-red-800">{{ ctrans('A break left open after the shift needs its real end set here. Clockings are fixed in HR.') }}</div>
+            <div v-for="issue in break_issues" :key="issue.id" class="mt-1 flex flex-wrap items-center gap-x-3 tabular-nums">
+                <span class="font-medium">{{ issue.worker }}</span>
+                <span>{{ ctrans('started :time', { time: clockTime(issue.started_at) }) }}</span>
+                <span>{{ ctrans(':actual of :planned min', { actual: issue.actual_minutes, planned: issue.planned_minutes }) }}</span>
+                <span v-if="issue.overrun_minutes" class="font-medium">{{ ctrans(':minutes min over', { minutes: issue.overrun_minutes }) }}</span>
+                <span v-if="issue.left_open_after_shift_at">{{ ctrans('shift ended :time', { time: clockTime(issue.left_open_after_shift_at) }) }}</span>
+                <span v-if="issue.ended_at">{{ ctrans('finished :time', { time: clockTime(issue.ended_at) }) }}</span>
+                <span v-else>{{ ctrans('still on break') }}</span>
+                <button v-if="issue.correct_route" type="button" class="text-xs font-medium text-gray-700 hover:underline" @click="openBreakEnd(issue)">{{ ctrans('Set end') }}</button>
             </div>
         </div>
 
@@ -826,6 +905,48 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
         </table>
         </div>
 
+        <div class="mt-10">
+            <div class="mb-2 flex items-center gap-3">
+                <h2 class="text-base font-semibold text-gray-800">{{ ctrans('Breaks') }}</h2>
+                <span class="text-xs text-gray-500">{{ ctrans('Overrun when more than :minutes min over the planned break', { minutes: break_overrun_tolerance_minutes }) }}</span>
+                <button v-if="break_overrun_tolerance_route" type="button" class="rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" v-tooltip="ctrans('Break overrun')" :aria-label="ctrans('Break overrun')" @click="openBreakTolerance">
+                    <FontAwesomeIcon :icon="['fal', 'cog']" fixed-width aria-hidden="true" />
+                </button>
+            </div>
+            <div v-if="!shownBreaks.length" class="text-gray-400 text-center py-8 border border-dashed border-gray-200 rounded-lg">
+                {{ break_overrun ? ctrans('No break over plan in this period') : ctrans('No breaks in this period') }}
+            </div>
+            <div v-else class="overflow-x-auto">
+                <table class="w-auto text-sm tabular-nums">
+                    <thead class="whitespace-nowrap">
+                        <tr class="border-b border-gray-200 text-xs text-gray-500">
+                            <th class="py-2 pr-6 text-left font-medium">{{ ctrans('Day') }}</th>
+                            <th class="py-2 pr-6 text-left font-medium">{{ ctrans('Artisan') }}</th>
+                            <th class="py-2 px-3 text-right font-medium">{{ ctrans('Breaks') }}</th>
+                            <th class="py-2 px-3 text-right font-medium">{{ ctrans('Planned (min)') }}</th>
+                            <th class="py-2 px-3 text-right font-medium">{{ ctrans('Actual (min)') }}</th>
+                            <th class="py-2 px-3 text-right font-medium">{{ ctrans('Overrun (min)') }}</th>
+                            <th class="py-2 pl-3 text-left font-medium"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in shownBreaks" :key="row.user_id + row.date" class="border-b border-gray-100 text-gray-700">
+                            <td class="py-1.5 pr-6 whitespace-nowrap">{{ longDate(row.date) }}</td>
+                            <td class="py-1.5 pr-6 whitespace-nowrap">{{ row.worker }}</td>
+                            <td class="py-1.5 px-3 text-right">{{ row.number_breaks }}</td>
+                            <td class="py-1.5 px-3 text-right">{{ row.planned_minutes }}</td>
+                            <td class="py-1.5 px-3 text-right">{{ row.actual_minutes }}</td>
+                            <td class="py-1.5 px-3 text-right" :class="row.number_overrun ? 'font-medium text-red-700' : 'text-gray-400'">{{ row.overrun_minutes }}</td>
+                            <td class="py-1.5 pl-3 whitespace-nowrap">
+                                <span v-if="row.number_overrun" class="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800">{{ ctransChoice(':count overrun|:count overruns', row.number_overrun, { count: row.number_overrun }) }}</span>
+                                <span v-if="row.is_open" class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{{ ctrans('On break') }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <Dialog :visible="!!editingReasons" modal :closable="!processing" :header="ctrans('Preparation reasons')" :style="{ width: '36rem' }" @update:visible="(visible: boolean) => { if (!visible && !processing) editingReasons = null }">
             <div class="text-xs text-gray-500">{{ ctrans('Artisans choose one of these when they finish Preparation. A reason taken off the list stays on the sessions that used it. "Other" is always last and asks them to type the reason.') }}</div>
             <div v-for="(reason, index) in editingReasons ?? []" :key="index" class="mt-2 flex items-center gap-2">
@@ -935,6 +1056,47 @@ const quantityLabel = (quantity: number | string) => Number(quantity).toLocaleSt
                     <Button type="tertiary" :label="ctrans('Cancel')" autofocus :disabled="processing" @click="cancelPayType" />
                     <Button type="tertiary" :label="ctrans('Yes, change it')" :loading="processing" @click="setPayType">
                         <template #icon><FontAwesomeIcon :icon="['fal', 'exclamation-triangle']" class="text-amber-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="!!correctingBreak" modal :closable="!processing" :header="ctrans('Set end of break')" :style="{ width: '28rem' }" @update:visible="(visible: boolean) => { if (!visible && !processing) correctingBreak = null }">
+            <div v-if="correctingBreak" class="space-y-3 text-sm">
+                <div class="text-gray-600">
+                    <span class="font-medium text-gray-800">{{ correctingBreak.worker }}</span> · {{ ctrans(':minutes min planned', { minutes: correctingBreak.planned_minutes }) }}
+                </div>
+                <div class="text-xs text-gray-500">{{ ctrans('Started :time', { time: clockTime(correctingBreak.started_at) }) }}</div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Back from break at') }}</label>
+                    <DatePicker v-model="breakEnd" showTime hourFormat="24" dateFormat="d M yy" :minDate="new Date(correctingBreak.started_at)" :maxDate="new Date()" fluid :class="fieldFocusClass" :aria-label="ctrans('Back from break at')" />
+                </div>
+                <div class="text-xs text-gray-500">{{ ctrans('Hours and pay of the jobs the break overlaps are worked out again. The end first recorded is kept.') }}</div>
+                <div v-for="(message, field) in breakEndErrors" :key="field" class="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-700">{{ message }}</div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" :disabled="processing" @click="correctingBreak = null">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="processing" :disabled="!breakEnd" @click="saveBreakEnd">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
+
+        <Dialog :visible="editingBreakTolerance" modal :closable="!processing" :header="ctrans('Break overrun')" :style="{ width: '24rem' }" @update:visible="(visible: boolean) => { if (!visible && !processing) editingBreakTolerance = false }">
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">{{ ctrans('Minutes over the planned break before it shows as overrun') }}</label>
+                    <InputNumber v-model="breakToleranceMinutes" :min="0" :max="120" suffix=" min" fluid :class="fieldFocusClass" :aria-label="ctrans('Minutes')" />
+                </div>
+                <div v-for="(message, field) in breakToleranceErrors" :key="field" class="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-700">{{ message }}</div>
+                <div class="flex justify-end gap-2">
+                    <Button type="tertiary" :label="ctrans('Cancel')" :disabled="processing" @click="editingBreakTolerance = false">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'times']" class="text-red-500" fixed-width aria-hidden="true" /></template>
+                    </Button>
+                    <Button type="tertiary" :label="ctrans('Save')" :loading="processing" :disabled="breakToleranceMinutes === null" @click="saveBreakTolerance">
+                        <template #icon><FontAwesomeIcon :icon="['fal', 'check']" class="text-green-600" fixed-width aria-hidden="true" /></template>
                     </Button>
                 </div>
             </div>

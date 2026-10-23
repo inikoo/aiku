@@ -1,8 +1,8 @@
 ---
 title: Práce s obrazovkou dílny
-summary: Průvodce pro řemeslníka - obrazovka Moje úkoly, seznam úkolů, který se sám aktualizuje, START a DONE, a co dělat, když vyrobíte míň, než bylo požadováno.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: Průvodce pro řemeslníka - obrazovka Moje úkoly, seznam úkolů, který se sám aktualizuje, START a DONE, a co dělat, když vyrobíte míň, než bylo požadováno, a jak si dát pauzu.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ Další krok zůstává zamčený s **Waiting for** (Čeká se na) a názvem kro
 
 **Nastavení (manažeři).** Na stránce výrobního úkolu je v **Only these artisans can do it** (Mohou ho dělat jen tito řemeslníci) seznam lidí, kteří ho smějí dělat; tam je přidáte nebo odeberete. Formulář úprav má **Paid by piece rate** (Placeno od kusu; vypnuto u hodinové práce) a **Recorded in kg** (Zapisuje se v kg). Kolik kg směsi jde na jeden kus, se zadává v kroku receptury každého výrobku.
 
+## Pauza
+
+Pod pracovní plochou je řádek **Break:** (Pauza) s tlačítky **5m**, **20m** a **30m**. Klepněte na délku pauzy, kterou si dáváte, a potvrďte tlačítkem **Yes, start break** (Ano, začít pauzu).
+
+- Pokud jste přihlášeni v docházce, pauza vás odhlásí.
+- Pokud máte otevřený úkol, jeho hodiny se na dobu pauzy zastaví: čas pauzy se nepočítá jako čas na úkolu.
+- Obrazovka se změní na velký panel **On break** (Na pauze): čas od začátku pauzy, **Planned:** (Plánováno) s délkou, kterou jste zvolili, a velké tlačítko **Finish break** (Ukončit pauzu).
+
+**Pauza sama neskončí.** Až budete zpátky u svého stolu, stiskněte **Finish break**. Tím se znovu přihlásíte v docházce a zapíše se, jak dlouhá pauza opravdu byla. Pauzu ukončí i přihlášení svým QR kódem na terminálu.
+
+Když pauza přesáhne plánovanou délku, panel ukáže, o kolik. Jakmile je to o více než pár minut (5, pokud to vedoucí výroby nezměnil), panel zčervená a pauza se vedoucím směn a manažerovi ukáže jako překročená na kartě **Performance** (Výkon).
+
+Hodinoví řemeslníci tlačítka pauzy nemají. Pauzu si dávají odhlášením pomocí QR kódu a úkol pokračuje, když se znovu přihlásí.
+
+**Pro vedoucí směn a manažery.** Karta **Performance** má tabulku **Breaks** (Pauzy): pro každého řemeslníka a den počet pauz, plánované minuty, skutečně strávené minuty a minuty nad plán. Zaškrtněte **Breaks over plan only** (Jen pauzy nad plán) a stiskněte **Apply** (Použít), aby se zobrazily jen pauzy, které přesáhly plán. Červený rámeček nahoře uvádí pauzy, které právě přesahují plán, a pauzy, které zůstaly otevřené po skončení směny. U pauzy ponechané otevřené po směně stiskněte **Set end** (Nastavit konec), zadejte čas, kdy se řemeslník skutečně vrátil, a uložte; hodiny a mzda úkolů, kterých se pauza týká, se přepočítají a původně zapsaný konec zůstane uchován. Docházka se tam nemění: opravuje se v Human Resources. Povolenou toleranci nastavuje vedoucí výroby ozubeným kolem vedle nadpisu **Breaks**.
+
 ## Co je dobré vědět
 
 - **Jeden úkol najednou.** Dokud máte otevřený úkol, tlačítka START jsou vypnutá. Nejdřív ho uzavřete.
@@ -112,6 +128,8 @@ Další krok zůstává zamčený s **Waiting for** (Čeká se na) a názvem kro
 <li><b>Začít:</b> klepněte na řádek → <b>START</b>.</li>
 <li><b>Dokončit:</b> zadejte <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Míň, než bylo požadováno:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> nebo <b>Job finished</b>.</li>
+<li><b>Pauza:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> nebo <b>30m</b> → <b>Yes, start break</b>. Zpět: <b>Finish break</b>.</li>
+<li><b>Pauza ponechaná otevřená po směně (vedoucí):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Jedna dávka pro několik řádků:</b> klepněte na řádek → <b>Combine … with other lines into one batch</b> → zaškrtněte řádky → <b>Combine</b>. Zrušení: klepněte na spojený řádek → <b>Separate</b>.</li>
 </ul>
 </aside>

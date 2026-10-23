@@ -1,8 +1,8 @@
 ---
 title: Darbs ar ražotnes ekrānu
-summary: Amatnieka rokasgrāmata - ekrāns Manu uzdevumi, darbu saraksts, kas atjaunojas pats, START un DONE, un ko spiest, ja izgatavoji mazāk, nekā prasīts.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: Amatnieka rokasgrāmata - ekrāns Manu uzdevumi, darbu saraksts, kas atjaunojas pats, START un DONE, ko spiest, ja izgatavoji mazāk, nekā prasīts, un pārtraukuma ņemšana.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ Nākamais solis paliek bloķēts ar **Waiting for** (Gaida) un maisīšanas soļ
 
 **Iestatīšana (vadītājiem).** Ražošanas uzdevuma lapā **Only these artisans can do it** (To var darīt tikai šie amatnieki) rāda, kas to drīkst darīt; tur pievieno vai noņem cilvēkus. Rediģēšanas formā ir **Paid by piece rate** (Maksā par gabalu; izslēgts stundu darbam) un **Recorded in kg** (Pieraksta kilogramos). Cik kg maisījuma vajag vienam gabalam, norāda katra produkta receptes solī.
 
+## Pārtraukuma ņemšana
+
+Zem darba zonas ir rinda **Break:** (Pārtraukums) ar pogām **5m**, **20m** un **30m**. Pieskaries tam garumam, ko ņem, un apstiprini ar **Yes, start break** (Jā, sākt pārtraukumu).
+
+- Ja esi reģistrējies darbā, pārtraukums tevi atreģistrē.
+- Ja ir atvērts darbs, tā pulkstenis uz pārtraukumu apstājas: pārtraukuma laiks netiek skaitīts kā darba laiks.
+- Ekrāns pārvēršas lielā panelī **On break** (Pārtraukumā): laiks kopš pārtraukuma sākuma, **Planned:** (Plānots) ar izvēlēto garumu un liela poga **Finish break** (Beigt pārtraukumu).
+
+**Pārtraukums nebeidzas pats no sevis.** Kad esi atpakaļ pie sava galda, spied **Finish break**. Tas tevi atkal reģistrē darbā un ieraksta, cik ilgi pārtraukums patiešām bija. Pārtraukumu beidz arī tas, ka kioskā reģistrējies ar savu QR kodu.
+
+Ja pārtraukums ievilkies pāri plānotajam, panelis parāda, par cik. Kad pārsniegums ir lielāks par dažām minūtēm (5, ja Ražošanas vadītājs to nav mainījis), panelis kļūst sarkans, un pārtraukums cilnē **Performance** (Sniegums) uzraugiem un vadītājam redzams kā pārtērēts.
+
+Stundu darbiniekiem pārtraukuma pogu nav. Viņi pārtraukumu ņem, atreģistrējoties ar savu QR kodu, un darbs turpinās, kad viņi atkal reģistrējas.
+
+**Uzraugiem un vadītājiem.** Cilnē **Performance** ir tabula **Breaks** (Pārtraukumi): katram amatniekam un dienai - pārtraukumu skaits, plānotās minūtes, faktiski izmantotās minūtes un minūtes virs plāna. Atzīmē **Breaks over plan only** (Tikai pārtraukumi virs plāna) un spied **Apply** (Lietot), lai redzētu tikai pārtraukumus, kas ievilkušies. Sarkana lodziņa augšā uzskaita pārtraukumus, kas pārsniedz plānu tieši tagad, un pārtraukumus, kas pēc maiņas beigām joprojām atvērti. Ja pārtraukums pēc maiņas palicis atvērts, spied **Set end** (Norādīt beigas), ieraksti laiku, kad amatnieks patiešām atgriezās, un saglabā; pārtraukuma aptvertie darbi tiek pārrēķināti stundām un samaksai, un sākotnēji ierakstītās beigas tiek saglabātas. Reģistrācijas tur netiek mainītas: tās labo sadaļā Human Resources. Pielaidi iestata Ražošanas vadītājs ar zobratu blakus virsrakstam **Breaks**.
+
 ## Noderīgi zināt
 
 - **Viens darbs vienlaikus.** Kamēr tev ir atvērts darbs, START pogas ir neaktīvas. Vispirms aizver to.
@@ -112,6 +128,8 @@ Nākamais solis paliek bloķēts ar **Waiting for** (Gaida) un maisīšanas soļ
 <li><b>Sākt:</b> pieskaries rindai → <b>START</b>.</li>
 <li><b>Pabeigt:</b> ieraksti <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Mazāk nekā prasīts:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> vai <b>Job finished</b>.</li>
+<li><b>Pārtraukuma ņemšana:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> vai <b>30m</b> → <b>Yes, start break</b>. Atpakaļ: <b>Finish break</b>.</li>
+<li><b>Pēc maiņas atstāts atvērts pārtraukums (uzraugiem):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Viena partija vairākām rindām:</b> pieskaries rindai → <b>Combine … with other lines into one batch</b> → atzīmē rindas → <b>Combine</b>. Lai atceltu: pieskaries apvienotajai rindai → <b>Separate</b>.</li>
 </ul>
 </aside>

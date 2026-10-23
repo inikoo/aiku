@@ -21095,5 +21095,9 @@
     "−:amount this month": "−:amount tento mesiac",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :amount potenciálnych predajov za aktuálne ceny, bez DPH",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 Ide o predobjednávku, za ktorú zákazník zaplatil zálohu. Pred zmenou ju odomknite v paneli predobjednávok.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Táto stránka je chránená. Zmeny vyžadujú schválenie od: :owner."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 Táto stránka je chránená. Zmeny vyžadujú schválenie od: :owner.",
+    "Finish break": "Ukončiť prestávku",
+    "Planned: :minutes min": "Naplánované: :minutes min",
+    ":duration over": ":duration navyše",
+    "Clocked out. Press Finish break when you are back to clock in again.": "Odchod zaznamenaný. Keď sa vrátite, stlačte Ukončiť prestávku a znova sa vám zaznamená príchod."
 }

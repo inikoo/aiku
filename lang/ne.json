@@ -22797,5 +22797,9 @@
     "≈ :amount potential sales": "≈ :amount सम्भावित बिक्री",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :amount हालको मूल्यमा सम्भावित बिक्री, VAT बाहेक",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 यो ग्राहकले डिपोजिट तिरेको प्रि-अर्डर हो। परिवर्तन गर्नुअघि प्रि-अर्डर प्यानलबाट अनलक गर्नुहोस्।",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 यो पेज सुरक्षित छ। परिवर्तनका लागि :owner को स्वीकृति चाहिन्छ।"
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 यो पेज सुरक्षित छ। परिवर्तनका लागि :owner को स्वीकृति चाहिन्छ।",
+    "Finish break": "विश्राम सकियो",
+    "Planned: :minutes min": "योजना गरिएको: :minutes मिनेट",
+    ":duration over": ":duration बढी",
+    "Clocked out. Press Finish break when you are back to clock in again.": "क्लक आउट गरियो। फर्केपछि फेरि क्लक इन हुन विश्राम सकियो थिच्नुहोस्।"
 }

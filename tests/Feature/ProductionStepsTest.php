@@ -208,7 +208,7 @@ test('a carried job gets the kg already mixed for the whole job as a done mix st
         ->and($carriedMix->state)->toBe(JobOrderItemTaskStateEnum::DONE);
 });
 
-test('breaks belong to the artisan, are capped at their planned length and only their overlap is deducted from a session', function () {
+test('breaks belong to the artisan, last until they are finished and only their overlap is deducted from a session', function () {
     $this->artefact->manufactureTasks()->sync([
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
     ]);
@@ -241,6 +241,12 @@ test('breaks belong to the artisan, are capped at their planned length and only 
     $session = StartManufactureTaskSession::make()->action($user, $task);
     $this->travel(10)->minutes();
     $breakInJob = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 5]);
+    get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('open_break.id', $breakInJob->id)
+            ->where('open_break.planned_minutes', 5)
+            ->where('open_break.overrun_tolerance_minutes', \App\Models\Production\ManufactureBreak::DEFAULT_OVERRUN_TOLERANCE_MINUTES)
+            ->etc());
     $this->travel(3)->minutes();
     \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($breakInJob);
     expect($session->refresh()->break_minutes)->toBe(3);
@@ -250,9 +256,10 @@ test('breaks belong to the artisan, are capped at their planned length and only 
     $session = CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 10]);
 
     expect(\App\Models\Production\ManufactureBreak::where('user_id', $user->id)->open()->count())->toBe(0)
-        ->and(\App\Models\Production\ManufactureBreak::where('user_id', $user->id)->latest('id')->first()->minutes)->toBe(5)
-        ->and($session->break_minutes)->toBe(8)
-        ->and((float) $session->hours)->toBe(round(52 / 60, 4));
+        ->and(\App\Models\Production\ManufactureBreak::where('user_id', $user->id)->latest('id')->first()->minutes)->toBe(47)
+        ->and(\App\Models\Production\ManufactureBreak::where('user_id', $user->id)->latest('id')->first()->overrunMinutes())->toBe(42)
+        ->and($session->break_minutes)->toBe(50)
+        ->and((float) $session->hours)->toBe(round(10 / 60, 4));
     $this->travelBack();
 });
 
@@ -378,6 +385,13 @@ test('an hourly artisan clocking out at the kiosk pauses their job until they cl
     $this->travel(5)->minutes();
     $scan();
     expect($breaks()->count())->toBe(1);
+
+    $tabletBreak = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 5]);
+    $this->travel(12)->minutes();
+    $clockIn = $scan();
+    expect($tabletBreak->refresh()->ended_at)->not->toBeNull()
+        ->and($tabletBreak->minutes)->toBe(12)
+        ->and($tabletBreak->clock_in_clocking_id)->toBe($clockIn->id);
     $this->artefact->manufactureTasks()->updateExistingPivot($this->manufactureTask->id, ['standard_rate' => null]);
     $this->travelBack();
 });

@@ -1,8 +1,8 @@
 ---
 title: Praca z ekranem hali
-summary: Przewodnik dla rzemieślnika - ekran Moje zadania, lista zadań, która sama się aktualizuje, START i DONE, oraz co nacisnąć, gdy zrobiłeś mniej niż było trzeba.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: Przewodnik dla rzemieślnika - ekran Moje zadania, lista zadań, która sama się aktualizuje, START i DONE, co nacisnąć, gdy zrobiłeś mniej niż było trzeba, oraz robienie przerwy.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ Następny krok pozostaje zablokowany z napisem **Waiting for** (Oczekiwanie na) 
 
 **Ustawienie (kierownicy).** Na stronie zadania produkcyjnego **Only these artisans can do it** (Mogą je wykonywać tylko ci rzemieślnicy) pokazuje, kto może je wykonywać; tam dodaje się lub usuwa osoby. Formularz edycji ma **Paid by piece rate** (Płatne od sztuki; wyłączone dla pracy godzinowej) oraz **Recorded in kg** (Zapisywane w kg). Ile kg mieszanki przypada na jedną sztukę, wpisuje się w kroku receptury każdego produktu.
 
+## Robienie przerwy
+
+Pod obszarem roboczym jest rząd **Break:** (Przerwa) z przyciskami **5m**, **20m** i **30m**. Dotknij długości przerwy, którą bierzesz, i potwierdź przyciskiem **Yes, start break** (Tak, zacznij przerwę).
+
+- Jeśli jesteś odbity na zegarze, przerwa Cię wyloguje z zegara.
+- Jeśli masz otwarte zadanie, jego zegar zatrzymuje się na czas przerwy: czas przerwy nie liczy się jako czas pracy nad zadaniem.
+- Ekran zamienia się w duży panel **On break** (Na przerwie): czas od początku przerwy, **Planned:** (Planowana) z wybraną długością i duży przycisk **Finish break** (Zakończ przerwę).
+
+**Przerwa nie kończy się sama.** Gdy wrócisz do stanowiska, naciśnij **Finish break**. To ponownie Cię odbija na zegarze i zapisuje, ile przerwa naprawdę trwała. Odbicie się kodem QR przy kiosku też kończy przerwę.
+
+Gdy przerwa przekroczy zaplanowany czas, panel pokazuje, o ile. Gdy przekroczenie jest większe niż kilka minut (5, chyba że kierownik produkcji zmienił tę wartość), panel robi się czerwony, a przerwa pokazuje się jako przekroczona brygadzistom i kierownikowi na karcie **Performance** (Wydajność).
+
+Rzemieślnicy płatni godzinowo nie mają przycisków przerwy. Robią przerwy, odbijając się kodem QR, a zadanie trwa dalej, gdy odbiją się ponownie.
+
+**Dla brygadzistów i kierowników.** Karta **Performance** ma tabelę **Breaks** (Przerwy): dla każdego rzemieślnika i dnia liczbę przerw, minuty zaplanowane, minuty faktycznie wykorzystane i minuty ponad plan. Zaznacz **Breaks over plan only** (Tylko przerwy ponad plan) i naciśnij **Apply** (Zastosuj), aby zobaczyć tylko przerwy, które się przeciągnęły. Czerwone pole na górze wymienia przerwy, które właśnie trwają za długo, oraz przerwy wciąż otwarte po zakończeniu zmiany. Dla przerwy pozostawionej otwartej po zmianie naciśnij **Set end** (Ustaw koniec), wpisz godzinę, o której rzemieślnik naprawdę wrócił, i zapisz; godziny i wynagrodzenie zadań, które przerwa obejmuje, są liczone od nowa, a pierwotnie zapisany koniec zostaje w historii. Odbicia nie są tam zmieniane: poprawia się je w Human Resources. Kierownik produkcji ustawia dopuszczalne przekroczenie kołem zębatym obok nagłówka **Breaks**.
+
 ## Warto wiedzieć
 
 - **Jedno zadanie naraz.** Gdy masz otwarte zadanie, przyciski START są nieaktywne. Najpierw je zamknij.
@@ -112,6 +128,8 @@ Następny krok pozostaje zablokowany z napisem **Waiting for** (Oczekiwanie na) 
 <li><b>Start:</b> dotknij wiersza → <b>START</b>.</li>
 <li><b>Zakończ:</b> wpisz <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Mniej niż zamówiono:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> lub <b>Job finished</b>.</li>
+<li><b>Robienie przerwy:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> lub <b>30m</b> → <b>Yes, start break</b>. Po powrocie: <b>Finish break</b>.</li>
+<li><b>Przerwa pozostawiona otwarta po zmianie (brygadziści):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Jedna partia dla kilku pozycji:</b> dotknij pozycji → <b>Combine … with other lines into one batch</b> → zaznacz pozycje → <b>Combine</b>. Aby cofnąć: dotknij połączonego wiersza → <b>Separate</b>.</li>
 </ul>
 </aside>

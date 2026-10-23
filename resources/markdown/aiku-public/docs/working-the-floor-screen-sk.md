@@ -1,8 +1,8 @@
 ---
 title: Práca s obrazovkou dielne
-summary: Sprievodca pre remeselníka - obrazovka Moje úlohy, zoznam úloh, ktorý sa sám aktualizuje, START a DONE, a čo stlačiť, keď ste vyrobili menej, než sa žiadalo.
-date: 2026-10-13
-source_date: 2026-10-13
+summary: Sprievodca pre remeselníka - obrazovka Moje úlohy, zoznam úloh, ktorý sa sám aktualizuje, START a DONE, a čo stlačiť, keď ste vyrobili menej, než sa žiadalo, a ako si dať prestávku.
+date: 2026-10-23
+source_date: 2026-10-23
 tags: production, floor, artisan
 category: production
 series: Ordering from partners
@@ -100,6 +100,22 @@ Krok vidia a môžu ho začať len remeselníci, ktorí sú pri ňom uvedení; v
 
 **Nastavenie (manažéri).** Na stránke výrobnej úlohy je v **Only these artisans can do it** (Môžu ju robiť len títo remeselníci) zoznam ľudí, ktorí ju smú robiť; tam ich pridáte alebo odoberiete. Formulár úprav má **Paid by piece rate** (Platené od kusu; vypnuté pri hodinovej práci) a **Recorded in kg** (Zapisuje sa v kg). Koľko kg zmesi ide na jeden kus, sa zadáva v kroku receptúry každého výrobku.
 
+## Prestávka
+
+Pod pracovnou plochou je riadok <b>Break:</b> (Prestávka:) s tlačidlami <b>5m</b>, <b>20m</b> a <b>30m</b>. Klepnite na dĺžku, ktorú si beriete, a potvrďte tlačidlom <b>Yes, start break</b> (Áno, začať prestávku).
+
+- Ak ste prihlásený v dochádzke, prestávka vás odhlási.
+- Ak máte otvorenú úlohu, jej hodiny sa na prestávku zastavia: čas prestávky sa do času na úlohe nepočíta.
+- Obrazovka sa zmení na veľký panel <b>On break</b> (Na prestávke): čas od začiatku prestávky, <b>Planned:</b> (Plánované:) s dĺžkou, ktorú ste zvolili, a veľké tlačidlo <b>Finish break</b> (Ukončiť prestávku).
+
+**Prestávka sa sama neskončí.** Keď sa vrátite k svojmu stolu, stlačte <b>Finish break</b>. Tým sa znova prihlásite v dochádzke a zaznamená sa, ako dlho prestávka naozaj trvala. Prestávku ukončí aj prihlásenie vaším QR kódom na termináli.
+
+Keď prestávka presiahne plánovanú dĺžku, panel ukáže, o koľko je dlhšia. Keď je dlhšia o viac než pár minút (5, ak ich výrobný manažér nezmenil), panel zčervenie a prestávka sa vedúcim a manažérovi ukáže ako prekročená na karte <b>Performance</b> (Výkon).
+
+Hodinoví remeselníci tlačidlá prestávky nemajú. Prestávku si berú odhlásením pomocou QR kódu a úloha pokračuje, keď sa znova prihlásia.
+
+**Pre vedúcich a manažérov.** Karta <b>Performance</b> má tabuľku <b>Breaks</b> (Prestávky): pre každého remeselníka a deň počet prestávok, plánované minúty, skutočne využité minúty a minúty nad plán. Zaškrtnite <b>Breaks over plan only</b> (Len prestávky nad plán) a stlačte <b>Apply</b> (Použiť), aby sa zobrazili len prestávky, ktoré sa predĺžili. Červený rámček hore vypisuje prestávky, ktoré práve prekračujú plán, a prestávky, ktoré zostali otvorené po skončení zmeny. Pri prestávke ponechanej otvorenej po zmene stlačte <b>Set end</b> (Nastaviť koniec), zadajte čas, kedy sa remeselník naozaj vrátil, a uložte; hodiny a mzda úloh, ktoré sa s prestávkou prekrývajú, sa prepočítajú a pôvodne zaznamenaný koniec sa zachová. Dochádzka sa tu nemení: opravuje sa v Human Resources. Povolenú toleranciu nastavuje výrobný manažér ozubeným kolieskom vedľa nadpisu <b>Breaks</b>.
+
 ## Čo je dobré vedieť
 
 - **Jedna úloha naraz.** Kým máte otvorenú úlohu, tlačidlá START sú vypnuté. Najprv ju uzavrite.
@@ -112,6 +128,8 @@ Krok vidia a môžu ho začať len remeselníci, ktorí sú pri ňom uvedení; v
 <li><b>Začať:</b> klepnite na riadok → <b>START</b>.</li>
 <li><b>Dokončiť:</b> zadajte <b>Quantity made</b> → <b>DONE</b>.</li>
 <li><b>Menej, než sa žiadalo:</b> <b>DONE</b> → <b>Pause</b>, <b>Close at … and move remaining …</b> alebo <b>Job finished</b>.</li>
+<li><b>Prestávka:</b> <b>Break:</b> <b>5m</b>, <b>20m</b> alebo <b>30m</b> → <b>Yes, start break</b>. Po návrate: <b>Finish break</b>.</li>
+<li><b>Prestávka ponechaná otvorená po zmene (vedúci):</b> <b>Factory</b> → <b>Artisans</b> → <b>Performance</b> → <b>Set end</b>.</li>
 <li><b>Jedna dávka pre viac riadkov:</b> klepnite na riadok → <b>Combine … with other lines into one batch</b> → zaškrtnite riadky → <b>Combine</b>. Vrátenie späť: klepnite na spojený riadok → <b>Separate</b>.</li>
 </ul>
 </aside>

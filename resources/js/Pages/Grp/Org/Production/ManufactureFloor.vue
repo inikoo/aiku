@@ -88,6 +88,7 @@ const props = defineProps<{
     open_break: null | {
         id: number
         planned_minutes: number | null
+        overrun_tolerance_minutes: number
         started_at: string
         is_clocked_out: boolean
         is_shift_end: boolean
@@ -180,16 +181,17 @@ onUnmounted(() => clearInterval(clock))
 
 const isKioskBreak = computed(() => props.open_break !== null && props.open_break.planned_minutes === null)
 const breakSecondsElapsed = computed(() => props.open_break ? Math.max(0, Math.floor((now.value - new Date(props.open_break.started_at).getTime()) / 1000)) : 0)
-const breakSecondsLeft = computed(() => {
+const breakOverrunSeconds = computed(() => {
     if (!props.open_break || props.open_break.planned_minutes === null) return 0
-    return Math.max(0, props.open_break.planned_minutes * 60 - breakSecondsElapsed.value)
+    return Math.max(0, breakSecondsElapsed.value - props.open_break.planned_minutes * 60)
 })
+const isBreakOverrun = computed(() => props.open_break !== null && breakOverrunSeconds.value > props.open_break.overrun_tolerance_minutes * 60)
 const breakCountdown = computed(() => {
     if (isKioskBreak.value) {
         const minutes = Math.floor(breakSecondsElapsed.value / 60)
         return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`
     }
-    const seconds = breakSecondsLeft.value
+    const seconds = breakSecondsElapsed.value
     const m = Math.floor(seconds / 60)
     const s = seconds % 60
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
@@ -229,10 +231,6 @@ function endBreak() {
         { preserveScroll: true, onFinish: () => breakProcessing.value = false }
     )
 }
-
-watch(breakSecondsLeft, left => {
-    if (props.open_break && !isKioskBreak.value && left <= 0) endBreak()
-})
 
 const selectedTaskId = ref<number | null>(props.open_session?.task.id ?? props.tasks.find(task => task.is_mine)?.id ?? props.tasks[0]?.id ?? null)
 const selectedTask = computed(() => props.tasks.find(task => task.id == selectedTaskId.value) ?? null)
@@ -455,16 +453,19 @@ function startTask(task: FloorTask) {
                 <div class="mt-2 text-gray-600">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
             </div>
 
-            <div v-else-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-8 flex items-center justify-between gap-6">
-                <div>
-                    <div class="text-xs uppercase tracking-wide text-amber-700">{{ ctrans('On break') }} · {{ open_break.planned_minutes }} {{ ctrans('min') }}</div>
-                    <div class="text-7xl font-mono tabular-nums text-amber-700">{{ breakCountdown }}</div>
-                    <div v-if="open_break.is_clocked_out" class="mt-2 text-amber-700">{{ ctrans('Clocked out. You are clocked back in when the break ends.') }}</div>
+            <div v-else-if="open_break" class="w-full max-w-5xl rounded-2xl border-2 p-10 flex flex-col items-center gap-6 text-center"
+                :class="isBreakOverrun ? 'border-red-500 bg-red-50' : 'border-amber-400 bg-amber-50'">
+                <div class="text-3xl font-semibold" :class="isBreakOverrun ? 'text-red-700' : 'text-amber-800'">{{ ctrans('On break') }}</div>
+                <div class="text-8xl font-mono tabular-nums" :class="isBreakOverrun ? 'text-red-700' : 'text-amber-700'">{{ breakCountdown }}</div>
+                <div class="text-xl" :class="isBreakOverrun ? 'text-red-700' : 'text-amber-800'">
+                    {{ ctrans('Planned: :minutes min', { minutes: open_break.planned_minutes }) }}
+                    <template v-if="breakOverrunSeconds >= 60"> · <span class="font-semibold">{{ ctrans(':duration over', { duration: durationLabel(breakOverrunSeconds) }) }}</span></template>
                 </div>
+                <div v-if="open_break.is_clocked_out" class="text-lg text-gray-700">{{ ctrans('Clocked out. Press Finish break when you are back to clock in again.') }}</div>
                 <button type="button"
-                    class="rounded-xl bg-amber-600 text-white text-2xl font-semibold px-10 py-5 disabled:opacity-40"
+                    class="rounded-2xl bg-amber-600 text-white text-4xl font-semibold px-16 py-8 disabled:opacity-40"
                     :disabled="breakProcessing" @click="endBreak">
-                    {{ ctrans('End break') }}
+                    {{ ctrans('Finish break') }}
                 </button>
             </div>
 

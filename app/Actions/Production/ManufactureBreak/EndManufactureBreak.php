@@ -24,8 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class EndManufactureBreak extends OrgAction
 {
     /**
-     * A break never runs past its planned length: a tablet that posts late (asleep, offline)
-     * still records at most planned_minutes.
+     * A break lasts until the artisan presses Finish break (or clocks back in): the actual length is recorded beside the planned one.
      */
     public function handle(ManufactureBreak $break): ManufactureBreak
     {
@@ -35,7 +34,7 @@ class EndManufactureBreak extends OrgAction
                 return $break;
             }
 
-            $endedAt = now()->min($break->plannedEndAt() ?? now());
+            $endedAt = now();
             $break->update([
                 'ended_at'             => $endedAt,
                 'minutes'              => (int) round($break->started_at->diffInSeconds($endedAt) / 60),
@@ -46,7 +45,7 @@ class EndManufactureBreak extends OrgAction
                 ->where('state', ManufactureTaskSessionStateEnum::OPEN)
                 ->first();
             if ($openSession) {
-                CalculateManufactureTaskSessionBreakMinutes::run($openSession, now());
+                CalculateManufactureTaskSessionBreakMinutes::run($openSession, $endedAt);
             }
 
             return $break;

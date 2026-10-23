@@ -248,6 +248,7 @@ class ShowManufactureFloor extends OrgAction
                 'open_break'    => $openBreak ? [
                     'id'              => $openBreak->id,
                     'planned_minutes' => $openBreak->planned_minutes,
+                    'overrun_tolerance_minutes' => ManufactureBreak::overrunToleranceMinutes($this->production),
                     'started_at'      => $openBreak->started_at,
                     'is_clocked_out'  => (bool) $openBreak->clock_out_clocking_id,
                     'is_shift_end'    => $shiftEndPause?->id === $openBreak->id,

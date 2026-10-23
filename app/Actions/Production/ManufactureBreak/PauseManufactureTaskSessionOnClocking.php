@@ -24,11 +24,12 @@ class PauseManufactureTaskSessionOnClocking
 
     /**
      * Hourly artisans take their breaks by clocking out at the kiosk: the clock-out opens a break with no planned
-     * length, which pauses their open job session, and the next clock-in ends it.
+     * length, which pauses their open job session. Any kiosk clock-in ends the open break, including one started
+     * on the tablet by an artisan who clocked in instead of pressing Finish break.
      */
     public function handle(Employee $employee, Clocking $clocking): ?ManufactureBreak
     {
-        if ($employee->artisan_pay_type !== ArtisanPayTypeEnum::HOURLY || !$user = $employee->getUser()) {
+        if (!$user = $employee->getUser()) {
             return null;
         }
 
@@ -36,7 +37,7 @@ class PauseManufactureTaskSessionOnClocking
         $isClockOut = TimeTracker::where('end_clocking_id', $clocking->id)->exists();
 
         if (!$isClockOut) {
-            if (!$openBreak || $openBreak->planned_minutes !== null) {
+            if (!$openBreak) {
                 return null;
             }
 
@@ -51,7 +52,7 @@ class PauseManufactureTaskSessionOnClocking
         }
 
         $openSession = $this->openSession($user->id);
-        if ($openBreak || !$openSession) {
+        if ($employee->artisan_pay_type !== ArtisanPayTypeEnum::HOURLY || $openBreak || !$openSession) {
             return null;
         }
 

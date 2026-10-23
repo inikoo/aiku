@@ -1340,6 +1340,80 @@ describe('production reward pay bands', function () {
         $neverClockedOut->update(['state' => ManufactureTaskSessionStateEnum::VOIDED]);
     });
 
+    test('a tablet break left open after the shift is flagged, shows on performance and a supervisor sets its end', function () {
+        $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(12, 0));
+        $employee = employeeOnDayShift($this->organisation);
+        [, $shiftEnd] = array_map(fn ($moment) => $moment->setTimezone(config('app.timezone')), $employee->shiftWindowOn(now()));
+        $operator   = stepTestSecondOperator($this->group);
+        $supervisor = stepTestSecondOperator($this->group);
+        \App\Models\Production\ManufactureBreak::where('production_id', $this->production->id)->whereNull('ended_at')->update(['ended_at' => now(), 'minutes' => 0]);
+        $breaks = fn () => \App\Models\Production\ManufactureBreak::where('user_id', $operator->id);
+
+        $this->travelTo($shiftEnd->copy()->subMinutes(40));
+        $overran = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($operator, $this->production, ['planned_minutes' => 5]);
+        $overran->update(['employee_id' => $employee->id]);
+        $this->travel(11)->minutes();
+        expect($overran->isOverrun(\App\Models\Production\ManufactureBreak::overrunToleranceMinutes($this->production)))->toBeTrue();
+        \App\Actions\Production\ManufactureBreak\SetManufactureBreakOverrunTolerance::make()->action($this->production, ['tolerance_minutes' => 10]);
+        expect(\App\Models\Production\ManufactureBreak::overrunToleranceMinutes($this->production->refresh()))->toBe(10)
+            ->and($overran->isOverrun(10))->toBeFalse();
+        \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($overran);
+
+        $this->travel(4)->minutes();
+        $leftOpen = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($operator, $this->production, ['planned_minutes' => 20]);
+        $leftOpen->update(['employee_id' => $employee->id]);
+
+        $this->travelTo($shiftEnd->copy()->addMinutes(10));
+        \App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run();
+        expect($leftOpen->refresh()->left_open_after_shift_at)->toBeNull();
+
+        $this->travelTo($shiftEnd->copy()->addMinutes(31));
+        expect(\App\Actions\Production\ManufactureTaskSession\StopManufactureTaskSessionsAfterShift::run()['breaks_flagged'])->toBe(1)
+            ->and($leftOpen->refresh()->left_open_after_shift_at->equalTo($shiftEnd))->toBeTrue()
+            ->and($leftOpen->ended_at)->toBeNull();
+
+        $props = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->toDateString(), 'to' => $shiftEnd->toDateString()]))
+            ->assertOk()->original->getData()['page']['props'];
+        $day   = collect($props['breaks'])->firstWhere('user_id', $operator->id);
+        $issue = collect($props['break_issues'])->firstWhere('id', $leftOpen->id);
+        expect($day['number_breaks'])->toBe(2)
+            ->and($day['planned_minutes'])->toBe(25)
+            ->and($day['actual_minutes'])->toBe(11 + 56)
+            ->and($day['overrun_minutes'])->toBe(6 + 36)
+            ->and($day['number_overrun'])->toBe(1)
+            ->and($day['is_open'])->toBeTrue()
+            ->and($issue['correct_route']['name'])->toBe('grp.models.manufacture-break.correct_end')
+            ->and($props['break_overrun_tolerance_minutes'])->toBe(10);
+
+        $overranOnly = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => $shiftEnd->toDateString(), 'to' => $shiftEnd->toDateString(), 'break_overrun' => 1]))
+            ->assertOk()->original->getData()['page']['props']['breaks'];
+        expect(collect($overranOnly)->firstWhere('user_id', $operator->id)['number_breaks'])->toBe(1);
+
+        $correct = fn (array $data, $editor = null) => \App\Actions\Production\ManufactureBreak\CorrectManufactureBreakEnd::make()->action($leftOpen, $data, $editor ?? $supervisor);
+        expect(fn () => $correct(['ended_at' => $leftOpen->started_at->copy()->subMinute()]))->toThrow(ValidationException::class, 'after the start')
+            ->and(fn () => $correct(['ended_at' => now()->addHour()]))->toThrow(ValidationException::class, 'future')
+            ->and(fn () => $correct(['ended_at' => $leftOpen->started_at->copy()->addMinutes(25)], $operator))->toThrow(ValidationException::class, 'your own break');
+
+        $spanning = timeEditSession($this->payBandJobOrderItemTask, $operator, $shiftEnd->copy()->subMinutes(55), $shiftEnd->copy(), 0, ['employee_id' => $employee->id]);
+        $running  = timeEditSession($this->payBandJobOrderItemTask, $operator, $shiftEnd->copy()->addMinute(), $shiftEnd->copy()->addMinute(), 0, ['employee_id' => $employee->id, 'state' => ManufactureTaskSessionStateEnum::OPEN, 'ended_at' => null, 'break_minutes' => 99]);
+
+        $leftOpen = $correct(['ended_at' => $leftOpen->started_at->copy()->addMinutes(25)]);
+        expect($spanning->refresh()->break_minutes)->toBe(11 + 25)
+            ->and(round($spanning->paidHours(), 4))->toBe(round(19 / 60, 4))
+            ->and($running->refresh()->break_minutes)->toBe(0);
+        $running->update(['state' => ManufactureTaskSessionStateEnum::VOIDED]);
+        expect($leftOpen->minutes)->toBe(25)
+            ->and($leftOpen->corrected_by_user_id)->toBe($supervisor->id)
+            ->and($leftOpen->original_ended_at)->toBeNull()
+            ->and($breaks()->open()->count())->toBe(0);
+
+        $issues = get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug]))
+            ->assertOk()->original->getData()['page']['props']['break_issues'];
+        expect(collect($issues)->firstWhere('id', $leftOpen->id))->toBeNull();
+
+        \App\Actions\Production\ManufactureBreak\SetManufactureBreakOverrunTolerance::make()->action($this->production, ['tolerance_minutes' => \App\Models\Production\ManufactureBreak::DEFAULT_OVERRUN_TOLERANCE_MINUTES]);
+    });
+
     test('performance and payroll flag sessions with edited times and list only them on request', function () {
         $this->travelTo(now()->startOfWeek()->addDays(2)->setTime(18, 0));
         $operator = stepTestSecondOperator($this->group);

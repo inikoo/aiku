@@ -20908,5 +20908,9 @@
     "The appointment of :name, :type on :date at :time, is now yours.": "La cita de :name (:type) el :date a las :time ahora es tuya.",
     "The appointment of :name, :type, moved from :previous to :date at :time.": "La cita de :name (:type) se ha cambiado del :previous al :date a las :time.",
     "The appointment of :name, :type, moved to :date at :time.": "La cita de :name (:type) se ha cambiado al :date a las :time.",
-    "an appointment": "una cita"
+    "an appointment": "una cita",
+    "Finish break": "Terminar descanso",
+    "Planned: :minutes min": "Planificado: :minutes min",
+    ":duration over": ":duration de más",
+    "Clocked out. Press Finish break when you are back to clock in again.": "Salida fichada. Cuando vuelva, pulse Terminar descanso para fichar la entrada de nuevo."
 }

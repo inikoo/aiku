@@ -21,6 +21,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionUnderTarge
 use App\Models\HumanResources\Employee;
 use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureArtisanDay;
+use App\Models\Production\ManufactureBreak;
 use App\Models\Production\JobOrderItemTask;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\ManufacturePreparationReason;
@@ -75,6 +76,7 @@ class IndexArtisans extends OrgAction
             'time_edited'         => ['sometimes', 'boolean'],
             'activity'            => ['sometimes', 'nullable', Rule::in(['production', ManufactureTaskSessionActivityTypeEnum::PREPARATION->value, ManufactureTaskSessionActivityTypeEnum::CLEANING->value])],
             'preparation_reason'  => ['sometimes', 'nullable', 'string', 'regex:/^(none|\d+)$/'],
+            'break_overrun'       => ['sometimes', 'boolean'],
         ];
     }
 
@@ -88,6 +90,8 @@ class IndexArtisans extends OrgAction
         $timeEditedOnly    = (bool) Arr::get($this->validatedData, 'time_edited', false);
         $activity          = Arr::get($this->validatedData, 'activity');
         $preparationReason = $activity == ManufactureTaskSessionActivityTypeEnum::PREPARATION->value ? Arr::get($this->validatedData, 'preparation_reason') : null;
+        $breakOverrunOnly  = (bool) Arr::get($this->validatedData, 'break_overrun', false);
+        $breakTolerance    = ManufactureBreak::overrunToleranceMinutes($production);
 
         $sessions = ManufactureTaskSession::where('manufacture_task_sessions.production_id', $production->id)
             ->whereIn('manufacture_task_sessions.state', [
@@ -308,6 +312,14 @@ class IndexArtisans extends OrgAction
                     'parameters' => ['production' => $production->id],
                 ] : null,
                 'activity_totals'           => $activity && $activity != 'production' ? $this->activityTotals($sessions) : null,
+                'break_overrun'             => $breakOverrunOnly,
+                'break_overrun_tolerance_minutes' => $breakTolerance,
+                'break_overrun_tolerance_route'   => $this->canSeePay ? [
+                    'name'       => 'grp.org.productions.show.artisans.break_overrun_tolerance',
+                    'parameters' => ['organisation' => $this->organisation->slug, 'production' => $production->slug],
+                ] : null,
+                'breaks'                    => $this->breakDays($production, $from, $to, $breakTolerance, $breakOverrunOnly),
+                'break_issues'              => $this->breakIssues($production, $breakTolerance, $request->user()->id),
                 'artisans' => $artisans,
             ]
         );
@@ -403,6 +415,72 @@ class IndexArtisans extends OrgAction
                 ->values()
                 ->all(),
         ];
+    }
+
+    /**
+     * Breaks taken on the tablet, per artisan and day: how many, the minutes planned, taken and over the plan.
+     * With the overrun filter only the breaks that ran over by more than the tolerance are counted.
+     */
+    private function breakDays(Production $production, Carbon $from, Carbon $to, int $tolerance, bool $overrunOnly): array
+    {
+        return ManufactureBreak::where('production_id', $production->id)
+            ->whereNotNull('planned_minutes')
+            ->whereBetween('started_at', [$from, $to])
+            ->with('user')
+            ->orderBy('started_at')
+            ->get()
+            ->filter(fn (ManufactureBreak $break) => !$overrunOnly || $break->isOverrun($tolerance))
+            ->groupBy(fn (ManufactureBreak $break) => $break->user_id.'|'.$break->started_at->toDateString())
+            ->map(fn (Collection $breaks) => [
+                'user_id'         => $breaks->first()->user_id,
+                'worker'          => $breaks->first()->user->contact_name ?: $breaks->first()->user->username,
+                'date'            => $breaks->first()->started_at->toDateString(),
+                'number_breaks'   => $breaks->count(),
+                'planned_minutes' => $breaks->sum('planned_minutes'),
+                'actual_minutes'  => $breaks->sum(fn (ManufactureBreak $break) => $break->actualMinutes()),
+                'overrun_minutes' => $breaks->sum(fn (ManufactureBreak $break) => $break->overrunMinutes()),
+                'number_overrun'  => $breaks->filter(fn (ManufactureBreak $break) => $break->isOverrun($tolerance))->count(),
+                'is_open'         => $breaks->contains(fn (ManufactureBreak $break) => $break->ended_at === null),
+            ])
+            ->sortBy([['date', 'desc'], ['worker', 'asc']])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Breaks running over right now, and breaks left open after the shift that a supervisor has not set the end of yet.
+     */
+    private function breakIssues(Production $production, int $tolerance, int $viewerId): array
+    {
+        $payWeekStart = now()->startOfWeek();
+
+        return ManufactureBreak::where('production_id', $production->id)
+            ->whereNotNull('planned_minutes')
+            ->whereNull('corrected_at')
+            ->where(fn ($query) => $query->whereNotNull('left_open_after_shift_at')->orWhereNull('ended_at'))
+            ->with('user')
+            ->orderBy('started_at')
+            ->get()
+            ->filter(fn (ManufactureBreak $break) => $break->left_open_after_shift_at || $break->isOverrun($tolerance))
+            ->map(fn (ManufactureBreak $break) => [
+                'id'                       => $break->id,
+                'worker'                   => $break->user->contact_name ?: $break->user->username,
+                'started_at'               => $break->started_at,
+                'ended_at'                 => $break->ended_at,
+                'planned_minutes'          => $break->planned_minutes,
+                'actual_minutes'           => $break->actualMinutes(),
+                'overrun_minutes'          => $break->overrunMinutes(),
+                'left_open_after_shift_at' => $break->left_open_after_shift_at,
+                'correct_route'            => $break->left_open_after_shift_at
+                    && ($this->canEdit || $this->canEditClosedPayWeek)
+                    && $break->user_id != $viewerId
+                    && ($this->canEditClosedPayWeek || $break->started_at->greaterThanOrEqualTo($payWeekStart)) ? [
+                        'name'       => 'grp.models.manufacture-break.correct_end',
+                        'parameters' => ['manufactureBreak' => $break->id],
+                    ] : null,
+            ])
+            ->values()
+            ->all();
     }
 
     /**

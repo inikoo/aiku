@@ -47,6 +47,7 @@ use App\Actions\Production\MaterialRequest\UI\IndexDayMaterialsCheck;
 use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureArtisanDay\SetManufactureHoursTolerance;
+use App\Actions\Production\ManufactureBreak\SetManufactureBreakOverrunTolerance;
 use App\Actions\Production\ManufactureArtisanDay\UI\IndexManufactureArtisanDays;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayrollArtisan;
@@ -102,6 +103,7 @@ Route::prefix('{production}')
                         Route::get('performance', IndexArtisans::class)->name('index');
                         Route::get('daily-hours', IndexManufactureArtisanDays::class)->name('daily_hours');
                         Route::post('daily-hours/tolerance', SetManufactureHoursTolerance::class)->name('daily_hours.tolerance');
+                        Route::post('performance/break-overrun-tolerance', SetManufactureBreakOverrunTolerance::class)->name('break_overrun_tolerance');
                         Route::get('payroll', ShowManufacturePayroll::class)->name('payroll');
                         Route::get('payroll/export', ExportManufacturePayroll::class)->name('payroll.export');
                         Route::get('payroll/{user:id}', ShowManufacturePayrollArtisan::class)->name('payroll.show')->withoutScopedBindings();

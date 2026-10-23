@@ -25060,5 +25060,9 @@
     "≈ :amount potential sales": "≈ :amount potential sales",
     "≈ :amount potential sales at current prices, ex VAT": "≈ :amount potential sales at current prices, ex VAT",
     "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.": "🔒 This is a pre-order the customer has paid a deposit for. Unlock it from the pre-order panel before changing it.",
-    "🔒 This page is protected. Changes require approval from :owner.": "🔒 This page is protected. Changes require approval from :owner."
+    "🔒 This page is protected. Changes require approval from :owner.": "🔒 This page is protected. Changes require approval from :owner.",
+    "Finish break": "Finish break",
+    "Planned: :minutes min": "Planned: :minutes min",
+    ":duration over": ":duration over",
+    "Clocked out. Press Finish break when you are back to clock in again.": "Clocked out. Press Finish break when you are back to clock in again."
 }
