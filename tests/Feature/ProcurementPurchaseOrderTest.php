@@ -24,6 +24,7 @@ use App\Enums\SupplyChain\AgentSupplierPurchaseOrders\AgentSupplierPurchaseOrder
 use App\Models\SupplyChain\AgentSupplierPurchaseOrder;
 use App\Models\SysAdmin\User;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionQuantityQueryStateEnum;
 use App\Actions\Transfers\Aurora\RepairAuroraPurchaseOrderBuyers;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\PurchaseOrder\ImportPurchaseOrderTransactions;
@@ -3592,6 +3593,96 @@ test('the agent asks the organisation about a new supplier price and confirms on
     $this->patch($confirmRoute)->assertSessionHasNoErrors();
     expect($order->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED);
     $this->post($askRoute, ['unit_cost' => $oldUnitCost + 5])->assertSessionHasErrors('unit_cost');
+    actingAs($this->adminGuest->getUser());
+});
+
+test('the agent asks the organisation for a new quantity and confirms only once it is answered', function () {
+    \Illuminate\Support\Facades\Notification::fake();
+    $orgAgent = createFreshOrgAgent($this);
+    $admin    = User::factory()->create(['group_id' => $this->group->id, 'status' => true]);
+    actingAsUserWithOnlyPermissions($admin, ["procurement.{$this->organisation->id}.view", "procurement.{$this->organisation->id}.edit"]);
+    [$order, $siblingOrder] = collect(createAgentPurchaseOrders($this, $orgAgent, 2))
+        ->map(fn (PurchaseOrder $order) => UpdatePurchaseOrderStateToSubmitted::make()->action($order->refresh())->refresh())
+        ->all();
+    $order->updateQuietly(['buyer_id' => $admin->id]);
+    $agentOrganisation = $orgAgent->agent->organisation;
+    $agentUser         = agentOrganisationAdmin($agentOrganisation, 'agent-qty-'.Str::lower(Str::random(6)));
+
+    $line         = $order->purchaseOrderTransactions()->firstOrFail();
+    $oldQuantity  = (float) $line->quantity_ordered;
+    $unitCost     = (float) $line->unit_cost;
+    $askRoute     = route('grp.models.purchase-order.transaction.quantity_change.ask', [$order->id, $line->id]);
+    $answerRoute  = route('grp.models.purchase-order.transaction.quantity_change.answer', [$order->id, $line->id]);
+    $confirmRoute = route('grp.models.purchase-order.confirm', $order->id);
+    $itemLine     = fn (string $url) => collect($this->get($url)->assertOk()->viewData('page')['props']['items']['data'])->firstWhere('id', $line->id);
+
+    actingAs($admin);
+    $this->post($askRoute, ['quantity_ordered' => $oldQuantity + 10])->assertForbidden();
+
+    actingAs($agentUser);
+    expect($itemLine(route('grp.org.agent.purchase_orders.show', [$agentOrganisation->slug, $order->slug, 'tab' => 'items'])))
+        ->askQuantityRoute->name->toBe('grp.models.purchase-order.transaction.quantity_change.ask')
+        ->answerQuantityRoute->toBeNull();
+
+    $this->post($askRoute, ['quantity_ordered' => 0])->assertSessionHasErrors('quantity_ordered');
+    $this->post($askRoute, ['quantity_ordered' => $oldQuantity + 10, 'note' => 'Supplier only sells full cartons'])->assertSessionHasNoErrors();
+    $line->refresh();
+    expect($line->quantity_query_state)->toBe(PurchaseOrderTransactionQuantityQueryStateEnum::PENDING)
+        ->and((float) $line->quantity_query_quantity)->toEqual($oldQuantity + 10)
+        ->and((float) $line->quantity_query_previous_quantity)->toEqual($oldQuantity)
+        ->and((float) $line->quantity_ordered)->toEqual($oldQuantity)
+        ->and($line->quantity_queried_by_id)->toBe($agentUser->id);
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $admin,
+        \App\Notifications\PurchaseOrderStageChangedByAgentNotification::class,
+        fn ($notification) => $notification->purchaseOrder->is($order) && str_contains($notification->change, $line->supplierProduct->code)
+    );
+
+    $this->patch($confirmRoute)->assertSessionHasErrors('price_change');
+    expect($order->refresh()->state)->toBe(PurchaseOrderStateEnum::SUBMITTED);
+    $this->patch($answerRoute, ['answer' => 'accepted', 'quantity_ordered' => $oldQuantity + 10])->assertForbidden();
+
+    actingAs($admin);
+    $buyerLine = $itemLine(route('grp.org.procurement.purchase_orders.show', [$order->organisation->slug, $order->slug, 'tab' => 'items']));
+    expect($buyerLine['askQuantityRoute'])->toBeNull()
+        ->and($buyerLine['answerQuantityRoute']['name'])->toBe('grp.models.purchase-order.transaction.quantity_change.answer')
+        ->and($buyerLine['quantity_query']['state'])->toBe('pending');
+    $pendingRow = collect($this->get(route('grp.org.procurement.purchase_orders.index', $order->organisation->slug))->assertOk()->viewData('page')['props']['data']['data'])
+        ->firstWhere('id', $order->id);
+    expect($pendingRow['number_pending_line_answers'])->toBe(1);
+
+    $this->patch($answerRoute, ['answer' => 'adjusted', 'quantity_ordered' => $oldQuantity + 10])->assertSessionHasErrors('answer');
+    $this->patch($answerRoute, ['answer' => 'accepted', 'quantity_ordered' => $oldQuantity + 20])->assertSessionHasErrors('answer');
+    $this->patch($answerRoute, ['answer' => 'accepted', 'quantity_ordered' => $oldQuantity + 10])->assertSessionHasNoErrors();
+    $line->refresh();
+    expect($line->quantity_query_state)->toBe(PurchaseOrderTransactionQuantityQueryStateEnum::ACCEPTED)
+        ->and((float) $line->quantity_ordered)->toEqual($oldQuantity + 10)
+        ->and((float) $line->net_amount)->toEqual(round($unitCost * ($oldQuantity + 10), 2));
+    \Illuminate\Support\Facades\Notification::assertSentTo(
+        $agentUser,
+        \App\Notifications\PurchaseOrderQuantityChangeAnsweredNotification::class,
+        fn ($notification) => $notification->purchaseOrderTransaction->is($line) && str_contains($notification->title(), $order->reference)
+    );
+    $this->patch($answerRoute, ['answer' => 'rejected', 'quantity_ordered' => $oldQuantity + 10])->assertSessionHasErrors('answer');
+
+    actingAs($agentUser);
+    $this->post($askRoute, ['quantity_ordered' => $oldQuantity + 50])->assertSessionHasNoErrors();
+    actingAs($admin);
+    $this->patch($answerRoute, ['answer' => 'rejected', 'quantity_ordered' => $oldQuantity + 50])->assertSessionHasNoErrors();
+    expect((float) $line->refresh()->quantity_ordered)->toEqual($oldQuantity + 10)
+        ->and($line->quantity_query_state)->toBe(PurchaseOrderTransactionQuantityQueryStateEnum::REJECTED);
+
+    $siblingLine = $siblingOrder->purchaseOrderTransactions()->firstOrFail();
+    actingAs($agentUser);
+    $this->post(route('grp.models.purchase-order.transaction.quantity_change.ask', [$siblingOrder->id, $siblingLine->id]), ['quantity_ordered' => (float) $siblingLine->quantity_ordered + 1])->assertSessionHasNoErrors();
+    CancelPurchaseOrderTransaction::make()->action($siblingLine->refresh());
+    actingAs($admin);
+    $this->patch(route('grp.models.purchase-order.transaction.quantity_change.answer', [$siblingOrder->id, $siblingLine->id]), ['answer' => 'accepted', 'quantity_ordered' => (float) $siblingLine->quantity_query_quantity])->assertSessionHasErrors('answer');
+
+    actingAs($agentUser);
+    $this->patch($confirmRoute)->assertSessionHasNoErrors();
+    expect($order->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED);
+    $this->post($askRoute, ['quantity_ordered' => $oldQuantity + 5])->assertSessionHasErrors('quantity_ordered');
     actingAs($this->adminGuest->getUser());
 });
 

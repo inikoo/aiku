@@ -1,7 +1,7 @@
 ---
 title: Registrar el progreso de un pedido como agente
 summary: Para agentes — las fechas que registras en cada pedido a un proveedor (depósito pagado, producción iniciada, producción terminada, fecha de listo propuesta, entregado) y tu propio número de pedido, cuándo y dónde registrarlas, qué registra en su lugar la empresa compradora, y por qué una fecha que falta aparece como un retraso.
-date: 2026-10-19
+date: 2026-10-23
 source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
@@ -50,6 +50,12 @@ Tu <a href="/docs/your-clean-handover-score-es">Clean Handover Score</a> se calc
 Si un proveedor pide un precio nuevo antes de que confirmes un pedido, no confirmes al precio antiguo. Abre el pedido, busca el producto en **Items** y pulsa **Supplier changed the price** en su línea. Introduce el precio que pide el proveedor, por caja tal como se muestra, y una nota breve si ayuda, y después **Ask the organisation**.
 
 La empresa compradora recibe una notificación y responde en la línea: acepta el precio nuevo, mantiene el antiguo o fija otro precio. Tú recibes una notificación con la respuesta. Mientras quede sin responder alguna pregunta de precio del pedido, **Confirm** queda en gris. Si la empresa compradora mantiene el precio antiguo y el proveedor no quiere vender a ese precio, cancela esa línea antes de confirmar.
+
+## Cuando el proveedor cambia la cantidad
+
+Si el proveedor no puede suministrar la cantidad pedida, o solo vende en lotes mayores, pregunta a la empresa compradora antes de confirmar. Abre el pedido, busca el producto en **Items** y pulsa **Ask for another quantity** bajo su cantidad. Introduce la cantidad, en el nivel que muestra la pestaña Items (cajas, SKO o unidades), y una nota breve si ayuda, y después **Ask the organisation**.
+
+La empresa compradora recibe una notificación y responde en la línea: acepta la cantidad nueva o mantiene la antigua. Tú recibes una notificación con la respuesta. Mientras quede sin responder alguna pregunta de cantidad del pedido, no se puede confirmar.
 
 ## Buenos hábitos
 

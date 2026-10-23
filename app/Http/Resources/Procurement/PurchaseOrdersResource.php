@@ -27,7 +27,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $organisation_slug
  * @property mixed $quantity_ordered
  * @property mixed $org_net_amount
- * @property int|null $number_pending_price_changes
+ * @property int|null $number_pending_line_answers
  */
 class PurchaseOrdersResource extends JsonResource
 {
@@ -57,7 +57,7 @@ class PurchaseOrdersResource extends JsonResource
             'organisation_name' => $this->organisation_name,
             'organisation_code' => $this->organisation_code,
             'organisation_slug' => $this->organisation_slug,
-            'number_pending_price_changes' => (int) $this->number_pending_price_changes,
+            'number_pending_line_answers' => (int) $this->number_pending_line_answers,
         ];
     }
 

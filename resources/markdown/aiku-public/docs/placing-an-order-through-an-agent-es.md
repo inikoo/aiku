@@ -1,7 +1,7 @@
 ---
 title: Hacer un pedido a través de un agente
 summary: Para compradores - cómo hacer una orden de compra a un proveedor al que compras a través de un agente, mandársela al agente y seguirla hasta la entrega de stock.
-date: 2026-10-21
+date: 2026-10-23
 source_date: 2026-10-21
 tags: procurement, purchase orders, agents
 category: procurement
@@ -40,6 +40,17 @@ Responde en la línea con uno de tres botones:
 - **Set another price**: escribes el precio con el que estás de acuerdo y la línea lo toma.
 
 Marca **Also update supplier price** en la línea antes de responder para que el precio que elijas pase a ser también el precio del producto del proveedor. El agente no puede confirmar el pedido mientras haya una pregunta de precio sin responder: **Confirm** queda en gris e indica cuántas líneas están esperando. El agente recibe una notificación con tu respuesta.
+
+## Cuando el agente pide otra cantidad
+
+El agente también puede pedir que se cambie la cantidad de una línea, por ejemplo porque el proveedor solo vende cajas completas o no puede fabricarlo todo. El agente registra la cantidad en esa línea, con una nota opcional, y recibes una notificación. La línea muestra un recuadro ámbar bajo su cantidad con la cantidad pedida y la que sustituye.
+
+Responde en la línea:
+
+- **Accept**: la línea toma la cantidad nueva y su importe se recalcula.
+- **Keep old quantity**: la línea conserva su cantidad.
+
+El pedido no se puede confirmar mientras haya una pregunta de cantidad sin responder, igual que con los precios. El agente recibe una notificación con tu respuesta. En la lista de pedidos de compra, una insignia ámbar junto a la referencia cuenta las líneas que esperan tu respuesta sobre precios o cantidades, y el filtro **New price or quantity to answer** lista esos pedidos.
 
 ## Quién puede usarlo
 

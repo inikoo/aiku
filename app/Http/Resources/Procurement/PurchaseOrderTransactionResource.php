@@ -14,6 +14,7 @@ use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionQuantityQueryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
@@ -107,7 +108,7 @@ class PurchaseOrderTransactionResource extends JsonResource
                 'asked_at'           => $transaction->price_queried_at,
                 'answered_at'        => $transaction->price_query_answered_at,
             ] : null,
-            'askPriceRoute'        => $this->canAskPrice($transaction, $request) ? [
+            'askPriceRoute'        => ($canAgentAsk = $this->canAgentAsk($transaction, $request)) ? [
                 'name'       => 'grp.models.purchase-order.transaction.price_change.ask',
                 'parameters' => [
                     'purchaseOrder'            => $transaction->purchase_order_id,
@@ -115,8 +116,34 @@ class PurchaseOrderTransactionResource extends JsonResource
                 ],
                 'method'     => 'post',
             ] : null,
-            'answerPriceRoute'     => $this->canAnswerPrice($transaction, $request) ? [
+            'answerPriceRoute'     => $this->canOrganisationAnswer($transaction, $request, $transaction->price_query_state === PurchaseOrderTransactionPriceQueryStateEnum::PENDING) ? [
                 'name'       => 'grp.models.purchase-order.transaction.price_change.answer',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'patch',
+            ] : null,
+            'quantity_query'       => $transaction->quantity_query_state ? [
+                'state'             => $transaction->quantity_query_state->value,
+                'label'             => $transaction->quantity_query_state->label(),
+                'quantity'          => $transaction->quantity_query_quantity,
+                'previous_quantity' => $transaction->quantity_query_previous_quantity,
+                'note'              => $transaction->quantity_query_note,
+                'asked_by'          => $transaction->quantityQueriedBy?->contact_name ?: $transaction->quantityQueriedBy?->username,
+                'asked_at'          => $transaction->quantity_queried_at,
+                'answered_at'       => $transaction->quantity_query_answered_at,
+            ] : null,
+            'askQuantityRoute'     => $canAgentAsk ? [
+                'name'       => 'grp.models.purchase-order.transaction.quantity_change.ask',
+                'parameters' => [
+                    'purchaseOrder'            => $transaction->purchase_order_id,
+                    'purchaseOrderTransaction' => $transaction->id,
+                ],
+                'method'     => 'post',
+            ] : null,
+            'answerQuantityRoute'  => $this->canOrganisationAnswer($transaction, $request, $transaction->quantity_query_state === PurchaseOrderTransactionQuantityQueryStateEnum::PENDING) ? [
+                'name'       => 'grp.models.purchase-order.transaction.quantity_change.answer',
                 'parameters' => [
                     'purchaseOrder'            => $transaction->purchase_order_id,
                     'purchaseOrderTransaction' => $transaction->id,
@@ -135,7 +162,7 @@ class PurchaseOrderTransactionResource extends JsonResource
         ];
     }
 
-    private function canAskPrice(PurchaseOrderTransaction $transaction, $request): bool
+    private function canAgentAsk(PurchaseOrderTransaction $transaction, $request): bool
     {
         $purchaseOrder = $transaction->purchaseOrder;
 
@@ -152,9 +179,9 @@ class PurchaseOrderTransactionResource extends JsonResource
             && $request->user()?->authTo("procurement.$agentOrganisationId.edit");
     }
 
-    private function canAnswerPrice(PurchaseOrderTransaction $transaction, $request): bool
+    private function canOrganisationAnswer(PurchaseOrderTransaction $transaction, $request, bool $isQuestionPending): bool
     {
-        return $transaction->price_query_state === PurchaseOrderTransactionPriceQueryStateEnum::PENDING
+        return $isQuestionPending
             && $transaction->state === PurchaseOrderTransactionStateEnum::SUBMITTED
             && $transaction->purchaseOrder?->state === PurchaseOrderStateEnum::SUBMITTED
             && $this->viewingOrganisationId($request) === $transaction->organisation_id

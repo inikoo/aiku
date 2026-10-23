@@ -1,7 +1,7 @@
 ---
 title: Placing an order through an agent
 summary: For buyers - how to place a purchase order with a supplier you buy from through an agent, send it to the agent, and follow it through to the stock delivery.
-date: 2026-10-21
+date: 2026-10-23
 tags: procurement, purchase orders, agents
 category: procurement
 help_routes: grp.org.procurement.org_agents
@@ -40,6 +40,17 @@ Answer on the line with one of three buttons:
 - **Set another price**: you type the price you agree to, and the line takes it.
 
 Tick **Also update supplier price** on the line before answering to make the price you choose the supplier product's price as well. The agent cannot confirm the order while a price question is unanswered: **Confirm** stays grey and says how many lines are waiting. The agent is notified of your answer.
+
+## When the agent asks for another quantity
+
+The agent may also ask to change how much a line orders, for example because the supplier sells only full cartons or cannot make all of it. The agent records the quantity on that line, with an optional note, and you are notified. The line shows an amber box under its quantity with the quantity asked and the one it replaces.
+
+Answer on the line:
+
+- **Accept**: the line takes the new quantity and its amount is recalculated.
+- **Keep old quantity**: the line keeps its quantity.
+
+The order cannot be confirmed while a quantity question is unanswered, the same as for prices. The agent is notified of your answer. On the purchase orders list, an amber badge next to the reference counts the lines waiting for your answer on prices or quantities, and the **New price or quantity to answer** filter lists those orders.
 
 ## Who can use it
 

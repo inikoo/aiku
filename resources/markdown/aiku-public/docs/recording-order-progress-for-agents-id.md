@@ -1,7 +1,7 @@
 ---
 title: Mencatat kemajuan pesanan sebagai agen
 summary: Untuk agen — tanggal yang Anda catat pada setiap pesanan ke pemasok (deposit paid, production started, production done, proposed ready date, handed over) dan nomor pesanan Anda sendiri, kapan dan di mana mencatatnya, apa yang dicatat oleh perusahaan pembeli sebagai gantinya, dan mengapa tanggal yang hilang tampak sebagai keterlambatan.
-date: 2026-10-19
+date: 2026-10-23
 source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
@@ -50,6 +50,12 @@ Ada tanggal-tanggal yang tidak bisa Anda masukkan sendiri, dan ini memang diseng
 Jika pemasok meminta harga baru sebelum Anda mengonfirmasi pesanan, jangan konfirmasi dengan harga lama. Buka pesanan, cari produknya di <b>Items</b> (daftar barang), lalu klik <b>Supplier changed the price</b> (pemasok mengubah harga) pada barisnya. Isi harga yang diminta pemasok, per karton seperti yang tampil, dan catatan singkat jika perlu, lalu klik <b>Ask the organisation</b> (tanya perusahaan pembeli).
 
 Perusahaan pembeli mendapat pemberitahuan dan menjawab di baris itu: menerima harga baru, mempertahankan harga lama, atau menetapkan harga lain. Anda juga mendapat pemberitahuan tentang jawabannya. Selama belum semua pertanyaan harga di pesanan dijawab, tombol <b>Confirm</b> (konfirmasi) tetap abu-abu. Jika perusahaan pembeli mempertahankan harga lama dan pemasok tidak mau menjual dengan harga itu, batalkan baris tersebut sebelum mengonfirmasi.
+
+## Saat pemasok mengubah jumlah
+
+Jika pemasok tidak dapat memasok jumlah yang dipesan, atau hanya menjual dalam lot yang lebih besar, tanyakan dulu kepada perusahaan pembeli sebelum Anda mengonfirmasi. Buka pesanan, cari produknya di <b>Items</b> (daftar barang), lalu klik <b>Ask for another quantity</b> (minta jumlah lain) di bawah jumlahnya. Isi jumlahnya, pada tingkat yang ditampilkan tab Items (karton, SKO atau unit), dan catatan singkat jika perlu, lalu klik <b>Ask the organisation</b> (tanya perusahaan pembeli).
+
+Perusahaan pembeli mendapat pemberitahuan dan menjawab di baris itu: menerima jumlah baru atau mempertahankan jumlah lama. Anda juga mendapat pemberitahuan tentang jawabannya. Selama belum semua pertanyaan jumlah di pesanan dijawab, pesanan tidak dapat dikonfirmasi.
 
 ## Kebiasaan baik
 

@@ -35,9 +35,9 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
             abort(422, __('Purchase order can only be confirmed if it is submitted'));
         }
 
-        if ($pendingPriceChanges = $purchaseOrder->numberPendingPriceChanges()) {
+        if ($pendingAnswers = self::pendingAnswersMessage($purchaseOrder)) {
             throw ValidationException::withMessages([
-                'price_change' => self::pendingPriceChangesMessage($purchaseOrder, $pendingPriceChanges),
+                'price_change' => $pendingAnswers,
             ]);
         }
 
@@ -65,13 +65,25 @@ class UpdatePurchaseOrderStateToConfirmed extends OrgAction
         return $purchaseOrder;
     }
 
-    public static function pendingPriceChangesMessage(PurchaseOrder $purchaseOrder, int $pendingPriceChanges): string
+    public static function pendingAnswersMessage(PurchaseOrder $purchaseOrder): ?string
     {
-        return trans_choice(
-            ':reference: the organisation has not answered the new price of :count line yet|:reference: the organisation has not answered the new prices of :count lines yet',
-            $pendingPriceChanges,
-            ['reference' => $purchaseOrder->reference, 'count' => $pendingPriceChanges]
-        );
+        $pendingPriceChanges    = $purchaseOrder->numberPendingPriceChanges();
+        $pendingQuantityChanges = $purchaseOrder->numberPendingQuantityChanges();
+
+        $messages = array_filter([
+            $pendingPriceChanges ? trans_choice(
+                ':reference: the organisation has not answered the new price of :count line yet|:reference: the organisation has not answered the new prices of :count lines yet',
+                $pendingPriceChanges,
+                ['reference' => $purchaseOrder->reference, 'count' => $pendingPriceChanges]
+            ) : null,
+            $pendingQuantityChanges ? trans_choice(
+                ':reference: the organisation has not answered the new quantity of :count line yet|:reference: the organisation has not answered the new quantities of :count lines yet',
+                $pendingQuantityChanges,
+                ['reference' => $purchaseOrder->reference, 'count' => $pendingQuantityChanges]
+            ) : null,
+        ]);
+
+        return $messages ? implode('. ', $messages) : null;
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder

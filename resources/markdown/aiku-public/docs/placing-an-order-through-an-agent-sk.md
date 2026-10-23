@@ -1,7 +1,7 @@
 ---
 title: Zadanie objednávky cez agenta
 summary: Pre nákupcov - ako zadať purchase order dodávateľovi, od ktorého nakupujete cez agenta, poslať ju agentovi a sledovať ju až po stock delivery.
-date: 2026-10-21
+date: 2026-10-23
 source_date: 2026-10-21
 tags: procurement, purchase orders, agents
 category: procurement
@@ -40,6 +40,17 @@ Odpovedzte na riadku jedným z troch tlačidiel:
 - **Set another price**: zadáte cenu, s ktorou súhlasíte, a riadok ju prevezme.
 
 Ak chcete, aby sa cena, ktorú zvolíte, stala aj cenou produktu dodávateľa, zaškrtnite pred odpoveďou na riadku **Also update supplier price**. Kým je nejaká otázka k cene nezodpovedaná, agent objednávku potvrdiť nemôže: **Confirm** zostane sivé a uvedie, koľko riadkov čaká. Agent dostane upozornenie o vašej odpovedi.
+
+## Keď agent požiada o iné množstvo
+
+Agent môže tiež požiadať o zmenu množstva na riadku, napríklad preto, že dodávateľ predáva iba celé kartóny alebo nedokáže vyrobiť všetko. Agent zaznamená množstvo na danom riadku spolu s voliteľnou poznámkou a vy dostanete upozornenie. Riadok pod svojím množstvom zobrazí oranžový box s požadovaným množstvom a množstvom, ktoré nahrádza.
+
+Odpovedzte na riadku:
+
+- **Accept**: riadok prevezme nové množstvo a jeho suma sa prepočíta.
+- **Keep old quantity**: riadok si ponechá svoje množstvo.
+
+Objednávku nemožno potvrdiť, kým je nejaká otázka k množstvu nezodpovedaná, rovnako ako pri cenách. Agent dostane upozornenie o vašej odpovedi. V zozname nákupných objednávok oranžový odznak vedľa referencie počíta riadky čakajúce na vašu odpoveď k cenám alebo množstvám a filter **New price or quantity to answer** zobrazí tieto objednávky.
 
 ## Kto to môže používať
 

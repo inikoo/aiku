@@ -1,7 +1,7 @@
 ---
 title: Recording order progress as an agent
 summary: For agents — the dates you record on each order to a supplier (deposit paid, production started, production done, proposed ready date, handed over) and your own order number, when and where to record them, what the buying company records instead, and why a missing date shows as a delay.
-date: 2026-10-19
+date: 2026-10-23
 tags: procurement, agents, supply-chain
 category: procurement
 help_routes: grp.org.procurement.purchase_orders
@@ -50,6 +50,12 @@ Your <a href="/docs/your-clean-handover-score">Clean Handover Score</a> is calcu
 If a supplier asks for a new price before you confirm an order, do not confirm at the old price. Open the order, find the product in **Items** and click **Supplier changed the price** on its line. Enter the price the supplier asks, per carton as shown, and a short note if it helps, then **Ask the organisation**.
 
 The buying company is notified and answers on the line: it accepts the new price, keeps the old one, or sets another price. You are notified of the answer. Until every price question on the order is answered, **Confirm** stays grey. If the buying company keeps the old price and the supplier will not sell at it, cancel that line before confirming.
+
+## When the supplier changes the quantity
+
+If the supplier cannot supply the quantity ordered, or sells only in larger lots, ask the buying company before you confirm. Open the order, find the product in **Items** and click **Ask for another quantity** under its quantity. Enter the quantity, in the level the Items tab shows (cartons, SKOs or units), and a short note if it helps, then **Ask the organisation**.
+
+The buying company is notified and answers on the line: it accepts the new quantity or keeps the old one. You are notified of the answer. Until every quantity question on the order is answered, the order cannot be confirmed.
 
 ## Good habits
 

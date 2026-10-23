@@ -1,7 +1,7 @@
 ---
 title: Zaznamenávanie postupu objednávky ako agent
 summary: Pre agentov — dátumy, ktoré zaznamenávate na každej objednávke dodávateľovi (zaplatená záloha, začatie výroby, dokončená výroba, navrhovaný dátum pripravenosti, odovzdanie tovaru) a vaše vlastné číslo objednávky, kedy a kde ich zaznamenať, čo namiesto toho zaznamenáva nakupujúca spoločnosť, a prečo sa chýbajúci dátum zobrazuje ako meškanie.
-date: 2026-10-19
+date: 2026-10-23
 source_date: 2026-10-19
 tags: procurement, agents, supply-chain
 category: procurement
@@ -50,6 +50,12 @@ Vaše <a href="/docs/your-clean-handover-score-sk">Clean Handover Score</a> sa p
 Ak dodávateľ požiada o novú cenu skôr, než objednávku potvrdíte, nepotvrdzujte ju za starú cenu. Otvorte objednávku, nájdite produkt v <b>Items</b> a na jeho riadku kliknite na <b>Supplier changed the price</b>. Zadajte cenu, ktorú dodávateľ žiada, za kartón tak, ako je zobrazená, prípadne krátku poznámku, ak pomôže, a potom <b>Ask the organisation</b>.
 
 Nakupujúca spoločnosť dostane upozornenie a odpovie na riadku: prijme novú cenu, ponechá starú, alebo určí inú cenu. O odpovedi dostanete upozornenie vy. Kým nie je zodpovedaná každá otázka k cene na objednávke, <b>Confirm</b> zostane sivé. Ak nakupujúca spoločnosť ponechá starú cenu a dodávateľ za ňu nepredá, zrušte tento riadok pred potvrdením.
+
+## Keď dodávateľ zmení množstvo
+
+Ak dodávateľ nedokáže dodať objednané množstvo alebo predáva iba vo väčších baleniach, opýtajte sa nakupujúcej spoločnosti skôr, než potvrdíte. Otvorte objednávku, nájdite produkt v <b>Items</b> a pod jeho množstvom kliknite na <b>Ask for another quantity</b>. Zadajte množstvo v úrovni, ktorú zobrazuje karta Items (kartóny, SKO alebo kusy), prípadne krátku poznámku, ak pomôže, a potom <b>Ask the organisation</b>.
+
+Nakupujúca spoločnosť dostane upozornenie a odpovie na riadku: prijme nové množstvo, alebo ponechá staré. O odpovedi dostanete upozornenie vy. Kým nie je zodpovedaná každá otázka k množstvu na objednávke, objednávku nemožno potvrdiť.
 
 ## Dobré návyky
 

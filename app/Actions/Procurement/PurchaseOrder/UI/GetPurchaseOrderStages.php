@@ -198,7 +198,7 @@ class GetPurchaseOrderStages
         $current  = collect($stages)->filter(fn (array $stage) => $stage['reached'])->keys()->last();
         $expected = $this->expectedDates($purchaseOrder);
         $today    = now()->startOfDay();
-        $confirmsOrder = MarkPurchaseOrderStage::confirmsOrder($purchaseOrder, $today) && !$purchaseOrder->numberPendingPriceChanges();
+        $confirmsOrder = MarkPurchaseOrderStage::confirmsOrder($purchaseOrder, $today) && !$purchaseOrder->isWaitingForLineAnswers();
 
         return collect($this->stagesOf($purchaseOrder))->values()->map(fn (Stage $stage, int $index) => [
             'key'         => $stage->value,

@@ -18,9 +18,9 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import PingIcon from "@/Components/Utils/PingIcon.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTrashAlt, faTags } from "@fal"
+import { faTrashAlt, faComments } from "@fal"
 
-library.add(faTrashAlt, faTags)
+library.add(faTrashAlt, faComments)
 
 defineProps<{
 	data: {}
@@ -185,12 +185,12 @@ function SupplierFilterHref(purchaseOrder: PurchaseOrder) {
 				</Link>
 				<span v-else>{{ purchaseOrder.reference }}</span>
 				<span
-					v-if="purchaseOrder.number_pending_price_changes"
-					v-tooltip="ctransChoice(':count new supplier price waiting for an answer|:count new supplier prices waiting for an answer', purchaseOrder.number_pending_price_changes)"
+					v-if="purchaseOrder.number_pending_line_answers"
+					v-tooltip="ctransChoice(':count line with a new price or quantity waiting for an answer|:count lines with a new price or quantity waiting for an answer', purchaseOrder.number_pending_line_answers)"
 					class="relative inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-1.5 text-xs font-medium tabular-nums text-amber-700">
 					<PingIcon v-if="!isInAgentOrganisation" class="!absolute -right-1 -top-1 text-[7px] text-amber-500" aria-hidden="true" />
-					<FontAwesomeIcon :icon="faTags" fixed-width aria-hidden="true" />
-					{{ purchaseOrder.number_pending_price_changes }}
+					<FontAwesomeIcon :icon="faComments" fixed-width aria-hidden="true" />
+					{{ purchaseOrder.number_pending_line_answers }}
 				</span>
 			</div>
 		</template>

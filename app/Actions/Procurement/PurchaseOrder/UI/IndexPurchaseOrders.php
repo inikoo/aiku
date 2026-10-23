@@ -25,6 +25,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionQuantityQueryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
@@ -135,7 +136,7 @@ class IndexPurchaseOrders extends OrgAction
                     'in_production'            => [__('In production'), null],
                     'past_eta'                 => [__('Past ETA, no container'), null],
                     'unconfirmed_over_14_days' => [__('Not confirmed after 14 days'), null],
-                    'waiting_price_answer'     => [__('New supplier price to answer'), null],
+                    'waiting_price_answer'     => [__('New price or quantity to answer'), null],
                 ],
                 'engine'   => function ($query, $elements) {
                     $query->where(function ($query) use ($elements) {
@@ -158,7 +159,7 @@ class IndexPurchaseOrders extends OrgAction
                             $query->orWhereRaw(PurchaseOrderStageEnum::unconfirmedSql(14));
                         }
                         if (in_array('waiting_price_answer', $elements)) {
-                            $query->orWhereExists($this->pendingPriceChangesQuery()->select(DB::raw(1)));
+                            $query->orWhereExists($this->pendingLineAnswersQuery()->select(DB::raw(1)));
                         }
                     });
                 },
@@ -289,7 +290,7 @@ class IndexPurchaseOrders extends OrgAction
             $query->selectRaw('count(*) over (partition by purchase_orders.supplier_id) as supplier_purchase_orders');
         }
 
-        $query->selectSub($this->pendingPriceChangesQuery()->selectRaw('count(*)'), 'number_pending_price_changes');
+        $query->selectSub($this->pendingLineAnswersQuery()->selectRaw('count(*)'), 'number_pending_line_answers');
 
         return $query
             ->defaultSort('-purchase_orders.date')
@@ -317,14 +318,16 @@ class IndexPurchaseOrders extends OrgAction
     }
 
     /**
-     * Lines of the row's order whose new supplier price the agent asked about and the organisation has not answered yet.
+     * Lines of the row's order whose new supplier price or quantity the agent asked about and the organisation has not answered yet.
      */
-    private function pendingPriceChangesQuery(): QueryBuilderForSubquery
+    private function pendingLineAnswersQuery(): QueryBuilderForSubquery
     {
         return DB::table('purchase_order_transactions')
             ->whereColumn('purchase_order_transactions.purchase_order_id', 'purchase_orders.id')
             ->where('purchase_order_transactions.state', PurchaseOrderTransactionStateEnum::SUBMITTED->value)
-            ->where('purchase_order_transactions.price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING->value);
+            ->where(fn ($query) => $query
+                ->where('purchase_order_transactions.price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING->value)
+                ->orWhere('purchase_order_transactions.quantity_query_state', PurchaseOrderTransactionQuantityQueryStateEnum::PENDING->value));
     }
 
     public function tableStructure(Group|Organisation|OrgAgent|OrgSupplier|OrgPartner|OrgStock|OrgSupplierProduct|Supplier|StockDelivery $parent, ?array $modelOperations = null, $prefix = null, bool $withRemoveFromContainer = false): Closure

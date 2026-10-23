@@ -23,5 +23,5 @@ export interface PurchaseOrder {
     supplier_slug: string | null
     supplier_purchase_orders?: number | null
     organisation_slug?: string | null
-    number_pending_price_changes?: number
+    number_pending_line_answers?: number
 }

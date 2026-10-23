@@ -11,6 +11,7 @@ namespace App\Models\Procurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionPriceQueryStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionQuantityQueryStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Address;
@@ -385,6 +386,22 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
             ->where('state', PurchaseOrderTransactionStateEnum::SUBMITTED)
             ->where('price_query_state', PurchaseOrderTransactionPriceQueryStateEnum::PENDING)
             ->count();
+    }
+
+    /**
+     * Lines whose new quantity the agent asked for and the organisation has not answered yet.
+     */
+    public function numberPendingQuantityChanges(): int
+    {
+        return $this->purchaseOrderTransactions()
+            ->where('state', PurchaseOrderTransactionStateEnum::SUBMITTED)
+            ->where('quantity_query_state', PurchaseOrderTransactionQuantityQueryStateEnum::PENDING)
+            ->count();
+    }
+
+    public function isWaitingForLineAnswers(): bool
+    {
+        return $this->numberPendingPriceChanges() > 0 || $this->numberPendingQuantityChanges() > 0;
     }
 
     /**
