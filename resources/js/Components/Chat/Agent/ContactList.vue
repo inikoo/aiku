@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import { ref, inject, computed, watch, onMounted, onUnmounted, nextTick, watchEffect } from "vue"
 import { router } from "@inertiajs/vue3"
 import { watchDebounced } from "@vueuse/core"
@@ -79,7 +80,7 @@ const mapSession = (s: SessionAPI): Contact => ({
     ulid: s.ulid,
     name: s.contact_name || s.guest_identifier || "",
     avatar: s.image ?? "",
-    lastMessage: s.last_message?.message ?? "",
+    lastMessage: stripPictureTokens(s.last_message?.message),
     lastMessageTime: s.last_message?.created_at
         ? formatTime(new Date(s.last_message.created_at).getTime() + PLUS_8_HOURS)
         : undefined,
@@ -285,13 +286,14 @@ const back = () => {
     selectedSession.value = null
 }
 
-const handleSendMessage = async ({ text, files, message_type, tempId, is_email_notif, email_cc_excluded }: {
+const handleSendMessage = async ({ text, files, message_type, tempId, is_email_notif, email_cc_excluded, content_ids }: {
     text: string
     files?: File[]
     message_type: "text" | "image" | "file"
     tempId: number
     is_email_notif: boolean
     email_cc_excluded?: string[]
+    content_ids?: string[]
 }) => {
     if (!selectedSession.value?.ulid) return
 
@@ -305,10 +307,11 @@ const handleSendMessage = async ({ text, files, message_type, tempId, is_email_n
         formData.append("is_email_notif", is_email_notif ?? false)
         email_cc_excluded?.forEach((address) => formData.append("email_cc_excluded[]", address))
 
-        if (files?.length === 1) {
+        if (files?.length === 1 && !content_ids?.some(Boolean)) {
             formData.append(message_type === "image" ? "image" : "file", files[0])
         } else {
             files?.forEach((file) => formData.append("attachments[]", file))
+            content_ids?.forEach((contentId) => formData.append("attachment_content_ids[]", contentId))
         }
 
         const assignRoute: routeType = {

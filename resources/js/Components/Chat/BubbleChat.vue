@@ -15,7 +15,7 @@ import SlackShareModal from "@/Components/Chat/Agent/SlackShareModal.vue"
 import EmailBody from "@/Components/Chat/EmailBody.vue"
 import ChatTimelineEvent from "@/Components/Chat/ChatTimelineEvent.vue"
 import AudioPlayer from "@/Components/Chat/AudioPlayer.vue"
-import { formatWhatsappMarkup } from "@/Composables/useWhatsappMarkup"
+import { formatWhatsappMarkup, stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import { useCopyText } from "@/Composables/useCopyText"
 import FlagWrongButton from "@/Components/Chat/FlagWrongButton.vue"
 
@@ -123,6 +123,11 @@ interface Translation {
 
 import { formatChatTime } from "@/Composables/chatTime"
 
+interface MailPerson {
+    address: string | null
+    name: string | null
+}
+
 const props = defineProps<{
     message: Message
     viewerType: ViewerType
@@ -140,6 +145,9 @@ const props = defineProps<{
     disableSlackForward?: boolean
     disableImageVerification?: boolean
     flagChannel?: "chat" | "whatsapp"
+    mail?: boolean
+    mailCollapsed?: boolean
+    mailRecipient?: MailPerson | null
 }>()
 
 const emit = defineEmits<{
@@ -224,9 +232,12 @@ const { languages, fetchLanguages, getLanguageIdByCode } = useChatLanguages(base
 // as one of theirs; to the customer it is an ordinary incoming message.
 const isCampaign = computed(() => props.message.sender_type === "system_campaign")
 
+// An automatic answer that went out by email is a mail the customer received, not a note in the timeline.
+const isMailedNotice = computed(() => !!props.mail && props.message.sender_type === "system" && !!props.message.metadata?.gmail_message_id)
+
 const isFromViewer = computed(() => {
     if (props.viewerType === "agent") {
-        return ["agent", "system_campaign"].includes(props.message.sender_type)
+        return ["agent", "system_campaign"].includes(props.message.sender_type) || isMailedNotice.value
     }
 
     return ["user", "guest"].includes(props.message.sender_type)
@@ -321,7 +332,7 @@ const senderLabel = computed(() => {
 
 // A status notice is a timeline marker, not something anyone replies to or reacts to,
 // so it renders as the same chip the event stream uses.
-const isSystemNotice = computed(() => props.message.sender_type === "system")
+const isSystemNotice = computed(() => props.message.sender_type === "system" && !isMailedNotice.value)
 
 const AUTOMATED_METADATA_KEYS = ["automated", "ai_answered_at", "claim_details_asked_at", "out_of_hours_replied_at", "asked_if_customer", "greeted_at", "greeting"]
 
@@ -351,7 +362,7 @@ const quotedLabel = computed(() => {
 
     if (!quoted) return ""
 
-    if (quoted.message_text) return quoted.message_text
+    if (quoted.message_text) return stripPictureTokens(quoted.message_text)
 
     return quoted.file_name || ctrans(quoted.message_type === "image" ? "Photo" : "Attachment")
 })
@@ -543,13 +554,54 @@ const customerPage = computed(() => {
     return { url, label: label || path }
 })
 
-const emailSummary = computed<string | null>(() => (props.message.metadata as any)?.ai_summary ?? null)
+const aiSummary = computed<string | null>(() => (props.message.metadata as any)?.ai_summary ?? null)
+const emailSummary = computed<string | null>(() => props.mail ? null : aiSummary.value)
 const showFullEmail = ref(false)
 
 const isShowingEmailBody = computed(() => showEmailBody.value && !(emailSummary.value && !showFullEmail.value))
 
 // Customers put the order reference in the subject line, so it is the first thing read.
-const emailSubject = computed(() => (props.message.metadata?.email_subject || "").trim())
+const emailSubject = computed(() => props.mail ? "" : (props.message.metadata?.email_subject || "").trim())
+
+// An email conversation reads like a mail client: each message a card with who wrote it to whom,
+// older ones folded to a line so a long thread can be scanned, as staff were used to in Gmail.
+const isMailFolded = ref(!!props.mailCollapsed)
+watch(() => props.mailCollapsed, (collapsed) => isMailFolded.value = !!collapsed)
+
+const toggleMailFold = () => {
+    if (!props.mail || window.getSelection()?.toString()) return
+    isMailFolded.value = !isMailFolded.value
+}
+
+const mailPersonLabel = (person: MailPerson) => person.name || person.address || ""
+
+const mailFrom = computed<MailPerson>(() => {
+    const from = props.message.metadata?.email_from
+    if (from?.address) return from
+
+    if (isMailedNotice.value) return { name: ctrans("Automatic reply"), address: null }
+
+    return isFromViewer.value
+        ? { name: props.message.sender_name ?? props.agentName ?? null, address: null }
+        : { name: props.contactName ?? null, address: props.mailRecipient?.address ?? null }
+})
+
+const mailTo = computed<MailPerson[]>(() => {
+    const to = props.message.metadata?.email_to
+    if (Array.isArray(to) && to.length) return to
+
+    return isFromViewer.value && props.mailRecipient?.address ? [props.mailRecipient] : []
+})
+
+const mailCc = computed<MailPerson[]>(() => props.message.metadata?.email_cc ?? [])
+
+const mailSnippet = computed(() => (aiSummary.value || cleanEmailText(props.message.message_text || "")).replace(/\s+/g, " ").trim())
+
+const writtenAs = computed(() => {
+    const original = props.message.original?.text?.trim()
+
+    return props.mail && isFromViewer.value && showEmailBody.value && original && original !== props.message.message_text?.trim() ? original : null
+})
 
 const location = computed(() => {
     if (props.message.metadata?.wa_type !== "location") return null
@@ -916,15 +968,15 @@ watch(selectedLanguage, async (val) => {
         </button>
     </div>
 
-    <div v-else class="flex flex-col w-full group/msg" :class="isFromViewer ? 'items-end' : 'items-start'">
+    <div v-else class="flex flex-col w-full group/msg" :class="mail ? 'items-stretch' : isFromViewer ? 'items-end' : 'items-start'">
         <div class="mb-0.5 text-[11px] text-gray-500 px-1 max-w-[78%]"
             v-if="props.message.sender_type === 'agent' && props.viewerType === 'user'">
             {{ agentDisplayName }} (Agent)
         </div>
-        <div class="relative" :class="isShowingEmailBody ? 'w-full max-w-[90%]' : 'max-w-[70%]'">
+        <div class="relative" :class="mail ? 'w-full' : isShowingEmailBody ? 'w-full max-w-[90%]' : 'max-w-[70%]'">
             <div v-if="showHoverToolbar"
                 class="absolute -top-5 z-20 flex items-center gap-0.5 p-1 rounded-full bg-white border border-gray-200 shadow-lg whitespace-nowrap opacity-0 scale-95 pointer-events-none group-hover/msg:opacity-100 group-hover/msg:scale-100 group-hover/msg:pointer-events-auto transition-all duration-150"
-                :class="isFromViewer ? 'right-0' : 'left-0'">
+                :class="mail ? 'right-24' : isFromViewer ? 'right-0' : 'left-0'">
                 <button
                     v-for="emoji in quickReactions"
                     :key="emoji"
@@ -975,10 +1027,35 @@ watch(selectedLanguage, async (val) => {
                 </button>
             </div>
 
-            <div class="flex flex-col gap-0.5 text-sm leading-relaxed shadow-sm px-3.5 py-2.5 rounded-2xl"
-                :class="[bubbleClass, isShowingEmailBody ? 'w-full' : '', showHoverToolbar && viewerType === 'agent' ? 'min-w-[260px]' : '']">
+            <div class="flex flex-col gap-0.5 text-sm leading-relaxed shadow-sm"
+                :class="mail
+                    ? ['w-full rounded-lg px-4 py-3', isRetracted ? bubbleClass : 'mail-card', isFromViewer && !isRetracted ? 'mail-card-own' : '']
+                    : ['px-3.5 py-2.5 rounded-2xl', bubbleClass, isShowingEmailBody ? 'w-full' : '', showHoverToolbar && viewerType === 'agent' ? 'min-w-[260px]' : '']">
 
-            <div v-if="showSenderLabel" class="flex items-center gap-1 text-[11px] font-semibold mb-0.5 opacity-70">
+            <div v-if="mail" role="button" tabindex="0" :aria-expanded="!isMailFolded" class="flex cursor-pointer items-start gap-3"
+                :class="isMailFolded ? '' : 'mb-2 border-b border-gray-100 pb-2'"
+                @click="toggleMailFold" @keydown.enter.prevent="toggleMailFold">
+                <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 items-baseline gap-1.5">
+                        <FontAwesomeIcon v-if="isCampaign" :icon="faBullhorn" class="text-[10px] text-gray-400" fixed-width />
+                        <span class="truncate font-semibold text-gray-900">{{ mailPersonLabel(mailFrom) || senderLabel }}</span>
+                        <span v-if="mailFrom.name && mailFrom.address && !isMailFolded" class="truncate text-xs text-gray-500">&lt;{{ mailFrom.address }}&gt;</span>
+                    </div>
+                    <div v-if="isMailFolded" class="truncate text-xs text-gray-500">{{ mailSnippet }}</div>
+                    <div v-else-if="mailTo.length || mailCc.length" class="truncate text-xs text-gray-500"
+                        :title="[...mailTo, ...mailCc].map((person) => person.address).filter(Boolean).join(', ')">
+                        <template v-if="mailTo.length">{{ ctrans("to") }} {{ mailTo.map(mailPersonLabel).join(", ") }}</template>
+                        <template v-if="mailCc.length"><span v-if="mailTo.length"> · </span>{{ ctrans("cc") }} {{ mailCc.map(mailPersonLabel).join(", ") }}</template>
+                    </div>
+                </div>
+                <span class="shrink-0 whitespace-nowrap text-xs text-gray-500" :title="new Date(message.created_at).toLocaleString()">
+                    <LoadingIcon v-if="isSending" />
+                    <template v-else>{{ time }}</template>
+                </span>
+            </div>
+
+            <template v-if="!(mail && isMailFolded)">
+            <div v-if="showSenderLabel && !mail" class="flex items-center gap-1 text-[11px] font-semibold mb-0.5 opacity-70">
                 <FontAwesomeIcon v-if="isCampaign" :icon="faBullhorn" class="text-[10px]" fixed-width />
                 {{ senderLabel }}
             </div>
@@ -1178,6 +1255,10 @@ watch(selectedLanguage, async (val) => {
             <!-- A received email keeps its layout; everything else is text. -->
             <template v-else-if="showEmailBody">
                 <EmailBody :html="message.html_body" />
+                <details v-if="writtenAs" class="mt-1 text-xs text-gray-500">
+                    <summary class="cursor-pointer select-none">{{ ctrans("What you wrote") }}</summary>
+                    <p class="mt-1 whitespace-pre-wrap break-words text-gray-700">{{ writtenAs }}</p>
+                </details>
             </template>
 
             <p v-else-if="!location && !sharedContacts.length && formatMarkup && !(isRetracted && viewerType !== 'agent')" class="whitespace-pre-wrap break-words"
@@ -1286,18 +1367,20 @@ watch(selectedLanguage, async (val) => {
                 <span v-if="isRetracted && viewerType === 'agent'" class="italic leading-none">
                     {{ ctrans("sent") }} {{ time }} · {{ ctrans("taken back") }} {{ retractedTime }}
                 </span>
-                <span v-if="!isSending" class="leading-none">
+                <span v-if="!isSending && !mail" class="leading-none">
                     {{ time }}
                 </span>
 
-                <span v-else class="flex items-center animate-pulse">
+                <span v-else-if="!mail" class="flex items-center animate-pulse">
                     <LoadingIcon />
                 </span>
 
+                <FlagWrongButton v-if="isMailedNotice && flagUrl" :url="flagUrl" :flagged="!!message.metadata?.flagged_wrong_at" />
                 <span v-if="isFromViewer && !isSending" class="leading-none" :title="readIconLabel">
                     <FontAwesomeIcon :icon="readIcon" :class="readIconClass" fixed-width />
                 </span>
             </div>
+            </template>
         </div>
         </div>
 
@@ -1331,6 +1414,14 @@ watch(selectedLanguage, async (val) => {
 </template>
 
 <style scoped>
+.mail-card {
+    @apply bg-white text-gray-800 border border-gray-200;
+}
+
+.mail-card-own {
+    border-left: 3px solid v-bind("layout.app.theme[4]");
+}
+
 .bubble-own-agent {
     @apply bg-white text-gray-800 border border-gray-200;
     border-left: 4px solid v-bind("layout.app.theme[4]");

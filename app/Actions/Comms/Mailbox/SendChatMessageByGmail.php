@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Mailbox;
 
 use App\Enums\CRM\Livechat\ChatChannelEnum;
 use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
+use App\Events\BroadcastRealtimeChat;
 use App\Models\Chat\ChatAgent;
 use App\Actions\Chat\ChatSession\GetChatMediaContents;
 use App\Actions\Chat\ChatSession\TranslateChatMessage;
@@ -65,7 +66,11 @@ class SendChatMessageByGmail
         $this->translateAgentReply($chatMessage);
 
         $messageId = $this->newHeaderMessageId($session);
-        $raw       = $this->buildRawMessage($session, $chatMessage, $messageId);
+        $recipient = Arr::get($session->metadata, 'email_reply_to')
+            ? ['address' => Arr::get($session->metadata, 'email_reply_to'), 'name' => Arr::get($session->metadata, 'email_reply_to_name')]
+            : ['address' => Arr::get($session->metadata, 'email_from'), 'name' => Arr::get($session->metadata, 'email_from_name')];
+
+        [$raw, $sentHtml] = $this->buildRawMessage($session, $chatMessage, $messageId);
 
         $result = $client->send($raw, $threadId);
 
@@ -84,11 +89,17 @@ class SendChatMessageByGmail
             ])),
         ]);
 
+        // The inbox shows a reply as the mail the customer got, in the language and with the
+        // signature and pictures it went out with, not as the text the agent typed.
         $chatMessage->update([
-            'metadata' => array_merge($chatMessage->metadata ?? [], [
+            'html_body' => $sentHtml,
+            'metadata'  => array_merge($chatMessage->metadata ?? [], [
                 'gmail_message_id' => Arr::get($result, 'id'),
+                'email_to'         => [$recipient],
             ]),
         ]);
+
+        BroadcastRealtimeChat::dispatch($chatMessage);
     }
 
     private function translateAgentReply(ChatMessage $chatMessage): void
@@ -160,7 +171,10 @@ class SendChatMessageByGmail
         return '<'.Str::ulid().'@'.$domain.'>';
     }
 
-    private function buildRawMessage($session, ChatMessage $chatMessage, string $messageId): string
+    /**
+     * @return array{0: string, 1: string}  the raw mail, and the html of its body as the customer reads it
+     */
+    private function buildRawMessage($session, ChatMessage $chatMessage, string $messageId): array
     {
         $metadata = $session->metadata ?? [];
 
@@ -223,7 +237,10 @@ class SendChatMessageByGmail
             $signature = $agent?->signature ?: '';
         }
 
-        [$attachments, $linkedFiles] = self::splitByGmailLimit($chatMessage->attachedFiles());
+        // ponytail: inline pictures sit outside the 18MB budget; pasted screenshots are small, fold them in if one ever is not
+        [$inlinePictures, $files] = $chatMessage->attachedFiles()->partition(fn ($file) => filled($file->getCustomProperty('content_id')) && str_starts_with((string) $file->mime_type, 'image/'))->map->values()->all();
+
+        [$attachments, $linkedFiles] = self::splitByGmailLimit($files, $inlinePictures->sum('size'));
 
         $messageText = $chatMessage->message_text ?? '';
 
@@ -232,10 +249,14 @@ class SendChatMessageByGmail
                 .route('grp.api.chats.chat.attachment.download', ['ulid' => $linkedFile->ulid, 'inline' => 1]);
         }
 
-        $bodyPart = $this->bodyPart(trim($messageText), $signature);
+        [$bodyPart, $bodyHtml] = $this->bodyPart(trim($messageText), $signature, $inlinePictures->map(fn ($picture) => $picture->getCustomProperty('content_id'))->all());
+
+        if ($inlinePictures->isNotEmpty()) {
+            $bodyPart = $this->withInlinePictures($bodyPart, $inlinePictures);
+        }
 
         if ($attachments->isEmpty()) {
-            return implode("\r\n", [...$headers, ...$bodyPart]);
+            return [implode("\r\n", [...$headers, ...$bodyPart]), $bodyHtml];
         }
 
         $boundary = 'aiku-'.bin2hex(random_bytes(12));
@@ -264,7 +285,7 @@ class SendChatMessageByGmail
 
         $lines[] = "--{$boundary}--";
 
-        return implode("\r\n", $lines);
+        return [implode("\r\n", $lines), $bodyHtml];
     }
 
     /**
@@ -273,9 +294,8 @@ class SendChatMessageByGmail
      *
      * @return array{0: \Illuminate\Support\Collection, 1: \Illuminate\Support\Collection}
      */
-    public static function splitByGmailLimit(\Illuminate\Support\Collection $files): array
+    public static function splitByGmailLimit(\Illuminate\Support\Collection $files, int $attachedBytes = 0): array
     {
-        $attachedBytes = 0;
 
         return $files->partition(function ($file) use (&$attachedBytes) {
             if ($attachedBytes + $file->size > self::MAX_ATTACHED_BYTES) {
@@ -292,30 +312,35 @@ class SendChatMessageByGmail
      * formatting the agent picked, or a signature holding a logo, since HTML in a text/plain
      * mail is read as its own source. A mail with neither stays plain as it always was.
      *
-     * @return array<int, string>  the MIME lines for the body, header first
+     * @param  array<int, string>  $pictureIds  the Content-ID of each picture pasted into the text
+     * @return array{0: array<int, string>, 1: string}  the MIME lines for the body, header first, and its html
      */
-    private function bodyPart(string $messageText, string $signature): array
+    private function bodyPart(string $messageText, string $signature, array $pictureIds = []): array
     {
         $isHtmlSignature = $signature !== '' && $signature !== strip_tags($signature);
-        $messageHtml     = self::markupToHtml($messageText);
+        $messageHtml     = self::placePictures(self::markupToHtml($messageText), $pictureIds);
+        $messageText     = trim(preg_replace_callback("/\n?".self::PICTURE_TOKEN."\n?/u", fn (array $match) => self::isPicture($match, $pictureIds) ? "\n" : $match[0], $messageText) ?? $messageText);
 
-        if (! $isHtmlSignature && $messageHtml === nl2br(e($messageText))) {
-            return $this->textPart(trim($messageText."\n\n".$signature));
+        if (! $pictureIds && ! $isHtmlSignature && $messageHtml === nl2br(e($messageText))) {
+            $body = trim($messageText."\n\n".$signature);
+
+            return [$this->textPart($body), nl2br(e($body))];
         }
 
         $signatureHtml = $isHtmlSignature ? $signature : nl2br(e($signature));
 
         $textPart = $this->textPart(trim($messageText."\n\n".($isHtmlSignature ? $this->htmlToText($signature) : $signature)));
+        $html     = $signature === '' ? $messageHtml : $messageHtml.'<br><br>'.$signatureHtml;
         $htmlPart = [
             'Content-Type: text/html; charset=utf-8',
             'Content-Transfer-Encoding: base64',
             '',
-            chunk_split(base64_encode($signature === '' ? $messageHtml : $messageHtml.'<br><br>'.$signatureHtml)),
+            chunk_split(base64_encode($html)),
         ];
 
         $boundary = 'aiku-alt-'.bin2hex(random_bytes(12));
 
-        return [
+        return [[
             "Content-Type: multipart/alternative; boundary=\"{$boundary}\"",
             '',
             "--{$boundary}",
@@ -323,7 +348,89 @@ class SendChatMessageByGmail
             "--{$boundary}",
             ...$htmlPart,
             "--{$boundary}--",
+        ], $html];
+    }
+
+    public const string PICTURE_TOKEN = '\[[^\[\]\n:]{1,24}:\s*([A-Za-z0-9-]{1,64})\s*\]';
+
+    /**
+     * A translator may return [imagen: id] or [Bild:id]: any such bracket naming one of the
+     * pictures is that picture, and only the exact [image:...] form is dropped when it names none,
+     * so a "[Note: A12]" the agent wrote is left alone.
+     *
+     * @param  array<int, string>  $match
+     * @param  array<int, string>  $pictureIds
+     */
+    private static function isPicture(array $match, array $pictureIds): bool
+    {
+        return in_array($match[1], $pictureIds, true) || preg_match('/^\n?\[image:[A-Za-z0-9-]{1,64}\]/', $match[0]);
+    }
+
+    /**
+     * The composer writes a pasted picture as [image:<content id>] where it was pasted. A picture
+     * whose token the translator lost still goes, at the end, and a token naming no file goes.
+     *
+     * @param  array<int, string>  $pictureIds
+     */
+    public static function placePictures(string $html, array $pictureIds): string
+    {
+        $placed = [];
+
+        $html = preg_replace_callback('/'.self::PICTURE_TOKEN.'(<br \/>)?/u', function (array $match) use ($pictureIds, &$placed): string {
+            if (! in_array($match[1], $pictureIds, true)) {
+                return self::isPicture($match, $pictureIds) ? '' : $match[0];
+            }
+
+            $placed[] = $match[1];
+
+            return self::pictureTag($match[1]);
+        }, $html) ?? $html;
+
+        foreach (array_diff($pictureIds, $placed) as $pictureId) {
+            $html .= '<br>'.self::pictureTag($pictureId);
+        }
+
+        return $html;
+    }
+
+    private static function pictureTag(string $pictureId): string
+    {
+        return '<div><img src="cid:'.e($pictureId).'@aiku.io" alt="" style="max-width:100%;height:auto"></div>';
+    }
+
+    /**
+     * @param  array<int, string>  $bodyPart
+     * @return array<int, string>
+     */
+    private function withInlinePictures(array $bodyPart, \Illuminate\Support\Collection $pictures): array
+    {
+        $boundary = 'aiku-rel-'.bin2hex(random_bytes(12));
+
+        $lines = [
+            "Content-Type: multipart/related; boundary=\"{$boundary}\"",
+            '',
+            "--{$boundary}",
+            ...$bodyPart,
         ];
+
+        foreach ($pictures as $picture) {
+            $fileName = $this->encodeHeader(str_replace(['"', "\r", "\n"], '', $picture->name ?: $picture->file_name));
+
+            array_push(
+                $lines,
+                "--{$boundary}",
+                "Content-Type: {$picture->mime_type}; name=\"{$fileName}\"",
+                "Content-Disposition: inline; filename=\"{$fileName}\"",
+                'Content-ID: <'.$picture->getCustomProperty('content_id').'@aiku.io>',
+                'Content-Transfer-Encoding: base64',
+                '',
+                chunk_split(base64_encode(GetChatMediaContents::run($picture))),
+            );
+        }
+
+        $lines[] = "--{$boundary}--";
+
+        return $lines;
     }
 
     /**

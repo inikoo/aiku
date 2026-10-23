@@ -9,9 +9,10 @@ import { ref, computed, watch, onBeforeUnmount } from "vue"
 import axios from "axios"
 import { onClickOutside } from "@vueuse/core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage } from "@fal"
+import { faChevronDown, faChevronUp, faStar as faStarEmpty, faExclamationTriangle, faCheck, faBowlingBall, faClipboardCheck, faLanguage, faTimes, faArrowDown, faUserCheck } from "@fal"
 import { faStar } from "@fas"
 import { ctrans } from "@/Composables/useTrans"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 
 const props = defineProps<{
     sessionUlid?: string | null
@@ -20,9 +21,10 @@ const props = defineProps<{
     preview?: boolean
     assignable?: boolean
     assigning?: boolean
+    inline?: boolean
 }>()
 
-const emit = defineEmits<{ (e: "use", text: string): void, (e: "assign-and-use", draftId: number): void }>()
+const emit = defineEmits<{ (e: "use", text: string, draftId?: number): void, (e: "assign-and-use", draftId: number): void, (e: "discarded"): void }>()
 
 interface DraftAction {
     index: number
@@ -99,7 +101,7 @@ const load = async () => {
 const usedKey = ref<string | null>(null)
 const suggestionsKey = computed(() => [props.sessionUlid ?? "", draft.value?.id ?? ""].join("|"))
 const used = computed(() => usedKey.value !== null && usedKey.value === suggestionsKey.value)
-const shown = computed(() => !!draft.value && !used.value)
+const shown = computed(() => !!draft.value && (props.inline || !used.value))
 const useText = (text: string) => {
     usedKey.value = suggestionsKey.value
     emit("use", text)
@@ -118,6 +120,8 @@ const decide = async (action: "take" | "discard") => {
             return
         }
         draft.value = null
+        if (action === "discard") emit("discarded")
+        if (props.inline) await load()
     } catch {
         await load()
     } finally {
@@ -125,6 +129,20 @@ const decide = async (action: "take" | "discard") => {
     }
 }
 
+// Inline, the draft goes straight into the reply box. It counts as taken once the agent starts
+// changing it, as pressing Use did, so a rewritten draft is still told apart from one ignored.
+const takenId = ref<number | null>(null)
+const take = () => {
+    if (!draft.value || takenId.value === draft.value.id) return
+    takenId.value = draft.value.id
+    axios.post(route("grp.api.chats.ai_drafts.take", [draft.value.id])).catch(() => null)
+}
+
+watch(() => draft.value?.id, (id) => {
+    if (props.inline && id && draft.value?.text) emit("use", draft.value.text, id)
+})
+
+defineExpose({ take })
 
 const runAction = async (action: DraftAction) => {
     if (!draft.value || actionBusy.value) return
@@ -231,13 +249,13 @@ onBeforeUnmount(stopListening)
 </script>
 
 <template>
-    <div v-if="shown || failure" class="mb-1.5 text-xs">
+    <div v-if="shown || failure" class="text-xs" :class="inline ? '' : 'mb-1.5'">
         <p v-if="failure" class="mb-1 px-1 text-[11px] text-red-600">{{ failure }}</p>
-        <button v-if="shown" type="button" :aria-expanded="!hidden" class="ml-auto flex w-fit items-center gap-1 px-1 text-[11px] text-gray-400 hover:text-gray-600" @click="hidden = !hidden">
+        <button v-if="shown && !inline" type="button" :aria-expanded="!hidden" class="ml-auto flex w-fit items-center gap-1 px-1 text-[11px] text-gray-400 hover:text-gray-600" @click="hidden = !hidden">
             <FontAwesomeIcon :icon="hidden ? faChevronUp : faChevronDown" fixed-width />
             {{ hidden ? ctrans("Show suggestion") : ctrans("Hide suggestion") }}
         </button>
-        <template v-if="!hidden">
+        <template v-if="!hidden || inline">
             <div v-if="shown && draft" class="relative rounded-xl border border-[--app-accent-muted] bg-[--app-accent-soft] px-3 py-2">
                 <button v-if="hasStaffText" type="button" :disabled="translating" @click="toggleTranslation"
                     class="absolute right-7 top-1.5 rounded px-1 text-[11px] text-gray-400 hover:text-gray-700 disabled:opacity-50"
@@ -247,20 +265,23 @@ onBeforeUnmount(stopListening)
                     <span class="sr-only">{{ showTranslation ? ctrans("Show the original") : ctrans("Translate") }}</span>
                 </button>
                 <img src="/art/invader.svg" class="absolute right-2 top-2 h-3.5 select-none"
-                    :alt="draft.assistant.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) : ctrans('Draft by Aiku')"
-                    :title="draft.assistant.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) + (draft.assistant.client ? ` · ${draft.assistant.client}` : '') : ctrans('Draft by Aiku')" />
-                <div v-if="staffNote || draft.actions?.length" class="mr-12 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">
+                    :alt="draft.assistant?.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) : ctrans('Draft by Aiku')"
+                    :title="draft.assistant?.of ? ctrans('Draft by Aiku, asked by :name', { name: draft.assistant.of }) + (draft.assistant.client ? ` · ${draft.assistant.client}` : '') : ctrans('Draft by Aiku')" />
+                <p v-if="inline" class="mb-1 mr-12 font-semibold text-gray-800">{{ ctrans("Draft by Aiku") }}</p>
+                <div v-if="staffNote || draft.actions?.length" :class="inline ? 'flex-col items-start' : 'mr-12 flex-wrap items-center'" class="flex gap-x-2 gap-y-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">
                     <FontAwesomeIcon :icon="faExclamationTriangle" class="text-violet-600" fixed-width aria-hidden="true" />
                     <span v-if="staffNote" class="min-w-0 flex-1 whitespace-pre-line">{{ staffNote }}</span>
                     <template v-for="action in draft.actions" :key="action.index">
                         <span v-if="action.done" class="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 ring-1 ring-inset ring-emerald-200">
                             <FontAwesomeIcon :icon="faCheck" fixed-width />{{ action.label }}
                         </span>
-                        <button v-else type="button" :disabled="preview || actionBusy || !action.available" @click="runAction(action)"
-                            :title="action.why ?? (preview ? ctrans('Assign the chat to yourself first') : undefined)"
-                            class="whitespace-nowrap rounded-md bg-violet-600 px-2 py-0.5 font-medium text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50">
-                            {{ confirming === `${draft.id}:${action.index}` ? ctrans("Confirm: :label", { label: actionLabel(action) }) : actionLabel(action) }}
-                        </button>
+                        <Button v-else type="tertiary" size="xs" class="bg-white" :disabled="preview || actionBusy || !action.available" @click="runAction(action)"
+                            :tooltip="action.why ?? (preview ? ctrans('Assign the chat to yourself first') : undefined)"
+                            :label="confirming === `${draft.id}:${action.index}` ? ctrans('Confirm: :label', { label: actionLabel(action) }) : actionLabel(action)">
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faClipboardCheck" class="text-violet-600" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
                     </template>
                 </div>
                 <div v-if="draft.premonitions?.length" class="mt-1 flex flex-wrap gap-1.5 text-[11px]">
@@ -271,7 +292,7 @@ onBeforeUnmount(stopListening)
                         {{ premonition.reference }} · {{ premonition.fixed ? ctrans("fixed") : ctrans("engineers are on it") }}
                     </a>
                 </div>
-                <p role="button" tabindex="0" :aria-expanded="draftOpen" :title="draftOpen ? undefined : draft.text" class="mt-1 cursor-pointer whitespace-pre-line text-gray-800" :class="draftOpen ? 'max-h-48 overflow-y-auto' : 'line-clamp-3'" @click="toggleDraft" @keydown.enter.prevent="toggleDraft">{{ draft.text }}</p>
+                <p v-if="!inline" role="button" tabindex="0" :aria-expanded="draftOpen" :title="draftOpen ? undefined : draft.text" class="mt-1 cursor-pointer whitespace-pre-line text-gray-800" :class="draftOpen ? 'max-h-48 overflow-y-auto' : 'line-clamp-3'" @click="toggleDraft" @keydown.enter.prevent="toggleDraft">{{ draft.text }}</p>
                 <p v-if="draft.text.includes('[[')" class="mt-1 text-[11px] text-amber-700">{{ ctrans("Fill in or delete the parts marked [[ ]] before sending.") }}</p>
                 <div v-if="draft.checked?.length" class="mt-1 text-[11px] text-gray-500">
                     <button type="button" class="inline-flex items-center gap-1 hover:text-gray-700" :aria-expanded="checkedOpen" @click="checkedOpen = !checkedOpen">
@@ -283,20 +304,24 @@ onBeforeUnmount(stopListening)
                     </ul>
                 </div>
                 <div v-if="preview && assignable" class="mt-2">
-                    <button type="button" :disabled="assigning" @click="emit('assign-and-use', draft.id)"
-                        class="rounded-md bg-[--app-accent] px-2.5 py-0.5 text-[11px] font-medium text-[--app-accent-text] hover:bg-[--app-accent-strong] disabled:opacity-50">
-                        {{ ctrans("Assign to me and use") }}
-                    </button>
+                    <Button type="tertiary" size="xs" class="bg-white" :disabled="assigning" :label="ctrans('Assign to me and use')" @click="emit('assign-and-use', draft.id)">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faUserCheck" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
                 </div>
-                <div v-if="!preview" class="mt-2 flex gap-2">
-                    <button type="button" :disabled="busy" @click="decide('take')"
-                        class="rounded-md bg-[--app-accent] px-2.5 py-0.5 text-[11px] font-medium text-[--app-accent-text] hover:bg-[--app-accent-strong] disabled:opacity-50">
-                        {{ ctrans("Use") }}
-                    </button>
-                    <button type="button" :disabled="busy" @click="decide('discard')"
-                        class="rounded-md px-2.5 py-0.5 text-[11px] text-gray-600 ring-1 ring-inset ring-gray-300 hover:bg-white disabled:opacity-50">
-                        {{ ctrans("Discard") }}
-                    </button>
+                <div v-if="!preview" class="mt-2 flex flex-wrap items-center gap-2">
+                    <Button v-if="!inline" type="tertiary" size="xs" class="bg-white" :disabled="busy" :label="ctrans('Use')" @click="decide('take')">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faArrowDown" class="text-green-600" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
+                    <Button type="tertiary" size="xs" class="bg-white" :disabled="busy" :label="inline ? ctrans('Discard draft') : ctrans('Discard')"
+                        :tooltip="inline ? ctrans('Clears the reply box; a newer suggestion takes its place if there is one') : undefined" @click="decide('discard')">
+                        <template #icon>
+                            <FontAwesomeIcon :icon="faTimes" class="text-red-500" fixed-width aria-hidden="true" />
+                        </template>
+                    </Button>
                     <span class="relative ml-auto flex items-center" :title="ctrans('How good is this draft?')">
                         <button v-for="star in 5" :key="star" type="button" class="px-0.5 text-amber-500 hover:scale-110" :aria-label="ctrans(':count stars', { count: star })" @click="rate(star)">
                             <FontAwesomeIcon :icon="(draft.rating ?? 0) >= star ? faStar : faStarEmpty" fixed-width />

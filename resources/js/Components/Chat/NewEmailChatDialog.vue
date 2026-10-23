@@ -120,7 +120,7 @@ watch(visible, (isVisible) => {
 
 <template>
     <Dialog v-model:visible="visible" modal :header="ctrans('New email')"
-        :style="{ width: '90vw', maxWidth: '560px' }" :breakpoints="{ '640px': '95vw' }">
+        :style="{ width: '90vw', maxWidth: '900px' }" :breakpoints="{ '640px': '95vw' }">
         <div class="flex flex-col gap-3">
             <p class="text-xs text-gray-500 leading-snug">
                 {{ ctrans("It opens a conversation in this inbox, and their reply comes back to it.") }}
@@ -189,7 +189,7 @@ watch(visible, (isVisible) => {
             <div>
                 <ChatFormattingToolbar :editor="messageEditor?.editor" allow-underline class="mb-1" />
                 <ChatMessageEditor ref="messageEditor" v-model="form.message" :placeholder="ctrans('Message')" allow-underline
-                    class="rounded-md border border-gray-300 px-3 py-2 focus-within:border-gray-500 [&_.ProseMirror]:min-h-40 [&_.ProseMirror]:max-h-80" />
+                    class="rounded-md border border-gray-300 px-3 py-2 focus-within:border-gray-500 [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:max-h-[60vh]" />
             </div>
             <EmailAttachmentPicker v-model="form.attachments" :errors="form.errors" />
 

@@ -637,6 +637,83 @@ test('formatting an agent picks reaches the customer as html beside the readable
     });
 });
 
+test('a picture pasted into an email reply goes inside the body where it was pasted, not as an attachment', function () {
+    $settings          = $this->shop->settings ?? [];
+    $settings['gmail'] = ['email' => 'care@shop.test', 'refresh_token' => \Illuminate\Support\Facades\Crypt::encryptString('rt')];
+    $this->shop->update(['settings' => $settings]);
+
+    \Illuminate\Support\Facades\Http::fake([
+        'oauth2.googleapis.com/token'                          => \Illuminate\Support\Facades\Http::response(['access_token' => 'at']),
+        'gmail.googleapis.com/gmail/v1/users/me/messages/send' => \Illuminate\Support\Facades\Http::response(['id' => 'sent-pasted']),
+        'gmail.googleapis.com/*'                               => \Illuminate\Support\Facades\Http::response([]),
+    ]);
+
+    $session = ChatSession::create([
+        'ulid'        => (string) Str::ulid(),
+        'status'      => ChatSessionStatusEnum::ACTIVE,
+        'language_id' => 68,
+        'priority'    => ChatPriorityEnum::NORMAL,
+        'shop_id'     => $this->shop->id,
+        'channel'     => ChatChannelEnum::EMAIL,
+        'metadata'    => ['email_from' => 'buyer@example.com', 'email_subject' => 'Damaged'],
+    ]);
+
+    $reply = $session->messages()->create([
+        'message_text' => "See the box:\n[imagen: pasted-1]\nRef [Note: A12]\n[image:unknown-9]",
+        'message_type' => ChatMessageTypeEnum::IMAGE,
+        'sender_type'  => ChatSenderTypeEnum::AGENT,
+    ]);
+
+    $png   = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    $files = collect(['box.png', 'label.png', 'invoice.png'])->map(function (string $name) use ($png) {
+        $path = tempnam(sys_get_temp_dir(), 'pic');
+        file_put_contents($path, $png.$name);
+
+        return new \Illuminate\Http\UploadedFile($path, $name, 'image/png', null, true);
+    })->all();
+    $files[] = \Illuminate\Http\UploadedFile::fake()->create('spec.pdf', 10, 'application/pdf');
+
+    \App\Actions\Chat\ChatSession\SendChatMessage::make()->processMessageAttachments($reply, $files, ['pasted-1', 'pasted-2', null, 'pasted-3']);
+
+    \App\Actions\Comms\Mailbox\SendChatMessageByGmail::run($reply->fresh());
+
+    \Illuminate\Support\Facades\Http::assertSent(function (\Illuminate\Http\Client\Request $request) {
+        if (!str_ends_with($request->url(), 'users/me/messages/send')) {
+            return false;
+        }
+
+        $raw = base64_decode(strtr($request['raw'], '-_', '+/'));
+
+        preg_match_all('/Content-Type: (text\/\w+); charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\n(.*?)\r\n--/s', $raw, $matches);
+        $parts = array_combine($matches[1], array_map(fn ($part) => base64_decode($part), $matches[2]));
+
+        $picture = '<div><img src="cid:%s@aiku.io" alt="" style="max-width:100%%;height:auto"></div>';
+
+        return str_contains($raw, 'Content-Type: multipart/mixed')
+            && str_contains($raw, 'Content-Type: multipart/related')
+            && str_contains($raw, "Content-Disposition: inline; filename=\"box.png\"\r\nContent-ID: <pasted-1@aiku.io>")
+            && str_contains($raw, "Content-Disposition: inline; filename=\"label.png\"\r\nContent-ID: <pasted-2@aiku.io>")
+            && str_contains($raw, 'Content-Disposition: attachment; filename="invoice.png"')
+            && str_contains($raw, 'Content-Disposition: attachment; filename="spec.pdf"')
+            && ! str_contains($raw, 'attachment; filename="box.png"')
+            && ! str_contains($raw, 'cid:pasted-3')
+            && $parts['text/plain'] === "See the box:\nRef [Note: A12]"
+            && $parts['text/html'] === "See the box:<br />\n".sprintf($picture, 'pasted-1')."\nRef [Note: A12]<br />\n<br>".sprintf($picture, 'pasted-2');
+    });
+
+    $picture = '<div><img src="cid:%s@aiku.io" alt="" style="max-width:100%%;height:auto"></div>';
+    $reply->refresh();
+
+    expect($reply->html_body)->toBe("See the box:<br />\n".sprintf($picture, 'pasted-1')."\nRef [Note: A12]<br />\n<br>".sprintf($picture, 'pasted-2'))
+        ->and(Arr::get($reply->metadata, 'email_to'))->toBe([['address' => 'buyer@example.com', 'name' => null]]);
+
+    $shown = \App\Http\Resources\CRM\Livechat\ChatMessageResource::make($reply)->resolve();
+
+    expect($shown['html_body'])->not->toContain('cid:')
+        ->and(substr_count($shown['html_body'], '<img'))->toBe(2)
+        ->and(collect($shown['attachments'])->pluck('is_inline')->all())->toBe([true, true, false, false]);
+});
+
 test('an inline picture in an inbound email is shown inside the body where the sender put it', function () {
     Bus::fake([\App\Actions\Chat\ChatSession\ProcessChatMessageSideEffects::class, TranslateChatMessage::class, \App\Actions\Comms\Mailbox\SendChatMessageByGmail::class]);
 
@@ -1192,7 +1269,18 @@ test('an email reply goes to whoever wrote last and copies the colleagues the th
         'gmail.googleapis.com/*'                                 => \Illuminate\Support\Facades\Http::response([]),
     ]);
 
-    \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'cc1');
+    $firstMail = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'cc1');
+
+    expect(Arr::only($firstMail->fresh()->metadata, ['email_from', 'email_to', 'email_cc']))->toEqual([
+        'email_from' => ['address' => 'anna@bigaccount.test', 'name' => 'Anna Buyer'],
+        'email_to'   => [['address' => 'care@shop.test', 'name' => 'Care']],
+        'email_cc'   => [
+            ['address' => 'jane@bigaccount.test', 'name' => 'Doe, Jane'],
+            ['address' => 'ops@bigaccount.test', 'name' => null],
+            ['address' => 'hello@shop.test', 'name' => 'Shop'],
+        ],
+    ]);
+
     $session = \App\Actions\Comms\Mailbox\ProcessInboundEmail::run($this->shop, 'cc2')->chatSession->fresh();
 
     expect(Arr::get($session->metadata, 'email_reply_to'))->toBe('jane@bigaccount.test')
@@ -1200,7 +1288,7 @@ test('an email reply goes to whoever wrote last and copies the colleagues the th
         ->toEqualCanonicalizing(['anna@bigaccount.test', 'jane@bigaccount.test', 'ops@bigaccount.test']);
 
     $agentUser = createAdminGuest($this->organisation->group)->getUser();
-    $agent     = ChatAgent::updateOrCreate(['user_id' => $agentUser->id], ['max_concurrent_chats' => 5, 'language_id' => 68, 'is_online' => false, 'is_available' => false, 'current_chat_count' => 0]);
+    $agent     = ChatAgent::updateOrCreate(['user_id' => $agentUser->id], ['max_concurrent_chats' => 5, 'language_id' => 68, 'is_online' => false, 'is_available' => false, 'current_chat_count' => 0, 'signature' => null]);
 
     $session->update(['metadata' => array_merge($session->metadata, [
         'email_participants' => Arr::get($session->metadata, 'email_participants') + ['old@shop.test' => ['address' => 'old@shop.test', 'name' => null]],
@@ -1228,6 +1316,10 @@ test('an email reply goes to whoever wrote last and copies the colleagues the th
             && str_contains($raw, 'Cc: Anna Buyer <anna@bigaccount.test>')
             && ! str_contains($raw, 'ops@bigaccount.test');
     });
+
+    $reply->refresh();
+    expect($reply->html_body)->toBe('Sent today')
+        ->and(Arr::get($reply->metadata, 'email_to'))->toBe([['address' => 'jane@bigaccount.test', 'name' => 'Doe, Jane']]);
 });
 
 test('an email reply to an accented domain goes to its punycode form, and one to an address no header can carry fails saying so', function () {

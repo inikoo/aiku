@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import { Head, router } from '@inertiajs/vue3'
 import { ref, inject, onMounted, watch, computed } from 'vue'
 import axios from 'axios'
@@ -349,7 +350,7 @@ const tabs: { key: SidePanelTab; label: string; onlyRegistered?: boolean }[] = [
                                 {{ senderLabel(msg) }}
                             </div>
 
-                            <p v-if="msg.message_text && attachmentList(msg).length" class="whitespace-pre-wrap break-words mb-1">{{ msg.message_text }}</p>
+                            <p v-if="msg.message_text && attachmentList(msg).length" class="whitespace-pre-wrap break-words mb-1">{{ stripPictureTokens(msg.message_text) }}</p>
 
                             <template v-if="attachmentList(msg).length">
                                 <template v-for="attachment in attachmentList(msg)" :key="attachment.id">

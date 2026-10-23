@@ -118,7 +118,7 @@ const send = () => {
 
 <template>
     <Dialog v-model:visible="visible" :modal="false" position="right" draggable :header="ctrans('Email customer')"
-        :style="{ width: '90vw', maxWidth: '560px' }" :breakpoints="{ '640px': '95vw' }">
+        :style="{ width: '90vw', maxWidth: '720px' }" :breakpoints="{ '640px': '95vw' }">
         <div class="flex flex-col gap-3">
             <p class="text-xs text-gray-500 leading-snug">
                 {{ ctrans("Their reply comes back to the chat inbox.") }}
@@ -142,7 +142,7 @@ const send = () => {
                         @click="insertOutOfStockLines" />
                 </div>
                 <ChatMessageEditor ref="messageEditor" v-model="form.message" :placeholder="ctrans('Message')" allow-underline
-                    class="rounded-md border border-gray-300 px-3 py-2 focus-within:border-[--app-accent] [&_.ProseMirror]:min-h-40 [&_.ProseMirror]:max-h-80" />
+                    class="rounded-md border border-gray-300 px-3 py-2 focus-within:border-[--app-accent] [&_.ProseMirror]:min-h-64 [&_.ProseMirror]:max-h-[60vh]" />
             </div>
             <div v-if="templates?.length && templateValues" class="text-xs text-gray-500 leading-snug">
                 <p>{{ ctrans("These are filled in when the email is sent:") }}</p>

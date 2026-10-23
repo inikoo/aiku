@@ -13,7 +13,7 @@ import {
     faLanguage,
     faTimesCircle,
     faMessage,
-    faPaperclip, faXmark, faFilePdf, faEnvelope, faRotateRight, faBan, faRotateLeft, faFaceSmile,
+    faPaperclip, faUpRightAndDownLeftFromCenter, faDownLeftAndUpRightToCenter, faXmark, faFilePdf, faEnvelope, faRotateRight, faBan, faRotateLeft, faFaceSmile,
     faLifeRing,
     faEye,
     faArchive,
@@ -65,6 +65,7 @@ interface GetMessagesParams {
 
 import { formatChatTime, formatChatAge } from "@/Composables/chatTime"
 import { chatEmailRecipient, chatEmailRecipientLabel } from "@/Composables/chatEmailRecipient"
+import { pictureToken, stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import { useChatClosingCountdown } from "@/Composables/useChatClosingCountdown"
 import { useChatWaitingForCustomer, waitingOptions } from "@/Composables/useChatWaitingForCustomer"
 import { faGlobe } from "@fal"
@@ -680,6 +681,7 @@ interface SelectedAttachment {
     file: File
     previewUrl: string | null
     isImage: boolean
+    pictureId?: string
 }
 
 const selectedFiles = ref<SelectedAttachment[]>([])
@@ -689,6 +691,82 @@ useComposerAttachmentDraft("chat-isEmailNotif", () => props.session?.ulid, isEma
 
 const isEmailChat = computed(() => (props.session as any)?.channel === "email")
 
+const readComposerExpanded = () => {
+    try {
+        return localStorage.getItem("chat-email-composer-expanded") === "1"
+    } catch {
+        return false
+    }
+}
+
+const isComposerExpanded = ref(readComposerExpanded())
+
+const toggleComposerExpanded = () => {
+    isComposerExpanded.value = !isComposerExpanded.value
+
+    try {
+        localStorage.setItem("chat-email-composer-expanded", isComposerExpanded.value ? "1" : "0")
+    } catch {
+        // A browser that refuses storage still gets the bigger box for this visit.
+    }
+
+    messageEditor.value?.focus()
+}
+
+const aiDraftBox = ref<InstanceType<typeof ChatAiDraftBox> | null>(null)
+const aiDraftText = ref<string | null>(null)
+let aiDraftId: number | null = null
+
+watch(() => props.session?.ulid, () => aiDraftText.value = null)
+
+// ponytail: one storage key per draft offered, never pruned; a few bytes each, sweep them if it ever matters
+const offeredKey = (draftId: number) => `chat-ai-draft-offered:${draftId}`
+const wasOffered = (draftId: number) => {
+    try {
+        return localStorage.getItem(offeredKey(draftId)) !== null
+    } catch {
+        return false
+    }
+}
+const markOffered = (draftId: number) => {
+    try {
+        localStorage.setItem(offeredKey(draftId), "1")
+    } catch {
+        return
+    }
+}
+
+// An email reply starts from Aiku's draft, unless the agent has begun one of their own or
+// already cleared this draft out of the box. A newer draft replaces an older one left untouched.
+const offerAiDraft = (text: string, draftId?: number) => {
+    const isUntouchedDraft = aiDraftText.value !== null && newMessage.value === aiDraftText.value
+    const isFree = !newMessage.value.trim() && !(draftId && wasOffered(draftId))
+
+    if (newMessage.value !== text && !isUntouchedDraft && !isFree) {
+        if (draftId !== aiDraftId) aiDraftText.value = null
+        return
+    }
+
+    if (draftId) markOffered(draftId)
+    aiDraftId = draftId ?? null
+    newMessage.value = text
+    aiDraftText.value = text
+}
+
+const clearAiDraft = () => {
+    if (aiDraftText.value !== null && newMessage.value === aiDraftText.value) newMessage.value = ""
+    aiDraftText.value = null
+}
+
+const aiDraftInEditor = computed(() => aiDraftText.value !== null && !!newMessage.value.trim())
+
+watch(newMessage, (value) => {
+    if (aiDraftText.value !== null && value.trim() && value !== aiDraftText.value) aiDraftBox.value?.take()
+})
+
+const pictureSource = (pictureId: string) =>
+    selectedFiles.value.find((attachment) => attachment.pictureId === pictureId)?.previewUrl ?? undefined
+
 const customerLanguage = computed<{ code: string, name: string } | null>(() =>
     (props.session as any)?.channel === "whatsapp" ? null : (props.session as any)?.customer_language ?? null
 )
@@ -696,6 +774,16 @@ const customerLanguage = computed<{ code: string, name: string } | null>(() =>
 const emailRecipient = computed(() => chatEmailRecipient((props.session as any)?.metadata).address)
 
 const emailRecipientLabel = computed(() => isEmailChat.value ? chatEmailRecipientLabel((props.session as any)?.metadata) : "")
+
+const emailSubject = computed(() => isEmailChat.value ? String((props.session as any)?.metadata?.email_subject ?? "").trim() : "")
+
+// As in Gmail: the newest mail is open, and so is everything the customer sent since we last answered.
+const openMailIds = computed(() => {
+    const mails = messagesLocal.value.filter((message) => message.sender_type !== "system" || message.metadata?.gmail_message_id)
+    const lastAgentIndex = mails.map((message) => message.sender_type === "user" || message.sender_type === "guest").lastIndexOf(false)
+
+    return new Set([...mails.slice(lastAgentIndex + 1), mails[mails.length - 1]].filter(Boolean).map((message) => message.id))
+})
 
 const emailCopyCandidates = computed<{ address: string; name: string | null }[]>(() => {
     if (!isEmailChat.value) return []
@@ -733,20 +821,33 @@ const canEmailNotify = computed(() => {
 
 const { rejectionFor } = useUploadLimits()
 
-const addAttachment = (file: File, isImage: boolean) => {
+// A picture deleted from the text no longer goes, so it no longer holds one of the places.
+const dropDeletedPictures = () => {
+    selectedFiles.value = selectedFiles.value.filter((attachment) => {
+        const isDeleted = !!attachment.pictureId && !newMessage.value.includes(pictureToken(attachment.pictureId))
+
+        if (isDeleted && attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl)
+
+        return !isDeleted
+    })
+}
+
+const addAttachment = (file: File, isImage: boolean, pictureId?: string): SelectedAttachment | null => {
+    dropDeletedPictures()
+
     if (selectedFiles.value.length >= MAX_ATTACHMENTS) {
         notify({ title: ctrans("Failed"), text: ctrans("Maximum :count attachments", { count: MAX_ATTACHMENTS }), type: "error" })
-        return
+        return null
     }
 
     if (isImage && !IMAGE_TYPES.includes(file.type)) {
-        notify({ title: "Failed", text: "Image format not supported", type: "error" })
-        return
+        notify({ title: ctrans("Failed"), text: ctrans("Image format not supported"), type: "error" })
+        return null
     }
 
     if (!isImage && !isSupportedFile(file)) {
         notify({ title: ctrans("Failed"), text: ctrans("File format not supported"), type: "error" })
-        return
+        return null
     }
 
     // The server's own limit as well as ours, and the batch as well as the file: a batch that is
@@ -757,14 +858,30 @@ const addAttachment = (file: File, isImage: boolean) => {
     if (rejection) {
         notify({ title: ctrans("File not attached"), text: `${file.name} - ${rejection}`, type: "error" })
 
-        return
+        return null
     }
 
-    selectedFiles.value.push({
+    const attachment = {
         file,
         isImage,
+        pictureId,
         previewUrl: isImage ? URL.createObjectURL(file) : null,
-    })
+    }
+
+    selectedFiles.value.push(attachment)
+
+    return attachment
+}
+
+// An email reply keeps a pasted picture where it was pasted, as Gmail does; the file rides along
+// with the attachments and is dropped at send if the picture was deleted from the text.
+// ponytail: a draft restored after a page reload loses its pictures (object URLs die with the page)
+const pastePicture = (file: File) => {
+    const attachment = addAttachment(file, true, crypto.randomUUID())
+
+    if (attachment?.previewUrl && attachment.pictureId) {
+        messageEditor.value?.insertPicture(attachment.previewUrl, attachment.pictureId)
+    }
 }
 
 const handleImageSelect = (e: Event) => {
@@ -792,7 +909,9 @@ const onPasteAttachment = (event: ClipboardEvent) => {
     if (!file) return
 
     event.preventDefault()
-    if (file.type.startsWith("image/")) {
+    if (file.type.startsWith("image/") && isEmailChat.value) {
+        pastePicture(file)
+    } else if (file.type.startsWith("image/")) {
         selectImage(file)
     } else {
         selectDoc(file)
@@ -850,7 +969,7 @@ const onDropAttachment = (event: DragEvent) => {
     isDraggingFile.value = false
 
     Array.from(event.dataTransfer?.files ?? []).forEach((file) =>
-        file.type.startsWith("image/") ? selectImage(file) : selectDoc(file)
+        !file.type.startsWith("image/") ? selectDoc(file) : isEmailChat.value ? pastePicture(file) : selectImage(file)
     )
 }
 
@@ -879,8 +998,15 @@ const scrollBottom = () =>
     })
 
 const sendMessage = async () => {
+    const attachments = selectedFiles.value.filter((attachment) =>
+        !attachment.pictureId || newMessage.value.includes(pictureToken(attachment.pictureId))
+    )
+    const pictureIds = attachments.map((attachment) => attachment.pictureId).filter(Boolean) as string[]
+
+    // A draft brought back after a reload keeps the place of a picture whose file died with the page.
+    newMessage.value = stripPictureTokens(newMessage.value, pictureIds)
     const hasText = !!newMessage.value.trim()
-    const hasFiles = selectedFiles.value.length > 0
+    const hasFiles = attachments.length > 0
 
     if (!hasText && !hasFiles) return
 
@@ -894,7 +1020,7 @@ const sendMessage = async () => {
 
     const tempId = `tmp-${Date.now()}`
 
-    const allImages = hasFiles && selectedFiles.value.every((a) => a.isImage)
+    const allImages = hasFiles && attachments.every((a) => a.isImage)
     const messageType = hasFiles ? (allImages ? "image" : "file") : "text"
 
     const optimisticMessage: LocalChatMessage = {
@@ -902,7 +1028,7 @@ const sendMessage = async () => {
         _tempId: tempId,
         message_text: newMessage.value ?? "",
         media_url:
-            messageType === "image" ? selectedFiles.value[0]?.previewUrl : null,
+            messageType === "image" ? attachments[0]?.previewUrl : null,
         sender_type: "agent",
         message_type: messageType,
         created_at: new Date().toISOString(),
@@ -913,6 +1039,7 @@ const sendMessage = async () => {
     scrollBottom()
 
     const text = newMessage.value
+    aiDraftText.value = null
     newMessage.value = ""
     typingUser.value = null
 
@@ -932,7 +1059,8 @@ const sendMessage = async () => {
 
     emit("send-message", {
         text: text,
-        files: selectedFiles.value.map((a) => a.file),
+        files: attachments.map((a) => a.file),
+        content_ids: attachments.map((a) => a.pictureId ?? ""),
         message_type: messageType,
         tempId,
         is_email_notif: isEmailNotif.value,
@@ -1585,14 +1713,18 @@ const handleClickOutside = (e: MouseEvent) => {
                 </button>
             </div>
 
+            <h2 v-if="emailSubject" class="px-1 pt-1 text-base font-semibold text-gray-900 break-words">{{ emailSubject }}</h2>
+
             <template v-for="(entries, date) in groupedTimeline" :key="date">
                 <div class="text-center text-xs text-gray-400">{{ date }}</div>
                 <template v-for="entry in entries" :key="entry.key">
                     <ChatTimelineEvent v-if="entry.kind === 'event'" :event="entry.event" />
                     <div v-else class="flex rounded-lg transition-colors"
                         :data-message-id="entry.message.id"
-                        :class="entry.message.sender_type === 'agent' ? 'justify-end' : 'justify-start'">
+                        :class="isEmailChat ? '' : entry.message.sender_type === 'agent' ? 'justify-end' : 'justify-start'">
                         <BubbleChat :message="entry.message" viewerType="agent" format-markup
+                            :mail="isEmailChat" :mail-collapsed="!openMailIds.has(entry.message.id)"
+                            :mail-recipient="isEmailChat ? chatEmailRecipient((session as any)?.metadata) : null"
                             :contactName="session?.contact_name || session?.guest_identifier"
                             :agentName="session?.assigned_agent?.name"
                             :canEdit="isMyChat && !isClosed && !isWaiting"
@@ -1614,8 +1746,8 @@ const handleClickOutside = (e: MouseEvent) => {
             {{ remoteTypingUser }} {{ ctrans("is typing...") }}
         </div>
 
-        <div v-if="selectedFiles.length" class="px-3 pb-2 flex flex-wrap gap-2">
-            <div v-for="(attachment, index) in selectedFiles" :key="index" class="relative">
+        <div v-if="selectedFiles.some((attachment) => !attachment.pictureId)" class="px-3 pb-2 flex flex-wrap gap-2">
+            <div v-for="(attachment, index) in selectedFiles" v-show="!attachment.pictureId" :key="index" class="relative">
                 <template v-if="attachment.isImage && attachment.previewUrl">
                     <img :src="attachment.previewUrl" class="h-24 rounded-lg border object-cover" />
                     <button @click="removeAttachment(index)" class="absolute -top-2 -right-2 bg-white rounded-full shadow p-1" :aria-label="ctrans('Remove image')">
@@ -1704,8 +1836,8 @@ const handleClickOutside = (e: MouseEvent) => {
 
         <!-- Footer: Takeover banner for team chats -->
         <footer v-else-if="!isMyChat" class="px-3 py-3 bg-white border-t">
-            <div class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-indigo-50 border border-indigo-200">
-                <div class="text-xs text-indigo-600">
+            <div class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-[--app-accent-soft] border border-[--app-accent-muted]">
+                <div class="text-xs text-[--app-accent-strong]">
                     <span class="font-semibold">{{ props.session?.assigned_agent?.name }}</span>
                     {{ ctrans(' is handling this chat') }}
                 </div>
@@ -1749,15 +1881,27 @@ const handleClickOutside = (e: MouseEvent) => {
                 <span>{{ ctrans("The customer writes in :language. A reply in another language is translated to :language before it is sent.", { language: customerLanguage.name }) }}</span>
             </div>
 
-            <ChatAiDraftBox :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" />
+            <ChatAiDraftBox v-if="!isEmailChat" :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" />
 
-            <div class="rounded-xl border border-gray-200 bg-white shadow-sm focus-within:border-gray-400 focus-within:shadow-md transition-shadow">
+            <div :class="isEmailChat ? 'flex flex-wrap items-start gap-2' : ''">
+            <div class="min-w-0 flex-1 basis-[28rem] rounded-xl border bg-white shadow-sm focus-within:border-gray-400 focus-within:shadow-md transition-shadow"
+                :class="aiDraftInEditor ? 'border-[--app-accent-muted]' : 'border-gray-200'">
+                <div v-if="aiDraftInEditor" class="flex items-center gap-1.5 px-4 pt-2 text-[11px] font-medium text-gray-500">
+                    <img src="/art/invader.svg" class="h-3 select-none" alt="" />
+                    {{ ctrans("Draft by Aiku: read it, change what you need, then send") }}
+                </div>
                 <ChatMessageEditor ref="messageEditor" v-model="newMessage" @update:model-value="handleTyping"
                     @blur="() => { isTyping = false; sendTypingStatus(false) }"
                     @paste="onPasteAttachment" @submit="sendMessage" :enter-sends="!isEmailChat"
                     :allow-underline="(session as any)?.channel !== 'whatsapp'"
                     :placeholder="isEmailChat ? ctrans('Type your reply, Ctrl+Enter to send') : ctrans('Type message...')"
-                    class="px-4 pt-3 pb-1 [&_.ProseMirror]:max-h-[120px] [@media(max-height:800px)]:[&_.ProseMirror]:max-h-20" />
+                    :picture-source="pictureSource"
+                    class="px-4 pt-3 pb-1"
+                    :class="isEmailChat && isComposerExpanded
+                        ? '[&_.ProseMirror]:min-h-[30vh] [&_.ProseMirror]:max-h-[55vh]'
+                        : isEmailChat
+                            ? '[&_.ProseMirror]:max-h-60 [@media(max-height:800px)]:[&_.ProseMirror]:max-h-32'
+                            : '[&_.ProseMirror]:max-h-[120px] [@media(max-height:800px)]:[&_.ProseMirror]:max-h-20'" />
 
                 <div class="flex items-center justify-between px-2 pb-2 pt-1">
                     <div class="flex items-center gap-1">
@@ -1772,7 +1916,7 @@ const handleClickOutside = (e: MouseEvent) => {
                         <div ref="emojiPickerContainer" class="relative">
                             <button type="button" @click.stop="showEmojiPicker = !showEmojiPicker"
                                 class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-                                :class="showEmojiPicker ? 'text-indigo-600 bg-gray-100' : 'text-gray-500'"
+                                :class="showEmojiPicker ? 'text-[--app-accent] bg-gray-100' : 'text-gray-500'"
                                 v-tooltip="ctrans('Emoji')" :aria-label="ctrans('Emoji')">
                                 <FontAwesomeIcon :icon="faFaceSmile" class="text-sm" fixed-width />
                             </button>
@@ -1782,15 +1926,27 @@ const handleClickOutside = (e: MouseEvent) => {
                             </div>
                         </div>
                         <button @click="openTicketModal"
-                            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors" v-tooltip="ctrans('Create ticket')" :aria-label="ctrans('Create ticket')">
+                            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 transition-colors" v-tooltip="ctrans('Create ticket')" :aria-label="ctrans('Create ticket')">
                             <FontAwesomeIcon :icon="faLifeRing" class="text-sm" fixed-width />
                         </button>
                         <div class="mx-1 h-5 w-px bg-gray-200" />
                         <ChatFormattingToolbar :editor="messageEditor?.editor"
                             :allow-underline="(session as any)?.channel !== 'whatsapp'" />
+                        <template v-if="isEmailChat">
+                            <div class="mx-1 h-5 w-px bg-gray-200" />
+                            <button type="button" @click="toggleComposerExpanded" :aria-pressed="isComposerExpanded"
+                                class="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs text-gray-500 hover:bg-gray-100 transition-colors"
+                                v-tooltip="isComposerExpanded ? ctrans('Smaller reply box') : ctrans('Bigger reply box')">
+                                <FontAwesomeIcon :icon="isComposerExpanded ? faDownLeftAndUpRightToCenter : faUpRightAndDownLeftFromCenter" class="text-sm" fixed-width aria-hidden="true" />
+                                {{ isComposerExpanded ? ctrans("Smaller") : ctrans("Bigger") }}
+                            </button>
+                        </template>
                     </div>
                     <Button @click="sendMessage" :icon="faPaperPlane" :tooltip="ctrans('Send message')"></Button>
                 </div>
+            </div>
+            <ChatAiDraftBox v-if="isEmailChat" ref="aiDraftBox" inline :session-ulid="chatSession?.ulid" :read-only="readOnly"
+                class="w-full sm:w-72 shrink-0" @use="offerAiDraft" @discarded="clearAiDraft" />
             </div>
         </footer>
 

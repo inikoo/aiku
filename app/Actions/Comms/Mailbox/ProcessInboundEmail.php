@@ -279,6 +279,9 @@ class ProcessInboundEmail
                 'gmail_message_id'        => $gmailMessageId,
                 'gmail_header_message_id' => $headerMessageId,
                 'email_subject'           => $subject,
+                'email_from'              => $from,
+                'email_to'                => GmailMessageParser::addresses($raw, 'To'),
+                'email_cc'                => GmailMessageParser::addresses($raw, 'Cc'),
             ],
                 // Marked on the message rather than given a state of its own: it is kept so the
                 // history is honest, and shown for what it is so nobody reads it as an answer.
@@ -564,6 +567,9 @@ class ProcessInboundEmail
                     'gmail_message_id'        => Arr::get($raw, 'id'),
                     'gmail_header_message_id' => GmailMessageParser::header($raw, 'Message-ID'),
                     'email_subject'           => GmailMessageParser::header($raw, 'Subject'),
+                    'email_from'              => GmailMessageParser::fromAddress($raw),
+                    'email_to'                => GmailMessageParser::addresses($raw, 'To'),
+                    'email_cc'                => GmailMessageParser::addresses($raw, 'Cc'),
                     'gmail_thread_history'    => true,
                 ] + ($pending ? ['gmail_pending_attachments' => $pending] : []),
             ]);

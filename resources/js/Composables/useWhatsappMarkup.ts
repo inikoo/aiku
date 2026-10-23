@@ -1,3 +1,5 @@
+import { ctrans } from "@/Composables/useTrans"
+
 const ESCAPES: Record<string, string> = {
     "&": "&amp;",
     "<": "&lt;",
@@ -65,7 +67,7 @@ export const formatWhatsappMarkup = (value?: string | null): string => {
         return ""
     }
 
-    const [withoutLinks, links] = extractLinks(value)
+    const [withoutLinks, links] = extractLinks(stripPictureTokens(value))
     let text = escapeHtml(withoutLinks)
 
     text = text.replace(
@@ -83,7 +85,19 @@ export const formatWhatsappMarkup = (value?: string | null): string => {
 
 const LIST_LINE = /^(• |\d+\. )/
 
-export const markupToEditorHtml = (value?: string | null): string => {
+/**
+ * A picture pasted into an email reply, kept where it was pasted. SendChatMessageByGmail swaps
+ * it for the picture itself; the bubble shows the file beside the text, so it drops the token.
+ */
+const PICTURE_TOKEN = /\[image:([A-Za-z0-9-]{1,64})\]\n?/g
+const PICTURE_LINE = /^\[image:([A-Za-z0-9-]{1,64})\]$/
+
+export const pictureToken = (pictureId: string) => `[image:${pictureId}]`
+
+export const stripPictureTokens = (value?: string | null, keep: string[] = []): string =>
+    (value ?? "").replace(PICTURE_TOKEN, (token, pictureId) => keep.includes(pictureId) ? token : "")
+
+export const markupToEditorHtml = (value?: string | null, pictureSource?: (pictureId: string) => string | undefined): string => {
     const lines = (value ?? "").split(/\r?\n/)
     let html = ""
     let index = 0
@@ -91,6 +105,14 @@ export const markupToEditorHtml = (value?: string | null): string => {
     while (index < lines.length) {
         const line = lines[index]
         const kind = line.startsWith("• ") ? "ul" : /^\d+\. /.test(line) ? "ol" : null
+        const pictureId = line.match(PICTURE_LINE)?.[1]
+        const pictureSrc = pictureId ? pictureSource?.(pictureId) : undefined
+
+        if (pictureId && pictureSrc) {
+            html += `<img src="${escapeHtml(pictureSrc)}" alt="${escapeHtml(ctrans("Pasted picture"))}" data-picture-id="${pictureId}">`
+            index++
+            continue
+        }
 
         if (!kind) {
             html += `<p>${formatWhatsappMarkup(line)}</p>`
@@ -113,6 +135,7 @@ type EditorNode = {
     type: string
     text?: string
     marks?: { type: string }[]
+    attrs?: Record<string, any>
     content?: EditorNode[]
 }
 
@@ -178,6 +201,10 @@ export const editorDocToMarkup = (doc: EditorNode): string =>
                     const prefix = block.type === "bulletList" ? "• " : `${position + 1}. `
                     return prefix + (item.content ?? []).map((child) => inlineToMarkup(child.content)).join(" ")
                 })
+            }
+
+            if (block.type === "image") {
+                return /^[A-Za-z0-9-]{1,64}$/.test(block.attrs?.pictureId ?? "") ? [pictureToken(block.attrs!.pictureId)] : []
             }
 
             return [inlineToMarkup(block.content)]

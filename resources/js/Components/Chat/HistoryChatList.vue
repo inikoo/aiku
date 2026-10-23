@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import { ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -95,7 +96,7 @@ const onScroll = (event: Event) => {
 			</div>
 
 			<div v-if="!(showAiSummary && s.ai_summary?.summary)" class="text-xs text-gray-500 truncate">
-				{{ s.last_message?.message }}
+				{{ stripPictureTokens(s.last_message?.message) }}
 			</div>
 
 			<div v-else

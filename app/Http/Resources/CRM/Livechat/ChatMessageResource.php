@@ -10,6 +10,7 @@ use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
 use App\Models\Helpers\Media;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ChatMessageResource extends JsonResource
@@ -189,7 +190,8 @@ class ChatMessageResource extends JsonResource
                 ? strtolower($address)
                 : 'file:'.strtolower(basename($address));
 
-            $media = $byReference[$reference] ?? null;
+            // Our own replies name a pasted picture <content id>@aiku.io, the file only by its content id.
+            $media = $byReference[$reference] ?? $byReference[Str::before($reference, '@')] ?? null;
 
             if (! $media) {
                 return '';

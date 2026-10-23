@@ -9,6 +9,7 @@ import { chatSendErrorText } from "@/Composables/chatSendError"
 import { capitalize } from "@/Composables/capitalize"
 import { followPointer } from "@/Composables/followPointer"
 import { cleanEmailText } from "@/Composables/cleanEmailText"
+import { stripPictureTokens } from "@/Composables/useWhatsappMarkup"
 import MessageAreaAgent from "@/Components/Chat/Agent/MessageAreaAgent.vue"
 import WhatsappMessageAreaAgent from "@/Components/Chat/Agent/WhatsappMessageAreaAgent.vue"
 import ChatConversationSidePanel from "@/Components/Chat/ChatConversationSidePanel.vue"
@@ -380,7 +381,7 @@ const mapSession = (s: SessionAPI): Contact => ({
     channel: (s as any).channel ?? (selectedChannel.value === "whatsapp" ? "whatsapp" : "website"),
     name: s.contact_name || s.guest_identifier || "",
     avatar: s.image ?? "",
-    lastMessage: cleanEmailText(s.last_message?.message),
+    lastMessage: cleanEmailText(stripPictureTokens(s.last_message?.message)),
     lastMessageTime: s.last_message?.created_at
         ? formatChatTime(new Date(s.last_message.created_at).getTime() + PLUS_8_HOURS)
         : undefined,
@@ -1996,13 +1997,14 @@ const updateUrl = (ulid: string) => {
     window.history.replaceState(window.history.state, "", url)
 }
 
-const handleSendMessage = async ({ text, files, message_type, is_email_notif, email_cc_excluded, onFailed }: {
+const handleSendMessage = async ({ text, files, message_type, is_email_notif, email_cc_excluded, content_ids, onFailed }: {
     text: string
     files?: File[]
     message_type: "text" | "image" | "file"
     tempId: number
     is_email_notif: boolean
     email_cc_excluded?: string[]
+    content_ids?: string[]
     onFailed?: (message: string) => void
 }) => {
     if (!selectedSession.value?.ulid) return
@@ -2016,10 +2018,11 @@ const handleSendMessage = async ({ text, files, message_type, is_email_notif, em
         formData.append("is_email_notif", String(is_email_notif ?? false))
         email_cc_excluded?.forEach((address) => formData.append("email_cc_excluded[]", address))
 
-        if (files?.length === 1) {
+        if (files?.length === 1 && !content_ids?.some(Boolean)) {
             formData.append(message_type === "image" ? "image" : "file", files[0])
         } else {
             files?.forEach((file) => formData.append("attachments[]", file))
+            content_ids?.forEach((contentId) => formData.append("attachment_content_ids[]", contentId))
         }
 
         await axios.post(

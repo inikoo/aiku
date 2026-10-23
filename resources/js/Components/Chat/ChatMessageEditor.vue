@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { watch, onBeforeUnmount } from "vue"
+import { ctrans } from "@/Composables/useTrans"
 import { useEditor, EditorContent } from "@tiptap/vue-3"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
 import Placeholder from "@tiptap/extension-placeholder"
+import Image from "@tiptap/extension-image"
 import { markupToEditorHtml, editorDocToMarkup } from "@/Composables/useWhatsappMarkup"
 
 const props = withDefaults(defineProps<{
@@ -12,6 +14,7 @@ const props = withDefaults(defineProps<{
     disabled?: boolean
     enterSends?: boolean
     allowUnderline?: boolean
+    pictureSource?: (pictureId: string) => string | undefined
 }>(), {
     modelValue: "",
     placeholder: "",
@@ -27,12 +30,25 @@ const emit = defineEmits<{
 let lastEmitted = props.modelValue ?? ""
 
 const editor = useEditor({
-    content: markupToEditorHtml(props.modelValue),
+    content: markupToEditorHtml(props.modelValue, props.pictureSource),
     editable: !props.disabled,
     extensions: [
         StarterKit.configure({ heading: false, blockquote: false, codeBlock: false, horizontalRule: false }),
         Underline,
         Placeholder.configure({ placeholder: () => props.placeholder }),
+        Image.extend({
+            parseHTML: () => [{ tag: 'img[src^="blob:"][data-picture-id]' }],
+            addAttributes() {
+                return {
+                    ...this.parent?.(),
+                    pictureId: {
+                        default: null,
+                        parseHTML: (element: HTMLElement) => element.getAttribute("data-picture-id"),
+                        renderHTML: (attributes: { pictureId?: string | null }) => attributes.pictureId ? { "data-picture-id": attributes.pictureId } : {},
+                    },
+                }
+            },
+        }).configure({ HTMLAttributes: { class: "my-1 max-h-60 max-w-full rounded border" } }),
     ],
     editorProps: {
         handleKeyDown: (_view, event) => {
@@ -61,7 +77,7 @@ const editor = useEditor({
 watch(() => props.modelValue, (value) => {
     if (!editor.value || (value ?? "") === lastEmitted) return
     lastEmitted = value ?? ""
-    editor.value.commands.setContent(markupToEditorHtml(value), false)
+    editor.value.commands.setContent(markupToEditorHtml(value, props.pictureSource), false)
 })
 
 watch(() => props.disabled, (disabled) => editor.value?.setEditable(!disabled))
@@ -72,6 +88,8 @@ defineExpose({
     editor,
     focus: () => editor.value?.commands.focus(),
     insertText: (text: string) => editor.value?.chain().focus().insertContent(text).run(),
+    insertPicture: (src: string, pictureId: string) => editor.value?.chain().focus()
+        .insertContent({ type: "image", attrs: { src, pictureId, alt: ctrans("Pasted picture") } }).run(),
 })
 </script>
 

@@ -403,6 +403,15 @@ class SendChatMessage
                 File::types(self::ATTACHMENT_TYPES)
                     ->max(self::MAX_AGENT_FILE_KB)
             ],
+            'attachment_content_ids'   => [
+                'sometimes',
+                'array',
+            ],
+            'attachment_content_ids.*' => [
+                'nullable',
+                'string',
+                'regex:/^[A-Za-z0-9-]{1,64}$/',
+            ],
             'is_email_notif' => [
                 'sometimes',
                 'nullable',
