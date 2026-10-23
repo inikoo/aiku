@@ -383,8 +383,52 @@ const selectedRows = ref<Record<string, boolean>>({})
 
 const tableRows = computed<any[]>(() => (props.data as any)?.data ?? [])
 const canAddToContainer = (item: any) => !!item.agent_warehouse?.containers_route
-const hasRowsForContainer = computed(() => tableRows.value.some(canAddToContainer))
+const canPack = (item: any) => !!item.agent_warehouse?.pack_route && !isAllInContainers(item)
+const isSelectable = (item: any) => canAddToContainer(item) || canPack(item)
+const hasSelectableRows = computed(() => tableRows.value.some(isSelectable))
 const rowsSelectedForContainer = computed(() => tableRows.value.filter((item) => selectedRows.value[item.id] && canAddToContainer(item)))
+const rowsSelectedForPacking = computed(() => tableRows.value.filter((item) => selectedRows.value[item.id] && canPack(item)))
+const isPackingSelected = ref(false)
+
+function packSelected() {
+    const rows = rowsSelectedForPacking.value
+    if (!rows.length) {
+        return
+    }
+
+    router.patch(route('grp.models.purchase-order.transaction.pack_many', { purchaseOrder: rows[0].agent_warehouse.pack_route.parameters.purchaseOrder }), { transactions: rows.map((item) => item.id) }, {
+        preserveScroll: true,
+        onStart: () => (isPackingSelected.value = true),
+        onFinish: () => (isPackingSelected.value = false),
+        onSuccess: () => {
+            _table.value?.clearSelection()
+            selectedRows.value = {}
+        },
+        onError: (errors: Record<string, string>) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors ?? {})[0], type: 'error' }),
+    })
+}
+
+function confirmPackSelected(event: MouseEvent) {
+    const rows = rowsSelectedForPacking.value
+    const toCheck = rows.reduce((sum, item) => sum + Number(item.agent_warehouse.quantity_to_check ?? 0), 0)
+
+    if (toCheck <= 0 || isBraveModeActive()) {
+        packSelected()
+        return
+    }
+
+    confirm.require({
+        group: 'pack-item',
+        target: event.currentTarget as HTMLElement,
+        message: ctrans(':units received units of the :count selected items are not checked yet. Once packed they can no longer be checked. Pack them anyway?', {
+            units: locale.number(toCheck),
+            count: rows.length,
+        }),
+        acceptLabel: ctrans('Pack anyway'),
+        rejectLabel: ctrans('Cancel'),
+        accept: packSelected,
+    })
+}
 
 function onSelectRow(rows: Record<string, boolean>) {
     selectedRows.value = { ...rows }
@@ -596,9 +640,9 @@ function orgStockRoute(item: { org_stock_id?: number }) {
         :name="tab"
         class="mt-5"
         :rowColorFunction="cancelledRowClass"
-        :isCheckBox="hasRowsForContainer"
+        :isCheckBox="hasSelectableRows"
         checkboxKey="id"
-        :disabledCheckbox="(item: any) => !canAddToContainer(item)"
+        :disabledCheckbox="(item: any) => !isSelectable(item)"
         @onSelectRow="onSelectRow"
     >
         <template #before-table>
@@ -620,20 +664,35 @@ function orgStockRoute(item: { org_stock_id?: number }) {
                         </button>
                     </template>
                 </div>
-                <span v-if="rowsSelectedForContainer.length" class="relative mb-1.5 inline-flex">
+                <div v-if="rowsSelectedForPacking.length || rowsSelectedForContainer.length" class="mb-1.5 flex items-center gap-2">
                     <Button
-                        :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
-                        :tooltip="ctrans('Click to put the selected products in a container in process')"
-                        type="secondary"
+                        v-if="rowsSelectedForPacking.length"
+                        :label="ctransChoice('Mark :count item packed|Mark :count items packed', rowsSelectedForPacking.length)"
+                        :tooltip="ctrans('Click to mark what was received of the selected products as packed for the next container')"
+                        type="tertiary"
                         size="xs"
-                        @click="openContainerDialog(rowsSelectedForContainer)"
+                        :loading="isPackingSelected"
+                        @click="confirmPackSelected"
                     >
                         <template #icon>
-                            <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
+                            <FontAwesomeIcon :icon="faBoxCheck" class="text-green-600" fixed-width aria-hidden="true" />
                         </template>
                     </Button>
-                    <PingIcon class="!absolute -right-0.5 -top-0.5 text-[5px] text-amber-500" aria-hidden="true" />
-                </span>
+                    <span v-if="rowsSelectedForContainer.length" class="relative inline-flex">
+                        <Button
+                            :label="ctransChoice('Add :count item to container|Add :count items to container', rowsSelectedForContainer.length)"
+                            :tooltip="ctrans('Click to put the selected products in a container in process')"
+                            type="secondary"
+                            size="xs"
+                            @click="openContainerDialog(rowsSelectedForContainer)"
+                        >
+                            <template #icon>
+                                <FontAwesomeIcon :icon="faTruckContainer" fixed-width aria-hidden="true" />
+                            </template>
+                        </Button>
+                        <PingIcon class="!absolute -right-0.5 -top-0.5 text-[5px] text-amber-500" aria-hidden="true" />
+                    </span>
+                </div>
                 <label
                     v-tooltip="ctrans('When on, Remove and Cancel act straight away without asking to confirm')"
                     class="mb-1.5 flex cursor-pointer items-center gap-2 text-sm"
