@@ -9,6 +9,8 @@
 namespace App\Actions\Traits;
 
 use App\Actions\CRM\TrafficSource\MergeTrafficSourceTouchHistories;
+use App\Actions\CRM\TrafficSource\ParseGoogleAdsClick;
+use App\Actions\CRM\TrafficSource\SyncCustomerGoogleAdsClick;
 use App\Actions\CRM\TrafficSource\SyncCustomerTrafficSourcesFromDevice;
 use App\Actions\Iris\CaptureTrafficSource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -26,6 +28,7 @@ trait HasIrisUserData
         $webUser = $this->webUser;
 
         $this->syncDeviceTrafficSources();
+        $this->syncDeviceGoogleAdsClick();
 
         $cartCount                    = 0;
         $cartAmount                   = 0;
@@ -106,6 +109,22 @@ trait HasIrisUserData
      * made on the desktop meet in one journey. Inline work is a string merge and comparison, only a
      * genuinely new touch dispatches the (unique, low-priority) sync job.
      */
+    private function syncDeviceGoogleAdsClick(): void
+    {
+        try {
+            $customer = $this->customer ?? null;
+            $cookie   = request()->cookie(ParseGoogleAdsClick::COOKIE);
+
+            if (blank($cookie) || !$customer instanceof \App\Models\CRM\Customer) {
+                return;
+            }
+
+            SyncCustomerGoogleAdsClick::run($customer, $cookie);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
     private function syncDeviceTrafficSources(): void
     {
         /* Attribution bookkeeping on the storefront hot path: nothing here may ever break a

@@ -57,9 +57,10 @@ class ShowSocialMediaDashboard extends OrgAction
                     ])
                     ->values(),
                 'meta_sync'    => fn () => $shops
-                    ->filter(fn (Shop $shop) => $user->authTo("marketing.$shop->id.edit"))
+                    ->filter(fn (Shop $shop) => $user->authTo("marketing.$shop->id.view"))
                     ->map(fn (Shop $shop) => [
                         'id'         => $shop->id,
+                        'can_edit'   => $user->authTo("marketing.$shop->id.edit"),
                         'slug'       => $shop->slug,
                         'name'       => $shop->name,
                         'route'      => ['name' => 'grp.models.shop.social_media.sync', 'parameters' => ['shop' => $shop->id]],

@@ -141,6 +141,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_exclusive_products
  * @property array<array-key, mixed>|null $contact_name_components
  * @property string|null $traffic_sources
+ * @property string|null $google_ads_click_id
+ * @property string|null $google_ads_click_id_type
+ * @property \Illuminate\Support\Carbon|null $google_ads_clicked_at
+ * @property bool|null $google_ads_ad_user_data_consent
  * @property int|null $master_shop_id
  * @property bool $is_re recargo de equivalencia
  * @property string|null $post_source_id
@@ -262,6 +266,8 @@ class Customer extends Model implements HasMedia, Auditable
         'fetched_at'                  => 'datetime',
         'rejected_at'                 => 'datetime',
         'last_fetched_at'             => 'datetime',
+        'google_ads_clicked_at'       => 'datetime',
+        'google_ads_ad_user_data_consent' => 'boolean',
         'amount_in_basket'            => 'decimal:2',
         'is_credit_customer'          => 'boolean',
         'credit_limit'                => 'decimal:2',

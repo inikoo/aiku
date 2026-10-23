@@ -108,11 +108,15 @@ class SyncShopFromMeta
         return $result;
     }
 
+    /**
+     * Anyone who may see a brand's marketing may pull its figures from Meta: a sync reads from Meta
+     * and changes no setting, and the cooldown and usage guard keep it from being overused.
+     */
     public function authorize(ActionRequest $request): bool
     {
         $shop = $request->route('shop');
 
-        return $shop instanceof Shop && $request->user()->authTo("marketing.$shop->id.edit");
+        return $shop instanceof Shop && $request->user()->authTo("marketing.$shop->id.view");
     }
 
     public function rules(): array

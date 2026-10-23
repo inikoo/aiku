@@ -12,7 +12,9 @@ use App\Actions\CRM\TrafficSource\WithAggregatedChannelQueries;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
 use App\Enums\CRM\TrafficSource\TrafficSourcesTypeEnum;
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Query\Builder;
@@ -62,9 +64,9 @@ class GetSocialMediaPerformance
 
         $organic         = $this->organicTotals($shops, $platform, $from, $to);
         $previousOrganic = $previousFrom ? $this->organicTotals($shops, $platform, $previousFrom, $previousTo) : null;
-        $paidChannels    = $this->paidChannels($shops, $adTypes, $from, $to, $costColumn, $revenueColumn);
+        $paidChannels    = $this->paidChannels($parent->currency, $shops, $adTypes, $from, $to, $costColumn, $revenueColumn);
         $paid            = $this->paidTotals($paidChannels);
-        $previousPaid    = $previousFrom ? $this->paidTotals($this->paidChannels($shops, $adTypes, $previousFrom, $previousTo, $costColumn, $revenueColumn)) : null;
+        $previousPaid    = $previousFrom ? $this->paidTotals($this->paidChannels($parent->currency, $shops, $adTypes, $previousFrom, $previousTo, $costColumn, $revenueColumn)) : null;
 
         $platforms = $this->platforms($shops, $platform, $from, $to);
         $formats   = $this->formats($shops, $platform, $from, $to);
@@ -486,10 +488,10 @@ class GetSocialMediaPerformance
      *
      * @return array<int, array{type: string, label: string, spend: float, revenue: float, orders: float, roas: float|null, impressions: int, clicks: int, ctr: float|null}>
      */
-    private function paidChannels(Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $costColumn, string $revenueColumn): array
+    private function paidChannels(Currency $currency, Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $costColumn, string $revenueColumn): array
     {
         $attributionFrom = $this->clipToAttributionStart($from);
-        $metrics         = $this->adMetrics($shops, $adTypes, $from, $to, 'ts.type');
+        $metrics         = $this->adMetrics($currency, $shops, $adTypes, $from, $to, 'ts.type');
         $spendByType     = $this->spendByType($shops, $from, $to, $costColumn);
         $revenueByType   = $this->revenueByType($shops, $attributionFrom, $to, $revenueColumn);
         $ordersByType    = $this->ordersByType($shops, $attributionFrom, $to);
@@ -521,12 +523,19 @@ class GetSocialMediaPerformance
     }
 
     /**
+     * Meta reports purchase value and cost in each ad account's own currency, and a group or an
+     * organisation can hold accounts in several. Rows already in the parent's currency are summed
+     * as they are; the others are summed per day and converted at that day's rate, as spend is.
+     *
      * @param array<int, string> $adTypes
      *
      * @return Collection<int|string, object{impressions: int, clicks: int, meta_purchases: float, meta_value: float, meta_cost: float}>
      */
-    private function adMetrics(Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $groupBy): Collection
+    private function adMetrics(Currency $currency, Collection $shops, array $adTypes, ?Carbon $from, ?Carbon $to, string $groupBy): Collection
     {
+        $sourceCurrencies = [];
+        $foreignDate      = 'CASE WHEN m.source_currency_id IS NULL OR m.source_currency_id = ? THEN NULL ELSE m.date END';
+
         return DB::table('traffic_source_campaign_metrics as m')
             ->join('traffic_source_campaigns as tc', 'tc.id', '=', 'm.traffic_source_campaign_id')
             ->join('traffic_sources as ts', 'ts.id', '=', 'tc.traffic_source_id')
@@ -534,10 +543,27 @@ class GetSocialMediaPerformance
             ->whereIn('ts.type', $adTypes)
             ->when($from, fn (Builder $query) => $query->where('m.date', '>=', $from->toDateString()))
             ->when($to, fn (Builder $query) => $query->where('m.date', '<=', $to->toDateString()))
-            ->groupBy($groupBy)
-            ->selectRaw("$groupBy as bucket, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks, SUM(m.conversions) as meta_purchases, SUM(m.source_conversions_value) as meta_value, SUM(m.source_cost) as meta_cost")
+            ->groupByRaw('1, 2, 3')
+            ->selectRaw("$groupBy as bucket, m.source_currency_id, $foreignDate as rate_date, SUM(m.impressions) as impressions, SUM(m.clicks) as clicks, SUM(m.conversions) as meta_purchases, SUM(m.source_conversions_value) as meta_value, SUM(m.source_cost) as meta_cost", [$currency->id])
             ->get()
-            ->keyBy('bucket');
+            ->each(function (object $row) use ($currency, &$sourceCurrencies) {
+                $rate = $row->rate_date === null
+                    ? 1.0
+                    : (float) GetHistoricCurrencyExchange::run($sourceCurrencies[$row->source_currency_id] ??= Currency::find($row->source_currency_id), $currency, Carbon::parse($row->rate_date));
+
+                $row->meta_value = $row->meta_value * $rate;
+                $row->meta_cost  = $row->meta_cost * $rate;
+            })
+            ->groupBy('bucket')
+            ->map(function (Collection $rows) {
+                return (object) [
+                    'impressions'    => (int) $rows->sum('impressions'),
+                    'clicks'         => (int) $rows->sum('clicks'),
+                    'meta_purchases' => (float) $rows->sum('meta_purchases'),
+                    'meta_value'     => (float) $rows->sum('meta_value'),
+                    'meta_cost'      => (float) $rows->sum('meta_cost'),
+                ];
+            });
     }
 
     /**
@@ -551,7 +577,7 @@ class GetSocialMediaPerformance
         $spend           = $this->spendByType($shops, $from, $to, $costColumn, 'c.traffic_source_campaign_id');
         $revenue         = $this->revenueByType($shops, $attributionFrom, $to, $revenueColumn, 'p.traffic_source_campaign_id');
         $orders          = $this->ordersByType($shops, $attributionFrom, $to, 'p.traffic_source_campaign_id');
-        $metrics = $this->adMetrics($shops, $adTypes, $from, $to, 'tc.id');
+        $metrics = $this->adMetrics($parent->currency, $shops, $adTypes, $from, $to, 'tc.id');
         $isGroup = $parent instanceof Group;
 
         return DB::table('traffic_source_campaigns as tc')

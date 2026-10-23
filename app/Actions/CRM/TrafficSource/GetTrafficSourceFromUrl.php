@@ -31,10 +31,11 @@ class GetTrafficSourceFromUrl
             parse_str($urlComponents['query'], $queryParams);
         }
 
-        /* gclid alone is enough to prove a paid Google click: custom tracking templates and some
-           placement types omit the gad_* parameters, and demanding all three sent that paid traffic
-           into organic via the referer fallback. The campaign id rides along when present. */
-        if (array_key_exists('gclid', $queryParams)) {
+        /* A gclid alone, or the gbraid/wbraid an iOS click carries instead, is enough to prove a paid
+           Google click: custom tracking templates and some placement types omit the gad_* parameters,
+           and demanding all three sent that paid traffic into organic via the referer fallback. The
+           campaign id rides along when present. */
+        if (array_intersect(ParseGoogleAdsClick::CLICK_ID_TYPES, array_keys($queryParams)) !== []) {
             return
                 TrafficSourcesTypeEnum::abbr()[TrafficSourcesTypeEnum::GOOGLE_ADS->value].
                 $this->sanitizeCampaignRef(Arr::get($queryParams, 'gad_campaignid'));
