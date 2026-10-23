@@ -50,6 +50,7 @@ import AgentPurchaseOrderMoney, { type AgentPurchaseOrderMoneyData } from "@/Com
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import AgentPurchaseOrderGoodsReceipts from "@/Components/Procurement/AgentPurchaseOrderGoodsReceipts.vue"
 import AgentReceiveGoodsButton from "@/Components/Procurement/AgentReceiveGoodsButton.vue"
+import PingIcon from "@/Components/Utils/PingIcon.vue"
 import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
@@ -69,7 +70,7 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel, faCheckDouble, faBoxOpen, faPlus as falPlus } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel, faCheckDouble, faBoxOpen, faClipboardCheck, faPlus as falPlus } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
@@ -868,6 +869,29 @@ const stageActionKeys: Record<string, string[]> = {
 	received: ["edit_estimated_delivery_date"],
 }
 
+const uncheckedReceiptItems = computed(() => (props.agent_receiving?.lines ?? []).flatMap((line) =>
+	line.items.filter((item) => item.check_route && !item.is_checked)
+))
+
+const goodsReceiptsSection = ref<InstanceType<typeof AgentPurchaseOrderGoodsReceipts> | null>(null)
+const isGoodsReceiptsHighlighted = ref(false)
+const isGoodsReceiptsShaking = ref(false)
+let goodsReceiptsHighlightTimers: ReturnType<typeof setTimeout>[] = []
+
+function showGoodsToCheck() {
+	goodsReceiptsHighlightTimers.forEach(clearTimeout)
+	goodsReceiptsSection.value?.$el?.scrollIntoView({ behavior: "smooth", block: "center" })
+	isGoodsReceiptsHighlighted.value = true
+	isGoodsReceiptsShaking.value = false
+	goodsReceiptsHighlightTimers = [
+		setTimeout(() => (isGoodsReceiptsShaking.value = true), 500),
+		setTimeout(() => (isGoodsReceiptsShaking.value = false), 800),
+		setTimeout(() => (isGoodsReceiptsHighlighted.value = false), 2500),
+	]
+}
+
+onUnmounted(() => goodsReceiptsHighlightTimers.forEach(clearTimeout))
+
 const stageActions = computed<Record<string, Action[]>>(() => {
 	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean)
 	const stageKeys = (props.stages?.stages ?? []).map((stage) => stage.key)
@@ -876,14 +900,14 @@ const stageActions = computed<Record<string, Action[]>>(() => {
 		Object.entries(stageActionKeys)
 			.filter(([stageKey]) => stageKeys.includes(stageKey))
 			.map(([stageKey, keys]) => [stageKey, actions.filter((action) => keys.includes(action.key))])
-			.filter(([stageKey, stageActionList]) => stageActionList.length || (stageKey === "in_warehouse" && props.agent_receiving?.receive))
+			.filter(([stageKey, stageActionList]) => stageActionList.length || (stageKey === "in_warehouse" && (props.agent_receiving?.receive || uncheckedReceiptItems.value.length)))
 	)
 })
 
 const isReceiveGoodsNextStep = computed(() => {
 	const currentStage = props.stages?.stages.find((stage) => stage.current)?.key
 
-	return !!props.agent_receiving?.receive && ["in_production", "in_warehouse"].includes(currentStage ?? "")
+	return !!props.agent_receiving?.receive && !uncheckedReceiptItems.value.length && ["in_production", "in_warehouse"].includes(currentStage ?? "")
 })
 
 const stageActionLoading: Record<string, () => boolean> = {
@@ -1159,6 +1183,21 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					size="xs"
 					full
 				/>
+				<span v-if="stageKey === 'in_warehouse' && uncheckedReceiptItems.length" class="relative block">
+					<Button
+						type="tertiary"
+						size="xs"
+						full
+						:label="ctrans('Check goods (:count)', { count: uncheckedReceiptItems.length })"
+						:tooltip="ctrans('Next step: check the received goods for rejects in Received at our warehouse')"
+						@click="showGoodsToCheck"
+					>
+						<template #icon>
+							<FontAwesomeIcon :icon="faClipboardCheck" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+					<PingIcon class="!absolute -right-1 -top-1 text-[7px] text-amber-500" aria-hidden="true" />
+				</span>
 				<template v-for="action in actions" :key="action.key">
 					<a v-if="action.key === 'packing_instructions'" :href="route(action.route.name, action.route.parameters)" target="_blank">
 						<Button type="tertiary" size="xs" full :label="action.label" :tooltip="action.tooltip">
@@ -1202,7 +1241,13 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
 	</div>
 
-	<AgentPurchaseOrderGoodsReceipts v-if="agent_receiving" :receiving="agent_receiving" />
+	<AgentPurchaseOrderGoodsReceipts
+		v-if="agent_receiving"
+		ref="goodsReceiptsSection"
+		:receiving="agent_receiving"
+		class="transition-colors duration-700"
+		:class="[isGoodsReceiptsHighlighted ? 'bg-orange-50 ring-2 ring-inset ring-orange-500' : '', isGoodsReceiptsShaking ? 'animate-error_shake' : '']"
+	/>
 
 	<div
 		v-for="stockDelivery in stock_delivery_timelines"
