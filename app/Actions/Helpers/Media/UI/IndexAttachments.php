@@ -16,6 +16,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\TradeUnit;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Helpers\Media;
@@ -32,9 +33,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexAttachments extends OrgAction
 {
-    protected Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|PalletReturn|PalletDelivery|Order|Invoice $parent;
+    protected Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|PalletReturn|StoredItem|PalletDelivery|Order|Invoice $parent;
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn $parent, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {

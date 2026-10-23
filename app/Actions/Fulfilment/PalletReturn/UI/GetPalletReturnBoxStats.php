@@ -8,6 +8,10 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Actions\Fulfilment\PalletReturn\Pdf\WithPalletReturnPrintDocuments;
+use App\Enums\Catalogue\Leaflet\LeafletTypeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Dispatching\ShipmentsResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
@@ -15,12 +19,14 @@ use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnLeaflet;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetPalletReturnBoxStats
 {
     use AsObject;
+    use WithPalletReturnPrintDocuments;
 
     public function handle(PalletReturn $palletReturn, FulfilmentCustomer|Fulfilment $parent, bool $fromRetina = false): array
     {
@@ -44,6 +50,14 @@ class GetPalletReturnBoxStats
             'parcels'   => $palletReturn->parcels,
             'shipments' => $palletReturn?->shipments ? ShipmentsResource::collection($palletReturn->shipments()->with('shipper')->get())->toArray(request()) : null,
             'platform_customer' => Arr::get($palletReturn->data, 'destination'),
+            'customer_shipping' => [
+                'courier'         => $palletReturn->customer_courier?->value,
+                'courier_label'   => $palletReturn->customer_courier ? PalletReturnCourierEnum::labels()[$palletReturn->customer_courier->value] : null,
+                'courier_options' => PalletReturnCourierEnum::options(),
+                'shipping_label'  => $this->getCustomerShippingLabel($palletReturn, $fromRetina),
+            ],
+            'leaflets'          => $fromRetina ? null : $this->getLeaflets($palletReturn),
+            'print_all_route'   => $fromRetina ? null : $this->getPrintAllRoute($palletReturn),
             'delivery_state'      => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
             'order_summary'       => [
                 [
@@ -191,4 +205,63 @@ class GetPalletReturnBoxStats
         return $invoiceData;
     }
 
+
+    /**
+     * @return array{items: array<int, array{id: int, name: string, type_label: string, state: string, printable: bool}>}|null
+     */
+    private function getLeaflets(PalletReturn $palletReturn): ?array
+    {
+        $leaflets = $palletReturn->leaflets()->orderBy('id')->get();
+
+        if ($leaflets->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'items'           => $leaflets->map(fn (PalletReturnLeaflet $leaflet) => [
+                'id'         => $leaflet->id,
+                'name'       => $leaflet->name,
+                'type_label' => LeafletTypeEnum::labels()[$leaflet->type->value],
+                'state'      => $leaflet->state->value,
+                'printable'  => $leaflet->isPrintable(),
+            ])->all(),
+        ];
+    }
+
+    /**
+     * @return array{name: string, parameters: array<string, int>}|null
+     */
+    private function getPrintAllRoute(PalletReturn $palletReturn): ?array
+    {
+        $hasSomethingToPrint = $palletReturn->attachments()->wherePivotIn('scope', [PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value, ...PalletReturnAttachmentScopeEnum::parcelDocumentScopes()])->exists()
+            || $palletReturn->shipments()->exists()
+            || $this->productManualsQuery($palletReturn)->exists()
+            || $palletReturn->leaflets()->printable()->exists();
+
+        return $hasSomethingToPrint ? [
+            'name'       => 'grp.models.pallet-return.print.all',
+            'parameters' => ['palletReturn' => $palletReturn->id],
+        ] : null;
+    }
+
+    private function getCustomerShippingLabel(PalletReturn $palletReturn, bool $fromRetina): ?array
+    {
+        $label = $palletReturn->attachments()
+            ->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)
+            ->first();
+
+        if (!$label) {
+            return null;
+        }
+
+        return [
+            'name'           => $label->pivot->caption ? $label->pivot->caption.'.'.pathinfo($label->file_name, PATHINFO_EXTENSION) : $label->file_name,
+            'download_route' => [
+                'name'       => $fromRetina ? 'retina.models.attachment.download' : 'grp.media.download',
+                'parameters' => [
+                    'media' => $label->ulid
+                ]
+            ],
+        ];
+    }
 }

@@ -56,7 +56,7 @@ const textParts = computed(() =>
                 {{ props.notification.item.title }}
             </p>
 
-            <p v-if="props.notification.item.text" class="text-sm  mb-0 max-w-full">
+            <p v-if="props.notification.item.text" class="text-sm mb-0 max-w-full whitespace-pre-line">
                 <template v-for="(part, index) in textParts" :key="index">
                     <a v-if="part.isLink" :href="part.value" target="_blank" rel="noopener" class="underline font-semibold break-all" @click.stop>{{ part.value }}</a>
                     <template v-else>{{ part.value }}</template>

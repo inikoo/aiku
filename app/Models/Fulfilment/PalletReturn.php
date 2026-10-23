@@ -8,7 +8,9 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemNoSetReasonStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dispatching\Shipment;
@@ -107,10 +109,12 @@ use App\Models\SysAdmin\User;
  * @property int|null $packer_user_id
  * @property int $number_items_waiting_crm
  * @property bool $is_shipping_by_external
+ * @property PalletReturnCourierEnum|null $customer_courier
  * @property PalletReturnItemNoSetReasonStateEnum $not_setup_reason
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturnLeaflet> $leaflets
  * @property-read Currency $currency
  * @property-read CustomerSalesChannel|null $customerSalesChannel
  * @property-read Address|null $deliveryAddress
@@ -158,6 +162,7 @@ class PalletReturn extends Model implements HasMedia, Auditable
         'parcels'          => 'array',
         'state'            => PalletReturnStateEnum::class,
         'type'             => PalletReturnTypeEnum::class,
+        'customer_courier' => PalletReturnCourierEnum::class,
         'not_setup_reason' => PalletReturnItemNoSetReasonStateEnum::class,
         'in_process_at'    => 'datetime',
         'submitted_at'     => 'datetime',
@@ -295,6 +300,26 @@ class PalletReturn extends Model implements HasMedia, Auditable
     public function items(): HasMany
     {
         return $this->hasMany(PalletReturnItem::class);
+    }
+
+    public function leaflets(): HasMany
+    {
+        return $this->hasMany(PalletReturnLeaflet::class);
+    }
+
+    public function unprintedLeaflets(): HasMany
+    {
+        return $this->leaflets()
+            ->printable()
+            ->whereNotIn('state', [
+                DeliveryNoteLeafletStateEnum::PRINTED,
+                DeliveryNoteLeafletStateEnum::INCLUDED,
+            ]);
+    }
+
+    public function hasUnprintedLeaflets(): bool
+    {
+        return $this->unprintedLeaflets()->exists();
     }
 
     public function shipments(): MorphToMany

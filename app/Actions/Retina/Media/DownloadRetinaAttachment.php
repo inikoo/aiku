@@ -51,7 +51,7 @@ class DownloadRetinaAttachment
                 });
 
                 if ($fulfilmentCustomerId) {
-                    foreach (['PalletDelivery' => 'pallet_deliveries', 'PalletReturn' => 'pallet_returns'] as $modelType => $table) {
+                    foreach (['PalletDelivery' => 'pallet_deliveries', 'PalletReturn' => 'pallet_returns', 'StoredItem' => 'stored_items'] as $modelType => $table) {
                         $query->orWhere(function (Builder $query) use ($modelType, $table, $fulfilmentCustomerId) {
                             $query->where('model_type', $modelType)
                                 ->whereIn('model_id', DB::table($table)->where('fulfilment_customer_id', $fulfilmentCustomerId)->select('id'));

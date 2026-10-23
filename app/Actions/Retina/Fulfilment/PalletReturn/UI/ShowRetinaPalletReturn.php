@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Retina\Fulfilment\UI\ShowRetinaStorageDashboard;
 use App\Actions\RetinaAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\RetinaPalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
@@ -252,12 +253,7 @@ class ShowRetinaPalletReturn extends RetinaAction
                         'palletReturn' => $palletReturn->slug
                     ]
                 ],
-                'option_attach_file'       => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file'       => PalletReturnAttachmentScopeEnum::options(),
                 'data'                     => PalletReturnResource::make($palletReturn),
 
                 RetinaPalletReturnTabsEnum::GOODS->value => $this->tab == RetinaPalletReturnTabsEnum::GOODS->value ?

@@ -12,6 +12,7 @@ namespace App\Actions\Api\Retina\Fulfilment\Order;
 use App\Actions\Api\Retina\Fulfilment\Resource\PalletReturnApiResource;
 use App\Actions\Retina\Fulfilment\PalletReturn\UpdateRetinaPalletReturn;
 use App\Actions\RetinaApiAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +44,7 @@ class UpdateApiOrder extends RetinaApiAction
                 ->ignore($this->palletReturn->id)],
             'estimated_delivery_date'   => ['sometimes', 'date'],
             'customer_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'customer_courier' => ['sometimes', 'nullable', Rule::enum(PalletReturnCourierEnum::class)],
         ];
     }
 

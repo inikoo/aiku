@@ -194,6 +194,32 @@ export interface BoxStats {
         weight: number
         dimensions: number[]
     }[]
+    customer_shipping?: CustomerShipping
+    leaflets?: PalletReturnLeaflets | null
+    print_all_route?: routeType | null
+}
+
+export interface PalletReturnLeaflets {
+    items: {
+        id: number
+        name: string
+        type_label: string
+        state: string
+        printable: boolean
+    }[]
+}
+
+export interface CustomerShipping {
+    courier: string | null
+    courier_label: string | null
+    courier_options: {
+        name: string
+        code: string
+    }[]
+    shipping_label: {
+        name: string
+        download_route: routeType
+    } | null
 }
 
 

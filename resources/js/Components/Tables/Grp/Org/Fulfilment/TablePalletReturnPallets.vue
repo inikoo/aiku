@@ -37,7 +37,7 @@ const screenType = inject('screenType', ref('desktop'))
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote, faPaperPlane, faBackspace, faDebug, faSkull, faHandHoldingBox)
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     data: {}
     tab?: string
     state?: string
@@ -45,7 +45,9 @@ const props = defineProps<{
     palletReturn: {}
     can_edit_transactions?: boolean
     detachRoute?: routeType
-}>()
+}>(), {
+    can_edit_transactions: true
+})
 
 const emit = defineEmits<{
     (e: 'isStoredItemAdded', value: boolean): void
@@ -231,7 +233,8 @@ const setUpChecked = () => {
 
 const debounceReloadBoxStats = debounce(() => {
     router.reload({
-        only: ['pageHead', 'box_stats'],
+        only: ['pageHead', 'box_stats', 'tabs', 'data', props.tab ?? 'pallets'],
+        preserveScroll: true,
     })
 }, 500)
 
@@ -253,13 +256,12 @@ const onCheckAllTable = async (payload: { data: {}[]; allChecked: boolean }) => 
             { pallets: palletIds }
         )
         debounceReloadBoxStats()
-        router.reload({ only: ['pallets'], preserveScroll: true })
     } catch (error) {
         notify({
             title: ctrans('Something went wrong'),
-            text: payload.allChecked
+            text: error?.response?.data?.message ?? (payload.allChecked
                 ? ctrans('Failed to select all pallets')
-                : ctrans('Failed to unselect all pallets'),
+                : ctrans('Failed to unselect all pallets')),
             type: 'error',
         })
     }
@@ -290,8 +292,8 @@ const onCheckTable = async (item: {}) => {
             debounceReloadBoxStats()
         } catch (error) {
             notify({
-                title: 'Something went wrong',
-                text: 'Failed to select the data',
+                title: ctrans('Something went wrong'),
+                text: error?.response?.data?.message ?? ctrans('Failed to select the data'),
                 type: 'error',
             })
 
@@ -311,8 +313,8 @@ const onCheckTable = async (item: {}) => {
             debounceReloadBoxStats()
         } catch (error) {
             notify({
-                title: 'Something went wrong',
-                text: 'Failed to unselect the data',
+                title: ctrans('Something went wrong'),
+                text: error?.response?.data?.message ?? ctrans('Failed to unselect the data'),
                 type: 'error',
             })
 

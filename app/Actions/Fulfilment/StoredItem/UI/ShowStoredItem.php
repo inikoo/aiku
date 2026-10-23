@@ -14,13 +14,16 @@ use App\Actions\Fulfilment\StoredItemAuditDelta\UI\IndexStoredItemAuditDeltas;
 use App\Actions\Fulfilment\WithFulfilmentCustomerPlatformSubNavigation;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\UI\Fulfilment\ShowWarehouseFulfilmentDashboard;
+use App\Enums\Fulfilment\StoredItem\StoredItemAttachmentScopeEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsInStoredItemResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditDeltasResource;
 use App\Http\Resources\Fulfilment\StoredItemMovementsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Dropshipping\CustomerSalesChannel;
 use App\Models\Fulfilment\Fulfilment;
@@ -173,6 +176,25 @@ class ShowStoredItem extends OrgAction
                     ]
                 ],
 
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name'       => 'grp.models.stored-items.attachment.attach',
+                        'parameters' => [
+                            'storedItem' => $storedItem->id,
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'detachRoute' => [
+                        'name'       => 'grp.models.stored-items.attachment.detach',
+                        'parameters' => [
+                            'storedItem' => $storedItem->id,
+                        ],
+                        'method'     => 'delete'
+                    ]
+                ],
+
+                'option_attach_file' => StoredItemAttachmentScopeEnum::options(),
+
                 StoredItemTabsEnum::SHOWCASE->value => $this->tab == StoredItemTabsEnum::SHOWCASE->value ?
                     fn () => GetStoredItemShowcase::run($storedItem)
                     : Inertia::optional(fn () => GetStoredItemShowcase::run($storedItem)),
@@ -189,6 +211,10 @@ class ShowStoredItem extends OrgAction
                     fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
                     : Inertia::optional(fn () => StoredItemMovementsResource::collection(IndexStoredItemMovements::run($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))),
 
+                StoredItemTabsEnum::ATTACHMENTS->value => $this->tab == StoredItemTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($storedItem, StoredItemTabsEnum::ATTACHMENTS->value))
+                    : Inertia::optional(fn () => AttachmentsResource::collection(IndexAttachments::run($storedItem, StoredItemTabsEnum::ATTACHMENTS->value))),
+
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem, prefix: StoredItemTabsEnum::HISTORY->value))
                     : Inertia::optional(fn () => HistoryResource::collection(IndexHistory::run($storedItem, prefix: StoredItemTabsEnum::HISTORY->value)))
@@ -197,7 +223,8 @@ class ShowStoredItem extends OrgAction
         )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
             ->table(IndexStoredItemAuditDeltas::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::AUDITS->value))
             ->table(IndexStoredItemMovements::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::MOVEMENTS->value))
-            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::PALLETS->value));
+            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, prefix: StoredItemTabsEnum::PALLETS->value))
+            ->table(IndexAttachments::make()->tableStructure(StoredItemTabsEnum::ATTACHMENTS->value));
     }
 
 

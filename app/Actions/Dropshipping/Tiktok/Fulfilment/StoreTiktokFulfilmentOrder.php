@@ -11,8 +11,8 @@ namespace App\Actions\Dropshipping\Tiktok\Fulfilment;
 use App\Actions\Dropshipping\Tiktok\Order\StoreTiktokOrder;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedTiktokAddress;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\Portfolio;
@@ -22,6 +22,7 @@ use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use App\Exceptions\Fulfilment\PalletReturnStockShortException;
 
 use function Sentry\captureMessage;
 
@@ -84,19 +85,14 @@ class StoreTiktokFulfilmentOrder extends RetinaAction
                         continue;
                     }
 
-                    $palletStoredItem = $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
-
-                    if (!$palletStoredItem) {
-                        continue;
-                    }
-
-                    AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, [
-                        'quantity_ordered' => Arr::get($tiktokProduct, 'quantity', 0)
-                    ]);
+                    AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) Arr::get($tiktokProduct, 'quantity', 0));
                 }
             }
 
-            SubmitAndConfirmPalletReturn::run($palletReturn);
+            try {
+                SubmitAndConfirmPalletReturn::run($palletReturn);
+            } catch (PalletReturnStockShortException) {
+            }
 
             $palletReturn->refresh();
         }

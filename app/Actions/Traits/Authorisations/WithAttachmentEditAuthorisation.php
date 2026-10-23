@@ -15,6 +15,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\GoodsIn\StockDelivery;
@@ -87,6 +88,7 @@ trait WithAttachmentEditAuthorisation
                 "supervisor-incoming.$model->warehouse_id",
                 "supervisor-fulfilment.$model->warehouse_id",
             ],
+            $model instanceof StoredItem => ["fulfilment-shop.$model->fulfilment_id.edit"],
             $model instanceof ProductCategory => ["products.$model->shop_id.edit"],
             default => [],
         };

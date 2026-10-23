@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $packaging_id
  * @property string $model_type
  * @property int $model_id
- * @property int $leaflet_id
+ * @property int|null $leaflet_id
  * @property LeafletTypeEnum $type
  * @property string $name
  * @property int|null $media_id
@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read Leaflet $leaflet
+ * @property-read Leaflet|null $leaflet
  * @property-read Media|null $media
  * @property-read Model $model
  * @property-read Packaging|null $packaging

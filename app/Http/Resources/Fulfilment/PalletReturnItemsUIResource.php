@@ -11,7 +11,9 @@ namespace App\Http\Resources\Fulfilment;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\StoredItemMovement\StoredItemMovementTypeEnum;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItemMovement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -40,6 +42,15 @@ class PalletReturnItemsUIResource extends JsonResource
     public function toArray($request): array
     {
         $pallet = Pallet::find($this->pallet_id);
+
+        $pickedQuantities = $this->id && in_array($this->pivot_state, [PalletReturnItemStateEnum::PICKED->value, PalletReturnItemStateEnum::DISPATCHED->value], true)
+            ? StoredItemMovement::where('pallet_return_item_id', $this->id)
+                ->where('type', StoredItemMovementTypeEnum::PICKED)
+                ->groupBy('stored_item_id')
+                ->selectRaw('stored_item_id, -sum(quantity) as quantity')
+                ->pluck('quantity', 'stored_item_id')
+            : collect();
+
         $returnFormat = [
             'id'                               => $this->id,
             'pallet_return_id'                 => $this->pallet_return_id ?? null,
@@ -90,9 +101,9 @@ class PalletReturnItemsUIResource extends JsonResource
             ],
             'stored_items'                     => $pallet->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
-                'quantity'  => (int)$storedItem->pivot->quantity,
+                'quantity'  => (int)($pickedQuantities[$storedItem->id] ?? $storedItem->pivot->quantity),
             ]),
-            'stored_items_quantity' => (int)$pallet->storedItems()->sum('quantity'),
+            'stored_items_quantity' => $pickedQuantities->isNotEmpty() ? (int)$pickedQuantities->sum() : (int)$pallet->storedItems()->sum('quantity'),
             'syncRoute'             => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.pallet-return-item.update',

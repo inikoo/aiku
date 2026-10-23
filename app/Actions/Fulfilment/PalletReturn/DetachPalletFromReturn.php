@@ -17,23 +17,30 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class DetachPalletFromReturn extends OrgAction
 {
     use WithActionUpdate;
     use WithFulfilmentShopEditAuthorisation;
+    use WithPalletReturnPalletChanges;
 
 
-    public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
+    public function handle(PalletReturn $palletReturn, Pallet $pallet, bool $onlyWhileInProcess = false): bool
     {
-        $this->update($pallet, ['pallet_return_id' => null,
-            'status'                               => PalletStatusEnum::STORING,
-            'state'                                => PalletStateEnum::STORING,
-            'requested_for_return_at' => null
-        ]);
+        DB::transaction(function () use ($palletReturn, $pallet, $onlyWhileInProcess) {
+            $this->lockPalletReturnForPalletChanges($palletReturn, $onlyWhileInProcess);
 
-        $palletReturn->pallets()->detach([$pallet->id]);
+            $this->update($pallet, [
+                'pallet_return_id'        => null,
+                'status'                  => PalletStatusEnum::STORING,
+                'state'                   => PalletStateEnum::STORING,
+                'requested_for_return_at' => null
+            ]);
+
+            $palletReturn->pallets()->detach([$pallet->id]);
+        });
 
         $palletReturn = SetPalletReturnAutoServices::run($palletReturn);
         PalletReturnHydratePallets::dispatch($palletReturn);
@@ -47,7 +54,7 @@ class DetachPalletFromReturn extends OrgAction
         abort_unless($pallet->fulfilment_customer_id === $palletReturn->fulfilment_customer_id, 404);
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $pallet);
+        return $this->handle($palletReturn, $pallet, onlyWhileInProcess: true);
     }
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool

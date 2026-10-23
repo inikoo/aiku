@@ -34,6 +34,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class DispatchPalletReturn extends OrgAction
@@ -48,6 +49,12 @@ class DispatchPalletReturn extends OrgAction
      */
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+        if ($palletReturn->hasUnprintedLeaflets()) {
+            throw ValidationException::withMessages([
+                'messages' => __('Print the customer inserts of this return before dispatching it.'),
+            ]);
+        }
+
         $modelData['dispatched_at'] = now();
         $modelData['state'] = PalletReturnStateEnum::DISPATCHED;
 

@@ -542,9 +542,8 @@ const openModalAddPallet = ref(false)
 
         <template #other>
             <Button
-                v-if="currentTab === 'attachments'"
                 @click="() => isModalUploadFileOpen = true"
-                :label="ctrans('Attach file')"
+                :label="ctrans('Attach invoice, delivery note or label')"
                 icon="fal fa-upload"
                 type="secondary"
             />

@@ -9,6 +9,7 @@ namespace App\Actions\Retina\SysAdmin;
 
 use App\Models\Billables\ModelHasLeaflet;
 use App\Models\Dispatching\DeliveryNoteLeaflet;
+use App\Models\Fulfilment\PalletReturnLeaflet;
 use App\Models\Helpers\Media;
 
 trait WithDisposableLeafletMedia
@@ -32,6 +33,10 @@ trait WithDisposableLeafletMedia
         }
 
         if (DeliveryNoteLeaflet::where('media_id', $mediaId)->exists()) {
+            return;
+        }
+
+        if (PalletReturnLeaflet::where('media_id', $mediaId)->exists()) {
             return;
         }
 

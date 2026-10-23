@@ -15,6 +15,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Goods\TradeUnit;
 use App\Models\Goods\TradeUnitFamily;
 use App\Models\GoodsIn\StockDelivery;
@@ -42,7 +43,7 @@ class SaveModelAttachment extends OrgAction
 {
     use AsAction;
 
-    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentGoodsReceipt|AgentGoodsReceiptItem|SupplierProductPackingSpec $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentGoodsReceipt|AgentGoodsReceiptItem|SupplierProductPackingSpec $model, array $modelData): Media
     {
         $filePath = Arr::pull($modelData, 'path');
 
@@ -133,7 +134,7 @@ class SaveModelAttachment extends OrgAction
         return $rules;
     }
 
-    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentGoodsReceipt|AgentGoodsReceiptItem|SupplierProductPackingSpec $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
+    public function action(Employee|TradeUnit|Agent|Supplier|Customer|PurchaseOrder|StockDelivery|Order|Invoice|PalletDelivery|PalletReturn|StoredItem|Product|TradeUnitFamily|ProductCategory|Artefact|OrgStock|Webpage|StockDeliveryServiceInvoice|StockDeliveryCost|SupplierAgreedTerm|ProcurementNote|AgentGoodsReceipt|AgentGoodsReceiptItem|SupplierProductPackingSpec $model, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Media
     {
         $this->asAction       = true;
         $this->strict         = $strict;

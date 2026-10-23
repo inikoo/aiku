@@ -24,6 +24,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $state
  * @property mixed $type
  * @property mixed $customer_reference
+ * @property mixed $customer_courier
  * @property mixed $number_pallets
  * @property mixed $number_services
  * @property mixed $number_stored_items
@@ -65,6 +66,7 @@ class PalletReturnApiResource extends JsonResource
             'state'                 => $this->state,
             'type'                  => $this->type,
             'customer_reference'    => $this->customer_reference,
+            'customer_courier'      => $this->customer_courier,
             'number_pallets'        => $this->number_pallets,
             'number_stored_items'     => $this->number_stored_items,
             'number_services'       => $this->number_services,

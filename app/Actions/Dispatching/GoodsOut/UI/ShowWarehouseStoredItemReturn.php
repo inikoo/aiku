@@ -18,7 +18,9 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\Inventory\WithFulfilmentWarehouseAuthorisation;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnActions;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
@@ -176,7 +178,10 @@ class ShowWarehouseStoredItemReturn extends OrgAction
                     ]
                 ];
 
-                $requiresShipmentBeforeDispatch = $this->requireShipping ? !$palletReturn->is_collection && !$palletReturn->shipments()->exists() : false;
+                $requiresShipmentBeforeDispatch = $this->requireShipping
+                    && !$palletReturn->is_collection
+                    && !$palletReturn->shipments()->exists()
+                    && !$palletReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->exists();
 
                 $dispatchTooltip = $requiresShipmentBeforeDispatch
                     ? __('Please add shipment before dispatch')
@@ -240,7 +245,7 @@ class ShowWarehouseStoredItemReturn extends OrgAction
             ];
         }
 
-        $actions = $this->getActions($palletReturn);
+        $actions = GetPalletReturnActions::make()->addPrintButtons($palletReturn, $this->getActions($palletReturn));
 
         $isShippingByExternal = $palletReturn->platform?->type === PlatformTypeEnum::TIKTOK;
         $shipmentButtonLabel = $isShippingByExternal ? __('Get shipment from Tiktok') : __('Shipment');
@@ -369,12 +374,7 @@ class ShowWarehouseStoredItemReturn extends OrgAction
                     ]
                 ],
                 'can_edit_transactions' => false,
-                'option_attach_file'    => [
-                    [
-                        'name' => __('Other'),
-                        'code' => 'Other'
-                    ]
-                ],
+                'option_attach_file'    => PalletReturnAttachmentScopeEnum::options(),
                 'stored_items_count'    => $palletReturn->storedItems()->count(),
                 'shipments' => [
                     'button_label' => $shipmentButtonLabel,

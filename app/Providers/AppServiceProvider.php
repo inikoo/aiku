@@ -423,6 +423,7 @@ class AppServiceProvider extends ServiceProvider
                 'ModelHasLeaflet'                  => 'App\Models\Billables\ModelHasLeaflet',
                 'CustomerHasPackaging'             => 'App\Models\CRM\CustomerHasPackaging',
                 'DeliveryNoteLeaflet'              => 'App\Models\Dispatching\DeliveryNoteLeaflet',
+                'PalletReturnLeaflet'              => 'App\Models\Fulfilment\PalletReturnLeaflet',
 
                 // Discounts
                 'Offer'                            => 'App\Models\Discounts\Offer',

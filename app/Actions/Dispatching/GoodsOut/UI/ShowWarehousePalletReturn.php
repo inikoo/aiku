@@ -78,7 +78,9 @@ class ShowWarehousePalletReturn extends OrgAction
                     'start picking',
                     'finish-picking',
                     'Dispatching',
-                    'revert-to-picking'
+                    'revert-to-picking',
+                    'print-documents',
+                    'print-shipping-label'
                 ], true)
             )
         );

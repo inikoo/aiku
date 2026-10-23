@@ -36,6 +36,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
@@ -81,6 +82,13 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\Space\StoreSpace;
 use App\Actions\Fulfilment\Space\UpdateSpace;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemManual;
+use App\Models\Billables\ModelHasLeaflet;
+use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
+use App\Enums\Catalogue\Leaflet\LeafletTypeEnum;
+use App\Enums\Catalogue\Leaflet\LeafletStateEnum;
+use App\Actions\Helpers\Media\StoreMediaFromFile;
+use App\Actions\Fulfilment\PalletReturnLeaflet\PrintPalletReturnLeafletInBrowser;
 use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -176,6 +184,23 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Exceptions\Fulfilment\PalletReturnStockShortException;
+use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
+use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
+use App\Actions\Fulfilment\PalletReturn\PrintPalletReturnDocuments;
+use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
+use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnShippingLabel;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnActions;
+use App\Actions\Fulfilment\PalletReturn\UI\GetPalletReturnBoxStats;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemAttachmentScopeEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnCourierEnum;
 
 use function Pest\Laravel\actingAs;
 
@@ -1689,6 +1714,120 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('create pallet return');
 
+test('a pallet ticked twice and a pallet unticked during submit do not break the return', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $keptPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+    $untickedPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    AttachPalletToReturn::make()->action($palletReturn, $keptPallet);
+    AttachPalletToReturn::make()->action($palletReturn, $keptPallet);
+    AttachPalletToReturn::make()->action($palletReturn, $untickedPallet);
+
+    expect(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $keptPallet->id)->count())->toBe(1);
+
+    $palletReturn->refresh()->load('pallets');
+    $palletReturn->pallets()->detach($untickedPallet->id);
+
+    $submittedPalletReturn = SubmitPalletReturn::run($palletReturn, []);
+
+    $keptItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $keptPallet->id)->sole();
+
+    expect($submittedPalletReturn->refresh()->state)->toBe(PalletReturnStateEnum::SUBMITTED)
+        ->and($keptItem->state)->toBe(PalletReturnItemStateEnum::SUBMITTED)
+        ->and((float) $keptItem->quantity_ordered)->toBe(1.0)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $untickedPallet->id)->exists())->toBeFalse();
+})->depends('set pallet delivery as booked in');
+
+test('pallets on a submitted return can no longer be ticked, unticked or selected all', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $returnedPallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+    $latePallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    AttachPalletToReturn::run($palletReturn, $returnedPallet, onlyWhileInProcess: true);
+
+    expect($returnedPallet->refresh()->pallet_return_id)->toBe($palletReturn->id)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $returnedPallet->id)->exists())->toBeTrue();
+
+    SubmitPalletReturn::run($palletReturn->refresh(), []);
+
+    expect(fn () => AttachPalletToReturn::run($palletReturn, $latePallet, onlyWhileInProcess: true))->toThrow(ValidationException::class, 'This return is Submitted, its pallets can no longer be changed.')
+        ->and(fn () => AttachPalletsToReturn::run($palletReturn, ['pallets' => [$returnedPallet->id, $latePallet->id]], onlyWhileInProcess: true))->toThrow(ValidationException::class)
+        ->and(fn () => DetachPalletFromReturn::run($palletReturn, $returnedPallet, onlyWhileInProcess: true))->toThrow(ValidationException::class)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $latePallet->id)->exists())->toBeFalse()
+        ->and($latePallet->refresh()->pallet_return_id)->toBeNull()
+        ->and($returnedPallet->refresh()->pallet_return_id)->toBe($palletReturn->id)
+        ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $returnedPallet->id)->value('state'))->toBe(PalletReturnItemStateEnum::SUBMITTED);
+})->depends('set pallet delivery as booked in');
+
+test('a picked whole pallet shows the quantities picked from it, not the zero left on it', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $pallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    $storedItem = StoreStoredItem::make()->action($fulfilmentCustomer, ['reference' => 'picked-qty-'.$pallet->id]);
+    SyncStoredItemToPallet::make()->action($pallet, ['stored_item_ids' => [$storedItem->id => ['quantity' => 7]]]);
+
+    AttachPalletToReturn::make()->action($palletReturn, $pallet);
+    $palletReturn = PickingPalletReturn::make()->action(SubmitAndConfirmPalletReturn::make()->action($palletReturn->refresh()));
+
+    $palletReturnItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $pallet->id)->sole();
+    PickWholePalletInPalletReturn::make()->action($palletReturnItem, []);
+
+    $row = IndexPalletsInReturnPalletWholePallets::run($palletReturn->refresh())->getCollection()->firstWhere('pallet_id', $pallet->id);
+    $resource = PalletReturnItemsUIResource::make($row)->toArray(request());
+
+    expect((float) $pallet->storedItems()->sole()->pivot->quantity)->toBe(0.0)
+        ->and($resource['stored_items']->firstWhere('reference', $storedItem->reference)['quantity'])->toBe(7)
+        ->and($resource['stored_items_quantity'])->toBe(7);
+})->depends('set pallet delivery as booked in');
+
 test('Update pallet reference', function (PalletReturn $palletReturn) {
     /** @var Pallet $pallet */
     $pallet = $palletReturn->fulfilmentCustomer
@@ -2845,6 +2984,230 @@ test('customer pallets export lists the SKO reference, follows the tab and can g
     expect($perStoredItem->map($emptyPallet))->toBe([['pallet', 'EMPTY', 'EMPTY-REF', '', '', '', '']])
         ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, true))->toBe('customer-sko-storing')
         ->and(ExportPalletsInCustomer::make()->filenamePrefix($storingTab, false))->toBe('customer-pallets-storing');
+})->depends('create second pallet return');
+
+test('a stored item return short of stock cannot be submitted', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $palletStoredItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+        ->whereNotNull('pallet_stored_item_id')
+        ->firstOrFail()
+        ->palletStoredItem;
+    $storedItem = $palletStoredItem->storedItem;
+
+    $shortPalletReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $palletReturn->fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $quantityFree = $palletStoredItem->getMaxQuantityForReturn($shortPalletReturn);
+
+    expect($quantityFree)->toBeGreaterThan(0);
+
+    AttachStoredItemToReturn::make()->action($shortPalletReturn, $palletStoredItem, ['quantity_ordered' => $quantityFree]);
+    $shortItem = PalletReturnItem::where('pallet_return_id', $shortPalletReturn->id)
+        ->where('pallet_stored_item_id', $palletStoredItem->id)
+        ->firstOrFail();
+    $shortItem->update(['quantity_ordered' => $quantityFree + 2]);
+
+    $stockShort = null;
+    try {
+        SubmitAndConfirmPalletReturn::make()->action($shortPalletReturn->refresh());
+    } catch (PalletReturnStockShortException $exception) {
+        $stockShort = $exception;
+    }
+
+    expect($stockShort)->toBeInstanceOf(PalletReturnStockShortException::class)
+        ->and($stockShort->lines)->toBe([
+            [
+                'stored_item_id'     => $storedItem->id,
+                'portfolio_id'       => $storedItem->portfolio?->id,
+                'reference'          => $storedItem->reference,
+                'quantity_ordered'   => $quantityFree + 2,
+                'quantity_available' => $quantityFree,
+                'reason'             => PalletReturnStockShortException::REASON_SHORT,
+            ],
+        ])
+        ->and($stockShort->errors())->toHaveKeys(['message', 'lines.'.$storedItem->reference])
+        ->and($shortPalletReturn->refresh()->state)->toBe(PalletReturnStateEnum::IN_PROCESS);
+
+    $apiResponse = $stockShort->render(Request::create('/', 'PATCH', server: ['HTTP_ACCEPT' => 'application/json']));
+
+    expect($apiResponse->getStatusCode())->toBe(422)
+        ->and($apiResponse->getData(true)['message'])->toBe('1 line is short of stock.')
+        ->and($apiResponse->getData(true)['errors']['message'])->toBe(['1 line is short of stock.'])
+        ->and($apiResponse->getData(true)['lines'][0]['reason'])->toBe(PalletReturnStockShortException::REASON_SHORT)
+        ->and($stockShort->render(Request::create('/', 'POST')))->toBeNull();
+
+    $originalState = $storedItem->state;
+    $storedItem->update(['state' => StoredItemStateEnum::DISCONTINUED]);
+
+    try {
+        SubmitPalletReturn::run($shortPalletReturn, []);
+    } catch (PalletReturnStockShortException $exception) {
+        $stockShort = $exception;
+    }
+
+    expect($stockShort->lines[0]['reason'])->toBe(PalletReturnStockShortException::REASON_DISCONTINUED);
+
+    $storedItem->update(['state' => $originalState]);
+    $shortItem->update(['quantity_ordered' => $quantityFree]);
+
+    $submittedPalletReturn = SubmitPalletReturn::run($shortPalletReturn->refresh(), []);
+
+    expect($submittedPalletReturn->refresh()->state)->toBe(PalletReturnStateEnum::SUBMITTED)
+        ->and(fn () => SubmitPalletReturn::run($submittedPalletReturn, []))->toThrow(ValidationException::class, 'This return is Submitted and cannot be submitted.');
+
+    $shortPalletReturn->items()->delete();
+    $shortPalletReturn->delete();
+})->depends('create second pallet return');
+
+test('customer documents of a return print in one click and its own shipping label needs a courier', function (PalletReturn $palletReturn) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $palletStoredItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+        ->whereNotNull('pallet_stored_item_id')
+        ->firstOrFail()
+        ->palletStoredItem;
+
+    $documentsReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $palletReturn->fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    AttachStoredItemToReturn::make()->action($documentsReturn, $palletStoredItem, ['quantity_ordered' => 1]);
+
+    $pdf = function (string $name, int $pages = 1): UploadedFile {
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+        for ($page = 1; $page <= $pages; $page++) {
+            if ($page > 1) {
+                $mpdf->AddPage();
+            }
+            $mpdf->WriteHTML($name.' page '.$page.' '.uniqid());
+        }
+
+        return UploadedFile::fake()->createWithContent($name, $mpdf->Output('', 'S'));
+    };
+    $pageCount = fn (string $content): int => (new \setasign\Fpdi\PdfReader\PdfReader(new \setasign\Fpdi\PdfParser\PdfParser(\setasign\Fpdi\PdfParser\StreamReader::createByString($content))))->getPageCount();
+    $printKeys = fn (): array => collect(GetPalletReturnActions::run($documentsReturn->refresh(), true))->pluck('key')->intersect(['print-documents', 'print-shipping-label'])->values()->all();
+
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('first-label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL);
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL);
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('invoice.pdf', 2), PalletReturnAttachmentScopeEnum::INVOICE);
+    AttachStoredItemManual::run($palletStoredItem->storedItem, $pdf('manual.pdf'));
+    AttachPalletReturnAttachment::run($documentsReturn, $pdf('notes.pdf'), PalletReturnAttachmentScopeEnum::OTHER);
+
+    $labels = $documentsReturn->attachments()->wherePivot('scope', PalletReturnAttachmentScopeEnum::SHIPPING_LABEL->value)->get();
+
+    expect($labels)->toHaveCount(1)
+        ->and($labels->first()->file_name)->toBe('label.pdf')
+        ->and($printKeys())->toBe([])
+        ->and(fn () => SubmitPalletReturn::run($documentsReturn->refresh(), []))->toThrow(ValidationException::class, 'Choose the courier (DPD, Royal Mail) for the shipping label attached to this return.')
+        ->and($documentsReturn->refresh()->state)->toBe(PalletReturnStateEnum::IN_PROCESS);
+
+    $customer   = $documentsReturn->fulfilmentCustomer->customer;
+    $insertFile = $pdf('thank-you.pdf');
+    $insert     = ModelHasLeaflet::create([
+        'group_id'        => $customer->group_id,
+        'organisation_id' => $customer->organisation_id,
+        'shop_id'         => $customer->shop_id,
+        'model_type'      => 'Customer',
+        'model_id'        => $customer->id,
+        'type'            => LeafletTypeEnum::THANK_YOU_CARD,
+        'name'            => 'Thank you card',
+        'media_id'        => StoreMediaFromFile::run($customer, [
+            'path'         => $insertFile->getPathname(),
+            'originalName' => $insertFile->getClientOriginalName(),
+            'extension'    => 'pdf',
+            'checksum'     => md5_file($insertFile->getPathname()),
+        ], 'leaflets', 'leaflet')->id,
+        'state'           => LeafletStateEnum::ACTIVE,
+    ]);
+
+    UpdatePalletReturn::make()->action($documentsReturn, ['customer_courier' => PalletReturnCourierEnum::ROYAL_MAIL->value]);
+    SubmitPalletReturn::run($documentsReturn->refresh(), []);
+
+    $returnInsert = $documentsReturn->leaflets()->sole();
+
+    expect($returnInsert->model_has_leaflet_id)->toBe($insert->id)
+        ->and($returnInsert->media_id)->toBe($insert->media_id)
+        ->and($returnInsert->state)->toBe(DeliveryNoteLeafletStateEnum::PENDING_PRINT)
+        ->and(fn () => DispatchPalletReturn::make()->action($documentsReturn->refresh()))->toThrow(ValidationException::class, 'Print the customer inserts of this return before dispatching it.');
+
+    $insertPdf = PrintPalletReturnLeafletInBrowser::make()->handle($returnInsert);
+
+    expect($insertPdf->headers->get('Content-Type'))->toBe('application/pdf')
+        ->and($returnInsert->refresh()->state)->toBe(DeliveryNoteLeafletStateEnum::PRINTED)
+        ->and($documentsReturn->hasUnprintedLeaflets())->toBeFalse()
+        ->and(GetPalletReturnBoxStats::run($documentsReturn, $documentsReturn->fulfilmentCustomer)['leaflets']['items'][0]['state'])->toBe('printed');
+
+    $customerShipping = GetPalletReturnBoxStats::run($documentsReturn->refresh(), $documentsReturn->fulfilmentCustomer)['customer_shipping'];
+
+    expect($documentsReturn->state)->toBe(PalletReturnStateEnum::SUBMITTED)
+        ->and($documentsReturn->customer_courier)->toBe(PalletReturnCourierEnum::ROYAL_MAIL)
+        ->and($customerShipping['courier_label'])->toBe('Royal Mail')
+        ->and($customerShipping['shipping_label']['name'])->toBe('label.pdf')
+        ->and($printKeys())->toBe(['print-documents', 'print-shipping-label']);
+
+    $documentsReturn->update(['customer_courier' => null]);
+
+    expect(fn () => AttachPalletReturnAttachment::run($documentsReturn->refresh(), $pdf('late-label.pdf'), PalletReturnAttachmentScopeEnum::SHIPPING_LABEL))
+        ->toThrow(ValidationException::class, 'This return was submitted without a courier (DPD, Royal Mail), so a shipping label cannot be attached to it.');
+
+    $documentsReturn->update(['customer_courier' => PalletReturnCourierEnum::ROYAL_MAIL]);
+
+    $documentsPdf = PdfPalletReturnParcelDocuments::run($documentsReturn);
+    $labelPdf     = PdfPalletReturnShippingLabel::run($documentsReturn);
+
+    expect($documentsPdf->headers->get('Content-Type'))->toBe('application/pdf')
+        ->and($pageCount($documentsPdf->getContent()))->toBe(3)
+        ->and($pageCount($labelPdf->getContent()))->toBe(1);
+
+    expect(PalletReturnAttachmentScopeEnum::tryFrom('Manual'))->toBeNull()
+        ->and($palletStoredItem->storedItem->attachments()->wherePivot('scope', StoredItemAttachmentScopeEnum::MANUAL->value)->count())->toBe(1);
+
+    $user                  = \App\Models\SysAdmin\User::where('group_id', $documentsReturn->group_id)->firstOrFail();
+    $originalUserSettings  = $user->settings;
+    $originalGroupSettings = $user->group->settings;
+    $user->update(['settings' => array_merge($originalUserSettings ?? [], ['preferred_printer_id' => 9101, 'preferred_leaflet_printer_id' => 9102])]);
+
+    $printJobs = [];
+    $printer   = PrintPalletReturnDocuments::partialMock();
+    $printer->shouldAllowMockingProtectedMethods();
+    $printer->shouldReceive('leafletPaperOption')->andReturn([]);
+    $printer->shouldReceive('printPdf')->andReturnUsing(function (string $title, int $printId) use (&$printJobs) {
+        $printJobs[] = [$title, $printId];
+
+        return Mockery::mock(\Rawilk\Printing\Api\PrintNode\Resources\PrintJob::class);
+    });
+
+    $user->group->update(['settings' => array_replace_recursive($originalGroupSettings ?? [], ['printnode' => ['print_by_printnode' => false]])]);
+
+    expect(fn () => PrintPalletReturnDocuments::make()->handle($documentsReturn->refresh(), $user->refresh()))->toThrow(ValidationException::class, 'Print by Printnode is not enabled for your group!');
+
+    $user->group->update(['settings' => array_replace_recursive($originalGroupSettings ?? [], ['printnode' => ['print_by_printnode' => true]])]);
+
+    expect(GetPalletReturnBoxStats::run($documentsReturn, $documentsReturn->fulfilmentCustomer)['print_all_route']['name'])->toBe('grp.models.pallet-return.print.all')
+        ->and(PrintPalletReturnDocuments::make()->handle($documentsReturn->refresh(), $user->refresh()))->toBe(3)
+        ->and($printJobs)->toBe([
+            ['Shipping label '.$documentsReturn->reference, 9101],
+            ['Documents '.$documentsReturn->reference, 9101],
+            ['Thank you card', 9102],
+        ]);
+
+    $user->update(['settings' => $originalUserSettings]);
+    $user->group->update(['settings' => $originalGroupSettings]);
+
+    $palletStoredItem->storedItem->attachments()->detach();
+    $documentsReturn->leaflets()->delete();
+    $insert->forceDelete();
+    $documentsReturn->attachments()->detach();
+    $documentsReturn->items()->delete();
+    $documentsReturn->delete();
 })->depends('create second pallet return');
 
 test('submit second pallet return', function (PalletReturn $palletReturn) {

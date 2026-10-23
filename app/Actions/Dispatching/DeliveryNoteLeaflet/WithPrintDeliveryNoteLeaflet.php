@@ -10,6 +10,7 @@ namespace App\Actions\Dispatching\DeliveryNoteLeaflet;
 
 use App\Enums\Dispatching\DeliveryNoteLeaflet\DeliveryNoteLeafletStateEnum;
 use App\Models\Dispatching\DeliveryNoteLeaflet;
+use App\Models\Fulfilment\PalletReturnLeaflet;
 use Exception;
 use Illuminate\Support\Arr;
 use App\Models\SysAdmin\User;
@@ -34,7 +35,7 @@ trait WithPrintDeliveryNoteLeaflet
      * Sends the leaflet's media file to the given PrintNode printer and marks it printed.
      * Uses WithPrintNode::printPdf() (the consuming action must also use WithPrintNode).
      */
-    protected function printDeliveryNoteLeaflet(DeliveryNoteLeaflet $deliveryNoteLeaflet, int $printerId): ?PrintJob
+    protected function printDeliveryNoteLeaflet(DeliveryNoteLeaflet|PalletReturnLeaflet $deliveryNoteLeaflet, int $printerId): ?PrintJob
     {
         $pdf = $this->leafletPdf($deliveryNoteLeaflet);
 
@@ -58,7 +59,7 @@ trait WithPrintDeliveryNoteLeaflet
      * The leaflet as the PDF that goes on the A6 card: the uploaded PDF as it is, an uploaded image
      * laid on an A6 page, or the personalised message written on an A6 page.
      */
-    protected function leafletPdf(DeliveryNoteLeaflet $deliveryNoteLeaflet): ?string
+    protected function leafletPdf(DeliveryNoteLeaflet|PalletReturnLeaflet $deliveryNoteLeaflet): ?string
     {
         $media = $deliveryNoteLeaflet->media;
 
@@ -73,7 +74,7 @@ trait WithPrintDeliveryNoteLeaflet
         return $media->mime_type && str_starts_with($media->mime_type, 'image/') ? $this->imageLeafletPdf($bytes) : $bytes;
     }
 
-    protected function markLeafletPrinted(DeliveryNoteLeaflet $deliveryNoteLeaflet): void
+    protected function markLeafletPrinted(DeliveryNoteLeaflet|PalletReturnLeaflet $deliveryNoteLeaflet): void
     {
         $deliveryNoteLeaflet->update([
             'state'              => DeliveryNoteLeafletStateEnum::PRINTED,

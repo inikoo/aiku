@@ -9,11 +9,15 @@
 
 namespace App\Actions\Retina\Media;
 
+use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemManual;
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\WithRetinaCustomerOwnedRouteModels;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnAttachmentScopeEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,10 +26,26 @@ class AttachRetinaAttachmentToModel extends RetinaAction
 {
     use WithRetinaCustomerOwnedRouteModels;
 
-    private PalletDelivery|PalletReturn $parent;
+    private PalletDelivery|PalletReturn|StoredItem $parent;
 
-    public function handle(PalletDelivery|PalletReturn $model, array $modelData): void
+    public function handle(PalletDelivery|PalletReturn|StoredItem $model, array $modelData): void
     {
+        if ($model instanceof PalletReturn) {
+            foreach (Arr::get($modelData, 'attachments') as $file) {
+                AttachPalletReturnAttachment::run($model, $file, PalletReturnAttachmentScopeEnum::from($modelData['scope']));
+            }
+
+            return;
+        }
+
+        if ($model instanceof StoredItem) {
+            foreach (Arr::get($modelData, 'attachments') as $file) {
+                AttachStoredItemManual::run($model, $file);
+            }
+
+            return;
+        }
+
         foreach (Arr::get($modelData, 'attachments') as $attachment) {
             $file           = $attachment;
             $attachmentData = [
@@ -40,8 +60,25 @@ class AttachRetinaAttachmentToModel extends RetinaAction
         }
     }
 
+    public function getValidationAttributes(): array
+    {
+        return $this->parent instanceof PalletReturn || $this->parent instanceof StoredItem ? ['attachments.*' => __('file')] : [];
+    }
+
     public function rules(): array
     {
+        if ($this->parent instanceof PalletReturn) {
+            return [
+                'attachments'   => ['required', 'array'],
+                'attachments.*' => AttachPalletReturnAttachment::fileRules(),
+                'scope'         => AttachPalletReturnAttachment::scopeRules(),
+            ];
+        }
+
+        if ($this->parent instanceof StoredItem) {
+            return AttachStoredItemManual::rules();
+        }
+
         $allowedScopes = ['Other'];
 
         return [
@@ -69,5 +106,13 @@ class AttachRetinaAttachmentToModel extends RetinaAction
         $this->initialisation($request);
 
         $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function inStoredItem(StoredItem $storedItem, ActionRequest $request): void
+    {
+        $this->parent = $storedItem;
+        $this->initialisation($request);
+
+        $this->handle($storedItem, $this->validatedData);
     }
 }

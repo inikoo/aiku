@@ -19,10 +19,11 @@ import DatePicker from '@vuepic/vue-datepicker'
 import Modal from "@/Components/Utils/Modal.vue"
 import { routeType } from "@/types/route"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
+import ToggleSwitch from "primevue/toggleswitch"
+import RadioButton from "primevue/radiobutton"
 import Popover from '@/Components/Popover.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag } from "@fal"
+import { faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faExchange, faHashtag, faShippingFast, faGift, faPrint, faBrowser, faCheck, faHourglassHalf } from "@fal"
 import { faCubes } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import DeliveryAddressManagementModal from "@/Components/Utils/DeliveryAddressManagementModal.vue"
@@ -40,7 +41,9 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { AddressManagement } from "@/types/PureComponent/Address";
 import { useTruncate } from "@/Composables/useTruncate"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
-library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag)
+import axios from "axios"
+import { printPdfInBrowser } from "@/Composables/printPdfInBrowser"
+library.add(faQuestionCircle, faPencil, faPenSquare, faCalendarDay, faExternalLink, faCubes, faExchange, faHashtag, faShippingFast, faGift, faPrint, faBrowser, faCheck, faHourglassHalf)
 
 const props = defineProps<{
 
@@ -62,6 +65,61 @@ const props = defineProps<{
 	}
 
 }>()
+
+// Section: Customer inserts
+const isLeafletPrinted = (leaflet: { state: string }) => leaflet.state === "printed" || leaflet.state === "included"
+
+const printingLeafletId = ref<number | null>(null)
+const onPrintLeaflet = (leaflet: { id: number }) => {
+	router.post(
+		route("grp.models.pallet_return_leaflet.print", { palletReturnLeaflet: leaflet.id }),
+		{},
+		{
+			preserveScroll: true,
+			onStart: () => (printingLeafletId.value = leaflet.id),
+			onFinish: () => (printingLeafletId.value = null),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print insert"), type: "error" }),
+		}
+	)
+}
+
+const onPrintLeafletInBrowser = async (leaflet: { id: number }) => {
+	try {
+		printingLeafletId.value = leaflet.id
+		const response = await axios.post(
+			route("grp.models.pallet_return_leaflet.print_in_browser", { palletReturnLeaflet: leaflet.id }),
+			{},
+			{ responseType: "blob" }
+		)
+		printPdfInBrowser(response.data)
+		router.reload({ only: ["box_stats", "pageHead"] })
+	} catch (error: any) {
+		const message = error?.response?.data instanceof Blob
+			? JSON.parse(await error.response.data.text())?.message
+			: null
+		notify({ title: ctrans("Something went wrong"), text: message ?? ctrans("Failed to print insert"), type: "error" })
+	} finally {
+		printingLeafletId.value = null
+	}
+}
+
+const isPrintingAll = ref(false)
+const onPrintAll = () => {
+	if (!props.boxStats.print_all_route) {
+		return
+	}
+
+	router.post(
+		route(props.boxStats.print_all_route.name, props.boxStats.print_all_route.parameters),
+		{},
+		{
+			preserveScroll: true,
+			onStart: () => (isPrintingAll.value = true),
+			onFinish: () => (isPrintingAll.value = false),
+			onError: (errors) => notify({ title: ctrans("Something went wrong"), text: errors?.messages ?? ctrans("Failed to print the documents"), type: "error" }),
+		}
+	)
+}
 
 // Section: Box Stats loading state
 const isBoxStatsLoading = ref(false)
@@ -686,21 +744,13 @@ const base64HtmlToPdf = async (base64: string, index) => {
 						<span class="sr-only">Delivery address</span>
 						<FontAwesomeIcon icon="fal fa-map-marker-alt" size="xs" class="text-gray-400" fixed-width aria-hidden="true" />
 					</dt>
-					<SwitchGroup v-if="!isWarehouseDispatchingPalletReturnPage" as="div" class="flex items-center">
-						<Switch
-							v-model="computedEnabled"
-							:class="[computedEnabled ? 'bg-indigo-600' : 'bg-gray-200']"
-							class="relative inline-flex h-6 w-11 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">
-							<span
-								aria-hidden="true"
-								:class="[computedEnabled ? 'translate-x-5' : 'translate-x-0']"
-								class="pointer-events-none inline-block h-5 w-5 transform bg-white rounded-full shadow transition duration-200 ease-in-out" />
-						</Switch>
-						<SwitchLabel as="span" class="ml-3">
+					<div v-if="!isWarehouseDispatchingPalletReturnPage" class="flex items-center">
+						<ToggleSwitch v-model="computedEnabled" inputId="return-for-collection" class="return-toggle" />
+						<label for="return-for-collection" class="ml-3 cursor-pointer">
 							{{ ctrans("For collection") }}
-						</SwitchLabel>
-					</SwitchGroup>
-					<div v-else class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+						</label>
+					</div>
+					<div v-else class="border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						{{ ctrans("For Collection") }}: {{ dataPalletReturn.is_collection ? ctrans("Yes") : ctrans("No") }}
 					</div>
 				</div>
@@ -709,26 +759,14 @@ const base64HtmlToPdf = async (base64: string, index) => {
 					<div v-if="!isWarehouseDispatchingPalletReturnPage" class="flex flex-col gap-y-2">
 						<span>{{ ctrans("Collection by:") }}</span>
 						<div class="flex gap-x-4">
-							<label class="inline-flex items-center">
-								<input
-									type="radio"
-									value="myself"
-									v-model="collectionBy"
-									@change="updateCollectionType"
-									class="form-radio"
-								/>
-								<span class="ml-2">{{ ctrans("My Self") }}</span>
-							</label>
-							<label class="inline-flex items-center">
-								<input
-									type="radio"
-									value="thirdParty"
-									v-model="collectionBy"
-									@change="updateCollectionType"
-									class="form-radio"
-								/>
-								<span class="ml-2">{{ ctrans("Third Party") }}</span>
-							</label>
+							<div class="inline-flex items-center">
+								<RadioButton v-model="collectionBy" inputId="collection-by-myself" value="myself" class="return-radio" @change="updateCollectionType" />
+								<label for="collection-by-myself" class="ml-2 cursor-pointer">{{ ctrans("My Self") }}</label>
+							</div>
+							<div class="inline-flex items-center">
+								<RadioButton v-model="collectionBy" inputId="collection-by-third-party" value="thirdParty" class="return-radio" @change="updateCollectionType" />
+								<label for="collection-by-third-party" class="ml-2 cursor-pointer">{{ ctrans("Third Party") }}</label>
+							</div>
 						</div>
 					</div>
 
@@ -757,7 +795,7 @@ const base64HtmlToPdf = async (base64: string, index) => {
 						<div
 							v-if="!isWarehouseDispatchingPalletReturnPage"
 							@click="() => (isDeliveryAddressManagementModal = true)"
-							class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+							class="whitespace-nowrap select-none text-gray-500 hover:text-[--app-accent] underline cursor-pointer">
               <span>{{ctrans('Edit')}}</span>
 						</div>
 					</div>
@@ -804,6 +842,79 @@ const base64HtmlToPdf = async (base64: string, index) => {
 							<span class="text-gray-500 truncate">
 								({{ parcel.dimensions?.[0] }}x{{ parcel.dimensions?.[1] }}x{{ parcel.dimensions?.[2] }} cm)
 							</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Section: Print all -->
+			<div v-if="boxStats.print_all_route" class="flex justify-end py-0.5">
+				<Button
+					:label="ctrans('Print all')"
+					type="tertiary"
+					size="xs"
+					:loading="isPrintingAll"
+					v-tooltip="ctrans('Shipping label, invoice, delivery note and manuals to your printer, inserts to your leaflet printer')"
+					@click="onPrintAll">
+					<template #icon>
+						<FontAwesomeIcon icon="fal fa-print" class="text-green-600" fixed-width aria-hidden="true" />
+					</template>
+				</Button>
+			</div>
+
+			<!-- Section: Customer's courier and shipping label -->
+			<div v-if="!dataPalletReturn.is_collection && (boxStats.customer_shipping?.courier || boxStats.customer_shipping?.shipping_label)" class="flex gap-x-1 py-0.5">
+				<FontAwesomeIcon v-tooltip="ctrans('Customer shipping')" icon="fal fa-shipping-fast" class="text-gray-400" fixed-width aria-hidden="true" />
+				<div class="w-full text-sm">
+					<div>
+						{{ ctrans("Courier") }}: {{ boxStats.customer_shipping.courier_label || ctrans("Not set") }}
+					</div>
+					<div v-if="boxStats.customer_shipping.shipping_label">
+						{{ ctrans("Customer's label") }}:
+						<a
+							:href="route(boxStats.customer_shipping.shipping_label.download_route.name, boxStats.customer_shipping.shipping_label.download_route.parameters)"
+							target="_blank"
+							class="text-gray-500 underline hover:text-[--app-accent]">
+							{{ boxStats.customer_shipping.shipping_label.name }}
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section: Customer inserts -->
+			<div v-if="boxStats.leaflets?.items?.length" class="flex gap-x-1 py-0.5">
+				<FontAwesomeIcon v-tooltip="ctrans('Customer inserts')" icon="fal fa-gift" class="text-gray-400" fixed-width aria-hidden="true" />
+				<div class="w-full text-sm">
+					<div>{{ ctrans("Inserts") }} ({{ boxStats.leaflets.items.length }})</div>
+					<ul class="mt-1 space-y-1">
+						<li v-for="leaflet in boxStats.leaflets.items" :key="leaflet.id" class="flex items-center justify-between gap-x-2">
+							<span class="truncate" v-tooltip="leaflet.type_label">
+								<FontAwesomeIcon
+									:icon="isLeafletPrinted(leaflet) ? 'fal fa-check' : 'fal fa-hourglass-half'"
+									:class="isLeafletPrinted(leaflet) ? 'text-green-600' : 'text-amber-500'"
+									fixed-width
+									aria-hidden="true" />
+								{{ leaflet.name }}
+							</span>
+							<span v-if="leaflet.printable" class="flex shrink-0 gap-x-1">
+								<button
+									type="button"
+									class="p-0.5 text-gray-400 hover:text-[--app-accent] disabled:text-gray-300"
+									v-tooltip="ctrans('Print by PrintNode')"
+									:disabled="printingLeafletId === leaflet.id"
+									@click="onPrintLeaflet(leaflet)">
+									<FontAwesomeIcon icon="fal fa-print" fixed-width aria-hidden="true" />
+								</button>
+								<button
+									type="button"
+									class="p-0.5 text-gray-400 hover:text-[--app-accent] disabled:text-gray-300"
+									v-tooltip="ctrans('Print in browser')"
+									:disabled="printingLeafletId === leaflet.id"
+									@click="onPrintLeafletInBrowser(leaflet)">
+									<FontAwesomeIcon icon="fal fa-browser" fixed-width aria-hidden="true" />
+								</button>
+							</span>
+							<span v-else class="shrink-0 text-xs text-gray-400">{{ ctrans("No file") }}</span>
 						</li>
 					</ul>
 				</div>
@@ -916,10 +1027,10 @@ const base64HtmlToPdf = async (base64: string, index) => {
             <div v-if="hasPickingUsers || canChangePicker || canChangePacker" class="mb-1 border-t border-gray-300 pt-1">
 				<div class="text-sm font-semibold text-gray-600">{{ pickingTitle }}</div>
 				<div class="flex flex-wrap gap-2 text-sm">
-					<div v-if="showPickerInfo" class="border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+					<div v-if="showPickerInfo" class="border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						<span class="font-semibold text-gray-700">{{ ctrans('Picker') }}:</span> {{ dataPalletReturn?.picker_user?.contact_name || '-' }}
 					</div>
-					<div v-if="showPackerInfo" class=" border-l-4 border-indigo-300 bg-indigo-50 px-2 py-0.5">
+					<div v-if="showPackerInfo" class=" border-l-4 border-[--app-accent-muted] bg-[--app-accent-soft] px-2 py-0.5">
 						<span class="font-semibold text-gray-700">{{ ctrans('Packer') }}:</span> {{ dataPalletReturn?.packer_user?.contact_name || '-' }}
 					</div>
 					<Button
@@ -1178,5 +1289,20 @@ const base64HtmlToPdf = async (base64: string, index) => {
 <style scoped lang="scss">
 :deep(.country) {
 	@apply font-medium text-sm;
+}
+
+:deep(.return-toggle) {
+	--p-toggleswitch-checked-background: var(--app-accent);
+	--p-toggleswitch-checked-hover-background: var(--app-accent-strong);
+	--p-toggleswitch-focus-ring-color: var(--app-accent);
+}
+
+:deep(.return-radio) {
+	--p-radiobutton-checked-background: var(--app-accent);
+	--p-radiobutton-checked-border-color: var(--app-accent);
+	--p-radiobutton-checked-hover-background: var(--app-accent-strong);
+	--p-radiobutton-checked-hover-border-color: var(--app-accent-strong);
+	--p-radiobutton-icon-checked-color: var(--app-accent-text);
+	--p-radiobutton-focus-ring-color: var(--app-accent);
 }
 </style>

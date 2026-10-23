@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Ordering\Order\UpdateState\SubmitOrder;
 use App\Enums\Ordering\Order\OrderPayStatusEnum;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
@@ -627,6 +628,9 @@ test('retina api fulfilment orders flow', function () {
     $palletReturnId = $response->json('data.id');
     $palletReturn    = \App\Models\Fulfilment\PalletReturn::find($palletReturnId);
 
+    expect($palletReturn->is_collection)->toBeFalse()
+        ->and($palletReturn->deliveryAddress->postal_code)->toBe($client->address->postal_code);
+
     $response = getJson(route('retina.api.fulfilment.order.index'));
     $response->assertOk();
     $response->assertJsonStructure([
@@ -651,6 +655,161 @@ test('retina api fulfilment orders flow', function () {
     $response = postJson(route('retina.api.fulfilment.order.cancel', $palletReturn));
     $response->assertUnprocessable();
     $response->assertJsonPath('message', 'This Order is already in the "in_process" state and cannot be updated.');
+});
+
+test('retina api fulfilment order line is capped by the stock free on the pallet', function () {
+    Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
+
+    $storedItem = \App\Actions\Fulfilment\StoredItem\StoreStoredItem::make()->action(
+        $this->fulfilmentCustomer->fulfilmentCustomer,
+        ['reference' => 'api-no-stock-item']
+    );
+    $storedItem->update(['state' => \App\Enums\Fulfilment\StoredItem\StoredItemStateEnum::ACTIVE]);
+
+    postJson(route('retina.api.fulfilment.portfolios.store'))->assertSuccessful();
+    $portfolio = $this->fulfilmentChannel->portfolios()->where('item_id', $storedItem->id)->firstOrFail();
+
+    $client = StoreCustomerClient::make()->action(
+        $this->fulfilmentChannel,
+        CustomerClient::factory()->definition()
+    );
+    $palletReturnId = postJson(route('retina.api.fulfilment.order.store', $client))->assertCreated()->json('data.id');
+
+    $response = postJson(route('retina.api.fulfilment.order.transaction.store', [$palletReturnId, $portfolio->id]), [
+        'quantity_ordered' => 1,
+    ]);
+
+    $response->assertUnprocessable();
+    expect($response->json('errors.quantity_ordered.0'))->toBe('Only 0 available, the rest is already reserved by other open orders.');
+
+    $response = postJson(route('retina.api.fulfilment.order.transaction.store', [$palletReturnId, $portfolio->id]), [
+        'quantity_ordered' => 0,
+    ]);
+
+    $response->assertUnprocessable();
+    expect($response->json('errors.message.0'))->toBe('api-no-stock-item is out of stock.');
+});
+
+test('retina api fulfilment order line is capped by the free stock of the sko across its pallets', function () {
+    Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
+
+    $fulfilmentCustomer = $this->fulfilmentCustomer->fulfilmentCustomer;
+    $storedItem         = \App\Actions\Fulfilment\StoredItem\StoreStoredItem::make()->action($fulfilmentCustomer, ['reference' => 'api-two-pallets-item']);
+    $storedItem->update(['state' => \App\Enums\Fulfilment\StoredItem\StoredItemStateEnum::ACTIVE]);
+
+    $storePallet = function (int $quantity) use ($fulfilmentCustomer, $storedItem): \App\Models\Fulfilment\PalletStoredItem {
+        $pallet = \App\Actions\Fulfilment\Pallet\StorePallet::make()->action(
+            $fulfilmentCustomer,
+            array_merge(['warehouse_id' => $this->warehouse->id], \App\Models\Fulfilment\Pallet::factory()->definition())
+        );
+        \App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet::make()->action($pallet, ['stored_item_ids' => [$storedItem->id => ['quantity' => $quantity]]]);
+
+        return \App\Models\Fulfilment\PalletStoredItem::where('pallet_id', $pallet->id)->where('stored_item_id', $storedItem->id)->firstOrFail();
+    };
+
+    $reservedPallet = $storePallet(6);
+    $freePallet     = $storePallet(33);
+
+    $otherReturn = \App\Actions\Fulfilment\PalletReturn\StorePalletReturn::make()->actionWithStoredItems($fulfilmentCustomer, ['warehouse_id' => $this->warehouse->id]);
+    \App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn::make()->action($otherReturn, $reservedPallet, ['quantity_ordered' => 6]);
+
+    postJson(route('retina.api.fulfilment.portfolios.store'))->assertSuccessful();
+    $portfolio = $this->fulfilmentChannel->portfolios()->where('item_id', $storedItem->id)->firstOrFail();
+
+    $client         = StoreCustomerClient::make()->action($this->fulfilmentChannel, CustomerClient::factory()->definition());
+    $palletReturnId = postJson(route('retina.api.fulfilment.order.store', $client))->assertCreated()->json('data.id');
+    $orderLine      = fn (int $quantity) => postJson(route('retina.api.fulfilment.order.transaction.store', [$palletReturnId, $portfolio->id]), ['quantity_ordered' => $quantity]);
+    $orderedByPallet = fn (): array => \App\Models\Fulfilment\PalletReturnItem::where('pallet_return_id', $palletReturnId)
+        ->orderBy('pallet_stored_item_id')
+        ->pluck('quantity_ordered', 'pallet_stored_item_id')
+        ->map(fn ($quantity) => (int) $quantity)
+        ->all();
+
+    $orderLine(5)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$freePallet->id => 5]);
+
+    $response = $orderLine(34);
+    $response->assertUnprocessable();
+    expect($response->json('errors.quantity_ordered.0'))->toBe('Only 33 available, the rest is already reserved by other open orders.');
+
+    $otherReturn->items()->delete();
+
+    $orderLine(39)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$reservedPallet->id => 6, $freePallet->id => 33]);
+
+    $response = $orderLine(40);
+    $response->assertUnprocessable();
+    expect($response->json('errors.quantity_ordered.0'))->toBe('Only 39 available, the rest is already reserved by other open orders.');
+
+    $orderLine(5)->assertSuccessful();
+    expect($orderedByPallet())->toBe([$freePallet->id => 5]);
+
+    $otherReturn->delete();
+});
+
+test('retina api fulfilment order takes the customer documents and courier', function () {
+    Sanctum::actingAs($this->fulfilmentChannel, ['retina', 'retina:read', 'retina:write']);
+
+    $client = StoreCustomerClient::make()->action(
+        $this->fulfilmentChannel,
+        CustomerClient::factory()->definition()
+    );
+    $palletReturnId = postJson(route('retina.api.fulfilment.order.store', $client))->assertCreated()->json('data.id');
+
+    $pdf = fn (string $name) => UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n% ".uniqid()."\n%%EOF");
+
+    $response = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => UploadedFile::fake()->create('label.png', 10, 'image/png'),
+    ]);
+    $response->assertUnprocessable();
+    $response->assertJsonValidationErrors(['file']);
+
+    postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => $pdf('first-label.pdf'),
+    ])->assertSuccessful();
+
+    $response = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Shipping label',
+        'file'  => $pdf('label.pdf'),
+    ]);
+    $response->assertSuccessful();
+    $response->assertJsonPath('data.scope', 'Shipping label');
+    $response->assertJsonPath('data.file_name', 'label.pdf');
+
+    $invoiceId = postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Invoice',
+        'file'  => $pdf('invoice.pdf'),
+    ])->assertSuccessful()->json('data.id');
+
+    postJson(route('retina.api.fulfilment.order.attachment.store', $palletReturnId), [
+        'scope' => 'Receipt',
+        'file'  => $pdf('receipt.pdf'),
+    ])->assertUnprocessable()->assertJsonValidationErrors(['scope']);
+
+    $response = getJson(route('retina.api.fulfilment.order.attachment.index', $palletReturnId));
+    $response->assertOk();
+    expect(collect($response->json('data'))->pluck('file_name', 'scope')->all())->toBe([
+        'Shipping label' => 'label.pdf',
+        'Invoice'        => 'invoice.pdf',
+    ]);
+
+    deleteJson(route('retina.api.fulfilment.order.attachment.delete', [$palletReturnId, $invoiceId]))->assertOk();
+    deleteJson(route('retina.api.fulfilment.order.attachment.delete', [$palletReturnId, $invoiceId]))->assertNotFound();
+    expect(getJson(route('retina.api.fulfilment.order.attachment.index', $palletReturnId))->json('data'))->toHaveCount(1);
+
+    patchJson(route('retina.api.fulfilment.order.update', $palletReturnId), [
+        'customer_courier' => 'ups',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['customer_courier']);
+
+    patchJson(route('retina.api.fulfilment.order.update', $palletReturnId), [
+        'customer_courier' => 'dpd',
+    ])->assertOk();
+
+    getJson(route('retina.api.fulfilment.order.show', $palletReturnId))
+        ->assertOk()
+        ->assertJsonPath('data.customer_courier', 'dpd');
 });
 
 // ---- Fulfilment: portfolios ----

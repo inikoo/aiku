@@ -12,9 +12,9 @@ namespace App\Actions\Dropshipping\Ebay\Fulfilment;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
+use App\Actions\Fulfilment\StoredItem\AllocateStoredItemToReturn;
 use App\Actions\OrgAction;
 use App\Actions\Retina\Dropshipping\Client\Traits\WithGeneratedEbayAddress;
-use App\Actions\Retina\Fulfilment\StoredItem\AttachRetinaStoredItemToReturn;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\Dropshipping\EbayUser;
@@ -25,6 +25,7 @@ use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Sentry;
+use App\Exceptions\Fulfilment\PalletReturnStockShortException;
 
 class StoreFulfilmentFromEbay extends OrgAction
 {
@@ -78,18 +79,13 @@ class StoreFulfilmentFromEbay extends OrgAction
                 /** @var StoredItem $storedItem */
                 $storedItem = $ebayUserHasProduct->item;
 
-                $palletStoredItem = $storedItem->palletStoredItems()->where('quantity', '>', 0)->first();
-
-                if (!$palletStoredItem) {
-                    continue;
-                }
-
-                AttachRetinaStoredItemToReturn::run($palletReturn, $palletStoredItem, [
-                    'quantity_ordered' => $ebayProduct['quantity']
-                ]);
+                AllocateStoredItemToReturn::run($palletReturn, $storedItem, (float) $ebayProduct['quantity']);
             }
 
-            SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+            try {
+                SubmitAndConfirmPalletReturn::make()->action($palletReturn);
+            } catch (PalletReturnStockShortException) {
+            }
         } else {
             Sentry::captureMessage('Some products dont exist');
         }
