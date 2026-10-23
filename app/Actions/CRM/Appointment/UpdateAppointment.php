@@ -2,6 +2,7 @@
 
 namespace App\Actions\CRM\Appointment;
 
+use App\Actions\Comms\Email\SendAppointmentEmailToStaff;
 use App\Actions\CRM\Appointment\GoogleCalendar\SyncAppointmentGoogleCalendarEvent;
 use Illuminate\Support\Arr;
 use App\Actions\CRM\Appointment\Zoom\SyncAppointmentZoomMeeting;
@@ -28,8 +29,10 @@ class UpdateAppointment extends OrgAction
     {
         $previousState    = $appointment->state;
         $previousStartsAt = $appointment->starts_at->copy();
+        $previousUserId   = $appointment->user_id;
+        $previousStaff    = SendAppointmentEmailToStaff::staffToEmail($appointment);
 
-        $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt) {
+        $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt, $previousUserId, $previousStaff) {
             $modelData = $this->prepareAppointmentData($appointment->shop, $modelData, $appointment);
 
             $this->ensureAppointmentFits($modelData, $appointment);
@@ -43,6 +46,7 @@ class UpdateAppointment extends OrgAction
             }
 
             $this->notifyVisitorAboutChange($appointment, $previousState, $previousStartsAt);
+            $this->notifyStaffAboutChange($appointment, $previousState, $previousStartsAt, $previousUserId, $previousStaff);
 
             return $appointment;
         });

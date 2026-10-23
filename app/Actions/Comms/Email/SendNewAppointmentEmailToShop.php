@@ -19,8 +19,10 @@ use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\ExternalSubscriberEmailRecipient;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Appointment;
+use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 
 class SendNewAppointmentEmailToShop extends OrgAction
@@ -47,6 +49,24 @@ class SendNewAppointmentEmailToShop extends OrgAction
             return null;
         }
 
+        return $this->sendTo(
+            $appointment,
+            $emailAddress,
+            fn () => $appointment->group->externalSubscriberEmailRecipients()->where('email', $emailAddress)->first()
+                ?? StoreExternalSubscriberEmailRecipient::make()->action($appointment->group, [
+                    'name'  => $appointment->shop->name,
+                    'email' => $emailAddress,
+                ])
+        );
+    }
+
+    /**
+     * @param callable(): (User|ExternalSubscriberEmailRecipient) $resolveRecipient
+     * @param (callable(): string)|null $makeSubject
+     * @param (callable(): ?string)|null $makeIntroHtml
+     */
+    public function sendTo(Appointment $appointment, string $emailAddress, callable $resolveRecipient, ?callable $makeSubject = null, ?callable $makeIntroHtml = null): ?DispatchedEmail
+    {
         /** @var Outbox|null $outbox */
         $outbox = $appointment->shop->outboxes()->where('code', OutboxCodeEnum::NEW_APPOINTMENT->value)->first();
         if (!$outbox || $outbox->state != OutboxStateEnum::ACTIVE || !$outbox->is_applicable || !$outbox->emailOngoingRun?->email?->liveSnapshot) {
@@ -60,11 +80,7 @@ class SendNewAppointmentEmailToShop extends OrgAction
             return null;
         }
 
-        $recipient = $appointment->group->externalSubscriberEmailRecipients()->where('email', $emailAddress)->first()
-            ?? StoreExternalSubscriberEmailRecipient::make()->action($appointment->group, [
-                'name'  => $appointment->shop->name,
-                'email' => $emailAddress,
-            ]);
+        $recipient = $resolveRecipient();
 
         $previousLocale = app()->getLocale();
         app()->setLocale($appointment->shop->language->code);
@@ -79,12 +95,12 @@ class SendNewAppointmentEmailToShop extends OrgAction
             return $this->sendEmailWithMergeTags(
                 $dispatchedEmail,
                 $outbox->emailOngoingRun->sender(),
-                $this->subject($appointment, $outbox),
+                $makeSubject ? $makeSubject() : $this->subject($appointment, $outbox),
                 $emailHtmlBody,
                 '',
                 additionalData: [
                     'shop_name'  => $appointment->shop->name,
-                    'email_body' => $this->generateBodyHtml($appointment),
+                    'email_body' => $this->generateBodyHtml($appointment, $makeIntroHtml ? $makeIntroHtml() : null),
                 ],
                 senderName: $outbox->emailOngoingRun->senderName(),
             );
@@ -105,12 +121,12 @@ class SendNewAppointmentEmailToShop extends OrgAction
         return __('New appointment: :name on :date', ['name' => $appointment->contact_name, 'date' => $date]);
     }
 
-    public function generateBodyHtml(Appointment $appointment): string
+    public function generateBodyHtml(Appointment $appointment, ?string $introHtml = null): string
     {
         $appointmentEmail = SendAppointmentEmail::make();
         $start            = $appointmentEmail->localStart($appointment);
 
-        $html = $appointmentEmail->paragraph(__(':name booked :type on :date at :time.', [
+        $html = $introHtml ?? $appointmentEmail->paragraph(__(':name booked :type on :date at :time.', [
             'name' => e($appointment->contact_name),
             'type' => e($appointment->appointmentType?->name ?? __('an appointment')),
             'date' => $start->translatedFormat('l j F Y'),

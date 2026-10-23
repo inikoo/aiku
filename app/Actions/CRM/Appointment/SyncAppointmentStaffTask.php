@@ -86,7 +86,7 @@ class SyncAppointmentStaffTask
     /**
      * @return Collection<int, User> the first is who the task is for, the others work on it too
      */
-    private function staffToRemind(Appointment $appointment): Collection
+    public function staffToRemind(Appointment $appointment): Collection
     {
         if ($appointment->ends_at->isPast()) {
             return collect();

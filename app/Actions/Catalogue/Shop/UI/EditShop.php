@@ -1012,6 +1012,12 @@ class EditShop extends OrgAction
                             'value'       => Arr::get($shop->settings, 'appointments.notify_email', ''),
                             'information' => __('Leave empty to use the shop email.'),
                         ],
+                        'appointment_notify_staff'   => [
+                            'type'        => 'toggle',
+                            'label'       => __('Email appointments to the staff who arrange them'),
+                            'value'       => (bool) Arr::get($shop->settings, 'appointments.notify_staff', true),
+                            'information' => __('Emails the member of staff an appointment is given to, or everyone who arranges its type while it waits for an answer, when a customer books it and when it is given to them, moved or cancelled. They get a task for it either way.'),
+                        ],
                     ],
                 ],
                 [
