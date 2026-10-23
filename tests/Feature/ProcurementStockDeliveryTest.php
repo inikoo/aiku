@@ -493,6 +493,8 @@ test('UI index supplier products in org supplier shows live state counts and his
                 'discontinued'  => [__('Discontinued'), 1],
             ])
             ->has('index.data', 1)
+            ->has('index.data.0.internal_code')
+            ->where('queryBuilderProps.index.columns', fn ($columns) => collect($columns)->pluck('key')->contains('internal_code'))
             ->etc();
     });
 

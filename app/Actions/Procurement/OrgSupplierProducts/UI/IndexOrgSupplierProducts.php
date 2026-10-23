@@ -164,6 +164,19 @@ class IndexOrgSupplierProducts extends OrgAction
                 ->addSelect(['suppliers.name as supplier_name', 'org_suppliers.slug as org_supplier_slug']);
         }
 
+        if (!$organisationAgent) {
+            $queryBuilder->selectSub(
+                fn ($query) => $query->from('org_stock_has_org_supplier_products')
+                    ->join('org_stocks', 'org_stocks.id', 'org_stock_has_org_supplier_products.org_stock_id')
+                    ->whereColumn('org_stock_has_org_supplier_products.org_supplier_product_id', 'org_supplier_products.id')
+                    ->orderByDesc('org_stock_has_org_supplier_products.local_priority')
+                    ->orderBy('org_stock_has_org_supplier_products.id')
+                    ->limit(1)
+                    ->select('org_stocks.code'),
+                'internal_code'
+            );
+        }
+
         if ($organisationAgent) {
             $queryBuilder
                 ->select([
@@ -187,7 +200,7 @@ class IndexOrgSupplierProducts extends OrgAction
 
         return $queryBuilder
             ->defaultSort('supplier_products.code')
-            ->allowedSorts($organisationAgent ? ['code', 'name', 'supplier_name', 'cost', 'internal_code', 'cbm', 'completeness'] : ['code', 'name', 'supplier_name', 'cost'])
+            ->allowedSorts($organisationAgent ? ['code', 'name', 'supplier_name', 'cost', 'internal_code', 'cbm', 'completeness'] : ['code', 'internal_code', 'name', 'supplier_name', 'cost'])
             ->allowedFilters($organisationAgent ? [$globalSearch, ...$this->agentProductFilters()] : [$globalSearch])
             ->withPaginator($prefix, tableName: request()->route()->getName())
             ->withQueryString()
@@ -258,12 +271,10 @@ class IndexOrgSupplierProducts extends OrgAction
                 ->withGlobalSearch()
                 ->withLabelRecord($parent instanceof Organisation && $parent->type === OrganisationTypeEnum::AGENT ? [__('Product'), __('Products')] : [__('Supplier Product'), __('Supplier Products')]);
 
-            if ($this->getParentOrganisationAgent($parent)) {
-                $table->column(key: 'internal_code', label: __('Our code'), canBeHidden: false, sortable: true);
-            }
+            $table->column(key: 'internal_code', label: $this->getParentOrganisationAgent($parent) ? __('Our code') : __('Product code'), canBeHidden: false, sortable: true);
 
             $table
-                ->column(key: 'code', label: $this->getParentOrganisationAgent($parent) ? __('Supplier code') : __('Code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('Supplier code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
 
             if (!$parent instanceof OrgSupplier) {
