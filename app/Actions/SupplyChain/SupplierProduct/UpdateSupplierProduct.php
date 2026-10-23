@@ -73,6 +73,10 @@ class UpdateSupplierProduct extends OrgAction
             }
         }
 
+        if (Arr::exists($modelData, 'units_per_pack') && !$skipHistoric && ($skoPackedIn = $supplierProduct->skoPackedIn()) !== null) {
+            $modelData['units_per_pack'] = $skoPackedIn;
+        }
+
         $modelData = $this->syncAvailability($supplierProduct, $modelData);
         $modelData = $this->fillCbmFromCartonDimensions($modelData);
         $modelData = $this->stampLeadTimeConfirmation($supplierProduct, $modelData);

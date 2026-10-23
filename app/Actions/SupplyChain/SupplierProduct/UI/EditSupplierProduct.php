@@ -115,6 +115,8 @@ class EditSupplierProduct extends OrgAction
                                     'type'  => 'input',
                                     'label' => __('Units per pack'),
                                     'value' => $supplierProduct->units_per_pack,
+                                    'readonly'    => $supplierProduct->skoPackedIn() !== null,
+                                    'information' => __('Comes from the SKO composition. To change it, edit the composition of the SKO.'),
                                 ],
                                 'units_per_carton' => [
                                     'type'  => 'input',

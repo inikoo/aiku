@@ -45,6 +45,7 @@ import { notify } from "@kyvg/vue3-notification"
 import InformationIcon from "@/Components/Utils/InformationIcon.vue"
 import ProductImageViewerDialog from "@/Components/Product/ProductImageViewerDialog.vue"
 import AgentSupplierProductPanel from "@/Components/Procurement/AgentSupplierProductPanel.vue"
+import CompositionTriangle from "@/Components/Goods/CompositionTriangle.vue"
 
 library.add(
     faBarcode,
@@ -143,6 +144,15 @@ const props = defineProps<{
                 route: routeType
             }[]
         }[]
+        triangle: {
+            trade_units: InstanceType<typeof CompositionTriangle>["$props"]["tradeUnits"]
+            products_count: number
+            mood: "angry" | "crying" | null
+            warning: string | null
+            trade_unit: { code: string; route: routeType | null }
+            stock: { code: string; route: routeType | null }
+            composition_route: routeType | null
+        } | null
         parties: {
             label: string
             icon: string
@@ -718,6 +728,42 @@ const availabilityBadge = (isAvailable: boolean) =>
                     </component>
                 </div>
             </template>
+        </section>
+
+        <section v-if="data.triangle" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <Icon :data="{ icon: 'fal fa-cubes' }" />
+                {{ ctrans("Composition") }}
+            </h3>
+            <CompositionTriangle
+                :tradeUnits="data.triangle.trade_units"
+                :productsCount="data.triangle.products_count"
+                :mood="data.triangle.mood"
+            />
+            <p v-if="data.triangle.warning" class="mt-3 flex gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+                <Icon :data="{ icon: 'fal fa-exclamation-triangle' }" class="mt-0.5 shrink-0" />
+                {{ data.triangle.warning }}
+            </p>
+            <dl class="mt-3 divide-y divide-gray-100">
+                <div v-for="corner in [
+                    { key: 'tu', label: ctrans('Trade unit'), link: data.triangle.trade_unit },
+                    { key: 'sko', label: ctrans('SKO'), link: data.triangle.stock },
+                ]" :key="corner.key" class="flex items-baseline justify-between py-2">
+                    <dt class="text-sm text-gray-500">{{ corner.label }}</dt>
+                    <dd class="text-sm text-gray-700">
+                        <Link v-if="corner.link.route" :href="route(corner.link.route.name, corner.link.route.parameters)"
+                            class="hover:text-gray-900 hover:underline">
+                            {{ corner.link.code }}
+                        </Link>
+                        <span v-else>{{ corner.link.code }}</span>
+                    </dd>
+                </div>
+            </dl>
+            <Link v-if="data.triangle.composition_route"
+                :href="route(data.triangle.composition_route.name, data.triangle.composition_route.parameters)"
+                class="mt-3 block">
+                <Button type="secondary" icon="fal fa-edit" :label="ctrans('Edit SKO composition')" full />
+            </Link>
         </section>
 
         <section v-if="shownBarcodes.length" class="md:col-span-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">

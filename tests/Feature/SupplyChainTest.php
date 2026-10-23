@@ -69,6 +69,11 @@ use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\PermissionRegistrar;
+use App\Actions\Goods\Stock\StoreStock;
+use App\Models\Goods\Stock;
+use App\Enums\Goods\Stock\StockStateEnum;
+use App\Actions\Goods\Stock\SyncStockTradeUnits;
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\patch;
@@ -2197,4 +2202,46 @@ test('the minimum order modal lists the active suppliers of the SKO and saves th
     $this->patchJson(route('grp.models.org_supplier_product.minimum_carton_order.update', ['orgSupplierProduct' => $orgSupplierProduct->id]), ['minimum_carton_order' => null])->assertOk();
 
     expect($orgSupplierProduct->supplierProduct->refresh()->minimum_carton_order)->toBeNull();
+});
+
+test('units per pack of a supplier product follows the SKO composition', function () {
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
+    $stock     = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    SyncStockTradeUnits::run($stock, [$tradeUnit->id => ['quantity' => 1]]);
+    StoreOrgStock::make()->action($this->organisation, $stock);
+
+    $supplier        = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, [
+        'code'             => 'SKO-PACK-'.Str::upper(Str::random(6)),
+        'name'             => 'Pouch',
+        'cost'             => 95,
+        'units_per_pack'   => 1,
+        'units_per_carton' => 33,
+    ]);
+    $supplierProduct->stocks()->attach($stock->id);
+    $supplierProduct->tradeUnits()->attach($tradeUnit->id, ['quantity' => 1]);
+
+    expect($supplierProduct->skoPackedIn())->toBe(1);
+
+    $supplierProduct = UpdateSupplierProduct::make()->action($supplierProduct, ['units_per_pack' => 3]);
+    expect($supplierProduct->units_per_pack)->toBe(1);
+
+    $showcase = GetSupplierProductShowcase::run($supplierProduct);
+    expect($showcase['triangle']['warning'])->toBeNull()
+        ->and($showcase['triangle']['stock']['code'])->toBe($stock->code)
+        ->and($showcase['triangle']['trade_units'][0]['packed_in'])->toBe(1);
+
+    SyncStockTradeUnits::run($stock->fresh(), [$tradeUnit->id => ['quantity' => 3]]);
+    $supplierProduct->refresh();
+
+    expect($supplierProduct->units_per_pack)->toBe(3)
+        ->and($supplierProduct->historicSupplierProduct->units_per_pack)->toEqual(3);
+
+    $supplierProduct->updateQuietly(['units_per_pack' => 1]);
+    $showcase = GetSupplierProductShowcase::run($supplierProduct->fresh());
+    expect($showcase['triangle']['mood'])->toBe('crying')
+        ->and($showcase['triangle']['warning'])->toContain('SKO is packed in 3');
+
+    $fetched = UpdateSupplierProduct::make()->action($supplierProduct->fresh(), ['units_per_pack' => 2], skipHistoric: true, strict: false);
+    expect($fetched->units_per_pack)->toBe(2);
 });
