@@ -444,6 +444,8 @@ test('UI show family edit page translates the meta description from the master f
             ->where('edit_page.sections.2.cards.2.fields.description.main', 'Wholesale aroma diffusers for every room')
             ->where('edit_page.sections.2.cards.2.fields.description.value', 'Aroma-Diffusoren im Großhandel')
             ->etc());
+
+    $family->updateQuietly(['master_product_category_id' => null]);
 });
 
 test('SEO team sends a family page review that replaces the last one and moves the workflow on', function () {
@@ -721,6 +723,8 @@ test('UI show product setting page shows the master meta description and the web
             ->where('shop.webpage.seo_image_field.value', ['original' => 'https://cdn.example.com/diffuser.png'])
             ->where('shop.webpage.seo_image_field.hasOther.1.value', 'https://cdn.example.com/diffuser.png')
             ->etc());
+
+    $product->updateQuietly(['master_product_id' => null]);
 });
 
 test('UI show family sales analysis tab', function () {
