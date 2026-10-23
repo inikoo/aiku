@@ -143,6 +143,7 @@ interface MetaSync {
     last_sync: { finished_at: string, ok: boolean, message: string | null } | null
     available_at: string | null
     first_sync: boolean
+    can_edit: boolean
     organic_updated_at: string | null
     paid_updated_at: string | null
 }
@@ -768,10 +769,10 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                     <FontAwesomeIcon v-if="isReloading" icon="fal fa-spinner-third" spin class="text-gray-400 text-xs" fixed-width />
                 </div>
                 <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end" data-test="social-filters">
-                    <Select v-model="shopFilter" :options="performance.options.shops" optionLabel="name" optionValue="slug" showClear
-                            :placeholder="ctrans('All brands')" class="w-full sm:w-44" :pt="selectPt" @change="applyFilters" />
-                    <Select v-model="countryFilter" :options="performance.options.countries" optionLabel="name" optionValue="code" showClear
-                            :placeholder="ctrans('All markets')" class="w-full sm:w-40" :pt="selectPt" @change="applyFilters" />
+                    <Select v-model="shopFilter" :options="performance.options.shops" optionLabel="name" optionValue="slug" showClear filter autoFilterFocus resetFilterOnHide
+                            :filterPlaceholder="ctrans('Search brand')" :placeholder="ctrans('All brands')" class="w-full sm:w-44" :pt="selectPt" data-test="social-brand-filter" @change="applyFilters" />
+                    <Select v-model="countryFilter" :options="performance.options.countries" optionLabel="name" optionValue="code" showClear filter autoFilterFocus resetFilterOnHide
+                            :filterPlaceholder="ctrans('Search market')" :placeholder="ctrans('All markets')" class="w-full sm:w-40" :pt="selectPt" @change="applyFilters" />
                     <Select v-model="platformFilter" :options="performance.options.platforms" optionLabel="label" optionValue="value" showClear
                             :placeholder="ctrans('All platforms')" class="w-full sm:w-40" :pt="selectPt" @change="applyFilters" />
                     <Select v-model="compareMode" :options="compareOptions" optionLabel="label" optionValue="value"
@@ -890,7 +891,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                         <div class="mt-1.5 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                                             <div class="h-full rounded-full" :style="{ width: platformViewsShare(row) + '%', background: platformColor(row.platform) }" />
                                         </div>
-                                        <div class="mt-1 flex justify-between text-xs text-gray-400 tabular-nums">
+                                        <div class="mt-1 flex flex-wrap justify-between gap-x-3 text-xs text-gray-400 tabular-nums">
                                             <span>{{ pct(platformViewsShare(row)) }} {{ ctrans('of total') }} · {{ count(row.posts) }} {{ ctrans('posts') }}<template v-if="viewsSource === 'all' && row.ad_views"> · {{ ctrans('organic') }} {{ short(row.organic_views) }} · {{ ctrans('ads') }} {{ short(row.ad_views) }}</template></span>
                                             <span>{{ ctrans('ER') }} {{ pct(row.engagement_rate) }}</span>
                                         </div>
@@ -906,28 +907,28 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <span class="text-sm font-medium text-gray-800">{{ ctrans('Top organic content') }}</span>
                                     <button type="button" class="text-xs text-gray-500 hover:underline" @click="currentTab = 'organic'">{{ ctrans('See all') }}</button>
                                 </div>
-                                <table v-if="overviewPosts.length" class="mt-3 w-full text-sm">
+                                <table v-if="overviewPosts.length" class="mt-3 w-full table-fixed text-sm" data-test="social-overview-posts">
                                     <thead class="text-xs text-gray-400 whitespace-nowrap">
                                         <tr class="text-left">
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
-                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
-                                            <th class="font-normal pb-2 text-right">{{ ctrans('ER') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right w-16">{{ ctrans('Views') }}</th>
+                                            <th class="hidden sm:table-cell font-normal pb-2 pr-3 text-right w-16">{{ ctrans('Viewers') }}</th>
+                                            <th class="hidden md:table-cell font-normal pb-2 pr-3 text-right w-24">{{ ctrans('Engagements') }}</th>
+                                            <th class="font-normal pb-2 text-right w-16">{{ ctrans('ER') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         <tr v-for="post in overviewPosts" :key="post.id">
-                                            <td class="py-2 pr-3 max-w-xs">
+                                            <td class="py-2 pr-3 min-w-0">
                                                 <a :href="post.permalink ?? undefined" :target="post.permalink ? '_blank' : undefined" rel="noopener" class="block truncate text-gray-800" :class="post.permalink ? 'hover:underline' : ''">{{ postTitle(post) }}</a>
-                                                <div class="text-xs text-gray-400 flex items-center gap-1.5">
+                                                <div class="truncate text-xs text-gray-400 flex items-center gap-1.5">
                                                     <FontAwesomeIcon :icon="formatStyle(post.type).icon" :style="{ color: formatStyle(post.type).color }" fixed-width />
                                                     {{ post.platform_label }} · {{ post.type_label }}
                                                 </div>
                                             </td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.impressions) }}</td>
-                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
-                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
+                                            <td class="hidden sm:table-cell py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
+                                            <td class="hidden md:table-cell py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
                                             <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(post.engagement_rate) }}</span></td>
                                         </tr>
                                     </tbody>
@@ -1229,9 +1230,9 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
                             <div class="lg:col-span-2 rounded-xl ring-1 ring-gray-200 bg-white p-5">
                                 <span class="text-sm font-medium text-gray-800">{{ ctrans('Paid campaign performance') }}</span>
-                                <div v-if="campaigns.length" class="mt-3 overflow-x-auto">
+                                <div v-if="campaigns.length" class="mt-3 max-h-[28rem] overflow-auto" data-test="social-campaigns-scroll">
                                     <table class="w-full text-sm">
-                                        <thead class="text-xs text-gray-400 whitespace-nowrap">
+                                        <thead class="sticky top-0 z-10 bg-white text-xs text-gray-400 whitespace-nowrap">
                                             <tr class="text-left">
                                                 <th class="font-normal pb-2 pr-3">{{ ctrans('Campaign') }}</th>
                                                 <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Spend') }}</th>
@@ -1337,6 +1338,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                     <Button v-if="isSetUp(shop)" :label="syncLabel(shop)" type="tertiary" size="s" :disabled="shop.running || isCoolingDown(shop)" v-tooltip="isCoolingDown(shop) ? ctrans('A brand can sync again :minutes minutes after its last sync, so Meta\'s rate limit is not spent twice', { minutes: 10 }) : undefined" :data-test="'social-sync-' + shop.slug" @click="syncShop(shop)">
                         <template #icon><FontAwesomeIcon icon="fal fa-sync-alt" :spin="shop.running" class="text-[--app-accent]" fixed-width /></template>
                     </Button>
+                    <span v-else-if="!shop.can_edit" class="text-xs text-gray-500" data-test="social-sync-ask-admin">{{ ctrans('Ask an admin of this brand to set it up') }}</span>
                     <a v-else :href="route(shop.edit_route.name, shop.edit_route.parameters)" class="inline-flex">
                         <Button :label="ctrans('Set up in Edit shop')" type="tertiary" size="s">
                             <template #icon><FontAwesomeIcon icon="fal fa-cog" class="text-gray-500" fixed-width /></template>

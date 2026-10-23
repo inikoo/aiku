@@ -15,9 +15,11 @@ use App\Console\Commands\FetchMetaSocialInsights;
 use App\Enums\CRM\SocialMedia\SocialMediaPlatformEnum;
 use App\Enums\CRM\SocialMedia\SocialMediaPostTypeEnum;
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\CRM\SocialMediaAccount;
 use App\Models\CRM\SocialMediaPost;
 use App\Models\Helpers\Upload;
+use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -794,6 +796,26 @@ describe('fetching meta organic insights', function () {
         SyncShopFromMeta::make()->handle($this->shop, null, ['organic'], true);
 
         SyncShopFromMeta::assertPushed(1);
+    });
+
+    it('lets someone who may only see a brand\'s marketing sync it, without offering its settings', function () {
+        $requests = [];
+        fakeMetaSocialGraph($requests);
+
+        setPermissionsTeamId($this->organisation->group_id);
+        $viewer = User::factory()->create(['group_id' => $this->organisation->group_id, 'status' => true]);
+        $viewer->assignRole(RolesEnum::getRoleName(RolesEnum::SHOPKEEPER_CLERK->value, $this->shop));
+        actingAs($viewer);
+
+        expect($viewer->authTo("marketing.{$this->shop->id}.view"))->toBeTrue()
+            ->and($viewer->authTo("marketing.{$this->shop->id}.edit"))->toBeFalse();
+
+        $this->postJson(route('grp.models.shop.social_media.sync', ['shop' => $this->shop->id]))->assertOk();
+
+        $this->get(route('grp.org.marketing.social_media.dashboard', ['organisation' => $this->organisation->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('meta_sync', fn ($brands) => collect($brands)->firstWhere('id', $this->shop->id)['can_edit'] === false)
+                ->where('upload_shops', fn ($brands) => collect($brands)->doesntContain('id', $this->shop->id)));
     });
 
     it('says a brand is not set up for meta rather than syncing it', function () {
