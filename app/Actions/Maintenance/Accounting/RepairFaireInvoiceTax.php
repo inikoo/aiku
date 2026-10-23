@@ -32,7 +32,7 @@ class RepairFaireInvoiceTax
 {
     use AsAction;
 
-    public string $commandSignature = 'repair:faire_invoice_tax {--from= : Only invoices dated on/after this (Y-m-d)} {--shop= : Shop slug} {--fix : Rewrite the tax, otherwise only report}';
+    public string $commandSignature = 'repair:faire_invoice_tax {--from= : Only invoices dated on/after this (Y-m-d)} {--shop= : Shop slug} {--invoice=* : Only these invoice references} {--fix : Rewrite the tax, otherwise only report}';
 
     public function handle(Invoice $invoice, float $faireTaxAmount): void
     {
@@ -57,6 +57,7 @@ class RepairFaireInvoiceTax
             ->whereHas('shop', fn ($query) => $query->where('type', ShopTypeEnum::EXTERNAL))
             ->when($command->option('shop'), fn ($query, $slug) => $query->whereHas('shop', fn ($shopQuery) => $shopQuery->where('slug', $slug)))
             ->when($command->option('from'), fn ($query, $from) => $query->where('date', '>=', $from.' 00:00:00'))
+            ->when($command->option('invoice'), fn ($query, $references) => $query->whereIn('reference', $references))
             ->with(['shop.organisation', 'order']);
 
         $invoiceCount = (clone $query)->count();
@@ -93,7 +94,8 @@ class RepairFaireInvoiceTax
                         continue;
                     }
 
-                    $faireTaxAmount = UpdateFaireOrder::make()->getFaireTaxAmount($faireOrderData, $invoice->shop);
+                    $updateFaireOrder = UpdateFaireOrder::make();
+                    $faireTaxAmount   = round($updateFaireOrder->getFaireTaxAmount($faireOrderData, $invoice->shop) + $updateFaireOrder->getFaireDamagedTaxAmount($order, $faireOrderData), 2);
                     if (abs((float)$invoice->tax_amount - $faireTaxAmount) < 0.01) {
                         continue;
                     }

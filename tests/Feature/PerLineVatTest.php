@@ -902,3 +902,56 @@ test('a faire line restated in new units is invoiced at what faire billed', func
     $invoice->delete();
     UpdateProduct::run($product->refresh(), ['units' => $originalUnits, 'price' => $originalPrice]);
 });
+
+/** INI-131: after a damaged or missing claim Faire states only the VAT on what was delivered, and a refresh cut the invoice's VAT on goods it still bills in full. Faire takes the damaged items off before its discount, and an item the invoice never billed adds nothing. */
+test('a damaged or missing claim on faire keeps the vat the invoice charged', function () {
+    $product       = $this->standardProduct;
+    $originalPrice = $product->price;
+    $originalUnits = $product->units;
+    $product->updateQuietly(['units' => 1]);
+
+    $deliveredItemId = 'oi_ini131d_'.uniqid();
+    $damagedItemId   = 'oi_ini131m_'.uniqid();
+
+    $order = StoreOrder::make()->action($this->customer, []);
+    $order->updateQuietly(['tax_category_id' => $this->vat20->id, 'external_id' => 'ini131_'.uniqid()]);
+    foreach ([$deliveredItemId, $damagedItemId] as $faireItemId) {
+        StoreTransaction::make()->action(
+            order: $order->refresh(),
+            historicAsset: $product->historicAsset,
+            modelData: ['quantity_ordered' => 1, 'gross_amount' => 10, 'net_amount' => 10, 'marketplace_id' => $faireItemId],
+            strict: false
+        );
+    }
+    createWarehouse();
+    SubmitOrder::make()->action($order->refresh());
+    $invoice = GenerateInvoiceFromOrder::make()->handle($order->refresh());
+
+    $currency     = $this->shop->currency->code;
+    $faireItem    = fn (string $id, string $state) => ['id' => $id, 'quantity' => 1, 'state' => $state, 'price' => ['amount_minor' => 1000, 'currency' => $currency]];
+    $faireOrder   = fn (int $discountMinor) => [
+        'state'        => 'DELIVERED',
+        'items'        => [$faireItem($deliveredItemId, 'DELIVERED'), $faireItem($damagedItemId, 'DAMAGED_OR_MISSING')],
+        'payout_costs' => [
+            'taxes'                     => [['taxable_item_type' => 'ORDER_ITEM', 'tax_type' => 'VAT', 'value' => ['amount_minor' => 200, 'currency' => $currency]]],
+            'total_brand_discounts'     => ['amount_minor' => $discountMinor, 'currency' => $currency],
+            'damaged_and_missing_items' => ['amount_minor' => 1000, 'currency' => $currency],
+        ],
+    ];
+
+    $neverBilledItem = $faireOrder(500);
+    $neverBilledItem['items'][] = $faireItem('oi_ini131x_'.uniqid(), 'DAMAGED_OR_MISSING');
+
+    expect(UpdateFaireOrder::make()->getFaireDamagedTaxAmount($order, $faireOrder(500)))->toBe(2.0)
+        ->and(UpdateFaireOrder::make()->getFaireDamagedTaxAmount($order, $neverBilledItem))->toBe(2.0);
+
+    Http::fake(['*faire.com/*' => Http::response($faireOrder(0))]);
+    UpdateFaireOrder::make()->handle($order->refresh());
+
+    expect((float)$invoice->refresh()->tax_amount)->toBe(4.0)
+        ->and((float)$invoice->net_amount)->toBe(20.0)
+        ->and((float)$order->refresh()->tax_amount)->toBe(4.0);
+
+    $invoice->delete();
+    UpdateProduct::run($product->refresh(), ['units' => $originalUnits, 'price' => $originalPrice]);
+});

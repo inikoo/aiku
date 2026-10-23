@@ -219,7 +219,8 @@ class UpdateFaireOrder extends OrgAction
         ]);
 
 
-        $faireTaxAmount = $this->getFaireTaxAmount($orderFaireData, $shop);
+        $faireStatedTaxAmount = $this->getFaireTaxAmount($orderFaireData, $shop);
+        $faireTaxAmount       = round($faireStatedTaxAmount + $this->getFaireDamagedTaxAmount($order, $orderFaireData), 2);
         $order->update(['data->marketplace_tax_amount' => $faireTaxAmount]);
 
         $taxCategory = $this->getCategoryTaxCategory($order, $orderFaireData);
@@ -243,6 +244,9 @@ class UpdateFaireOrder extends OrgAction
             $invoice->update(['amount_off' => $amountOff]);
 
             $this->invoiceDispatchedLinesMissingFromInvoice($order, $invoice);
+
+            $faireTaxAmount = round($faireStatedTaxAmount + $this->getFaireDamagedTaxAmount($order, $orderFaireData), 2);
+            $order->update(['data->marketplace_tax_amount' => $faireTaxAmount]);
 
             CalculateInvoiceTotals::run($invoice);
             $invoice->refresh();
@@ -406,9 +410,10 @@ class UpdateFaireOrder extends OrgAction
             return;
         }
 
+        $damagedTax   = $this->getFaireDamagedTaxAmount($order, $orderFaireData);
         $itemsTaxData = ['payout_costs' => ['taxes' => $taxes->where('taxable_item_type', 'ORDER_ITEM')->values()->all()]];
-        $itemsTax     = $this->getFaireTaxAmount($itemsTaxData, $order->shop);
-        $faireTax     = $this->getFaireTaxAmount($orderFaireData, $order->shop);
+        $itemsTax     = round($this->getFaireTaxAmount($itemsTaxData, $order->shop) + $damagedTax, 2);
+        $faireTax     = round($this->getFaireTaxAmount($orderFaireData, $order->shop) + $damagedTax, 2);
 
         $order->refresh();
         if ($faireTax - $itemsTax < 0.01 || abs((float)$order->tax_amount - $itemsTax) >= 0.01) {
@@ -498,6 +503,36 @@ class UpdateFaireOrder extends OrgAction
         }
 
         return round($shipping * $exchange, 2);
+    }
+
+    /**
+     * A retailer's damaged or missing claim makes Faire withhold those items from the payout and
+     * drop their VAT from payout_costs.taxes, while the invoice still bills them in full: the sale
+     * stands and the claim is a refund. Faire takes the damaged items off at full list price, before
+     * its discount, so the VAT it no longer states is the invoice's own lines for those items at
+     * their rates. Only lines the invoice billed count: a missing item never dispatched was never
+     * charged. A refresh after a claim so never lowers what the invoice charged (INI-131).
+     */
+    public function getFaireDamagedTaxAmount(Order $order, array $orderFaireData): float
+    {
+        $damagedItemIds = collect(Arr::get($orderFaireData, 'items', []))
+            ->where('state', 'DAMAGED_OR_MISSING')
+            ->pluck('id')
+            ->all();
+
+        if (empty($damagedItemIds)) {
+            return 0.0;
+        }
+
+        return round((float)DB::table('invoice_transactions')
+            ->join('invoices', 'invoices.id', 'invoice_transactions.invoice_id')
+            ->join('tax_categories', 'tax_categories.id', 'invoice_transactions.tax_category_id')
+            ->where('invoices.order_id', $order->id)
+            ->where('invoices.type', InvoiceTypeEnum::INVOICE)
+            ->whereNull('invoices.deleted_at')
+            ->whereNull('invoice_transactions.deleted_at')
+            ->whereIn('invoice_transactions.marketplace_id', $damagedItemIds)
+            ->sum(DB::raw('invoice_transactions.net_amount * tax_categories.rate')), 2);
     }
 
     public function getFaireTaxAmount(array $orderFaireData, Shop $shop): float

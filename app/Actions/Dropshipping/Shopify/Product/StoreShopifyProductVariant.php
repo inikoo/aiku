@@ -29,7 +29,6 @@ class StoreShopifyProductVariant extends RetinaAction
 {
     use WithActionUpdate;
     use WithPortfolioErrorResponse;
-    use WithShopifyStoreCurrency;
 
 
     /** level 1: upload includes price
@@ -135,22 +134,10 @@ class StoreShopifyProductVariant extends RetinaAction
             MUTATION;
 
 
-            [$customerPrice, $currencyError] = $this->priceInShopifyStoreCurrency($shopifyUser, $customerSalesChannel->shop->currency, $portfolio->customer_price);
-            [$cost, $costCurrencyError]      = $this->priceInShopifyStoreCurrency($shopifyUser, $customerSalesChannel->shop->currency, $product->price);
-
-            if ($currencyError || $costCurrencyError) {
-                $errorMessage = $currencyError ?? $costCurrencyError;
-                UpdatePortfolio::run($portfolio, [
-                    'errors_response' => $this->portfolioErrorResponse($errorMessage)
-                ]);
-
-                return [false, $errorMessage];
-            }
-
             $quantityToSend = UpdateWooCustomerSalesChannelPortfolio::quantityToSend($product, $customerSalesChannel);
 
             $inventoryItem = [
-                'cost'    => $cost,
+                'cost'    => $product->price,
                 'sku'     => $portfolio->sku,
                 'tracked' => true,
 
@@ -182,12 +169,12 @@ class StoreShopifyProductVariant extends RetinaAction
 
             $currentVariant = FindSpecificShopifyProductVariant::run($customerSalesChannel, $portfolio->platform_product_id);
 
-            if (Arr::get($currentVariant, 'price') > 0 && Arr::get($currentVariant, 'price') !== $customerPrice) {
+            if (Arr::get($currentVariant, 'price') > 0 && Arr::get($currentVariant, 'price') !== $portfolio->customer_price) {
                 data_set($variants[0], 'price', Arr::get($currentVariant, 'price'));
                 data_set($variants[0], 'compareAtPrice', Arr::get($currentVariant, 'price'));
             } else {
-                data_set($variants[0], 'price', $customerPrice);
-                data_set($variants[0], 'compareAtPrice', $customerPrice);
+                data_set($variants[0], 'price', $portfolio->customer_price);
+                data_set($variants[0], 'compareAtPrice', $portfolio->customer_price);
             }
 
             $isOnDemand = false;

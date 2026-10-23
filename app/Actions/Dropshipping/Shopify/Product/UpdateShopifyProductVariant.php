@@ -25,7 +25,6 @@ class UpdateShopifyProductVariant extends RetinaAction
 {
     use WithActionUpdate;
     use WithPortfolioErrorResponse;
-    use WithShopifyStoreCurrency;
 
     public function handle(Portfolio $portfolio): array
     {
@@ -107,16 +106,6 @@ class UpdateShopifyProductVariant extends RetinaAction
                 $price        = $product->dropshippingBasePrice();
                 $comparePrice = $price;
             }
-
-            [$price, $currencyError] = $this->priceInShopifyStoreCurrency($shopifyUser, $customerSalesChannel->shop->currency, $price);
-
-            if ($currencyError) {
-                UpdatePortfolio::run($portfolio, ['errors_response' => $this->portfolioErrorResponse($currencyError)]);
-
-                return [false, $currencyError];
-            }
-
-            $comparePrice = $price;
 
             $variables = [
                 'productId' => $productID,
