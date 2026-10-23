@@ -1,10 +1,9 @@
 import {
-    injectStructuredDataScript,
     isFilledValue,
     isPlainObject,
     normalizeUrl,
-    removeStructuredDataScript,
     stripHtml,
+    toJsonLd,
     type StructuredDataNode,
 } from "@/Iris/Composables/useStructuredData"
 
@@ -73,29 +72,8 @@ export const buildFaqPageJsonLd = (options: BuildFaqStructuredDataOptions): stri
 
     if (!faqPageNode) return null
 
-    return JSON.stringify({
+    return toJsonLd({
         "@context": "https://schema.org",
         ...faqPageNode,
-    }).replace(/</g, "\\u003c")
-}
-
-export const useFaqStructuredData = () => {
-    const mountFaqStructuredData = (
-        options: BuildFaqStructuredDataOptions
-    ): HTMLScriptElement | null => {
-        const faqPageNode = buildFaqPageNode(options)
-
-        if (!faqPageNode) return null
-
-        return injectStructuredDataScript({
-            "@context": "https://schema.org",
-            ...faqPageNode,
-        })
-    }
-
-    return {
-        buildFaqPageNode,
-        mountFaqStructuredData,
-        removeStructuredDataScript,
-    }
+    })
 }

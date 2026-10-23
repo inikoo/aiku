@@ -2,7 +2,7 @@
 import { faCube, faLink } from "@fal"
 import { faFilePdf, faFileDownload } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, inject, onMounted, onBeforeUnmount, computed, watch, type Ref } from "vue"
+import { ref, inject, onMounted, computed, watch, type Ref } from "vue"
 import { notify } from "@kyvg/vue3-notification"
 import { ctrans } from "@/Composables/useTrans"
 import { router } from "@inertiajs/vue3"
@@ -14,7 +14,6 @@ import ProductIris2Ecom from "@/Iris/Components/IrisBlocks/Product/Ecom/ProductI
 import ProductIris3Ecom from "@/Iris/Components/IrisBlocks/Product/Ecom/ProductIris3Ecom.vue"
 import ProductIris4Ecom from "@/Iris/Components/IrisBlocks/Product/Ecom/ProductIris4Ecom.vue"
 import { resolveProductImages, resolveProductVideo } from "@/Composables/useProductPage"
-import { useProductStructuredData } from "@/Iris/Composables/useProductStructuredData"
 import { useSelectedProductDetail } from "@/Iris/Composables/useSelectedProductDetail"
 import { hasSavedVariantOrder, sortVariantOptions } from "@/Composables/useVariantOrder"
 
@@ -71,7 +70,6 @@ const props = withDefaults(
 
 
 const layout = inject("layout", {})
-const injectedWebpageData = inject<any>("webpage_data", null)
 
 const variant = ref<any>(props.fieldValue?.variant ?? null)
 const appliedVariantFromUrl = ref(false)
@@ -307,27 +305,12 @@ watch(
   { immediate: true }
 )
 
-// Section: Product structured data (SEO)
-// Mounted independently here instead of inside the page structured data (useStructuredData),
-// so the product schema lives in its own <script> and is easier to maintain.
-const { mountProductStructuredData, removeStructuredDataScript } = useProductStructuredData()
-const productStructuredDataScript = ref<HTMLScriptElement | null>(null)
 
 onMounted(() => {
-  productStructuredDataScript.value = mountProductStructuredData({
-    product: props.fieldValue?.product,
-    variant: props.fieldValue?.variant,
-    webpageData: props.webpageData ?? injectedWebpageData,
-    currencyCode: layout?.iris?.currency?.code,
-    websiteName: layout?.iris?.website?.name,
-  })
 
   fetchVariantProducts()
 })
 
-onBeforeUnmount(() => {
-  removeStructuredDataScript(productStructuredDataScript.value)
-})
 
 </script>
 

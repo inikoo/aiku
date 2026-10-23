@@ -1,13 +1,11 @@
 import { ctrans } from "@/Composables/useTrans"
 import {
     getEntityImageUrls,
-    injectStructuredDataScript,
     isFilledValue,
     isPlainObject,
     mergeStructuredDataNode,
     normalizeStructuredDataForGraph,
     parseStructuredData,
-    removeStructuredDataScript,
     stripHtml,
     type StructuredDataNode,
     type StructuredDataValue,
@@ -252,22 +250,4 @@ export const buildProductStructuredData = (
     mergeStructuredDataNode(productNode, autoProductNode)
 
     return structuredData
-}
-
-export const useProductStructuredData = () => {
-    const mountProductStructuredData = (
-        options: BuildProductStructuredDataOptions
-    ): HTMLScriptElement | null => {
-        const structuredData = buildProductStructuredData(options)
-        if (!structuredData) return null
-
-        return injectStructuredDataScript(structuredData)
-    }
-
-    return {
-        buildProductNode,
-        buildProductStructuredData,
-        mountProductStructuredData,
-        removeStructuredDataScript,
-    }
 }

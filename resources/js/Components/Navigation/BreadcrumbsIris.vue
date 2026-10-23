@@ -6,7 +6,7 @@
   -->
 <script setup lang="ts">
 import { nextTick, ref, onUnmounted, computed } from "vue"
-import { Link, router } from "@inertiajs/vue3"
+import { Link, router, usePage } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronRight } from '@far'
@@ -16,7 +16,8 @@ import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { onMounted } from "vue"
 import { watch } from "vue"
-import { useBreadcrumbStructuredData } from "@/Iris/Composables/useBreadcrumbStructuredData"
+import { buildBreadcrumbListNode } from "@/Iris/Composables/useBreadcrumbStructuredData"
+import { toJsonLd } from "@/Iris/Composables/useStructuredData"
 import { Popover } from "primevue"
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars,faBallot)
@@ -129,27 +130,10 @@ onUnmounted(() => {
 
 const isMobile = computed(() => isMobileRef.value)
 
-// Section: Breadcrumbs structured data (SEO)
-// Mounted independently here instead of inside the page structured data (useStructuredData),
-// so the breadcrumb schema lives in its own <script> and is easier to maintain.
-const { mountBreadcrumbStructuredData, removeStructuredDataScript } = useBreadcrumbStructuredData()
-const breadcrumbStructuredDataScript = ref<HTMLScriptElement | null>(null)
+const breadcrumbJsonLd = computed(() => {
+    const breadcrumbNode = buildBreadcrumbListNode(props.breadcrumbs, usePage().props.canonical_url as string | undefined)
 
-const refreshBreadcrumbStructuredData = () => {
-    removeStructuredDataScript(breadcrumbStructuredDataScript.value)
-    breadcrumbStructuredDataScript.value = mountBreadcrumbStructuredData(props.breadcrumbs)
-}
-
-onMounted(() => {
-    refreshBreadcrumbStructuredData()
-})
-
-watch(() => props.breadcrumbs, () => {
-    refreshBreadcrumbStructuredData()
-}, { deep: true })
-
-onUnmounted(() => {
-    removeStructuredDataScript(breadcrumbStructuredDataScript.value)
+    return breadcrumbNode ? toJsonLd({ "@context": "https://schema.org", ...breadcrumbNode }) : null
 })
 
 const _breadcrumbPopover = ref()
@@ -322,6 +306,8 @@ const _breadcrumbPopover = ref()
                 <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20" fixed-width aria-hidden="true" />
             </div>
         </div>
+
+        <component v-if="breadcrumbJsonLd" :is="'script'" type="application/ld+json" :innerHTML="breadcrumbJsonLd" />
     </nav>
 </template>
 

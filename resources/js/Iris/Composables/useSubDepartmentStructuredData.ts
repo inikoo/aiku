@@ -1,13 +1,10 @@
 import {
-    CATEGORY_ITEM_LIST_SCRIPT_KEY,
     getEntityImageUrls,
-    injectStructuredDataScript,
     isFilledValue,
     isPlainObject,
     normalizeStructuredDataForGraph,
     normalizeUrl,
     parseStructuredData,
-    removeStructuredDataScript,
     stripHtml,
     type StructuredDataNode,
     type StructuredDataValue,
@@ -185,22 +182,4 @@ export const buildSubDepartmentStructuredData = (
     }
 
     return structuredData
-}
-
-export const useSubDepartmentStructuredData = () => {
-    const mountSubDepartmentStructuredData = (
-        options: BuildSubDepartmentStructuredDataOptions
-    ): HTMLScriptElement | null => {
-        const structuredData = buildSubDepartmentStructuredData(options)
-        if (!structuredData) return null
-
-        return injectStructuredDataScript(structuredData, CATEGORY_ITEM_LIST_SCRIPT_KEY)
-    }
-
-    return {
-        buildSubDepartmentItemListNode,
-        buildSubDepartmentStructuredData,
-        mountSubDepartmentStructuredData,
-        removeStructuredDataScript,
-    }
 }

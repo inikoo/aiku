@@ -2,7 +2,7 @@
 import Image from '@/Common/Components/Image.vue'
 import LinkIris from '@/Iris/Components/LinkIris.vue'
 import axios from 'axios'
-import { ref, watch, computed, inject, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, computed, inject, onMounted } from 'vue'
 import LoadingText from "@/Components/Utils/LoadingText.vue";
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue";
 import Button from '@/Components/Elements/Buttons/Button.vue';
@@ -10,7 +10,6 @@ import { ctrans } from "@/Composables/useTrans";
 import { getStyles } from "@/Composables/styles"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import MobileShowMoreButton from '@/Iris/Components/MobileShowMoreButton.vue'
-import { useDepartmentStructuredData } from "@/Iris/Composables/useDepartmentStructuredData"
 
 interface FilterOptions {
 	name: string
@@ -50,7 +49,6 @@ const loading = ref(false)
 const loadingMore = ref(false)
 const idxSlideLoading = ref<number | null>(null)
 const layout: any = inject("layout", {})
-const injectedWebpageData = inject<any>("webpage_data", null)
 
 const selectedOption = ref<string | null>(null)
 const sortKey = ref('')
@@ -192,25 +190,6 @@ onMounted(() => {
     }
 })
 
-
-// Section: Department structured data (SEO)
-// Mounted independently here instead of inside the page structured data (useStructuredData),
-// so the sub-departments + collections ItemList lives in its own <script> and is easier to maintain.
-const { mountDepartmentStructuredData, removeStructuredDataScript } = useDepartmentStructuredData()
-const departmentStructuredDataScript = ref<HTMLScriptElement | null>(null)
-
-onMounted(() => {
-  departmentStructuredDataScript.value = mountDepartmentStructuredData({
-    subDepartments: props.fieldValue.sub_department_list,
-    collections: props.fieldValue.collections_list,
-    webpageData: (props.webpageData ?? injectedWebpageData) as any,
-    listId: props.fieldValue.id ?? props.indexBlock,
-  })
-})
-
-onBeforeUnmount(() => {
-  removeStructuredDataScript(departmentStructuredDataScript.value)
-})
 
 </script>
 
