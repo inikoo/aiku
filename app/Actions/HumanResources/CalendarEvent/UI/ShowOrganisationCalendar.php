@@ -7,6 +7,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Models\CRM\Appointment;
+use App\Models\CRM\AppointmentBlock;
 use App\Models\HumanResources\CalendarEvent;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
@@ -26,7 +27,8 @@ class ShowOrganisationCalendar extends OrgAction
 
     /**
      * One month as whole weeks, Monday first, in the organisation's timezone: the events of the
-     * organisation, each on every day it covers, and the open appointments of all its shops.
+     * organisation, each on every day it covers, the open appointments of all its shops and the times
+     * those shops blocked for bookings.
      *
      * @return array{
      *     month: string,
@@ -34,10 +36,11 @@ class ShowOrganisationCalendar extends OrgAction
      *     previous: string,
      *     next: string,
      *     current: string,
+     *     now: string,
      *     timezone: string,
      *     weekdays: array<int, string>,
      *     total: int,
-     *     weeks: array<int, array<int, array{date: string, day: int, in_month: bool, is_today: bool, events: array<int, array<string, mixed>>, appointments: array<int, array<string, mixed>>}>>
+     *     weeks: array<int, array<int, array{date: string, day: int, in_month: bool, is_today: bool, events: array<int, array<string, mixed>>, appointments: array<int, array<string, mixed>>, blocks: array<int, array<string, mixed>>}>>
      * }
      */
     public function handle(Organisation $organisation, User $viewer, ?string $month = null): array
@@ -65,8 +68,15 @@ class ShowOrganisationCalendar extends OrgAction
             ->orderBy('starts_at')
             ->get();
 
+        $blocks = AppointmentBlock::query()
+            ->where('organisation_id', $organisation->id)
+            ->overlapping($rangeStart, $rangeEnd)
+            ->with(['appointmentType', 'shop'])
+            ->orderBy('starts_at')
+            ->get();
+
         $viewableShopIds = $appointments->pluck('shop_id')->unique()
-            ->filter(fn (int $shopId) => $viewer->authTo(["crm.$shopId.view", "accounting.$organisation->id.view"]))
+            ->filter(fn (int $shopId) => StoreCalendarEvent::canSeeShopCustomers($viewer, $organisation, $shopId))
             ->values()
             ->all();
 
@@ -92,7 +102,7 @@ class ShowOrganisationCalendar extends OrgAction
                         'id'                    => $appointment->id,
                         'time'                  => $appointment->starts_at->copy()->setTimezone($timezone)->format('H:i'),
                         'end_time'              => $appointment->ends_at->copy()->setTimezone($timezone)->format('H:i'),
-                        'contact_name'          => $appointment->contact_name,
+                        'contact_name'          => in_array($appointment->shop_id, $viewableShopIds) ? $appointment->contact_name : null,
                         'appointment_type_name' => $appointment->appointmentType?->name,
                         'staff_name'            => $appointment->user?->contact_name,
                         'shop_code'             => $appointment->shop->code,
@@ -101,6 +111,19 @@ class ShowOrganisationCalendar extends OrgAction
                         'url'                   => in_array($appointment->shop_id, $viewableShopIds)
                             ? route('grp.org.shops.show.crm.appointments.show', [$organisation->slug, $appointment->shop->slug, $appointment->id])
                             : null,
+                    ])
+                    ->values()
+                    ->all(),
+                'blocks'       => $blocks
+                    ->filter(fn (AppointmentBlock $block) => $block->starts_at->lt($dayEnd) && $block->ends_at->gt($dayStart))
+                    ->map(fn (AppointmentBlock $block) => [
+                        'id'                    => $block->id,
+                        'is_all_day'            => $block->is_all_day,
+                        'time'                  => $block->is_all_day || $block->starts_at->lt($dayStart) ? null : $block->starts_at->copy()->setTimezone($timezone)->format('H:i'),
+                        'end_time'              => $block->is_all_day || $block->ends_at->gt($dayEnd) ? null : $block->ends_at->copy()->setTimezone($timezone)->format('H:i'),
+                        'reason'                => $block->reason,
+                        'appointment_type_name' => $block->appointmentType?->name,
+                        'shop_code'             => $block->shop->code,
                     ])
                     ->values()
                     ->all(),
@@ -113,6 +136,7 @@ class ShowOrganisationCalendar extends OrgAction
             'previous' => $monthStart->copy()->subMonthNoOverflow()->format('Y-m'),
             'next'     => $monthStart->copy()->addMonthNoOverflow()->format('Y-m'),
             'current'  => $today->format('Y-m'),
+            'now'      => now($timezone)->format('Y-m-d H:i'),
             'timezone' => $timezone,
             'weekdays' => collect(range(0, 6))->map(fn (int $offset) => $firstDay->copy()->addDays($offset)->translatedFormat('D'))->all(),
             'total'    => $events->filter(fn (CalendarEvent $event) => $event->starts_at->copy()->setTimezone($timezone)->isSameMonth($monthStart))->count()

@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\AppointmentBlock\StoreAppointmentBlock;
 use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Actions\HumanResources\CalendarEvent\StoreCalendarEvent;
 use App\Actions\SysAdmin\Group\Seeders\SeedJobPositionCategories;
@@ -215,7 +216,7 @@ test('an editor changes and deletes an event', function () {
     expect(CalendarEvent::find($event->id))->toBeNull();
 });
 
-test('the calendar shows the open appointments of every shop of the organisation, and they clash with their staff', function () {
+test('the calendar shows the open appointments of every shop of the organisation, naming the customer only to staff who see that shop\'s customers, and they clash with their staff', function () {
     Queue::fake();
     actingAs($this->editor);
 
@@ -236,27 +237,69 @@ test('the calendar shows the open appointments of every shop of the organisation
     ]);
     $visitStart = $appointment->starts_at->copy()->setTimezone($this->timezone);
 
-    $month = $visitStart->format('Y-m');
+    $month      = $visitStart->format('Y-m');
+    $contactFor = fn (User $viewer) => collect(
+        collect(
+            actingAs($viewer)->get(route('grp.org.calendar.index', ['organisation' => $this->organisation->slug, 'month' => $month]))
+                ->assertOk()
+                ->viewData('page')['props']['calendar']['weeks']
+        )->flatten(1)->firstWhere('date', $visitStart->toDateString())['appointments']
+    )->firstWhere('id', $appointment->id);
 
-    $this->get(route('grp.org.calendar.index', ['organisation' => $this->organisation->slug, 'month' => $month]))
-        ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('can_edit', true)
-            ->where('calendar.weeks', function ($weeks) use ($appointment, $visitStart) {
-                $day = collect($weeks)->flatten(1)->firstWhere('date', $visitStart->toDateString());
+    expect($this->editor->authTo("crm.{$this->shop->id}.view"))->toBeFalse()
+        ->and($contactFor($this->editor))->toMatchArray(['contact_name' => null, 'url' => null, 'shop_code' => $this->shop->code])
+        ->and($contactFor($this->user)['contact_name'])->toBe('Calendar Visitor');
 
-                return collect($day['appointments'])->contains(fn ($item) => $item['id'] === $appointment->id && $item['contact_name'] === 'Calendar Visitor' && $item['shop_code'] === $this->shop->code);
-            })
-            ->etc());
-
-    $this->post($this->storeRoute, [
+    $clash = [
         'title'        => 'Clashes with the visit',
         'starts_at'    => $visitStart->copy()->addMinutes(30)->format('Y-m-d H:i'),
         'ends_at'      => $visitStart->copy()->addMinutes(90)->format('Y-m-d H:i'),
         'participants' => [$this->editor->id],
-    ])->assertSessionHasErrors('overlap');
+    ];
+
+    actingAs($this->editor)->post($this->storeRoute, $clash)->assertSessionHasErrors('overlap');
+
+    expect(session('errors')->first('overlap'))->toContain('appointment in '.$this->shop->code)
+        ->not->toContain('Calendar Visitor');
+
+    actingAs($this->user)->post($this->storeRoute, $clash)->assertSessionHasErrors('overlap');
 
     expect(session('errors')->first('overlap'))->toContain('Calendar Visitor');
+});
+
+test('the calendar gives the time of the organisation for new events and shows the times its shops blocked for bookings', function () {
+    Queue::fake();
+    $this->freezeTime();
+    actingAs($this->editor);
+
+    $blockDay = now($this->timezone)->addDays(9)->format('Y-m-d');
+    $reason   = 'Stocktake '.Str::random(6);
+
+    $block = StoreAppointmentBlock::make()->action($this->shop, [
+        'is_all_day' => false,
+        'date_from'  => $blockDay,
+        'time_from'  => '10:00',
+        'time_to'    => '12:00',
+        'reason'     => $reason,
+    ]);
+    $blockStart = $block->starts_at->copy()->setTimezone($this->timezone);
+
+    $this->get(route('grp.org.calendar.index', ['organisation' => $this->organisation->slug, 'month' => $blockStart->format('Y-m')]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('calendar.now', now($this->timezone)->format('Y-m-d H:i'))
+            ->where('calendar.weeks', function ($weeks) use ($block, $blockStart, $reason) {
+                $day = collect($weeks)->flatten(1)->firstWhere('date', $blockStart->toDateString());
+
+                return collect($day['blocks'])->contains(fn ($item) => $item['id'] === $block->id
+                    && $item['reason'] === $reason
+                    && $item['shop_code'] === $this->shop->code
+                    && $item['time'] === $blockStart->format('H:i')
+                    && $item['end_time'] === $block->ends_at->copy()->setTimezone($this->timezone)->format('H:i'));
+            })
+            ->etc());
+
+    $block->delete();
 });
 
 test('one calendar item opens on the offers calendar, with the offers and appointments calendars in its top bar', function () {

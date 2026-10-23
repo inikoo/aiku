@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from "@inertiajs/vue3"
-import { computed, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
+import { usePrimeVue } from "primevue/config"
 import Dialog from "primevue/dialog"
 import InputText from "primevue/inputtext"
 import Textarea from "primevue/textarea"
@@ -43,13 +44,23 @@ type CalendarAppointment = {
     id: number
     time: string
     end_time: string
-    contact_name: string
+    contact_name: string | null
     appointment_type_name: string | null
     staff_name: string | null
     shop_code: string
     state: "requested" | "accepted" | "completed" | "no_show"
     state_label: string
     url: string | null
+}
+
+type CalendarBlock = {
+    id: number
+    is_all_day: boolean
+    time: string | null
+    end_time: string | null
+    reason: string | null
+    appointment_type_name: string | null
+    shop_code: string
 }
 
 type CalendarDay = {
@@ -59,7 +70,13 @@ type CalendarDay = {
     is_today: boolean
     events: CalendarEvent[]
     appointments: CalendarAppointment[]
+    blocks: CalendarBlock[]
 }
+
+type DayItem =
+    | { kind: "event"; key: string; sortTime: string; event: CalendarEvent }
+    | { kind: "appointment"; key: string; sortTime: string; appointment: CalendarAppointment }
+    | { kind: "block"; key: string; sortTime: string; block: CalendarBlock }
 
 const props = defineProps<{
     pageHead: PageHeadingTypes
@@ -70,6 +87,7 @@ const props = defineProps<{
         previous: string
         next: string
         current: string
+        now: string
         timezone: string
         weekdays: string[]
         total: number
@@ -112,12 +130,33 @@ const legend = computed(() => [
     { key: "requested", label: ctrans("Appointment requested"), class: appointmentStateClass("requested") },
     { key: "accepted", label: ctrans("Appointment accepted"), class: appointmentStateClass("accepted") },
     { key: "completed", label: ctrans("Appointment completed"), class: appointmentStateClass("completed") },
+    { key: "block", label: ctrans("Shop blocked for bookings"), class: blockClass },
 ])
 
-const daysWithItems = computed(() => props.calendar.weeks.flat().filter(day => day.in_month && (day.events.length || day.appointments.length)))
+const blockClass = "border-dashed border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200"
+
+const dayItems = (day: CalendarDay): DayItem[] => [
+    ...day.events.map(event => ({ kind: "event" as const, key: `event-${event.id}`, sortTime: event.time ?? "", event })),
+    ...day.appointments.map(appointment => ({ kind: "appointment" as const, key: `appointment-${appointment.id}`, sortTime: appointment.time, appointment })),
+    ...day.blocks.map(block => ({ kind: "block" as const, key: `block-${block.id}`, sortTime: block.time ?? "", block })),
+].sort((a, b) => a.sortTime.localeCompare(b.sortTime))
+
+const daysWithItems = computed(() => props.calendar.weeks.flat().filter(day => day.in_month && dayItems(day).length))
+
+const blockLabel = (block: CalendarBlock) => [
+    ctrans("Blocked"),
+    block.shop_code,
+    block.appointment_type_name,
+].filter(Boolean).join(" · ")
+
+const blockTooltip = (block: CalendarBlock) => [
+    block.is_all_day || (!block.time && !block.end_time) ? ctrans("All day") : `${block.time ?? ""}–${block.end_time ?? ""}`,
+    blockLabel(block),
+    block.reason,
+].filter(Boolean).join(" · ")
 
 const appointmentTooltip = (appointment: CalendarAppointment) => [
-    `${appointment.time}–${appointment.end_time} ${appointment.contact_name}`,
+    `${appointment.time}–${appointment.end_time} ${appointment.contact_name ?? ctrans("Appointment")}`,
     appointment.appointment_type_name,
     appointment.shop_code,
     appointment.staff_name,
@@ -138,9 +177,15 @@ const fromWallTime = (value: string) => {
     const [hours, minutes] = timePart.split(":").map(Number)
     return new Date(year, month - 1, day, hours, minutes)
 }
-const longDateTime = (value: string, withTime: boolean) => fromWallTime(value).toLocaleString(undefined, withTime
-    ? { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
-    : { weekday: "short", day: "numeric", month: "short", year: "numeric" })
+const longDateTime = (value: string, withTime: boolean) => {
+    const date = fromWallTime(value)
+    const language = locale.language.code
+    const weekday = date.toLocaleDateString(language, { weekday: "short" })
+    const month = date.toLocaleDateString(language, { month: "short" })
+    const day = `${weekday} ${date.getDate()} ${month} ${date.getFullYear()}`
+
+    return withTime ? `${day}, ${pad(date.getHours())}:${pad(date.getMinutes())}` : day
+}
 
 const isDialogOpen = ref(false)
 const editingEvent = ref<CalendarEvent | null>(null)
@@ -176,7 +221,7 @@ const openNewEvent = (date?: string) => {
     if (!props.can_edit) {
         return
     }
-    const start = date ? fromWallTime(`${date} 09:00`) : new Date()
+    const start = fromWallTime(date ? `${date} 09:00` : props.calendar.now)
     if (!date) {
         start.setMinutes(0, 0, 0)
         start.setHours(start.getHours() + 1)
@@ -209,6 +254,19 @@ const openEvent = (event: CalendarEvent) => {
     isConfirmingDelete.value = false
     isDialogOpen.value = true
 }
+
+const onAllDayToggled = (isAllDay: boolean) => {
+    form.is_all_day = isAllDay
+    if (isAllDay || !form.starts_at || !form.ends_at) {
+        return
+    }
+    const firstDay = form.starts_at.slice(0, 10)
+    const lastDay = form.ends_at.slice(0, 10)
+    form.starts_at = `${firstDay} 09:00`
+    form.ends_at = lastDay === firstDay ? `${firstDay} 10:00` : `${lastDay} 17:00`
+}
+
+watch(() => [form.participants, form.starts_at, form.ends_at, form.is_all_day], () => form.clearErrors("overlap" as keyof typeof form.data), { deep: true })
 
 const overlapLines = computed(() => (form.errors as Record<string, string>).overlap?.split("\n") ?? [])
 
@@ -250,6 +308,19 @@ const dialogTitle = computed(() => {
     }
 
     return props.can_edit ? ctrans("Edit event") : ctrans("Event")
+})
+
+const primeVue = usePrimeVue()
+const appFirstDayOfWeek = primeVue.config.locale?.firstDayOfWeek
+onMounted(() => {
+    if (primeVue.config.locale) {
+        primeVue.config.locale.firstDayOfWeek = 1
+    }
+})
+onBeforeUnmount(() => {
+    if (primeVue.config.locale) {
+        primeVue.config.locale.firstDayOfWeek = appFirstDayOfWeek
+    }
 })
 
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
@@ -328,28 +399,36 @@ const dateFormat = "d M yy"
                             </span>
                         </div>
                         <ul class="space-y-1">
-                            <li v-for="event in day.events" :key="`event-${event.id}`">
+                            <li v-for="item in dayItems(day)" :key="item.key">
                                 <button
+                                    v-if="item.kind === 'event'"
                                     type="button"
-                                    v-tooltip="eventTooltip(event)"
+                                    v-tooltip="eventTooltip(item.event)"
                                     class="block w-full truncate rounded border px-1.5 py-0.5 text-left text-xs focus:outline-none focus:ring-2 focus:ring-[--app-accent]"
                                     :class="eventClass"
-                                    @click="openEvent(event)">
-                                    <span v-if="event.time" class="font-semibold tabular-nums">{{ event.time }}</span>
-                                    {{ event.title }}
+                                    @click="openEvent(item.event)">
+                                    <span v-if="item.event.time" class="font-semibold tabular-nums">{{ item.event.time }}</span>
+                                    {{ item.event.title }}
                                 </button>
-                            </li>
-                            <li v-for="appointment in day.appointments" :key="`appointment-${appointment.id}`">
                                 <component
-                                    :is="appointment.url ? Link : 'span'"
-                                    :href="appointment.url ?? undefined"
-                                    v-tooltip="appointmentTooltip(appointment)"
+                                    v-else-if="item.kind === 'appointment'"
+                                    :is="item.appointment.url ? Link : 'span'"
+                                    :href="item.appointment.url ?? undefined"
+                                    v-tooltip="appointmentTooltip(item.appointment)"
                                     class="block truncate rounded border px-1.5 py-0.5 text-xs focus:outline-none focus:ring-2 focus:ring-[--app-accent]"
-                                    :class="appointmentStateClass(appointment.state)">
-                                    <span class="font-semibold tabular-nums">{{ appointment.time }}</span>
-                                    {{ appointment.contact_name }}
-                                    <span class="opacity-70">· {{ appointment.shop_code }}</span>
+                                    :class="appointmentStateClass(item.appointment.state)">
+                                    <span class="font-semibold tabular-nums">{{ item.appointment.time }}</span>
+                                    {{ item.appointment.contact_name ?? ctrans("Appointment") }}
+                                    <span class="opacity-70">· {{ item.appointment.shop_code }}</span>
                                 </component>
+                                <span
+                                    v-else
+                                    v-tooltip="blockTooltip(item.block)"
+                                    class="block truncate rounded border px-1.5 py-0.5 text-xs"
+                                    :class="blockClass">
+                                    <span v-if="item.block.time" class="font-semibold tabular-nums">{{ item.block.time }}</span>
+                                    {{ blockLabel(item.block) }}
+                                </span>
                             </li>
                         </ul>
                     </div>
@@ -366,23 +445,27 @@ const dateFormat = "d M yy"
                             {{ new Date(`${day.date}T00:00:00`).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" }) }}
                         </div>
                         <ul class="space-y-1">
-                            <li v-for="event in day.events" :key="`event-${event.id}`">
-                                <button type="button" class="block w-full rounded border px-2 py-1 text-left text-sm focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="eventClass" @click="openEvent(event)">
-                                    <span class="font-semibold tabular-nums">{{ event.is_all_day ? ctrans("All day") : event.time }}</span>
-                                    {{ event.title }}
-                                    <span v-if="event.participants.length" class="block truncate text-xs opacity-80">{{ event.participants.map(participant => participant.name).join(", ") }}</span>
+                            <li v-for="item in dayItems(day)" :key="item.key">
+                                <button v-if="item.kind === 'event'" type="button" class="block w-full rounded border px-2 py-1 text-left text-sm focus:outline-none focus:ring-2 focus:ring-[--app-accent]" :class="eventClass" @click="openEvent(item.event)">
+                                    <span class="font-semibold tabular-nums">{{ item.event.is_all_day ? ctrans("All day") : item.event.time }}</span>
+                                    {{ item.event.title }}
+                                    <span v-if="item.event.participants.length" class="block truncate text-xs opacity-80">{{ item.event.participants.map(participant => participant.name).join(", ") }}</span>
                                 </button>
-                            </li>
-                            <li v-for="appointment in day.appointments" :key="`appointment-${appointment.id}`">
                                 <component
-                                    :is="appointment.url ? Link : 'span'"
-                                    :href="appointment.url ?? undefined"
+                                    v-else-if="item.kind === 'appointment'"
+                                    :is="item.appointment.url ? Link : 'span'"
+                                    :href="item.appointment.url ?? undefined"
                                     class="block rounded border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[--app-accent]"
-                                    :class="appointmentStateClass(appointment.state)">
-                                    <span class="font-semibold tabular-nums">{{ appointment.time }}</span>
-                                    {{ appointment.contact_name }}
-                                    <span class="block truncate text-xs opacity-80">{{ [appointment.appointment_type_name, appointment.shop_code, appointment.staff_name].filter(Boolean).join(" · ") }}</span>
+                                    :class="appointmentStateClass(item.appointment.state)">
+                                    <span class="font-semibold tabular-nums">{{ item.appointment.time }}</span>
+                                    {{ item.appointment.contact_name ?? ctrans("Appointment") }}
+                                    <span class="block truncate text-xs opacity-80">{{ [item.appointment.appointment_type_name, item.appointment.shop_code, item.appointment.staff_name].filter(Boolean).join(" · ") }}</span>
                                 </component>
+                                <div v-else class="rounded border px-2 py-1 text-sm" :class="blockClass">
+                                    <span class="font-semibold tabular-nums">{{ item.block.time ?? ctrans("All day") }}</span>
+                                    {{ blockLabel(item.block) }}
+                                    <span v-if="item.block.reason" class="block truncate text-xs opacity-80">{{ item.block.reason }}</span>
+                                </div>
                             </li>
                         </ul>
                     </li>
@@ -420,7 +503,7 @@ const dateFormat = "d M yy"
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <ToggleSwitch v-model="form.is_all_day" inputId="calendar-event-all-day" />
+                    <ToggleSwitch :modelValue="form.is_all_day" inputId="calendar-event-all-day" @update:modelValue="onAllDayToggled" />
                     <label for="calendar-event-all-day" class="text-gray-700">{{ ctrans("All day") }}</label>
                 </div>
 

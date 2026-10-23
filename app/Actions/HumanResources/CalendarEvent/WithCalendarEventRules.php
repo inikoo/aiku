@@ -22,6 +22,11 @@ trait WithCalendarEventRules
         return $user->authTo(["calendar.{$organisation->id}.edit", "org-admin.{$organisation->id}"]);
     }
 
+    public static function canSeeShopCustomers(?User $viewer, Organisation $organisation, int $shopId): bool
+    {
+        return !$viewer || $viewer->authTo(["crm.$shopId.view", "accounting.$organisation->id.view"]);
+    }
+
     public static function calendarTimezone(Organisation $organisation): string
     {
         return $organisation->timezone?->name ?? 'UTC';
@@ -81,7 +86,7 @@ trait WithCalendarEventRules
             return;
         }
 
-        $clashes = $this->findClashes($this->organisation, $startsAt, $endsAt, (array) $this->get('participants', []), $this->calendarEvent);
+        $clashes = $this->findClashes($this->organisation, $startsAt, $endsAt, (array) $this->get('participants', []), $this->calendarEvent, auth('web')->user());
         if ($clashes) {
             $validator->errors()->add('overlap', implode("\n", $clashes));
         }
@@ -126,13 +131,14 @@ trait WithCalendarEventRules
 
     /**
      * What a participant is already doing in that time: other events of the organisation
-     * and the shop appointments they look after.
+     * and the shop appointments they look after, naming the customer only to a viewer who
+     * may see that shop's customers.
      *
      * @param  array<int, int>  $participantIds
      *
      * @return array<int, string>
      */
-    public function findClashes(Organisation $organisation, Carbon $startsAt, Carbon $endsAt, array $participantIds, ?CalendarEvent $ignore = null): array
+    public function findClashes(Organisation $organisation, Carbon $startsAt, Carbon $endsAt, array $participantIds, ?CalendarEvent $ignore = null, ?User $viewer = null): array
     {
         if (!$participantIds) {
             return [];
@@ -166,15 +172,21 @@ trait WithCalendarEventRules
             ->whereNotIn('state', AppointmentStateEnum::closed())
             ->where('starts_at', '<', $endsAt)
             ->where('ends_at', '>', $startsAt)
-            ->with('appointmentType')
+            ->with(['appointmentType', 'shop'])
             ->orderBy('starts_at')
             ->get()
-            ->each(function (Appointment $appointment) use (&$clashes, $names, $period) {
-                $clashes[] = __(':people: appointment with :contact (:period)', [
-                    'people'  => $names[$appointment->user_id] ?? '',
-                    'contact' => $appointment->contact_name,
-                    'period'  => $period($appointment->starts_at, $appointment->ends_at),
-                ]);
+            ->each(function (Appointment $appointment) use (&$clashes, $names, $period, $viewer, $organisation) {
+                $clashes[] = self::canSeeShopCustomers($viewer, $organisation, $appointment->shop_id)
+                    ? __(':people: appointment with :contact (:period)', [
+                        'people'  => $names[$appointment->user_id] ?? '',
+                        'contact' => $appointment->contact_name,
+                        'period'  => $period($appointment->starts_at, $appointment->ends_at),
+                    ])
+                    : __(':people: appointment in :shop (:period)', [
+                        'people' => $names[$appointment->user_id] ?? '',
+                        'shop'   => $appointment->shop->code,
+                        'period' => $period($appointment->starts_at, $appointment->ends_at),
+                    ]);
             });
 
         return $clashes;
