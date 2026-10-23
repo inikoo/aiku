@@ -2985,3 +2985,39 @@ test('a queued upload the queue kills still reports its failure so the waiting p
     expect($portfolio->refresh()->errors_response)->not->toBeNull();
     \Illuminate\Support\Facades\Event::assertDispatched(\App\Events\UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
 });
+
+test('a price for a shopify store selling in another currency is converted, a store in the shop currency or of unknown currency gets it as it is', function () {
+    $eur       = \App\Models\Helpers\Currency::where('code', 'EUR')->firstOrFail();
+    $converter = new class () {
+        use \App\Actions\Dropshipping\Shopify\Product\WithShopifyStoreCurrency;
+
+        public function convert($shopifyUser, $currency, $price): array
+        {
+            return $this->priceInShopifyStoreCurrency($shopifyUser, $currency, $price);
+        }
+    };
+
+    \App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange::shouldRun()->once()->andReturn(4.25);
+
+    expect($converter->convert(new \App\Models\Dropshipping\ShopifyUser(['data' => []]), $eur, 45.5))->toBe([45.5, null])
+        ->and($converter->convert(new \App\Models\Dropshipping\ShopifyUser(['data' => ['shop' => ['currencyCode' => 'EUR']]]), $eur, 45.5))->toBe([45.5, null])
+        ->and($converter->convert(new \App\Models\Dropshipping\ShopifyUser(['data' => ['shop' => ['currencyCode' => 'PLN']]]), $eur, 22.73))->toBe(['96.60', null]);
+});
+
+test('a price for a shopify store whose exchange rate is missing is not sent', function () {
+    $eur = \App\Models\Helpers\Currency::where('code', 'EUR')->firstOrFail();
+    $converter = new class () {
+        use \App\Actions\Dropshipping\Shopify\Product\WithShopifyStoreCurrency;
+
+        public function convert($shopifyUser, $currency, $price): array
+        {
+            return $this->priceInShopifyStoreCurrency($shopifyUser, $currency, $price);
+        }
+    };
+
+    \App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange::shouldRun()->andReturn(null);
+
+    [$price, $error] = $converter->convert(new \App\Models\Dropshipping\ShopifyUser(['data' => ['shop' => ['currencyCode' => 'PLN']]]), $eur, 22.73);
+
+    expect($price)->toBeNull()->and($error)->toContain('PLN');
+});
