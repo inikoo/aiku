@@ -32,6 +32,7 @@ class WebsiteIrisResource extends JsonResource
             'logo'             => $website->imageSources(350, 350),
             'type'             => $website->shop->type,
             'reviews_settings' => Arr::get($website->shop->settings, 'reviews'),
+            'terms_url'        => $website->getTermsAndConditionsUrl(),
         ];
     }
 }

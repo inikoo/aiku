@@ -10,6 +10,8 @@ namespace App\Models\Web;
 
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
@@ -528,6 +530,16 @@ class Website extends Model implements Auditable, HasMedia
         }
 
         return $scheme.'://'.$this->domain;
+    }
+
+    public function getTermsAndConditionsUrl(): ?string
+    {
+        return $this->webpages()
+            ->where('sub_type', WebpageSubTypeEnum::TERMS_AND_CONDITIONS)
+            ->where('state', WebpageStateEnum::LIVE)
+            ->orderBy('id')
+            ->first()
+            ?->getCanonicalUrl();
     }
 
     public function webBlocks(): MorphMany

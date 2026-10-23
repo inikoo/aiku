@@ -1,4 +1,4 @@
-import { buildStructuredData, normalizeWebBlocks, type StructuredDataNode, type StructuredDataValue } from "@/Iris/Composables/useStructuredData"
+import { buildStructuredData, normalizeWebBlocks, withImageLicense, type StructuredDataNode, type StructuredDataValue } from "@/Iris/Composables/useStructuredData"
 import { buildBreadcrumbListNode } from "@/Iris/Composables/useBreadcrumbStructuredData"
 import { buildDepartmentStructuredData } from "@/Iris/Composables/useDepartmentStructuredData"
 import { buildSubDepartmentStructuredData } from "@/Iris/Composables/useSubDepartmentStructuredData"
@@ -11,6 +11,7 @@ export type WebpageStructuredDataSource = {
     breadcrumbs?: any[]
     website_url?: string
     website_name?: string | null
+    terms_url?: string | null
     currency_code?: string | null
 }
 
@@ -174,10 +175,15 @@ export const buildWebpageStructuredData = (source: WebpageStructuredDataSource):
         }
     }
 
+    const licensedStructuredDataList = withImageLicense(structuredDataList, {
+        websiteName: source.website_name,
+        termsUrl: source.terms_url,
+    })
+
     const websiteOrigin = getOrigin(source.website_url)
     if (!websiteOrigin || typeof window === "undefined" || window.location.origin === websiteOrigin) {
-        return structuredDataList
+        return licensedStructuredDataList
     }
 
-    return rebaseUrls(structuredDataList, window.location.origin, websiteOrigin) as StructuredDataNode[]
+    return rebaseUrls(licensedStructuredDataList, window.location.origin, websiteOrigin) as StructuredDataNode[]
 }
