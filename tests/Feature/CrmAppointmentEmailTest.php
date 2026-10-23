@@ -190,14 +190,11 @@ test('the staff who get an appointment task are emailed one by one when it is bo
     /** @var Outbox $outbox */
     $outbox = $this->shop->outboxes()->where('code', OutboxCodeEnum::NEW_APPOINTMENT->value)->first();
     $outbox->update(['builder' => OutboxBuilderEnum::BEEFREE, 'state' => OutboxStateEnum::ACTIVE, 'is_applicable' => true]);
-    PublishOutbox::make()->action($outbox, [
-        'layout'          => ['page' => []],
-        'compiled_layout' => '<p>[Shop Name]</p>',
-    ]);
+    $outbox->emailOngoingRun->email->liveSnapshot->update(['compiled_layout' => '<p>[Shop Name]</p>']);
 
     $sent = [];
     SendSesEmail::shouldRun()->andReturnUsing(function (string $subject, string $emailHtmlBody, DispatchedEmail $dispatchedEmail) use (&$sent) {
-        $sent[] = [$dispatchedEmail->email_address, $subject];
+        $sent[] = [$dispatchedEmail->emailAddress->email, $subject];
 
         return $dispatchedEmail;
     });

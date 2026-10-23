@@ -37,6 +37,7 @@ use App\Models\Tasks\StaffTask;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
@@ -532,6 +533,8 @@ test('the master meta description and share image reach the webpages of products
 });
 
 test('the master product edit information page edits the meta description and share image', function () {
+    Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Grp')]);
+
     get(route('grp.masters.master_shops.show.master_products.edit_information', [$this->masterShop->slug, $this->masterAsset->slug]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
