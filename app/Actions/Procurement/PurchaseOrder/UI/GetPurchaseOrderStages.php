@@ -37,7 +37,8 @@ use Lorisleiva\Actions\Concerns\AsObject;
  * line is received in full and all of it is checked, or packed. It shows only on orders through an agent that
  * receives goods in its own warehouse, and, as nobody records it by hand, marking a later stage never asks for it.
  * On an order through an agent, Ready is also reached once every line is in a container, packed first or not: the QC
- * mark is then optional.
+ * mark is then optional. With the agent warehouse, production done is filled by the goods receipts, so it shows under
+ * In warehouse and is never marked by hand.
  */
 class GetPurchaseOrderStages
 {
@@ -183,7 +184,7 @@ class GetPurchaseOrderStages
 
         $steps = [];
         foreach ($this->stagesOf($purchaseOrder) as $stage) {
-            foreach ($stage->steps() as $column) {
+            foreach ($this->stepsOf($purchaseOrder, $stage) as $column) {
                 $steps[$stage->value][] = $this->step($purchaseOrder, $deliveries, $column);
             }
         }
@@ -235,6 +236,7 @@ class GetPurchaseOrderStages
             'marks'       => collect(Stage::MARKABLE_FIELDS)
                 ->filter(
                     fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
+                        && !($field === 'produced_at' && $this->usesAgentWarehouse($purchaseOrder))
                 )
                 ->keys()
                 ->map(fn (string $field) => [
@@ -336,10 +338,29 @@ class GetPurchaseOrderStages
      */
     private function stagesOf(PurchaseOrder $purchaseOrder): array
     {
-        $usesAgentWarehouse = $this->usesAgentWarehouse[$purchaseOrder->id]
-            ??= $purchaseOrder->isAgentOrder() && AgentGoodsReceipt::where('agent_id', $purchaseOrder->agent_id)->where('state', AgentGoodsReceiptStateEnum::RECEIVED)->exists();
+        return array_values(array_filter(Stage::cases(), fn (Stage $stage) => $stage !== Stage::IN_WAREHOUSE || $this->usesAgentWarehouse($purchaseOrder)));
+    }
 
-        return array_values(array_filter(Stage::cases(), fn (Stage $stage) => $stage !== Stage::IN_WAREHOUSE || $usesAgentWarehouse));
+    private function usesAgentWarehouse(PurchaseOrder $purchaseOrder): bool
+    {
+        return $this->usesAgentWarehouse[$purchaseOrder->id]
+            ??= $purchaseOrder->isAgentOrder() && AgentGoodsReceipt::where('agent_id', $purchaseOrder->agent_id)->where('state', AgentGoodsReceiptStateEnum::RECEIVED)->exists();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function stepsOf(PurchaseOrder $purchaseOrder, Stage $stage): array
+    {
+        if (!$this->usesAgentWarehouse($purchaseOrder)) {
+            return $stage->steps();
+        }
+
+        return match ($stage) {
+            Stage::IN_WAREHOUSE => ['warehouse_arrived_at', 'produced_at', 'warehouse_checked_at', 'warehouse_packed_at'],
+            Stage::READY        => array_values(array_diff($stage->steps(), ['produced_at'])),
+            default             => $stage->steps(),
+        };
     }
 
     /**
