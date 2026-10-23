@@ -96,6 +96,10 @@ use App\Models\Traits\HasSearch;
  * @property string|null $description_updated_at
  * @property string|null $description_title_updated_at
  * @property string|null $extra_description_updated_at
+ * @property string|null $meta_description
+ * @property int|null $seo_image_id
+ * @property string|null $seo_image_url
+ * @property string|null $seo_image_alt
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, MasterProductCategory> $children
  * @property-read Media|null $descArt1Image

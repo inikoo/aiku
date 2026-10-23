@@ -27,11 +27,13 @@ use App\Actions\Masters\MasterProductCategory\Hydrators\MasterDepartmentHydrateM
 use App\Actions\Masters\MasterProductCategory\Hydrators\MasterFamilyHydrateMasterAssets;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateMasterAssets;
 use App\Actions\Masters\MasterShop\Hydrators\MasterShopHydrateNumberMismatches;
+use App\Actions\Masters\WithMasterSeoImage;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateMasterAssets;
 use App\Actions\Traits\Authorisations\WithMastersEditAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Traits\WithLineTaxCategories;
 use App\Actions\Traits\WithMasterAssetTradeUnits;
 use App\Actions\Traits\ModelHydrateSingleTradeUnits;
@@ -51,6 +53,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -63,6 +66,7 @@ class UpdateMasterAsset extends OrgAction
     use WithLineTaxCategories;
     use WithMasterAssetTradeUnits;
     use WithCustomTradeUnitAudits;
+    use WithMasterSeoImage;
 
     private MasterAsset $masterAsset;
 
@@ -196,6 +200,16 @@ class UpdateMasterAsset extends OrgAction
             if ($eurRRP) {
                 data_set($modelData, 'rrp', $eurRRP);
             }
+        }
+
+        if (Arr::has($modelData, 'seo_image_url')) {
+            $modelData['seo_image_url'] = filled($modelData['seo_image_url']) ? $modelData['seo_image_url'] : null;
+        }
+
+        $seoImage = Arr::pull($modelData, 'seo_image');
+        if ($seoImage) {
+            $modelData['seo_image_url'] = null;
+            $masterAsset                = $this->processMasterSeoImage($seoImage, $masterAsset);
         }
 
         $tradeUnits = Arr::pull($modelData, 'trade_units', []);
@@ -489,6 +503,35 @@ class UpdateMasterAsset extends OrgAction
 
         PropagateMasterContentToProducts::run($masterAsset, array_keys($changes));
 
+        $seoImageChanged = $seoImage || $wasChanged('seo_image_url');
+        if ($seoImageChanged || $wasChanged(['meta_description', 'seo_image_alt'])) {
+            $english = Language::where('code', 'en')->first();
+
+            foreach ($masterAsset->products()->with(['shop.language', 'webpage'])->get() as $product) {
+                if (!$product->webpage || !data_get($product->shop->settings, 'catalog.product_follow_master')) {
+                    continue;
+                }
+
+                $webpageData = [];
+                if ($wasChanged('meta_description')) {
+                    $webpageData['description'] = Translate::run($masterAsset->meta_description, $english, $product->shop->language, 'catalogue');
+                }
+
+                if ($wasChanged('seo_image_alt')) {
+                    $webpageData['seo_image_alt'] = filled($masterAsset->seo_image_alt)
+                        ? Translate::run($masterAsset->seo_image_alt, $english, $product->shop->language, 'catalogue')
+                        : null;
+                }
+
+                if ($seoImageChanged) {
+                    $webpageData['seo_image_id']  = $masterAsset->seo_image_id;
+                    $webpageData['seo_image_url'] = $masterAsset->seo_image_url;
+                }
+
+                UpdateWebpage::make()->action($product->webpage, $webpageData);
+            }
+        }
+
         if ($wasChanged('is_for_sale') && $masterAsset->is_for_sale) {
             MasterAssetHydrateAssets::run($masterAsset->id);
         }
@@ -504,6 +547,14 @@ class UpdateMasterAsset extends OrgAction
         return $masterAsset;
     }
 
+
+    public function prepareForValidation(): void
+    {
+        $seoImageUrl = trim((string)$this->get('seo_image_url', ''));
+        if ($seoImageUrl !== '' && !preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $seoImageUrl)) {
+            $this->set('seo_image_url', 'https://'.$seoImageUrl);
+        }
+    }
 
     public function rules(): array
     {
@@ -548,6 +599,10 @@ class UpdateMasterAsset extends OrgAction
             'description_i8n'              => ['sometimes', 'array'],
             'description_extra_i8n'        => ['sometimes', 'array'],
             'gpsr_warnings'                => ['sometimes', 'nullable', 'string'],
+            'meta_description'             => ['sometimes', 'nullable', 'string', 'max:500'],
+            'seo_image'                    => ['sometimes', 'nullable', File::image()->max(12 * 1024)],
+            'seo_image_url'                => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
+            'seo_image_alt'                => ['sometimes', 'nullable', 'string', 'max:255'],
             'gpsr_manual'                  => ['sometimes', 'nullable', 'string'],
             'is_for_sale'                => ['sometimes', 'boolean'],
             'is_back_order'                => ['sometimes', 'boolean'],

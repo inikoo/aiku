@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 use App\Actions\Traits\Authorisations\WithShopPpcPermissions;
 use App\Actions\Web\Seo\ImplementFamilySeoSuggestion;
 use App\Actions\Web\Seo\StoreFamilySeoReview;
+use App\Actions\Web\Webpage\UI\WithWebpageSeoImageField;
 use App\Enums\Web\Seo\SeoContentSuggestionStateEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -28,6 +29,7 @@ class GetFamilyEditPage
 {
     use AsObject;
     use WithShopPpcPermissions;
+    use WithWebpageSeoImageField;
 
     private const array EDITOR_TOOLBAR = ['bold', 'italic', 'fontSize', 'underline', 'bulletList', 'customLink', 'undo', 'redo', 'highlight', 'color', 'clear'];
 
@@ -102,8 +104,12 @@ class GetFamilyEditPage
             ], !$canEditWebpage) : null,
 
             $webpage ? $this->card(__('Meta description'), $byWebmaster, $webpageRoute, [
-                'description' => $this->bare(['type' => 'textarea', 'maxLength' => 150, 'counter' => true, 'value' => $webpage->description]),
+                'description' => $this->metaDescriptionField($family, $webpage, $languages),
             ], !$canEditWebpage, $descriptionCheck, 'description') : null,
+
+            $webpage ? $this->card(__('Share image'), $byWebmaster, $webpageRoute, [
+                'seo_image' => $this->bare(Arr::except($this->webpageSeoImageField($webpage), 'label')),
+            ], !$canEditWebpage, key: 'seo_image') : null,
 
             $webpage ? $this->card(__('URL'), $byWebmaster, $webpageRoute, [
                 'url' => $this->bare([
@@ -438,6 +444,23 @@ class GetFamilyEditPage
             'reviewed'      => $family->{'is_'.$field.'_reviewed'},
             'review_route'  => ['name' => 'grp.models.product_category.translation_review.store', 'parameters' => ['productCategory' => $family->id]],
         ] + $richText);
+    }
+
+    private function metaDescriptionField(ProductCategory $family, Webpage $webpage, array $languages): array
+    {
+        if (!$family->masterProductCategory) {
+            return $this->bare(['type' => 'textarea', 'maxLength' => 150, 'counter' => true, 'value' => $webpage->description]);
+        }
+
+        return $this->bare([
+            'type'          => 'input_translation',
+            'textarea'      => true,
+            'language_from' => 'en',
+            'main'          => $family->masterProductCategory->meta_description,
+            'languages'     => $languages,
+            'mode'          => 'single',
+            'value'         => $webpage->description,
+        ]);
     }
 
     private function faqField(ProductCategory $family, array $languages): array

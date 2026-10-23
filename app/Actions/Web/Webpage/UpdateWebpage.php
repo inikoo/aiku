@@ -274,6 +274,10 @@ class UpdateWebpage extends OrgAction
             'show_price'                     => ['sometimes', 'nullable', 'boolean'],
         ];
 
+        if ($this->asAction) {
+            $rules['seo_image_id'] = ['sometimes', 'nullable', Rule::exists('media', 'id')->where('group_id', $this->organisation->group_id)];
+        }
+
         if (!$this->strict) {
             $rules                   = $this->noStrictUpdateRules($rules);
             $rules['migration_data'] = ['sometimes', 'array'];

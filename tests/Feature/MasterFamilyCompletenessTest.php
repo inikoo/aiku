@@ -8,6 +8,10 @@
 
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Helpers\Translations\Translate;
+use App\Actions\Masters\MasterAsset\StoreMasterAsset;
+use App\Actions\Masters\MasterAsset\UI\GetMasterProductChecklist;
 use App\Actions\Masters\MasterProductCategory\StoreMasterDepartment;
 use App\Actions\Masters\MasterProductCategory\StoreMasterFamily;
 use App\Actions\Masters\MasterProductCategory\UI\GetMasterFamilyCompleteness;
@@ -18,7 +22,10 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Masters\MasterAsset\MasterAssetTypeEnum;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Goods\TradeUnit;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Inertia\Testing\AssertableInertia;
 
@@ -74,11 +81,21 @@ test('master completeness lists what the master family provides and scores it', 
 
     $items = collect($completeness['items'])->keyBy('key');
 
-    expect($completeness['total'])->toBe(9)
-        ->and($items->where('is_complete', false)->keys()->sort()->values()->all())->toBe(['description_extra', 'sub_department'])
+    expect($completeness['total'])->toBe(11)
+        ->and($items->where('is_complete', false)->keys()->sort()->values()->all())->toBe(['description_extra', 'meta_description', 'seo_image', 'sub_department'])
         ->and($items['faq']['label'])->toBe('FAQ (2 questions)')
         ->and($completeness['complete'])->toBe(7)
-        ->and($completeness['score'])->toBe(78);
+        ->and($completeness['score'])->toBe(64);
+
+    $this->masterFamily->updateQuietly([
+        'meta_description' => 'Handmade soaps for every skin type',
+        'seo_image_url'    => 'https://cdn.example.com/share.png',
+    ]);
+
+    $items = collect(GetMasterFamilyCompleteness::run($this->masterFamily->fresh())['items'])->keyBy('key');
+
+    expect($items['meta_description']['is_complete'])->toBeTrue()
+        ->and($items['seo_image']['is_complete'])->toBeTrue();
 });
 
 test('shops status groups the shop families of the master family by state', function () {
@@ -157,7 +174,9 @@ test('edit master family page shows the master content, parent options and check
             ->where('masterFamily.code', $masterFamily->code)
             ->where('masterFamily.master_department_id', $masterDepartment->id)
             ->where('departments', fn ($departments) => collect($departments)->contains('id', $masterDepartment->id))
-            ->where('completeness.total', 9)
+            ->where('completeness.total', 11)
+            ->where('masterFamily.meta_description', null)
+            ->where('masterFamily.seo_image', null)
             ->where('familiesRoute.name', 'grp.masters.master_shops.show.master_departments.show.master_families.families')
             ->where('updateRoute.name', 'grp.models.master_product_category.update')
             ->etc());
@@ -173,4 +192,133 @@ test('edit master family page shows the master content, parent options and check
     expect($masterFamily->name)->toBe('Renamed family')
         ->and($masterFamily->description_title)->toBe('New title')
         ->and($masterFamily->master_department_id)->toBe($masterDepartment->id);
+});
+
+test('master family meta description and share image are saved like the webpage share image', function () {
+    $masterFamily = $this->masterFamily->fresh();
+
+    $this->patch(route('grp.models.master_product_category.update', $masterFamily->id), [
+        'meta_description' => 'Handmade soaps for every skin type',
+        'seo_image_url'    => 'cdn.example.com/share.png',
+    ])->assertSessionHasNoErrors();
+
+    $masterFamily->refresh();
+
+    expect($masterFamily->meta_description)->toBe('Handmade soaps for every skin type')
+        ->and($masterFamily->seo_image_url)->toBe('https://cdn.example.com/share.png');
+
+    $this->patch(route('grp.models.master_product_category.update', $masterFamily->id), [
+        'seo_image' => UploadedFile::fake()->image('share.png', 1200, 630),
+    ])->assertSessionHasNoErrors();
+
+    $masterFamily->refresh();
+
+    expect($masterFamily->seo_image_id)->not->toBeNull()
+        ->and($masterFamily->seo_image_url)->toBeNull()
+        ->and($masterFamily->seoImage)->not->toBeNull()
+        ->and($masterFamily->images()->whereKey($masterFamily->seo_image_id)->exists())->toBeFalse();
+});
+
+test('master family meta description and share image cascade to the webpages of shop families following the master', function () {
+    $familyData = ProductCategory::factory()->definition();
+    data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+    data_set($familyData, 'master_product_category_id', $this->masterFamily->id);
+    $shopFamily = StoreProductCategory::make()->action($this->shop, $familyData);
+    $webpage    = $shopFamily->webpage ?? StoreProductCategoryWebpage::make()->action($shopFamily);
+
+    $settings = $this->shop->settings;
+    data_set($settings, 'catalog.family_follow_master', false);
+    $this->shop->update(['settings' => $settings]);
+
+    Translate::mock()->shouldReceive('handle')->never();
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'meta_description' => 'Handmade soaps for every skin type',
+        'seo_image_alt'    => 'Soap bars on a wooden tray',
+    ])->assertSessionHasNoErrors();
+
+    expect($webpage->fresh()->description)->not->toBe('Handmade soaps for every skin type')
+        ->and(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBeNull()
+        ->and($this->masterFamily->fresh()->seo_image_alt)->toBe('Soap bars on a wooden tray');
+
+    data_set($settings, 'catalog.family_follow_master', true);
+    $this->shop->update(['settings' => $settings]);
+
+    Translate::mock()->shouldReceive('handle')->andReturnUsing(fn (?string $text) => 'Translated: '.$text);
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'meta_description' => 'Soaps made by hand',
+        'seo_image'        => UploadedFile::fake()->image('share.png', 1200, 630),
+    ])->assertSessionHasNoErrors();
+
+    $masterFamily = $this->masterFamily->fresh();
+    $webpage->refresh();
+
+    expect($webpage->description)->toBe('Translated: Soaps made by hand')
+        ->and($webpage->seo_image_id)->toBe($masterFamily->seo_image_id)
+        ->and($webpage->seo_image_url)->toBeNull();
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_url' => 'https://cdn.example.com/share.png',
+    ])->assertSessionHasNoErrors();
+
+    expect($webpage->fresh()->seo_image_url)->toBe('https://cdn.example.com/share.png');
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_alt' => 'Three soap bars on a wooden tray',
+    ])->assertSessionHasNoErrors();
+
+    expect(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBe('Translated: Three soap bars on a wooden tray');
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_alt' => null,
+    ])->assertSessionHasNoErrors();
+
+    expect(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBeNull();
+});
+
+test('master product meta description and share image are saved like the webpage share image and counted in its checklist', function () {
+    $tradeUnit = StoreTradeUnit::make()->action(group(), array_merge(TradeUnit::factory()->definition(), [
+        'code' => 'SEO-'.substr(uniqid(), -6),
+        'name' => 'Share image trade unit',
+    ]));
+
+    $masterAsset = StoreMasterAsset::make()->action($this->masterFamily, [
+        'code'        => 'SEO-'.substr(uniqid(), -6),
+        'name'        => 'share image product',
+        'is_main'     => true,
+        'type'        => MasterAssetTypeEnum::PRODUCT,
+        'price'       => 10,
+        'stocks'      => [],
+        'trade_units' => [['id' => $tradeUnit->id, 'quantity' => 1]],
+    ]);
+    $catalogueImageId = $masterAsset->image_id;
+
+    $checklistItems = fn () => collect(GetMasterProductChecklist::run(GetMasterProductChecklist::make()->checklistRow($masterAsset))['items'])->keyBy('key');
+
+    expect($checklistItems()['meta_description']['done'])->toBeFalse()
+        ->and($checklistItems()['seo_image']['done'])->toBeFalse();
+
+    $this->patch(route('grp.models.master_asset.update', $masterAsset->id), [
+        'meta_description' => 'A lamp that glows like driftwood embers',
+        'seo_image_url'    => 'cdn.example.com/lamp.png',
+    ])->assertSessionHasNoErrors();
+
+    $masterAsset->refresh();
+
+    expect($masterAsset->meta_description)->toBe('A lamp that glows like driftwood embers')
+        ->and($masterAsset->seo_image_url)->toBe('https://cdn.example.com/lamp.png')
+        ->and($checklistItems()['meta_description']['done'])->toBeTrue()
+        ->and($checklistItems()['seo_image']['done'])->toBeTrue();
+
+    $this->patch(route('grp.models.master_asset.update', $masterAsset->id), [
+        'seo_image' => UploadedFile::fake()->image('lamp.png', 1200, 630),
+    ])->assertSessionHasNoErrors();
+
+    $masterAsset->refresh();
+
+    expect($masterAsset->seo_image_id)->not->toBeNull()
+        ->and($masterAsset->seo_image_url)->toBeNull()
+        ->and($masterAsset->image_id)->toBe($catalogueImageId)
+        ->and($masterAsset->images()->whereKey($masterAsset->seo_image_id)->exists())->toBeFalse();
 });
