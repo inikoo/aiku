@@ -9,6 +9,7 @@ import { Head, Link, router } from "@inertiajs/vue3"
 import { computed, ref } from "vue"
 import DatePicker from "primevue/datepicker"
 import Checkbox from "primevue/checkbox"
+import ToggleSwitch from "primevue/toggleswitch"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -26,6 +27,8 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     period: { from: string, to: string }
     payroll_export_route: { name: string, parameters: object }
+    show_pay_bands_to_artisans: boolean
+    pay_bands_visible_route: { name: string, parameters: object }
     data: object
 }>()
 
@@ -39,6 +42,14 @@ const toLocalIsoDate = (date: Date): string => `${date.getFullYear()}-${String(d
 const payrollFrom = ref<Date | null>(fromIsoDate(props.period.from))
 const payrollTo = ref<Date | null>(fromIsoDate(props.period.to))
 const timeEditedOnly = ref(false)
+const showPayBandsToArtisans = ref(props.show_pay_bands_to_artisans)
+function savePayBandsVisibility(visible: boolean) {
+    router.post(
+        route(props.pay_bands_visible_route.name, props.pay_bands_visible_route.parameters),
+        { show_pay_bands_to_artisans: visible },
+        { preserveScroll: true, preserveState: true, onError: () => showPayBandsToArtisans.value = !visible }
+    )
+}
 const fieldFocusClass = "[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]"
 
 const periodQuery = computed(() => ({
@@ -84,6 +95,10 @@ const clockMinutes = (minutes: number) => `${Math.floor(minutes / 60)}:${String(
             </Button>
         </a>
         <div class="ml-auto flex items-end gap-3">
+            <label class="flex items-center gap-2 pb-2 text-sm text-gray-600" v-tooltip="ctrans('Bands are still worked out and paid when hidden')">
+                <ToggleSwitch v-model="showPayBandsToArtisans" @update:modelValue="savePayBandsVisibility" />
+                {{ ctrans('Show pay bands on the floor tablet') }}
+            </label>
             <label class="flex items-center gap-2 pb-2 text-sm text-gray-600">
                 <Checkbox v-model="timeEditedOnly" binary />
                 {{ ctrans('Edited times only') }}

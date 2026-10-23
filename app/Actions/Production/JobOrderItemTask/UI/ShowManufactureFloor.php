@@ -389,6 +389,10 @@ class ShowManufactureFloor extends OrgAction
 
     protected function bandFeedback(ManufactureTaskSession $session): ?array
     {
+        if (!Arr::get($this->production->settings, 'show_pay_bands_to_artisans', false)) {
+            return null;
+        }
+
         $standardRate = $session->recipeStandardRate();
         if ($standardRate === null) {
             return null;

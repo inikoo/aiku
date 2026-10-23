@@ -96,6 +96,11 @@ class ShowManufacturePayroll extends OrgAction
                     'name'       => 'grp.org.productions.show.artisans.payroll.export',
                     'parameters' => $routeParameters
                 ],
+                'show_pay_bands_to_artisans' => (bool) Arr::get($this->production->settings, 'show_pay_bands_to_artisans', false),
+                'pay_bands_visible_route'    => [
+                    'name'       => 'grp.org.productions.show.artisans.payroll.pay_bands_visible',
+                    'parameters' => $routeParameters
+                ],
                 'data'                 => JsonResource::collection(new LengthAwarePaginator(
                     array_map(fn (array $artisan) => $artisan + [
                         'not_authorised_overtime' => $notAuthorised[$artisan['user_id']] ?? null,

@@ -46,6 +46,7 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\post;
 
 require_once __DIR__.'/../Support/ProductionHelpers.php';
 
@@ -569,11 +570,21 @@ describe('production reward pay bands', function () {
 
     test('manufacture floor shows live band feedback when the task has a standard rate', function () {
         $this->payBandJobOrderItemTask->manufactureTask->update(['standard_rate' => 152]);
+        $this->production->update(['settings' => \Illuminate\Support\Arr::except($this->production->settings ?? [], 'show_pay_bands_to_artisans')]);
 
         \App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession::make()->action(
             auth()->user(),
             $this->payBandJobOrderItemTask
         );
+
+        get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('open_session.band_feedback', null));
+
+        $payroll = route('grp.org.productions.show.artisans.payroll', [$this->organisation->slug, $this->production->slug]);
+        get($payroll)->assertInertia(fn (AssertableInertia $page) => $page->where('show_pay_bands_to_artisans', false));
+        post(route('grp.org.productions.show.artisans.payroll.pay_bands_visible', [$this->organisation->slug, $this->production->slug]), ['show_pay_bands_to_artisans' => true])
+            ->assertRedirect();
+        get($payroll)->assertInertia(fn (AssertableInertia $page) => $page->where('show_pay_bands_to_artisans', true));
 
         $response = get(route('grp.org.productions.show.floor', [
             $this->organisation->slug,

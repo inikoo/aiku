@@ -48,6 +48,7 @@ use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureArtisanDay\SetManufactureHoursTolerance;
 use App\Actions\Production\ManufactureBreak\SetManufactureBreakOverrunTolerance;
+use App\Actions\Production\ManufacturePayBand\SetManufacturePayBandsVisibleToArtisans;
 use App\Actions\Production\ManufactureArtisanDay\UI\IndexManufactureArtisanDays;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayrollArtisan;
@@ -106,6 +107,7 @@ Route::prefix('{production}')
                         Route::post('performance/break-overrun-tolerance', SetManufactureBreakOverrunTolerance::class)->name('break_overrun_tolerance');
                         Route::get('payroll', ShowManufacturePayroll::class)->name('payroll');
                         Route::get('payroll/export', ExportManufacturePayroll::class)->name('payroll.export');
+                        Route::post('payroll/pay-bands-visible', SetManufacturePayBandsVisibleToArtisans::class)->name('payroll.pay_bands_visible');
                         Route::get('payroll/{user:id}', ShowManufacturePayrollArtisan::class)->name('payroll.show')->withoutScopedBindings();
                         Route::patch('{employee:id}/pay-type', SetArtisanPayType::class)->name('pay_type.update')->withoutScopedBindings();
                         Route::patch('{employee:id}/guru', SetArtisanGuru::class)->name('guru.update')->withoutScopedBindings();
