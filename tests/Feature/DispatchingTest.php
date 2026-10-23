@@ -188,6 +188,8 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
+    $this->shop->update(['type' => \App\Enums\Catalogue\Shop\ShopTypeEnum::B2B]);
+
     $this->group      = $this->organisation->group;
     $this->adminGuest = createAdminGuest($this->group);
 
