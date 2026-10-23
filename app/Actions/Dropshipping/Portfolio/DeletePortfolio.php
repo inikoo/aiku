@@ -11,6 +11,7 @@ namespace App\Actions\Dropshipping\Portfolio;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePortfolios;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydratePortfolios;
 use App\Actions\Dropshipping\Amazon\Product\DeleteAmazonProduct;
+use App\Actions\Dropshipping\Bundle\DeleteBundle;
 use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannelsHydratePortfolios;
 use App\Actions\Dropshipping\Ebay\DeleteEbayProduct;
 use App\Actions\Dropshipping\Magento\Product\DeleteProductFromMagento;
@@ -23,6 +24,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePortfolios;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
+use App\Models\Dropshipping\Bundle;
 use App\Models\Dropshipping\Portfolio;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -52,6 +54,10 @@ class DeletePortfolio extends OrgAction
 
         $portfolio->stats()->delete();
         $portfolio->delete();
+
+        if ($portfolio->bundle_id && $bundle = Bundle::find($portfolio->bundle_id)) {
+            DeleteBundle::run($bundle);
+        }
 
         GroupHydratePortfolios::dispatch($customerSalesChannel->group)->delay(max($this->hydratorsDelay, 300));
         OrganisationHydratePortfolios::dispatch($customerSalesChannel->organisation)->delay(max($this->hydratorsDelay, 300));

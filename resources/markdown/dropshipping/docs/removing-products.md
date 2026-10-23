@@ -1,7 +1,7 @@
 ---
 title: Removing products from a channel
 summary: Take a product out of My Products, or only break its link with your store, and know what happens to the listing in your store in each case.
-date: 2026-10-05
+date: 2026-10-23
 tags: products, my products, remove, delete, unlink, discontinued
 category: products
 help_routes: retina.dropshipping.customer_sales_channels.portfolios.index
@@ -56,7 +56,7 @@ This works on platform channels, not on a manual channel.
 1. Tick the products in the list. To tick every product on the page, tick the box at the top of the tick column. To work faster, show more rows per page with the selector under the list, up to 150.
 2. Press one of the buttons that appear above the list:
    - <b>Unlink (...)</b>: breaks the link with your store. The products stay in <b>My Products</b> and the listings stay in your store.
-   - <b>Unlink & Delete (...)</b>: breaks the link and removes the products from <b>My Products</b>. The listings stay in your store, so delete them there if you no longer want them.
+   - <b>Unlink & Delete (...)</b>: removes the products from <b>My Products</b> and changes the listings in your store: on WooCommerce, Wix, Magento and Amazon the products are deleted from your store, on eBay the listings are ended, on Shopify the products stay but we stop stocking them, and on TikTok Shop and Allegro the listings stay. Bundles you remove this way are deleted from <b>My Bundles</b> too.
 
 Both buttons open a window that shows how many products you ticked and asks you to confirm. Read it before you press <b>Yes</b>: neither can be undone. After <b>Unlink & Delete</b> the products, with the names, prices and descriptions you set for them, are gone from <b>My Products</b>, and you need to add them again yourself if you change your mind.
 
@@ -74,7 +74,7 @@ A crossed-out dollar means <b>This product line is currently not for sale</b>. W
 
 ## When something goes wrong
 
-- **I removed the product but it is still in my store.** On Shopify, TikTok Shop and Allegro, and after <b>Unlink</b> or <b>Unlink & Delete</b> on any platform, the listing stays in your store. Delete it in your store.
+- **I removed the product but it is still in my store.** On Shopify, TikTok Shop and Allegro, and after <b>Unlink</b> on any platform, the listing stays in your store. Delete it in your store.
 - **I removed the product by mistake.** Add it again with <b>Add products</b>, then use <b>Match with this product</b> (or <b>Match it with an existing product in your shop</b>) to link it to the listing that is still in your store. On WooCommerce and Wix the listing was deleted, so use <b>Create new product</b>. See [Using My Products](/docs/my-products).
 - **"Not allowed to revise an ended item" on eBay.** The listing was ended, by you, by eBay or by removing the product. Unlink the product and create it again.
 - **My eBay items all ended suddenly.** Removing products from the channel ends their eBay listings. Also check your eBay account: eBay ends listings when an account is restricted or over its selling limits. Look at the <b>Logs</b> tab for the answer eBay gave.

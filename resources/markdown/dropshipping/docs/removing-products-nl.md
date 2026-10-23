@@ -1,8 +1,8 @@
 ---
 title: Producten verwijderen uit een kanaal
 summary: Haal een product uit Mijn producten, of verbreek alleen zijn koppeling met uw winkel, en weet wat er in elk geval gebeurt met de vermelding in uw winkel.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: producten, mijn producten, verwijderen, wissen, ontkoppelen, stopgezet
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Dit werkt op platformkanalen, niet op een handmatig kanaal.
 1. Vink de producten in de lijst aan. Om alle producten op de pagina aan te vinken, vinkt u het vakje boven aan de kolom met vinkvakjes aan. Om sneller te werken, toont u met de keuzelijst onder de lijst meer rijen per pagina, tot 150.
 2. Druk op een van de knoppen die boven de lijst verschijnen:
    - <b>Unlink (...)</b>: verbreekt de koppeling met uw winkel. De producten blijven in <b>Mijn producten</b> en de vermeldingen blijven in uw winkel.
-   - <b>Unlink & Delete (...)</b>: verbreekt de koppeling en verwijdert de producten uit <b>Mijn producten</b>. De vermeldingen blijven in uw winkel, dus verwijder ze daar als u ze niet meer wilt.
+   - <b>Unlink & Delete (...)</b>: verwijdert de producten uit <b>Mijn producten</b> en past de vermeldingen in uw winkel aan: bij WooCommerce, Wix, Magento en Amazon worden de producten uit uw winkel verwijderd, bij eBay worden de advertenties beëindigd, bij Shopify blijven de producten staan maar leveren wij er geen voorraad meer voor, en bij TikTok Shop en Allegro blijven de vermeldingen staan. Bundels die u zo verwijdert, worden ook uit <b>My Bundles</b> verwijderd.
 
 Beide knoppen openen een venster dat laat zien hoeveel producten u heeft aangevinkt en u om bevestiging vraagt. Lees het voordat u op <b>Yes</b> drukt: geen van beide acties kan ongedaan worden gemaakt. Na <b>Unlink & Delete</b> zijn de producten, met de namen, prijzen en beschrijvingen die u ervoor heeft ingesteld, verdwenen uit <b>Mijn producten</b>, en u moet ze zelf opnieuw toevoegen als u zich bedenkt.
 
@@ -74,7 +74,7 @@ Een doorgestreept dollarteken betekent <b>This product line is currently not for
 
 ## Als er iets misgaat
 
-- **Ik heb het product verwijderd maar het staat nog in mijn winkel.** Bij Shopify, TikTok Shop en Allegro, en na <b>Unlink</b> of <b>Unlink & Delete</b> op elk platform, blijft de vermelding in uw winkel staan. Verwijder deze in uw winkel.
+- **Ik heb het product verwijderd maar het staat nog in mijn winkel.** Bij Shopify, TikTok Shop en Allegro, en na <b>Unlink</b> op elk platform, blijft de vermelding in uw winkel staan. Verwijder deze in uw winkel.
 - **Ik heb het product per ongeluk verwijderd.** Voeg het opnieuw toe met <b>Producten toevoegen</b> en gebruik dan <b>Match with this product</b> (of <b>Match it with an existing product in your shop</b>) om het te koppelen aan de vermelding die nog in uw winkel staat. Bij WooCommerce en Wix is de vermelding verwijderd, gebruik dan <b>Nieuw product maken</b>. Zie [Mijn producten gebruiken](/docs/my-products).
 - **"Not allowed to revise an ended item" op eBay.** De vermelding is beëindigd, door u, door eBay of door het verwijderen van het product. Ontkoppel het product en maak het opnieuw aan.
 - **Al mijn eBay-artikelen zijn ineens beëindigd.** Het verwijderen van producten uit het kanaal beëindigt hun eBay-vermeldingen. Controleer ook uw eBay-account: eBay beëindigt vermeldingen wanneer een account beperkt is of zijn verkooplimiet overschrijdt. Kijk in het tabblad <b>Logs</b> voor het antwoord van eBay.

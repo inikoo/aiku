@@ -15,6 +15,7 @@ use App\Actions\Dropshipping\Bundle\StoreBundle;
 use App\Actions\Dropshipping\Bundle\StoreOrUpdateBundle;
 use App\Actions\Dropshipping\Bundle\UpdateBundle;
 use App\Actions\Dropshipping\CustomerSalesChannel\StoreCustomerSalesChannel;
+use App\Actions\Dropshipping\Portfolio\DeletePortfolio;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -23,6 +24,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\Bundle;
 use App\Models\Dropshipping\BundleItem;
+use App\Models\Dropshipping\Portfolio;
 
 use function Pest\Laravel\actingAs;
 
@@ -298,6 +300,29 @@ test('delete bundle discontinues product and clears flags', function (Bundle $bu
         ->and($bundle->bundleable->state)->toBe(ProductStateEnum::DISCONTINUED)
         ->and($bundle->bundleable->portfolios()->where('status', true)->exists())->toBeFalse();
 })->depends('store or update bundle dispatches to store when no id given');
+
+test('deleting a bundle portfolio discontinues the bundle instead of leaving it without a portfolio', function () {
+    $channel = StoreCustomerSalesChannel::make()->action(
+        $this->customer,
+        $this->group->platforms()->where('type', PlatformTypeEnum::MANUAL)->first(),
+        ['reference' => 'delete_bundle_portfolio_channel']
+    );
+
+    $bundle = StoreBundle::make()->action($channel, [
+        'products' => [
+            ['product_id' => $this->product->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $portfolio = $bundle->bundleable->portfolios()->where('bundle_id', $bundle->id)->firstOrFail();
+
+    DeletePortfolio::make()->action($portfolio);
+
+    $bundle->refresh();
+    expect(Portfolio::find($portfolio->id))->toBeNull()
+        ->and($bundle->status)->toBeFalse()
+        ->and($bundle->bundleable->state)->toBe(ProductStateEnum::DISCONTINUED);
+});
 
 test('two components made of the same trade unit both count towards the bundle instead of one replacing the other', function () {
     $channel = StoreCustomerSalesChannel::make()->action(

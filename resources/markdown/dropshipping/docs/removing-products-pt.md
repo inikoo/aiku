@@ -1,8 +1,8 @@
 ---
 title: Remover produtos de um canal
 summary: Retira um produto de Meus Produtos, ou apenas quebra a sua ligação com a tua loja, e sabe o que acontece ao anúncio na tua loja em cada caso.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: produtos, meus produtos, remover, apagar, desvincular, descontinuado
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Isto funciona nos canais de plataforma, não num canal manual.
 1. Marca os produtos na lista. Para marcar todos os produtos da página, marca a caixa no topo da coluna das caixas. Para trabalhares mais depressa, mostra mais linhas por página com o seletor por baixo da lista, até 150.
 2. Prime um dos botões que aparecem acima da lista:
    - <b>Unlink (...)</b> ("Desvincular (...)"): quebra a ligação com a tua loja. Os produtos mantêm-se em <b>Meus Produtos</b> e os anúncios mantêm-se na tua loja.
-   - <b>Unlink & Delete (...)</b> ("Desvincular e apagar (...)"): quebra a ligação e remove os produtos de <b>Meus Produtos</b>. Os anúncios mantêm-se na tua loja, por isso apaga-os lá se já não os quiseres.
+   - <b>Unlink & Delete (...)</b> ("Desvincular e apagar (...)"): remove os produtos de <b>Meus Produtos</b> e altera os anúncios na tua loja: no WooCommerce, Wix, Magento e Amazon os produtos são apagados da tua loja, no eBay os anúncios são terminados, no Shopify os produtos mantêm-se mas deixamos de lhes dar stock, e no TikTok Shop e Allegro os anúncios mantêm-se. Os bundles que removas assim também são apagados de <b>My Bundles</b>.
 
 Os dois botões abrem uma janela que mostra quantos produtos marcaste e pede-te que confirmes. Lê-a antes de premir <b>Yes</b>: nenhuma das duas ações pode ser desfeita. Depois de <b>Unlink & Delete</b>, os produtos, com os nomes, preços e descrições que definiste para eles, desaparecem de <b>Meus Produtos</b>, e tens de os voltar a adicionar tu próprio se mudares de ideias.
 
@@ -74,7 +74,7 @@ Um cifrão riscado significa <b>This product line is currently not for sale</b> 
 
 ## Quando algo corre mal
 
-- **Removi o produto mas continua na minha loja.** No Shopify, TikTok Shop e Allegro, e depois de <b>Unlink</b> ou <b>Unlink & Delete</b> em qualquer plataforma, o anúncio mantém-se na tua loja. Apaga-o na tua loja.
+- **Removi o produto mas continua na minha loja.** No Shopify, TikTok Shop e Allegro, e depois de <b>Unlink</b> em qualquer plataforma, o anúncio mantém-se na tua loja. Apaga-o na tua loja.
 - **Removi o produto por engano.** Adiciona-o outra vez com <b>Adicionar produtos</b>, depois usa <b>Combine com este produto</b> (ou <b>Match it with an existing product in your shop</b>) para o ligares ao anúncio que ainda está na tua loja. No WooCommerce e no Wix o anúncio foi apagado, por isso usa <b>Criar novo produto</b>. Vê [Usar o Meus Produtos](/docs/my-products).
 - **"Not allowed to revise an ended item" no eBay.** ("Não é permitido rever um artigo terminado.") O anúncio foi terminado, por ti, pelo eBay ou ao remover o produto. Desvincula o produto e cria-o outra vez.
 - **Todos os meus artigos no eBay terminaram de repente.** Remover produtos do canal termina os seus anúncios no eBay. Verifica também a tua conta eBay: o eBay termina anúncios quando uma conta está restringida ou acima dos seus limites de venda. Vê o separador <b>Registros</b> para a resposta que o eBay deu.

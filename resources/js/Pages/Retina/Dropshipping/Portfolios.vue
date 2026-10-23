@@ -153,6 +153,21 @@ const props = defineProps<{
 
 const step = ref(props.step)
 const isPlatformManual = computed(() => props.platform_data.type === "manual")
+const bulkDeleteListingOutcome = computed(() => {
+	switch (props.platform_data.type) {
+		case "woocommerce":
+		case "magento":
+		case "wix":
+		case "amazon":
+			return ctrans("The products are also deleted from your store.")
+		case "ebay":
+			return ctrans("Their eBay listings are ended.")
+		case "shopify":
+			return ctrans("The products stay in your Shopify store, but we stop stocking them there. Delete them in Shopify if you no longer want them.")
+		default:
+			return ctrans("The listings stay in your store, so delete them there if you no longer want them.")
+	}
+})
 const isOpenModalPortfolios = ref(false)
 const isOpenModalCreateBundle = ref(false)
 const isOpenModalCloneProgress = ref(false)
@@ -1825,7 +1840,7 @@ const layout = inject("layout", layoutStructure)
 			<p class="mt-3 text-sm text-gray-600">
 				{{
 					pendingBulkAction?.label === "bulk-unlink"
-						? ctrans("Please take a moment before you continue: this cannot be undone. The products will be unlinked from your store and removed from My Products, together with the names, prices and descriptions you set for them. We cannot bring them back for you, so if you change your mind you will need to add them again yourself. The listings stay in your store.")
+						? ctrans("Please take a moment before you continue: this cannot be undone. The products will be unlinked from your store and removed from My Products, together with the names, prices and descriptions you set for them. We cannot bring them back for you, so if you change your mind you will need to add them again yourself.") + " " + bulkDeleteListingOutcome
 						: ctrans("They stay in My Products, but they will no longer be linked to the listings in your store. We cannot undo this for you, so please make sure these are the products you mean. The listings stay in your store with their current price and stock, and we will no longer update them. To take them off your store, delete them there.")
 				}}
 			</p>

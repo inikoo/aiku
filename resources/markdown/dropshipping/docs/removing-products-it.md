@@ -1,8 +1,8 @@
 ---
 title: Rimuovere prodotti da un canale
 summary: Togli un prodotto da My Products, oppure interrompi solo il suo collegamento con il tuo negozio, e sappi cosa succede all'inserzione nel tuo negozio in ogni caso.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: prodotti, my products, rimuovi, elimina, scollega, fuori produzione
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Funziona sui canali di piattaforma, non su un canale manuale.
 1. Spunta i prodotti nell'elenco. Per spuntare tutti i prodotti della pagina, spunta la casella in cima alla colonna delle caselle. Per lavorare più in fretta, mostra più righe per pagina con il selettore sotto l'elenco, fino a 150.
 2. Premi uno dei pulsanti che compaiono sopra l'elenco:
    - <b>Unlink (...)</b>: interrompe il collegamento con il tuo negozio. I prodotti restano in <b>My Products</b> e le inserzioni restano nel tuo negozio.
-   - <b>Unlink & Delete (...)</b>: interrompe il collegamento e rimuove i prodotti da <b>My Products</b>. Le inserzioni restano nel tuo negozio, quindi eliminale lì se non le vuoi più.
+   - <b>Unlink & Delete (...)</b>: rimuove i prodotti da <b>My Products</b> e modifica le inserzioni nel tuo negozio: su WooCommerce, Wix, Magento e Amazon i prodotti vengono eliminati dal tuo negozio, su eBay le inserzioni vengono chiuse, su Shopify i prodotti restano ma smettiamo di fornire loro stock, e su TikTok Shop e Allegro le inserzioni restano. I pacchetti rimossi in questo modo vengono eliminati anche da <b>My Bundles</b>.
 
 Entrambi i pulsanti aprono una finestra che mostra quanti prodotti hai spuntato e ti chiede di confermare. Leggila prima di premere <b>Yes</b>: nessuna delle due azioni può essere annullata. Dopo <b>Unlink & Delete</b>, i prodotti, con i nomi, i prezzi e le descrizioni che hai impostato per loro, spariscono da <b>My Products</b>, e dovrai aggiungerli di nuovo tu stesso se cambi idea.
 
@@ -74,7 +74,7 @@ Un simbolo del dollaro barrato significa <b>This product line is currently not f
 
 ## Quando qualcosa non va
 
-- **Ho rimosso il prodotto ma è ancora nel mio negozio.** Su Shopify, TikTok Shop e Allegro, e dopo <b>Unlink</b> o <b>Unlink & Delete</b> su qualsiasi piattaforma, l'inserzione resta nel tuo negozio. Eliminala nel tuo negozio.
+- **Ho rimosso il prodotto ma è ancora nel mio negozio.** Su Shopify, TikTok Shop e Allegro, e dopo <b>Unlink</b> su qualsiasi piattaforma, l'inserzione resta nel tuo negozio. Eliminala nel tuo negozio.
 - **Ho rimosso il prodotto per errore.** Aggiungilo di nuovo con <b>Add products</b>, poi usa <b>Match with this product</b> (o <b>Match it with an existing product in your shop</b>) per collegarlo all'inserzione ancora presente nel tuo negozio. Su WooCommerce e Wix l'inserzione è stata eliminata, quindi usa <b>Create new product</b>. Vedi [Usare My Products](/docs/my-products).
 - **"Not allowed to revise an ended item" su eBay.** L'inserzione è stata terminata, da te, da eBay o rimuovendo il prodotto. Scollega il prodotto e ricrealo.
 - **Tutti i miei articoli eBay sono terminati all'improvviso.** Rimuovere i prodotti dal canale termina le loro inserzioni eBay. Controlla anche il tuo account eBay: eBay termina le inserzioni quando un account è limitato o ha superato i limiti di vendita. Guarda la scheda <b>Logs</b> per la risposta data da eBay.

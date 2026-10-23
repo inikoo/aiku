@@ -1,8 +1,8 @@
 ---
 title: Quitar productos de un canal
 summary: Saca un producto de My Products, o rompe solo su vínculo con tu tienda, y conoce qué pasa con el anuncio en tu tienda en cada caso.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: productos, my products, quitar, eliminar, desvincular, interrumpido
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Esto funciona en canales de plataforma, no en un canal manual.
 1. Marca los productos en la lista. Para marcar todos los productos de la página, marca la casilla de la parte superior de la columna de casillas. Para ir más rápido, muestra más filas por página con el selector que hay debajo de la lista, hasta 150.
 2. Pulsa uno de los botones que aparecen encima de la lista:
    - <b>Unlink (...)</b>: rompe el vínculo con tu tienda. Los productos se quedan en <b>Mis productos</b> y los anuncios se quedan en tu tienda.
-   - <b>Unlink & Delete (...)</b>: rompe el vínculo y quita los productos de <b>Mis productos</b>. Los anuncios se quedan en tu tienda, así que elimínalos ahí si ya no los quieres.
+   - <b>Unlink & Delete (...)</b>: quita los productos de <b>Mis productos</b> y cambia los anuncios de tu tienda: en WooCommerce, Wix, Magento y Amazon los productos se eliminan de tu tienda, en eBay los anuncios se finalizan, en Shopify los productos se quedan pero dejamos de darles stock, y en TikTok Shop y Allegro los anuncios se quedan. Los packs que quites así también se eliminan de <b>My Bundles</b>.
 
 Los dos botones abren una ventana que muestra cuántos productos has marcado y te pide confirmar. Léela antes de pulsar <b>Yes</b>: ninguna de las dos acciones se puede deshacer. Después de <b>Unlink & Delete</b>, los productos, con los nombres, precios y descripciones que les pusiste, desaparecen de <b>Mis productos</b>, y tendrás que volver a añadirlos tú mismo si cambias de opinión.
 
@@ -74,7 +74,7 @@ Un símbolo de dólar tachado significa <b>Esta línea de productos no está act
 
 ## Cuando algo falla
 
-- **Quité el producto pero sigue en mi tienda.** En Shopify, TikTok Shop y Allegro, y después de <b>Desconectar</b> o <b>Unlink & Delete</b> en cualquier plataforma, el anuncio se queda en tu tienda. Elimínalo en tu tienda.
+- **Quité el producto pero sigue en mi tienda.** En Shopify, TikTok Shop y Allegro, y después de <b>Desconectar</b> en cualquier plataforma, el anuncio se queda en tu tienda. Elimínalo en tu tienda.
 - **Quité el producto por error.** Añádelo de nuevo con <b>Añadir productos</b>, y luego usa <b>Combina con este producto</b> (o <b>Combínalo con un producto existente en tu tienda.</b>) para vincularlo al anuncio que sigue en tu tienda. En WooCommerce y Wix el anuncio se eliminó, así que usa <b>Crear nuevo producto</b>. Consulta [Usar My Products](/docs/my-products).
 - **"Not allowed to revise an ended item" en eBay.** El anuncio se terminó, por ti, por eBay o al quitar el producto. Desvincula el producto y créalo de nuevo.
 - **Todos mis artículos de eBay terminaron de repente.** Quitar productos del canal termina sus anuncios de eBay. Revisa también tu cuenta de eBay: eBay termina anuncios cuando una cuenta está restringida o supera sus límites de venta. Mira la pestaña <b>Logs</b> para ver la respuesta de eBay.

@@ -1,8 +1,8 @@
 ---
 title: Produkte aus einem Kanal entfernen
 summary: Nehmen Sie ein Produkt aus Meine Produkte, oder lösen Sie nur seine Verknüpfung mit Ihrem Shop, und erfahren Sie, was in jedem Fall mit dem Eintrag in Ihrem Shop passiert.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: Produkte, meine produkte, entfernen, löschen, Verknüpfung aufheben, eingestellt
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Dies funktioniert bei Plattform-Kanälen, nicht bei einem manuellen Kanal.
 1. Kreuzen Sie die Produkte in der Liste an. Um alle Produkte der Seite anzukreuzen, kreuzen Sie das Kästchen oben in der Spalte mit den Kästchen an. Um schneller zu arbeiten, zeigen Sie mit der Auswahl unter der Liste mehr Zeilen pro Seite an, bis zu 150.
 2. Drücken Sie eine der Schaltflächen, die über der Liste erscheinen:
    - <b>Unlink (...)</b>: löst die Verknüpfung mit Ihrem Shop. Die Produkte bleiben in <b>Meine Produkte</b>, und die Einträge bleiben in Ihrem Shop.
-   - <b>Unlink & Delete (...)</b>: löst die Verknüpfung und entfernt die Produkte aus <b>Meine Produkte</b>. Die Einträge bleiben in Ihrem Shop, löschen Sie sie also dort, wenn Sie sie nicht mehr wollen.
+   - <b>Unlink & Delete (...)</b>: entfernt die Produkte aus <b>Meine Produkte</b> und ändert die Einträge in Ihrem Shop: Bei WooCommerce, Wix, Magento und Amazon werden die Produkte aus Ihrem Shop gelöscht, bei eBay werden die Angebote beendet, bei Shopify bleiben die Produkte, aber wir führen keinen Bestand mehr für sie, und bei TikTok Shop und Allegro bleiben die Einträge. Bundles, die Sie so entfernen, werden auch aus <b>My Bundles</b> gelöscht.
 
 Beide Schaltflächen öffnen ein Fenster, das zeigt, wie viele Produkte Sie angekreuzt haben, und Sie um Bestätigung bittet. Lesen Sie es, bevor Sie <b>Yes</b> drücken: Keine der beiden Aktionen lässt sich rückgängig machen. Nach <b>Unlink & Delete</b> sind die Produkte mit den Namen, Preisen und Beschreibungen, die Sie dafür festgelegt haben, aus <b>Meine Produkte</b> verschwunden, und Sie müssen sie selbst erneut hinzufügen, wenn Sie es sich anders überlegen.
 
@@ -74,7 +74,7 @@ Ein durchgestrichenes Dollarzeichen bedeutet <b>This product line is currently n
 
 ## Wenn etwas schiefgeht
 
-- **Ich habe das Produkt entfernt, aber es ist noch in meinem Shop.** Bei Shopify, TikTok Shop und Allegro, und nach <b>Unlink</b> oder <b>Unlink & Delete</b> bei jeder Plattform, bleibt der Eintrag in Ihrem Shop. Löschen Sie ihn in Ihrem Shop.
+- **Ich habe das Produkt entfernt, aber es ist noch in meinem Shop.** Bei Shopify, TikTok Shop und Allegro, und nach <b>Unlink</b> bei jeder Plattform, bleibt der Eintrag in Ihrem Shop. Löschen Sie ihn in Ihrem Shop.
 - **Ich habe das Produkt versehentlich entfernt.** Fügen Sie es mit <b>Add products</b> erneut hinzu, und nutzen Sie dann <b>Match with this product</b> (oder <b>Match it with an existing product in your shop</b>), um es mit dem Eintrag zu verknüpfen, der noch in Ihrem Shop ist. Bei WooCommerce und Wix wurde der Eintrag gelöscht, nutzen Sie also <b>Create new product</b>. Siehe [Meine Produkte verwenden](/docs/my-products).
 - **„Not allowed to revise an ended item" bei eBay.** Der Eintrag wurde beendet, von Ihnen, von eBay oder durch das Entfernen des Produkts. Lösen Sie die Verknüpfung des Produkts und legen Sie es erneut an.
 - **Alle meine eBay-Artikel wurden plötzlich beendet.** Das Entfernen von Produkten aus dem Kanal beendet ihre eBay-Einträge. Prüfen Sie auch Ihr eBay-Konto: eBay beendet Einträge, wenn ein Konto eingeschränkt ist oder sein Verkaufslimit überschreitet. Sehen Sie sich im Tab <b>Logs</b> die Antwort von eBay an.

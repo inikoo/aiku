@@ -1,8 +1,8 @@
 ---
 title: Retirer des produits d'un canal
 summary: Retirez un produit de Mes produits, ou rompez seulement son lien avec votre boutique, et sachez ce qui arrive à la fiche de votre boutique dans chaque cas.
-date: 2026-09-25
-source_date: 2026-10-05
+date: 2026-10-23
+source_date: 2026-10-23
 tags: produits, mes produits, retirer, supprimer, délier, arrêté
 category: products
 shops: awd, dssk, dse
@@ -56,7 +56,7 @@ Cela fonctionne sur les canaux de plateforme, pas sur un canal manuel.
 1. Cochez les produits dans la liste. Pour cocher tous les produits de la page, cochez la case en haut de la colonne des cases. Pour aller plus vite, affichez plus de lignes par page avec le sélecteur sous la liste, jusqu'à 150.
 2. Appuyez sur l'un des boutons qui apparaissent au-dessus de la liste :
    - <b>Unlink (...)</b> : rompt le lien avec votre boutique. Les produits restent dans <b>Mes produits</b> et les fiches restent dans votre boutique.
-   - <b>Unlink & Delete (...)</b> : rompt le lien et retire les produits de <b>Mes produits</b>. Les fiches restent dans votre boutique, supprimez-les donc là-bas si vous n'en voulez plus.
+   - <b>Unlink & Delete (...)</b> : retire les produits de <b>Mes produits</b> et modifie les fiches de votre boutique : sur WooCommerce, Wix, Magento et Amazon les produits sont supprimés de votre boutique, sur eBay les annonces sont terminées, sur Shopify les produits restent mais nous n'y mettons plus de stock, et sur TikTok Shop et Allegro les fiches restent. Les lots retirés ainsi sont aussi supprimés de <b>My Bundles</b>.
 
 Les deux boutons ouvrent une fenêtre qui indique combien de produits vous avez cochés et vous demande de confirmer. Lisez-la avant d'appuyer sur <b>Yes</b> : aucune des deux actions ne peut être annulée. Après <b>Unlink & Delete</b>, les produits, avec les noms, prix et descriptions que vous leur avez donnés, disparaissent de <b>Mes produits</b>, et vous devrez les ajouter de nouveau vous-même si vous changez d'avis.
 
@@ -74,7 +74,7 @@ Un dollar barré signifie <b>This product line is currently not for sale</b>. No
 
 ## Quand quelque chose ne va pas
 
-- **J'ai retiré le produit mais il est toujours dans ma boutique.** Sur Shopify, TikTok Shop et Allegro, et après <b>Unlink</b> ou <b>Unlink & Delete</b> sur n'importe quelle plateforme, la fiche reste dans votre boutique. Supprimez-la dans votre boutique.
+- **J'ai retiré le produit mais il est toujours dans ma boutique.** Sur Shopify, TikTok Shop et Allegro, et après <b>Unlink</b> sur n'importe quelle plateforme, la fiche reste dans votre boutique. Supprimez-la dans votre boutique.
 - **J'ai retiré le produit par erreur.** Ajoutez-le à nouveau avec <b>Add products</b>, puis utilisez <b>Match with this product</b> (ou <b>Match it with an existing product in your shop</b>) pour le lier à la fiche encore présente dans votre boutique. Sur WooCommerce et Wix, la fiche a été supprimée, utilisez donc <b>Create new product</b>. Voir [Utiliser Mes produits](/docs/my-products).
 - **« Not allowed to revise an ended item » sur eBay.** L'annonce a pris fin, par vous, par eBay ou en retirant le produit. Déliez le produit et recréez-le.
 - **Tous mes articles eBay ont pris fin soudainement.** Retirer des produits du canal met fin à leurs annonces eBay. Vérifiez aussi votre compte eBay : eBay met fin aux annonces quand un compte est restreint ou dépasse ses limites de vente. Consultez l'onglet <b>Logs</b> pour voir la réponse d'eBay.
