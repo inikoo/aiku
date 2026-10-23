@@ -20891,5 +20891,22 @@
     "Decline Reason": "Motivo del rechazo",
     "Manage Appointment Link": "Enlace para gestionar la cita",
     "A reminder is emailed 12 hours before": "Se envía un recordatorio 12 horas antes",
-    "Your appointment is confirmed": "Su cita está confirmada"
+    "Your appointment is confirmed": "Su cita está confirmada",
+    ":name booked :type on :date at :time.": ":name ha reservado :type el :date a las :time.",
+    ":type with :name on :date at :time is cancelled.": "La cita de :name (:type) el :date a las :time está cancelada.",
+    "Appointment cancelled: :name on :date": "Cita cancelada: :name el :date",
+    "Appointment given to you: :name on :date": "Cita asignada a ti: :name el :date",
+    "Appointment moved: :name on :date": "Cita cambiada: :name el :date",
+    "Cancelled by the customer": "Cancelada por el cliente",
+    "Cancelled by the customer: :reason": "Cancelada por el cliente: :reason",
+    "Cancelled by the visitor": "Cancelada por el visitante",
+    "Cancelled by the visitor: :reason": "Cancelada por el visitante: :reason",
+    "It is waiting for you to accept it.": "Está pendiente de que la aceptes.",
+    "New appointment: :name on :date": "Nueva cita: :name el :date",
+    "Open the appointment in Aiku": "Abrir la cita en Aiku",
+    "People coming": "Personas que vienen",
+    "The appointment of :name, :type on :date at :time, is now yours.": "La cita de :name (:type) el :date a las :time ahora es tuya.",
+    "The appointment of :name, :type, moved from :previous to :date at :time.": "La cita de :name (:type) se ha cambiado del :previous al :date a las :time.",
+    "The appointment of :name, :type, moved to :date at :time.": "La cita de :name (:type) se ha cambiado al :date a las :time.",
+    "an appointment": "una cita"
 }

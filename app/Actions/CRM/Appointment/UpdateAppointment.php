@@ -30,14 +30,22 @@ class UpdateAppointment extends OrgAction
         $previousState    = $appointment->state;
         $previousStartsAt = $appointment->starts_at->copy();
         $previousUserId   = $appointment->user_id;
+        $previousTypeId   = $appointment->appointment_type_id;
         $previousStaff    = SendAppointmentEmailToStaff::staffToEmail($appointment);
 
-        $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt, $previousUserId, $previousStaff) {
+        $appointment = DB::transaction(function () use ($appointment, $modelData, $previousState, $previousStartsAt, $previousUserId, $previousTypeId, $previousStaff) {
             $modelData = $this->prepareAppointmentData($appointment->shop, $modelData, $appointment);
 
             $this->ensureAppointmentFits($modelData, $appointment);
 
             $appointment = $this->update($appointment, $modelData);
+
+            if ((int) $appointment->user_id !== (int) $previousUserId) {
+                $appointment->unsetRelation('user');
+            }
+            if ((int) $appointment->appointment_type_id !== (int) $previousTypeId) {
+                $appointment->unsetRelation('appointmentType');
+            }
 
             if (!$appointment->starts_at->equalTo($previousStartsAt)) {
                 $appointment->forceFill([

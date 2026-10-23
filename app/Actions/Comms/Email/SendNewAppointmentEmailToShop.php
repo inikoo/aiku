@@ -138,7 +138,7 @@ class SendNewAppointmentEmailToShop extends OrgAction
         }
 
         $html .= $appointmentEmail->detailsTable($appointment, [
-            __('Name')          => $appointment->contact_name,
+            __('Customer')      => $appointment->contact_name,
             __('Email')         => $appointment->email,
             __('Phone')         => $appointment->phone,
             __('People coming') => $appointment->number_visitors > 1 ? (string) $appointment->number_visitors : null,

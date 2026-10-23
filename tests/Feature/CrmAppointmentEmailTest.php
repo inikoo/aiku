@@ -7,6 +7,7 @@ use App\Actions\Comms\EmailTemplate\StoreEmailTemplate;
 use App\Actions\Comms\Outbox\PublishOutbox;
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\Appointment\SyncAppointmentStaffTask;
 use App\Actions\CRM\Appointment\UpdateAppointment;
 use App\Actions\CRM\AppointmentType\StoreAppointmentType;
 use App\Actions\SysAdmin\Guest\StoreGuest;
@@ -22,6 +23,7 @@ use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
+use App\Models\Tasks\StaffTask;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -172,6 +174,19 @@ test('the staff who get an appointment task are emailed one by one when it is bo
     Queue::fake();
     UpdateAppointment::make()->action($requested->refresh(), ['state' => AppointmentStateEnum::CANCELLED->value, 'state_reason' => 'Cancelled by the visitor']);
     expect($staffEmails($requested->id))->toBe([[$ben->id, 'cancelled']]);
+
+    $openTaskOf = fn (int $appointmentId): ?StaffTask => StaffTask::open()
+        ->where('data->kind', SyncAppointmentStaffTask::TASK_KIND)
+        ->where('data->appointment_id', $appointmentId)
+        ->first();
+
+    $handedOver = $book('09:00', AppointmentSourceEnum::STAFF, ['state' => AppointmentStateEnum::ACCEPTED->value, 'user_id' => $ben->id])->load('user');
+    expect($openTaskOf($handedOver->id)?->assignee_id)->toBe($ben->id);
+
+    Queue::fake();
+    UpdateAppointment::make()->action($handedOver, ['user_id' => $anna->id]);
+    expect($staffEmails($handedOver->id))->toBe([[$anna->id, 'assigned']])
+        ->and($openTaskOf($handedOver->id)?->assignee_id)->toBe($anna->id);
 
     actingAs($anna);
     $annaMoves = $book('11:00', AppointmentSourceEnum::STAFF, ['state' => AppointmentStateEnum::ACCEPTED->value, 'user_id' => $anna->id]);
