@@ -155,12 +155,6 @@ class ShowAgentOrderStage extends OrgAction
 
         $dateColumn = $stage === self::ORDERED ? 'po.submitted_at' : self::STOCK_DELIVERY_DATE_COLUMNS[$stage];
 
-        if (!request()->filled('sort')) {
-            $stage === self::ORDERED
-                ? $query->orderBy('sup.code')
-                : $query->orderByRaw("$dateColumn desc nulls last");
-        }
-
         $rows = QueryBuilder::for($query)
             ->allowedSorts([
                 $sortBy('reference', "$alias.reference collate \"C\""),
@@ -169,6 +163,7 @@ class ShowAgentOrderStage extends OrgAction
                     ? [$sortBy('supplier_code', 'sup.code collate "C"')]
                     : [$sortBy('purchase_orders', 'sd.number_purchase_orders'), $sortBy('eta', "sd.data->>'estimated_receiving_date'")]),
             ])
+            ->defaultSort($stage === self::ORDERED ? $sortBy('supplier_code', 'sup.code collate "C"') : $sortBy('-date', $dateColumn))
             ->allowedFilters([$globalSearch])
             ->orderByDesc("$alias.id")
             ->withPaginator(null, tableName: request()->route()?->getName())
@@ -233,6 +228,7 @@ class ShowAgentOrderStage extends OrgAction
 
             $table
                 ->withGlobalSearch()
+                ->defaultSort($isOrdered ? 'supplier_code' : '-date')
                 ->withLabelRecord($isOrdered ? [__('Purchase order'), __('Purchase orders')] : [__('Stock delivery'), __('Stock deliveries')])
                 ->withEmptyState(['title' => $isOrdered ? __('No purchase orders here') : __('No stock deliveries here')])
                 ->column(key: 'reference', label: $isOrdered ? __('Purchase order') : __('Stock delivery'), canBeHidden: false, sortable: true);
