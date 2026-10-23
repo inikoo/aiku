@@ -11,6 +11,7 @@ namespace App\Actions\Traits;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Inventory\OrgStock;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
@@ -27,7 +28,9 @@ trait WithStoreProcurementOrderItem
         $grpExchange = $procurementOrder->grp_exchange;
 
         if ($historicSupplierProduct) {
-            $supplierProduct = $historicSupplierProduct->supplierProduct;
+            $supplierProduct = Arr::get($modelData, 'org_supplier_product_id')
+                ? OrgSupplierProduct::find($modelData['org_supplier_product_id'])?->supplierProduct ?? $historicSupplierProduct->supplierProduct
+                : $historicSupplierProduct->supplierProduct;
             data_set($modelData, 'supplier_product_id', $supplierProduct->id);
             data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
             data_set($modelData, 'org_supplier_product_id', overwrite: false, value: $supplierProduct->orgSupplierProducts()->where('organisation_id', $procurementOrder->organisation_id)->value('id'));

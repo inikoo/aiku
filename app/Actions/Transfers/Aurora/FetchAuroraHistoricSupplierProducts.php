@@ -11,6 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\SupplyChain\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\SupplyChain\HistoricSupplierProduct\UpdateHistoricSupplierProduct;
 use App\Models\SupplyChain\HistoricSupplierProduct;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -28,35 +29,26 @@ class FetchAuroraHistoricSupplierProducts
             return null;
         }
 
-        $historicSupplierProduct = HistoricSupplierProduct::where('source_id', $historicProductData['historic_supplier_product']['source_id'])->first();
+        $supplierProduct = $historicProductData['supplier_product'];
+        $sourceId        = $historicProductData['historic_supplier_product']['source_id'];
 
-        if ($historicSupplierProduct) {
+        $historicSupplierProduct = $this->findOwnHistoric($supplierProduct, $sourceId, $historicProductData['historic_supplier_product']);
+
+        if ($historicSupplierProduct?->source_id === $sourceId) {
             $historicSupplierProduct = UpdateHistoricSupplierProduct::make()->action(
                 historicSupplierProduct: $historicSupplierProduct,
                 modelData: $historicProductData['historic_supplier_product'],
                 hydratorsDelay: 5,
                 strict: false
             );
-        } else {
-            $historicSupplierProduct = HistoricSupplierProduct::whereJsonContains('sources->historic_supplier_parts', $historicProductData['historic_supplier_product']['source_id'])->first();
         }
 
-
         if (!$historicSupplierProduct) {
-            $historicSupplierProduct = HistoricSupplierProduct::where('units_per_pack', $historicProductData['historic_supplier_product']['units_per_pack'])
-                ->where('supplier_product_id', $historicProductData['supplier_product']->id)
-                ->where('cbm', Arr::get($historicProductData, 'historic_supplier_product.cbm'))
-                ->where('code', $historicProductData['historic_supplier_product']['code'])
-                ->where('units_per_pack', $historicProductData['historic_supplier_product']['units_per_pack'])
-                ->where('units_per_carton', $historicProductData['historic_supplier_product']['units_per_carton'])
-                ->first();
-        }
+            $sourceIdTaken = HistoricSupplierProduct::where('source_id', $sourceId)->exists();
 
-
-        if (!$historicSupplierProduct) {
             $historicSupplierProduct = StoreHistoricSupplierProduct::make()->action(
-                supplierProduct: $historicProductData['supplier_product'],
-                modelData: $historicProductData['historic_supplier_product'],
+                supplierProduct: $supplierProduct,
+                modelData: $sourceIdTaken ? Arr::except($historicProductData['historic_supplier_product'], 'source_id') : $historicProductData['historic_supplier_product'],
                 hydratorsDelay: 5,
                 strict: false
             );
@@ -78,9 +70,28 @@ class FetchAuroraHistoricSupplierProducts
         return $historicSupplierProduct;
     }
 
+    /**
+     * An Aurora supplier part historic follows its part when the part moves to another supplier, so the
+     * same source can already belong to the supplier product the part used to be: only a historic of this
+     * supplier product is reused, otherwise purchase order lines would be priced on the old product.
+     */
+    public function findOwnHistoric(SupplierProduct $supplierProduct, string $sourceId, array $historicData): ?HistoricSupplierProduct
+    {
+        $ownHistorics = HistoricSupplierProduct::where('supplier_product_id', $supplierProduct->id);
+
+        return (clone $ownHistorics)->where('source_id', $sourceId)->first()
+            ?? (clone $ownHistorics)->whereJsonContains('sources->historic_supplier_parts', $sourceId)->first()
+            ?? (clone $ownHistorics)
+                ->where('code', $historicData['code'])
+                ->where('cbm', Arr::get($historicData, 'cbm'))
+                ->where('units_per_pack', $historicData['units_per_pack'])
+                ->where('units_per_carton', $historicData['units_per_carton'])
+                ->first();
+    }
+
     public function updateHistoricSupplierProductSources(HistoricSupplierProduct $historicSupplierProduct, string $source): void
     {
-        $sources   = Arr::get($historicSupplierProduct->sources, 'supplier_parts', []);
+        $sources   = Arr::get($historicSupplierProduct->sources, 'historic_supplier_parts', []);
         $sources[] = $source;
         $sources   = array_unique($sources);
 

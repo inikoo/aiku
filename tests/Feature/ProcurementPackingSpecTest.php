@@ -12,6 +12,7 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Reports\GetEprImportCartons;
 use App\Actions\Reports\GetEprInboundPacking;
+use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\PackingSpec\GetPurchaseOrderPackingSpecGaps;
@@ -245,4 +246,40 @@ test('from the cut-off date an agent order cannot be submitted while a product h
     $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder->refresh());
 
     expect($purchaseOrder->state->value)->toBe('submitted');
+});
+
+test('an aurora historic that belongs to another supplier product is not reused for the product it moved to', function () {
+    [, $oldOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    [, $newOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+
+    $sourceId    = '9:'.random_int(1000000, 9999999);
+    $oldHistoric = $oldOrgSupplierProduct->supplierProduct->historicSupplierProduct;
+    $oldHistoric->updateQuietly(['sources' => ['historic_supplier_parts' => [$sourceId]]]);
+
+    $historicData = [
+        'code'             => $oldHistoric->code,
+        'cbm'              => $oldHistoric->cbm,
+        'units_per_pack'   => $oldHistoric->units_per_pack,
+        'units_per_carton' => $oldHistoric->units_per_carton,
+    ];
+
+    expect(FetchAuroraHistoricSupplierProducts::make()->findOwnHistoric($newOrgSupplierProduct->supplierProduct, $sourceId, $historicData))->toBeNull()
+        ->and(FetchAuroraHistoricSupplierProducts::make()->findOwnHistoric($oldOrgSupplierProduct->supplierProduct, $sourceId, $historicData)?->id)->toBe($oldHistoric->id);
+});
+
+test('a purchase order line records the supplier product of its org supplier product even when the price history belongs to another', function () {
+    [, $oldOrgSupplierProduct]          = createAgentOrgSupplierWithProduct($this);
+    [$orgSupplier, $newOrgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+
+    $transaction = StorePurchaseOrderTransaction::make()->handle(
+        $purchaseOrder,
+        $oldOrgSupplierProduct->supplierProduct->historicSupplierProduct,
+        $this->orgStocks[0],
+        ['quantity_ordered' => 10, 'org_supplier_product_id' => $newOrgSupplierProduct->id]
+    );
+
+    expect($transaction->supplier_product_id)->toBe($newOrgSupplierProduct->supplier_product_id)
+        ->and($transaction->org_supplier_product_id)->toBe($newOrgSupplierProduct->id);
 });
