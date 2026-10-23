@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, ref, onMounted, onBeforeUnmount } from "vue"
+import { computed, inject, ref } from "vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faImage } from "@fal"
@@ -8,7 +8,6 @@ import LinkIris from "@/Iris/Components/LinkIris.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { getStyles } from "@/Composables/styles"
 import { ctrans } from "@/Composables/useTrans"
-import { useDepartmentStructuredData } from "@/Iris/Composables/useDepartmentStructuredData"
 
 library.add(faImage)
 
@@ -65,7 +64,6 @@ const props = defineProps<{
 }>()
 
 const layout = inject<{ rightbasket?: { show?: boolean } }>("layout", {})
-const injectedWebpageData = inject<any>("webpage_data", null)
 
 const fallbackPerRow: Record<ScreenType, number> = {
   desktop: 2,
@@ -120,21 +118,7 @@ const hasDescription = (item: SubDepartmentItem) =>
 
 const idxLoading = ref<number | null>(null)
 
-const { mountDepartmentStructuredData, removeStructuredDataScript } = useDepartmentStructuredData()
-const departmentStructuredDataScript = ref<HTMLScriptElement | null>(null)
 
-onMounted(() => {
-  departmentStructuredDataScript.value = mountDepartmentStructuredData({
-    subDepartments: props.fieldValue.sub_departments,
-    collections: props.fieldValue.collections,
-    webpageData: (props.webpageData ?? injectedWebpageData) as any,
-    listId: props.fieldValue.id ?? props.indexBlock,
-  })
-})
-
-onBeforeUnmount(() => {
-  removeStructuredDataScript(departmentStructuredDataScript.value)
-})
 </script>
 
 <template>

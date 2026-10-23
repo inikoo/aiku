@@ -5,7 +5,7 @@ import { faCube, faLink } from "@fal"
 import { faFilePdf, faFileDownload } from "@fas"
 import { faGameConsoleHandheld } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, inject, onMounted, onBeforeUnmount, computed, watch } from "vue"
+import { ref, inject, onMounted, computed, watch } from "vue"
 import axios from "axios"
 
 import { Image as ImageTS } from "@/types/Image"
@@ -15,7 +15,6 @@ const productPageComponents: Record<string, any> = {
     "product-1": ProductDsIris1,
 }
 import { resolveProductImages, resolveProductVideo } from "@/Composables/useProductPage"
-import { useProductStructuredData } from "@/Iris/Composables/useProductStructuredData"
 import { set } from "lodash-es"
 import { pushGtmEvent } from "@/Composables/useGtm"
 
@@ -70,7 +69,6 @@ const props = defineProps<{
 }>()
 
 const layout: any = inject("layout", {})
-const injectedWebpageData = inject<any>("webpage_data", null)
 
 const customerData = ref<Record<number, any>>({})
 const product = ref<any>(props.fieldValue?.product ?? null)
@@ -83,7 +81,6 @@ const productsList = ref<ProductResource[]>([])
 
 const productExistenceInChannels = ref<Record<number, number[]>>({})
 const isLoadingProductChannel = ref<Record<number, boolean>>({})
-
 
 
 const fetchProductExistInChannel = async (productId: number) => {
@@ -159,7 +156,6 @@ const getAllProductFromVariant = async () => {
     console.error("getAllProductFromVariant error", e)
   }
 }
-
 
 
 const variantProducts = computed<VariantProduct[]>(() =>
@@ -246,8 +242,6 @@ const onUnselectBackInStock = async (product: ProductResource) => {
 }
 
 
-
-
 watch(
   () => layout?.iris?.is_logged_in,
   loggedIn => {
@@ -298,14 +292,6 @@ watch(
 )
 
 
-
-
-// Section: Product structured data (SEO)
-// Mounted independently here instead of inside the page structured data (useStructuredData),
-// so the product schema lives in its own <script> and is easier to maintain.
-const { mountProductStructuredData, removeStructuredDataScript } = useProductStructuredData()
-const productStructuredDataScript = ref<HTMLScriptElement | null>(null)
-
 const pushViewItem = () => {
   const prod = props.fieldValue?.product
 
@@ -335,21 +321,10 @@ const pushViewItem = () => {
 onMounted(() => {
   pushViewItem()
 
-  productStructuredDataScript.value = mountProductStructuredData({
-    product: props.fieldValue?.product,
-    variant: props.fieldValue?.variant,
-    webpageData: props.webpageData ?? injectedWebpageData,
-    currencyCode: layout?.iris?.currency?.code,
-    websiteName: layout?.iris?.website?.name,
-  })
 
   whenIrisLoggedIn(layout, fetchData)
 
   getAllProductFromVariant()
-})
-
-onBeforeUnmount(() => {
-  removeStructuredDataScript(productStructuredDataScript.value)
 })
 
 

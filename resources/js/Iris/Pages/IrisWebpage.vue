@@ -11,7 +11,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { Head, usePage } from "@inertiajs/vue3"
 import LayoutIris from "@/Layouts/Iris.vue"
 import IrisBlockRenderer from "@/Iris/Components/IrisBlockRenderer.vue"
-import { useStructuredData, getEntityImageUrls } from "@/Iris/Composables/useStructuredData"
+import { getEntityImageUrls, toJsonLd } from "@/Iris/Composables/useStructuredData"
+import { buildWebpageStructuredData } from "@/Iris/Composables/useWebpageStructuredData"
 import { resolveProductImages } from "@/Composables/useProductPage"
 import { useRevealBlocks } from "@/Iris/Composables/useRevealBlocks"
 const ReviewsIris = defineAsyncComponent(() => import("@/Iris/Components/IrisBlocks/ReviewsIris.vue"))
@@ -67,8 +68,6 @@ const canonicalUrl = computed(() => {
     const paginationQuery = sharedCanonicalUrl?.split("?")[1]
     return paginationQuery ? `${props.webpage_data.canonical_url}?${paginationQuery}` : props.webpage_data.canonical_url
 })
-const structuredDataScript = ref<HTMLScriptElement | null>(null)
-const { mountStructuredData, removeStructuredDataScript } = useStructuredData()
 const { isBlockVisible } = useRevealBlocks(() => props.web_blocks)
 
 provide('webpage_data', props.webpage_data)
@@ -108,6 +107,20 @@ const shareImage = computed(
     () => props.webpage_img?.png || props.webpage_img?.original || props.webpage_img?.url || firstProductImage.value
 )
 
+const structuredDataJsonLd = computed(() => {
+    try {
+        return buildWebpageStructuredData({
+            webpage_data: props.webpage_data,
+            web_blocks: props.web_blocks,
+            currency_code: layout.iris?.currency?.code,
+            website_name: layout.iris?.website?.name,
+        }).map(toJsonLd)
+    } catch (error) {
+        console.error("Failed to build structured data:", error)
+        return []
+    }
+})
+
 const robotsContent = computed(() => {
     const index = props.index_page ? "index" : "noindex"
     const follow = props.follow_link ? "follow" : "nofollow"
@@ -117,17 +130,6 @@ const robotsContent = computed(() => {
 onMounted(() => {
     currentUrl.value = window.location.href
 
-    // Structure data (Family)
-    // Breadcrumbs structured data is mounted independently in BreadcrumbsIris.vue
-    // Product structured data is mounted independently in the product components (product-1 / product-2)
-    // Department structured data is mounted independently in SubDepartmentsIris.vue
-    structuredDataScript.value = mountStructuredData({
-        webpageData: props.webpage_data,
-        webBlocks: props.web_blocks,
-        currencyCode: layout.iris?.currency?.code,
-        websiteName: layout.iris?.website?.name,
-    })
-
     checkScreenType()
     window.addEventListener('resize', checkScreenType)
     window.listWebBlocks = props.web_blocks
@@ -136,7 +138,6 @@ onMounted(() => {
 
 
 onBeforeUnmount(() => {
-    removeStructuredDataScript(structuredDataScript.value)
     window.removeEventListener("resize", checkScreenType)
 })
 </script>
@@ -164,6 +165,7 @@ onBeforeUnmount(() => {
     </Head>
 
     <div class="bg-white">
+        <component v-for="(jsonLd, index) in structuredDataJsonLd" :key="index" :is="'script'" type="application/ld+json" :innerHTML="jsonLd" />
         <div class="mx-auto w-full">
             <div
                 v-for="(web_block_data, index) in props.web_blocks"

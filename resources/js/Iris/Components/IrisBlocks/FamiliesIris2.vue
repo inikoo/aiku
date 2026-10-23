@@ -18,7 +18,6 @@ import Family2Render from '@/Iris/Components/Families2Render.vue'
 import { getStyles } from '@/Composables/styles'
 import { sendMessageToParent } from '@/Composables/Workshop'
 import LinkIris from "@/Iris/Components/LinkIris.vue"
-import { useSubDepartmentStructuredData } from "@/Iris/Composables/useSubDepartmentStructuredData"
 
 
 library.add(faCube, faLink, faStar, faCircle, faChevronCircleLeft, faChevronCircleRight)
@@ -45,7 +44,6 @@ const props = defineProps<{
   indexBlock?: number
 }>()
 const layout: any = inject('layout', {})
-const injectedWebpageData = inject<any>('webpage_data', null)
 
 const prevEl = ref<HTMLElement | null>(null)
 const nextEl = ref<HTMLElement | null>(null)
@@ -158,11 +156,6 @@ let resizeHandler = () => {
     }, 120)
 }
 
-// Section: Sub Department structured data (SEO)
-// Mounted independently here in its own <script> ld+json, listing the families and
-// collections (if any) shown on the sub-department page as an ItemList.
-const { mountSubDepartmentStructuredData, removeStructuredDataScript } = useSubDepartmentStructuredData()
-const subDepartmentStructuredDataScript = ref<HTMLScriptElement | null>(null)
 
 onMounted(async () => {
   await nextTick()
@@ -182,17 +175,10 @@ onMounted(async () => {
   // watch resize
   window.addEventListener('resize', resizeHandler)
 
-  subDepartmentStructuredDataScript.value = mountSubDepartmentStructuredData({
-    families: props.fieldValue?.families,
-    collections: props.fieldValue?.collections,
-    webpageData: (props.webpageData ?? injectedWebpageData) as any,
-    listId: props.fieldValue?.id ?? props.indexBlock,
-  })
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeHandler)
-  removeStructuredDataScript(subDepartmentStructuredDataScript.value)
 })
 
 // recompute when items change or chip/container styles change or refreshTrigger toggles
@@ -277,7 +263,6 @@ watch([allItems, () => props.fieldValue?.chip, () => props.fieldValue?.container
           </button>
 
         </div>
-
 
 
       </div>

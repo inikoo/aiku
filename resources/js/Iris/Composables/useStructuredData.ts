@@ -32,7 +32,7 @@ const PRODUCT_BLOCK_TYPES = ["products-1", "products-2"]  // Family page
 
 const MODEL_TYPES_WITH_INDEPENDENT_STRUCTURED_DATA = ["Product", "ProductCategory"]
 
-const normalizeWebBlocks = (webBlocks: GenerateProductsStructureOptions["webBlocks"]): any[] => {
+export const normalizeWebBlocks = (webBlocks: GenerateProductsStructureOptions["webBlocks"]): any[] => {
     if (Array.isArray(webBlocks)) return webBlocks
     if (!webBlocks || typeof webBlocks !== "object") return []
 
@@ -66,37 +66,7 @@ export const parseStructuredData = (raw: unknown): StructuredDataValue | null =>
     }
 }
 
-export const CATEGORY_ITEM_LIST_SCRIPT_KEY = "category-item-list"
-
-export const injectStructuredDataScript = (
-    data: StructuredDataValue,
-    uniqueKey?: string
-): HTMLScriptElement | null => {
-    try {
-        if (uniqueKey && document.head.querySelector(`script[data-structured-data-key="${uniqueKey}"]`)) {
-            return null
-        }
-
-        const script = document.createElement("script")
-        script.type = "application/ld+json"
-        if (uniqueKey) {
-            script.dataset.structuredDataKey = uniqueKey
-        }
-        script.textContent = JSON.stringify(data)
-        document.head.appendChild(script)
-        return script
-    } catch (error) {
-        console.error("Failed to inject structured data:", error)
-        return null
-    }
-}
-
-// Method: remove script from DOM (used when move to another page to avoid duplicated structured data)
-export const removeStructuredDataScript = (
-    script: HTMLScriptElement | null | undefined
-): void => {
-    script?.parentNode?.removeChild(script)
-}
+export const toJsonLd = (data: StructuredDataValue): string => JSON.stringify(data).replace(/</g, "\\u003c")
 
 export const generateProductsStructureFromProductsList = ({
     webBlocks,
@@ -218,10 +188,14 @@ export const getEntityImageUrls = (entity: Record<string, any> | null | undefine
     return [...new Set(candidates.filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0))]
 }
 
-export const normalizeUrl = (value: unknown): string | undefined => {
+export const normalizeUrl = (value: unknown, baseUrl?: string | null): string | undefined => {
     if (typeof value !== "string" || value.length === 0) return undefined
 
     try {
+        if (baseUrl) {
+            return new URL(value, baseUrl).toString()
+        }
+
         if (typeof window !== "undefined" && window.location?.origin) {
             return new URL(value, window.location.origin).toString()
         }
@@ -487,31 +461,12 @@ export const buildStructuredData = ({
         return structuredData
     }
 
-    // Note: Product page structured data is mounted independently in the product
-    // components (product-1 / product-2) via useProductStructuredData, and Department
-    // page structured data in SubDepartmentsIris via useDepartmentStructuredData, so
-    // each lives in its own <script> and stays separate from the rest of the page schema.
+    // Note: Product and Department page structured data come from their blocks in
+    // buildWebpageStructuredData, so each lives in its own <script> and stays separate
+    // from the rest of the page schema.
     if (MODEL_TYPES_WITH_INDEPENDENT_STRUCTURED_DATA.includes(webpageData?.model_type ?? "")) {
         return null
     }
 
     return parseStructuredData(webpageData?.seo_data?.structured_data)
-}
-
-export const useStructuredData = () => {
-    const mountStructuredData = (options: BuildStructuredDataOptions): HTMLScriptElement | null => {
-        const structuredData = buildStructuredData(options)
-        if (!structuredData) return null
-
-        return injectStructuredDataScript(structuredData)
-    }
-
-    return {
-        buildStructuredData,
-        generateProductsStructureFromProductsList,
-        injectStructuredDataScript,
-        mountStructuredData,
-        parseStructuredData,
-        removeStructuredDataScript,
-    }
 }

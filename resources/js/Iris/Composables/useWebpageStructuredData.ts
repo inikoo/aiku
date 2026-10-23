@@ -1,4 +1,4 @@
-import { buildStructuredData, type StructuredDataNode, type StructuredDataValue } from "@/Iris/Composables/useStructuredData"
+import { buildStructuredData, normalizeWebBlocks, type StructuredDataNode, type StructuredDataValue } from "@/Iris/Composables/useStructuredData"
 import { buildBreadcrumbListNode } from "@/Iris/Composables/useBreadcrumbStructuredData"
 import { buildDepartmentStructuredData } from "@/Iris/Composables/useDepartmentStructuredData"
 import { buildSubDepartmentStructuredData } from "@/Iris/Composables/useSubDepartmentStructuredData"
@@ -7,9 +7,9 @@ import { buildProductStructuredData } from "@/Iris/Composables/useProductStructu
 
 export type WebpageStructuredDataSource = {
     webpage_data: Record<string, any>
-    web_blocks: any[]
-    breadcrumbs: any[]
-    website_url: string
+    web_blocks: any[] | Record<string, any>
+    breadcrumbs?: any[]
+    website_url?: string
     website_name?: string | null
     currency_code?: string | null
 }
@@ -25,6 +25,17 @@ type BlockStructuredDataContext = {
 const SCHEMA_CONTEXT = "https://schema.org"
 
 const PRODUCT_BLOCK_TYPES = ["product-1", "product-2", "product-3", "product-4"]
+
+const CATEGORY_ITEM_LIST_BLOCK_TYPES = [
+    "sub-departments-1",
+    "sub-departments-2",
+    "sub-departments-3",
+    "sub-departments-4",
+    "families-1",
+    "families-2",
+    "families-3",
+    "families-4",
+]
 
 const getFamiliesList = (families: unknown): any[] => {
     if (Array.isArray(families)) return families
@@ -76,6 +87,8 @@ const buildBlockStructuredData = (type: string, context: BlockStructuredDataCont
                       listId,
                   })
         case "disclosure": {
+            if (fieldValue.seo?.is_faq !== true) return null
+
             const faqPageNode = buildFaqPageNode({ faqs: fieldValue.value, webpageData, listId })
 
             return faqPageNode ? { "@context": SCHEMA_CONTEXT, ...faqPageNode } : null
@@ -113,17 +126,16 @@ const rebaseUrls = (value: unknown, fromOrigin: string, toOrigin: string): unkno
     return value
 }
 
-const getOrigin = (url: string): string | null => {
+const getOrigin = (url: string | undefined): string | null => {
     try {
-        return new URL(url).origin
+        return new URL(url ?? "").origin
     } catch {
         return null
     }
 }
 
-export const buildWebpageStructuredData = (originalSource: WebpageStructuredDataSource): StructuredDataValue[] => {
-    const source: WebpageStructuredDataSource = JSON.parse(JSON.stringify(originalSource))
-    const webpageData = source.webpage_data ?? {}
+export const buildWebpageStructuredData = (source: WebpageStructuredDataSource): StructuredDataValue[] => {
+    const webpageData: Record<string, any> = JSON.parse(JSON.stringify(source.webpage_data ?? {}))
     const structuredDataList: StructuredDataValue[] = []
 
     const breadcrumbNode = buildBreadcrumbListNode(source.breadcrumbs)
@@ -141,7 +153,12 @@ export const buildWebpageStructuredData = (originalSource: WebpageStructuredData
         structuredDataList.push(pageStructuredData)
     }
 
-    for (const [index, block] of (source.web_blocks ?? []).entries()) {
+    let hasCategoryItemList = false
+
+    for (const [index, block] of normalizeWebBlocks(source.web_blocks).entries()) {
+        const isCategoryItemList = CATEGORY_ITEM_LIST_BLOCK_TYPES.includes(block?.type)
+        if (isCategoryItemList && hasCategoryItemList) continue
+
         const fieldValue: Record<string, any> = block?.web_block?.layout?.data?.fieldValue || block?.structure || {}
         const blockStructuredData = buildBlockStructuredData(block?.type, {
             fieldValue,
@@ -153,6 +170,7 @@ export const buildWebpageStructuredData = (originalSource: WebpageStructuredData
 
         if (blockStructuredData) {
             structuredDataList.push(blockStructuredData)
+            hasCategoryItemList ||= isCategoryItemList
         }
     }
 
