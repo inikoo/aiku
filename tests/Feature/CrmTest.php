@@ -2163,6 +2163,7 @@ test('free appointment times follow hours, dates, notice, breaks and bookings', 
             ],
         ]
     );
+    $appointmentType->attendees()->detach();
 
     $timezone = $this->shop->timezone?->name ?? 'UTC';
     $monday   = Carbon::now($timezone)->next(Carbon::MONDAY)->addWeek()->startOfDay();

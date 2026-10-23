@@ -1499,7 +1499,7 @@ test('agent order in warehouse stage follows its goods receipts, checks and pack
     $first = $receive(60)->items()->sole();
     expect($stage()['number'])->toBe(4)
         ->and($stage()['reached'])->toBeTrue()
-        ->and($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => false, 'warehouse_packed_at' => false]);
+        ->and($steps())->toBe(['warehouse_arrived_at' => true, 'produced_at' => false, 'warehouse_checked_at' => false, 'warehouse_packed_at' => false]);
 
     $second = $receive(40)->items()->sole();
     $check  = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
@@ -1507,7 +1507,7 @@ test('agent order in warehouse stage follows its goods receipts, checks and pack
     expect($steps()['warehouse_checked_at'])->toBeFalse();
 
     $check->handle($second, ['quantity_rejected' => 0]);
-    expect($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => true, 'warehouse_packed_at' => false]);
+    expect($steps())->toBe(['warehouse_arrived_at' => true, 'produced_at' => true, 'warehouse_checked_at' => true, 'warehouse_packed_at' => false]);
 
     App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction::make()->action($line);
     expect($steps()['warehouse_packed_at'])->toBeTrue()
