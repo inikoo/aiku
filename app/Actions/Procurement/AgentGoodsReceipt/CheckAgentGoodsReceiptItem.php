@@ -11,16 +11,20 @@ namespace App\Actions\Procurement\AgentGoodsReceipt;
 
 use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Enums\Procurement\AgentGoodsReceipt\AgentGoodsReceiptStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
 use App\Models\Procurement\AgentWarehouseStock;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
@@ -28,7 +32,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 /**
  * The agent checks a line of a goods receipt for rejects. What passed stays as warehouse stock; rejected units are owed
- * by the supplier again and go back to In production, also after the order's quality check.
+ * by the supplier again and go back to In production, also after the order's quality check. Production done follows:
+ * cleared while rejects are owed, set again when a new check leaves the order received in full.
  */
 class CheckAgentGoodsReceiptItem extends OrgAction
 {
@@ -80,8 +85,39 @@ class CheckAgentGoodsReceiptItem extends OrgAction
         });
 
         $this->savePhotos($item, $photos);
+        $this->syncProductionDone($item->refresh());
 
-        return $item->refresh();
+        return $item;
+    }
+
+    private function syncProductionDone(AgentGoodsReceiptItem $item): void
+    {
+        $purchaseOrder = $item->purchase_order_id ? PurchaseOrder::find($item->purchase_order_id) : null;
+        if (!in_array($purchaseOrder?->state, [PurchaseOrderStateEnum::SUBMITTED, PurchaseOrderStateEnum::CONFIRMED], true)) {
+            return;
+        }
+
+        $isReceivedInFull = StoreAgentGoodsReceipt::make()->isReceivedInFull($purchaseOrder);
+        $reference        = $item->agentGoodsReceipt->reference;
+        $code             = $item->supplierProduct?->code;
+
+        if ($purchaseOrder->produced_at && !$isReceivedInFull) {
+            MarkPurchaseOrderStage::make()->action($purchaseOrder, [
+                'field'  => 'produced_at',
+                'date'   => null,
+                'reason' => __('Goods receipt :reference: :code has rejects, the supplier owes them again', ['reference' => $reference, 'code' => $code]),
+            ]);
+        } elseif (!$purchaseOrder->produced_at && $isReceivedInFull) {
+            $lastReceivedAt = AgentGoodsReceipt::where('state', AgentGoodsReceiptStateEnum::RECEIVED)
+                ->whereHas('items', fn ($query) => $query->where('purchase_order_id', $purchaseOrder->id))
+                ->max('received_at');
+
+            MarkPurchaseOrderStage::make()->action($purchaseOrder, [
+                'field'  => 'produced_at',
+                'date'   => Carbon::parse($lastReceivedAt ?? now())->toDateString(),
+                'reason' => __('Goods receipt :reference: :code checked again, all goods of this order are at the agent warehouse', ['reference' => $reference, 'code' => $code]),
+            ]);
+        }
     }
 
     /**

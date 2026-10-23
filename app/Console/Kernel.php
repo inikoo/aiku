@@ -146,6 +146,7 @@ class Kernel extends ConsoleKernel
            replaces its figure, and takes precedence over the same day posted by an account's script,
            so a shop on both paths lands on one row carrying the later, better number. */
         $schedule->command('traffic-source:fetch-google-ads-costs --days=3')->dailyAt('05:15')->timezone('UTC')->onOneServer()->withoutOverlapping();
+        $schedule->command('traffic-source:check-google-ads-click-capture')->dailyAt('07:00')->timezone('UTC')->onOneServer()->withoutOverlapping();
         /* Click rows carry IPs, kept only as long as fraud prevention justifies - the attribution
            window, 90 days. */
         $schedule->call(fn () => \Illuminate\Support\Facades\DB::table('traffic_source_clicks')->where('created_at', '<', now()->subDays(90))->delete())

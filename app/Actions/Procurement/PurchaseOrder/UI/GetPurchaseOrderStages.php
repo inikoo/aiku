@@ -8,6 +8,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
+use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt;
 use App\Actions\Procurement\PurchaseOrder\MarkPurchaseOrderStage;
 use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
@@ -16,6 +17,7 @@ use App\Enums\Procurement\AgentWarehouseStock\AgentWarehouseStockStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderAttachmentScopeEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStageEnum as Stage;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\Procurement\AgentGoodsReceipt;
 use App\Models\Procurement\AgentGoodsReceiptItem;
@@ -25,6 +27,7 @@ use App\Actions\SupplyChain\UI\GetPurchaseOrderJourney;
 use App\Actions\SupplyChain\UI\ShowSupplyChainPurchaseOrderJourney;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -33,6 +36,9 @@ use Lorisleiva\Actions\Concerns\AsObject;
  * In warehouse is reached when the first goods reach the agent warehouse; it is checked and packed once every
  * line is received in full and all of it is checked, or packed. It shows only on orders through an agent that
  * receives goods in its own warehouse, and, as nobody records it by hand, marking a later stage never asks for it.
+ * On an order through an agent, Ready is also reached once every line is in a container, packed first or not: the QC
+ * mark is then optional. With the agent warehouse, production done is filled by the goods receipts, so it shows under
+ * In warehouse and is never marked by hand.
  */
 class GetPurchaseOrderStages
 {
@@ -43,6 +49,8 @@ class GetPurchaseOrderStages
     private array $warehouseDates = [];
 
     private array $usesAgentWarehouse = [];
+
+    private array $allOnContainersAt = [];
 
     private const array SHIPPED_STATES = [
         StockDeliveryStateEnum::DISPATCHED,
@@ -75,6 +83,12 @@ class GetPurchaseOrderStages
                 $stage === Stage::IN_WAREHOUSE => [
                     'recorded'   => $this->warehouseDates($purchaseOrder)['warehouse_arrived_at'] !== null,
                     'date'       => $this->warehouseDates($purchaseOrder)['warehouse_arrived_at'],
+                    'user_id'    => null,
+                    'deliveries' => null,
+                ],
+                $stage === Stage::READY && $purchaseOrder->qc_passed_at === null && $this->allOnContainersAt($purchaseOrder) !== null => [
+                    'recorded'   => true,
+                    'date'       => $this->allOnContainersAt($purchaseOrder),
                     'user_id'    => null,
                     'deliveries' => null,
                 ],
@@ -170,7 +184,7 @@ class GetPurchaseOrderStages
 
         $steps = [];
         foreach ($this->stagesOf($purchaseOrder) as $stage) {
-            foreach ($stage->steps() as $column) {
+            foreach ($this->stepsOf($purchaseOrder, $stage) as $column) {
                 $steps[$stage->value][] = $this->step($purchaseOrder, $deliveries, $column);
             }
         }
@@ -201,7 +215,11 @@ class GetPurchaseOrderStages
                 ? (int) Carbon::parse($expected[$stage->value]['date'])->diffInDays($today)
                 : 0,
             'deliveries'  => $stages[$stage->value]['deliveries'],
-            'note'        => $stage === Stage::SUBMITTED && $purchaseOrder->agent_reference ? __('Agent\'s number: :number', ['number' => $purchaseOrder->agent_reference]) : null,
+            'note'        => match (true) {
+                $stage === Stage::SUBMITTED && (bool) $purchaseOrder->agent_reference => __('Agent\'s number: :number', ['number' => $purchaseOrder->agent_reference]),
+                $stage === Stage::READY && $purchaseOrder->qc_passed_at === null && $this->allOnContainersAt($purchaseOrder) !== null => __('Every item is in a container, QC not recorded'),
+                default => null,
+            },
             'not_required' => $stage === Stage::DEPOSIT_PAID && $this->depositNotRequired($purchaseOrder),
             'steps'       => collect($steps[$stage->value] ?? [])->map(fn (array $step) => [
                 'key'   => $step['key'],
@@ -218,6 +236,7 @@ class GetPurchaseOrderStages
             'marks'       => collect(Stage::MARKABLE_FIELDS)
                 ->filter(
                     fn (Stage $fieldStage, string $field) => $fieldStage === $stage && in_array($field, $markableFields)
+                        && !($field === 'produced_at' && $this->usesAgentWarehouse($purchaseOrder))
                 )
                 ->keys()
                 ->map(fn (string $field) => [
@@ -319,10 +338,29 @@ class GetPurchaseOrderStages
      */
     private function stagesOf(PurchaseOrder $purchaseOrder): array
     {
-        $usesAgentWarehouse = $this->usesAgentWarehouse[$purchaseOrder->id]
-            ??= $purchaseOrder->isAgentOrder() && AgentGoodsReceipt::where('agent_id', $purchaseOrder->agent_id)->where('state', AgentGoodsReceiptStateEnum::RECEIVED)->exists();
+        return array_values(array_filter(Stage::cases(), fn (Stage $stage) => $stage !== Stage::IN_WAREHOUSE || $this->usesAgentWarehouse($purchaseOrder)));
+    }
 
-        return array_values(array_filter(Stage::cases(), fn (Stage $stage) => $stage !== Stage::IN_WAREHOUSE || $usesAgentWarehouse));
+    private function usesAgentWarehouse(PurchaseOrder $purchaseOrder): bool
+    {
+        return $this->usesAgentWarehouse[$purchaseOrder->id]
+            ??= $purchaseOrder->isAgentOrder() && AgentGoodsReceipt::where('agent_id', $purchaseOrder->agent_id)->where('state', AgentGoodsReceiptStateEnum::RECEIVED)->exists();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function stepsOf(PurchaseOrder $purchaseOrder, Stage $stage): array
+    {
+        if (!$this->usesAgentWarehouse($purchaseOrder)) {
+            return $stage->steps();
+        }
+
+        return match ($stage) {
+            Stage::IN_WAREHOUSE => ['warehouse_arrived_at', 'produced_at', 'warehouse_checked_at', 'warehouse_packed_at'],
+            Stage::READY        => array_values(array_diff($stage->steps(), ['produced_at'])),
+            default             => $stage->steps(),
+        };
     }
 
     /**
@@ -364,6 +402,37 @@ class GetPurchaseOrderStages
         }
 
         return $dates;
+    }
+
+    /**
+     * When the last line of an order through an agent was fully put in a container, or null while any line still
+     * waits for one. Cancelled lines and lines never sent do not count.
+     */
+    public function allOnContainersAt(PurchaseOrder $purchaseOrder): ?Carbon
+    {
+        if (array_key_exists($purchaseOrder->id, $this->allOnContainersAt)) {
+            return $this->allOnContainersAt[$purchaseOrder->id];
+        }
+
+        if (!$purchaseOrder->isAgentOrder()) {
+            return $this->allOnContainersAt[$purchaseOrder->id] = null;
+        }
+
+        $lastOnDelivery = StoreStockDeliveryFromPurchaseOrder::liveDeliveryItemsOfTransaction(DB::query())
+            ->selectRaw('max(stock_delivery_items.created_at)');
+
+        $lines = StoreStockDeliveryFromPurchaseOrder::withQuantityAwaitingDelivery(
+            $purchaseOrder->purchaseOrderTransactions()
+                ->whereNotNull('supplier_product_id')
+                ->whereIn('state', [PurchaseOrderTransactionStateEnum::SUBMITTED, PurchaseOrderTransactionStateEnum::CONFIRMED, PurchaseOrderTransactionStateEnum::SETTLED])
+        )->selectSub($lastOnDelivery, 'last_on_delivery_at')->get();
+
+        $allOnContainers = $lines->isNotEmpty()
+            && $lines->every(fn ($line) => (float) $line->quantity_awaiting_delivery <= StoreStockDeliveryFromPurchaseOrder::QUANTITY_TOLERANCE);
+
+        return $this->allOnContainersAt[$purchaseOrder->id] = $allOnContainers
+            ? Carbon::parse($lines->max('last_on_delivery_at'))
+            : null;
     }
 
     private function liveDeliveries(PurchaseOrder $purchaseOrder): Collection

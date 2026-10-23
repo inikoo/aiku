@@ -151,6 +151,10 @@ use App\Audits\Transformer\RelationTransformer;
  * @property \Illuminate\Support\Carbon|null $ga_purchase_sent_at
  * @property string|null $shipping_notes
  * @property string|null $traffic_sources
+ * @property string|null $google_ads_click_id
+ * @property string|null $google_ads_click_id_type
+ * @property \Illuminate\Support\Carbon|null $google_ads_clicked_at
+ * @property bool|null $google_ads_ad_user_data_consent
  * @property int|null $master_shop_id
  * @property OrderPayDetailedStatusEnum|null $pay_detailed_status
  * @property bool $is_premium_dispatch
@@ -268,6 +272,8 @@ class Order extends Model implements HasMedia, Auditable
         'cancelled_at'                  => 'datetime',
         'platform_order_created_at'     => 'datetime',
         'ga_purchase_sent_at'           => 'datetime',
+        'google_ads_clicked_at'         => 'datetime',
+        'google_ads_ad_user_data_consent' => 'boolean',
         'settled_at'                    => 'datetime',
         'fetched_at'                    => 'datetime',
         'last_fetched_at'               => 'datetime',

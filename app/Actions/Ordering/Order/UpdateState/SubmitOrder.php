@@ -20,6 +20,7 @@ use App\Actions\Dropshipping\CustomerSalesChannel\Hydrators\CustomerSalesChannel
 use App\Actions\Ordering\Order\HasOrderHydrators;
 use App\Actions\Ordering\Order\ProcessOrderTrafficSource;
 use App\Actions\Ordering\Order\SendOrderPurchaseToGoogleAnalytics;
+use App\Actions\Ordering\Order\StampOrderGoogleAdsClick;
 use App\Actions\Web\WebsiteConversionEvent\ProcessOrderPurchaseConversionEvent;
 use App\Actions\Ordering\Order\SendNewOrderAlert;
 use App\Actions\Ordering\Order\UpdateOrderPaymentsStatus;
@@ -266,6 +267,7 @@ class SubmitOrder extends OrgAction
 
         CustomerHydrateTrafficSource::dispatch($order->customer_id);
         ProcessOrderTrafficSource::dispatch($order)->delay($this->hydratorsDelay);
+        StampOrderGoogleAdsClick::run($order);
 
         if ($order->ga_client_id) {
             SendOrderPurchaseToGoogleAnalytics::dispatch($order->id)->afterCommit();

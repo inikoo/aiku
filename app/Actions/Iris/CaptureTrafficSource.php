@@ -9,6 +9,7 @@
 namespace App\Actions\Iris;
 
 use App\Actions\CRM\TrafficSource\GetTrafficSourceFromRefererHeader;
+use App\Actions\CRM\TrafficSource\ParseGoogleAdsClick;
 use App\Actions\CRM\TrafficSource\RecordTrafficSourceClick;
 use App\Actions\CRM\TrafficSource\RecordTrafficSourceVisit;
 use App\Actions\CRM\TrafficSource\GetTrafficSourceFromUrl;
@@ -37,6 +38,41 @@ class CaptureTrafficSource
 
 
     public function getCookies(): array
+    {
+        return [
+            ...$this->trafficSourceCookies(),
+            ...$this->googleAdsClickCookie(),
+        ];
+    }
+
+    /**
+     * The last Google ad click is kept apart from the touch history, which records only the channel
+     * and campaign: the click id itself is what an offline conversion upload has to send back.
+     */
+    private function googleAdsClickCookie(): array
+    {
+        $click = ParseGoogleAdsClick::fromUrl(request()->fullUrl())
+            ?? ParseGoogleAdsClick::fromUrl((string) request()->headers->get('referer', ''));
+
+        if (!$click) {
+            return [];
+        }
+
+        $storedClick = ParseGoogleAdsClick::run(request()->cookie(ParseGoogleAdsClick::COOKIE));
+
+        if ($storedClick && $storedClick['click_id'] === $click['click_id']) {
+            return [];
+        }
+
+        return [
+            ParseGoogleAdsClick::COOKIE => [
+                'value'    => ParseGoogleAdsClick::serialise([...$click, 'clicked_at' => now()]),
+                'duration' => 60 * 24 * ParseGoogleAdsClick::WINDOW_DAYS,
+            ],
+        ];
+    }
+
+    private function trafficSourceCookies(): array
     {
         $cookies = [];
         $referer = request()->headers->get('referer', '');
@@ -242,13 +278,10 @@ class CaptureTrafficSource
 
             $referer = (string) request()->headers->get('referer', '');
             $url     = $referer !== '' ? $referer : request()->fullUrl();
-            $clickId = collect(['gclid', 'fbclid', 'msclkid'])
-                ->map(function (string $param) use ($referer) {
-                    parse_str((string) parse_url($referer, PHP_URL_QUERY), $refererParams);
-
-                    return request()->query($param) ?? ($refererParams[$param] ?? null);
-                })
-                ->first(fn ($value) => filled($value));
+            parse_str((string) parse_url($referer, PHP_URL_QUERY), $refererParams);
+            $clickIdType = collect([...ParseGoogleAdsClick::CLICK_ID_TYPES, 'fbclid', 'msclkid'])
+                ->first(fn (string $param) => filled(request()->query($param) ?? ($refererParams[$param] ?? null)));
+            $clickId = $clickIdType ? (request()->query($clickIdType) ?? $refererParams[$clickIdType]) : null;
 
             /* Both halves of "who did this ad reach". The session id joins the click to the visitor
                record the storefront writes for the same person, and the web user is who they were
@@ -257,18 +290,19 @@ class CaptureTrafficSource
             $webUser = request()->user('retina');
 
             RecordTrafficSourceClick::dispatch([
-                'shop_id'      => $website->shop_id,
-                'website_id'   => $website->id ?? null,
-                'type'         => $type->value,
-                'campaign_ref' => substr($trafficSourceData, 1) ?: null,
-                'click_id'     => $clickId,
-                'session_id'   => $this->sessionId(),
-                'web_user_id'  => $webUser instanceof WebUser ? $webUser->id : null,
-                'ip'           => request()->ip(),
-                'country_code' => request()->headers->get('CF-IPCountry'),
-                'user_agent'   => request()->userAgent(),
-                'url'          => $url,
-                'is_repeat'    => $isRepeat,
+                'shop_id'       => $website->shop_id,
+                'website_id'    => $website->id ?? null,
+                'type'          => $type->value,
+                'campaign_ref'  => substr($trafficSourceData, 1) ?: null,
+                'click_id'      => $clickId,
+                'click_id_type' => $clickIdType,
+                'session_id'    => $this->sessionId(),
+                'web_user_id'   => $webUser instanceof WebUser ? $webUser->id : null,
+                'ip'            => request()->ip(),
+                'country_code'  => request()->headers->get('CF-IPCountry'),
+                'user_agent'    => request()->userAgent(),
+                'url'           => $url,
+                'is_repeat'     => $isRepeat,
             ]);
         } catch (\Throwable $e) {
             report($e);
