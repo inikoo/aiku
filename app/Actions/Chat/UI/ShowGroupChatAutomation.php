@@ -11,6 +11,7 @@ namespace App\Actions\Chat\UI;
 use App\Actions\Chat\ChatSession\GetChatAutoSendGate;
 use App\Actions\Chat\ChatSession\GetChatClaimDetails;
 use App\Actions\Chat\ChatSession\SendChatAiAnswer;
+use App\Actions\Chat\Reports\GetChatAiCoverage;
 use App\Actions\Chat\Reports\IsWithinWorkingHours;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dashboards\ShowGroupDashboard;
@@ -60,6 +61,15 @@ class ShowGroupChatAutomation extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasGroupAccess();
+    }
+
+    public function rules(): array
+    {
+        return [
+            'window' => ['sometimes', 'nullable', 'in:'.implode(',', GetChatAiCoverage::WINDOWS)],
+            'from'   => ['sometimes', 'nullable', 'date'],
+            'to'     => ['sometimes', 'nullable', 'date'],
+        ];
     }
 
     public function asController(ActionRequest $request): ?LengthAwarePaginator
@@ -360,6 +370,7 @@ class ShowGroupChatAutomation extends OrgAction
                     'icon'          => ['title' => __('AI assist'), 'icon' => ['fal', 'fa-robot']],
                     'subNavigation' => $this->subNavigation($this->group),
                 ],
+                'coverage'   => GetChatAiCoverage::run($this->group, $this->validatedData['window'] ?? 'overnight', $this->validatedData['from'] ?? null, $this->validatedData['to'] ?? null),
                 'dashboard'  => $this->dashboard($this->group),
                 'draftStats' => $this->draftStats($this->group),
                 'autoSend'   => $this->autoSend($this->group),

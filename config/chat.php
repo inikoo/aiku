@@ -90,6 +90,11 @@ return [
         'min_used_share' => 0.9,
     ],
 
+    'ai_teams' => [
+        'es_sk'    => ['label' => 'ES + SK', 'organisations' => ['es', 'sk'], 'timezone' => 'Europe/Paris', 'start' => '08:00', 'end' => '16:00'],
+        'aw_aroma' => ['label' => 'AW + Aroma', 'organisations' => ['aw', 'aroma'], 'timezone' => 'Europe/London', 'start' => '08:00', 'end' => '16:00'],
+    ],
+
     'noise' => [
 
         'auto_put_aside' => (bool) env('CHAT_NOISE_AUTO_PUT_ASIDE', true),

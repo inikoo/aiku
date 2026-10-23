@@ -18,6 +18,7 @@ use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Chat\ChatSession\UI\RedirectToOrgChatInbox;
 use App\Actions\Chat\ChatSession\UI\ShowGroupChatDashboard;
 use App\Actions\Chat\UI\FlagChatAiDraft;
+use App\Actions\Chat\UI\IndexChatAiCoverageChats;
 use App\Actions\Chat\UI\IndexChatAikuDrafts;
 use App\Actions\Chat\UI\FlagChatAiSummary;
 use App\Actions\Chat\UI\FlagChatAutomatedMessage;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/reports', ShowGroupChatDashboard::class)->name('reports');
 Route::get('/ai', ShowGroupChatAutomation::class)->name('ai.dashboard');
+Route::get('/ai/coverage', IndexChatAiCoverageChats::class)->name('ai.coverage');
 Route::get('/ai/sent', [ShowGroupChatAutomation::class, 'inSent'])->name('ai.sent');
 Route::get('/ai/noise-checks', [ShowGroupChatAutomation::class, 'inNoiseChecks'])->name('ai.noise_checks');
 Route::get('/ai/aiku-drafts', IndexChatAikuDrafts::class)->name('ai.aiku_drafts');

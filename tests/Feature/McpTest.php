@@ -3051,4 +3051,48 @@ describe('customer service tools', function () {
 
         expect(App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat)->facts['client'])->toBe('TestAssistant');
     });
+
+    test('a sweep run records one outcome per customer message, checks the skips it can and counts them when it finishes', function () {
+        $run = ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'start_run', 'run_kind' => 'hourly', 'teams' => ['aw_aroma'], 'model' => 'claude-opus-5-5']);
+        $run->assertOk()->assertSee('run_id');
+        $run = App\Models\Chat\ChatAiRun::latest('id')->firstOrFail();
+        $outcomes = fn () => App\Models\Chat\ChatAiOutcome::where('chat_session_id', $this->chat->id)->orderBy('id')->get();
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'record_outcome', 'outcome' => 'held', 'run_id' => $run->id])
+            ->assertHasErrors(['Nobody else holds this chat']);
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'record_outcome', 'outcome' => 'answered_by_staff', 'run_id' => $run->id])
+            ->assertHasErrors(['No staff reply']);
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'record_outcome', 'outcome' => 'spam', 'run_id' => 999999999])
+            ->assertHasErrors(['No run with that run_id']);
+        expect($outcomes())->toHaveCount(0);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'save_draft', 'message' => 'Sorry it arrived broken, we will send a new one.', 'run_id' => $run->id])->assertOk();
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'add_note', 'message' => 'Checked the order.', 'confirm' => true, 'request_text' => 'Hourly CS routine', 'run_id' => $run->id])->assertOk();
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'record_outcome', 'outcome' => 'spam', 'run_id' => $run->id])->assertOk();
+
+        $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat);
+        expect($outcomes())->toHaveCount(1)
+            ->and($outcomes()->first()->outcome)->toBe(App\Enums\CRM\Livechat\ChatAiOutcomeEnum::DRAFT)
+            ->and($outcomes()->first()->chat_ai_draft_id)->toBe($draft->id)
+            ->and($outcomes()->first()->trigger_message_id)->toBe($draft->trigger_message_id)
+            ->and($outcomes()->first()->channel)->toBe('website');
+
+        App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $this->chat->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => App\Enums\CRM\Livechat\ChatSenderTypeEnum::USER,
+            'message_text'    => 'Thank you!',
+        ]);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'record_outcome', 'outcome' => 'thanks', 'reason' => 'Only thanks us', 'run_id' => $run->id])->assertOk();
+
+        expect($outcomes())->toHaveCount(2)
+            ->and($outcomes()->last()->outcome)->toBe(App\Enums\CRM\Livechat\ChatAiOutcomeEnum::THANKS)
+            ->and($outcomes()->last()->reason)->toBe('Only thanks us');
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'finish_run', 'run_id' => $run->id])->assertOk();
+
+        expect($run->refresh()->finished_at)->not->toBeNull()
+            ->and($run->counts)->toBe(['draft' => ['website' => 1], 'thanks' => ['website' => 1]]);
+    });
 });

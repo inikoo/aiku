@@ -10,6 +10,7 @@ import { computed } from "vue"
 import Chart from "primevue/chart"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import DashboardWidgetBox from "@/Components/DataDisplay/Dashboard/Widget/DashboardWidgetBox.vue"
+import ChatAiCoverage from "@/Components/Chat/ChatAiCoverage.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChartLine, faChartPie, faPaperPlane, faRobot, faFilter, faBolt, faClock, faHandsHelping } from "@fal"
 import { ctrans } from "@/Composables/useTrans"
@@ -40,6 +41,7 @@ interface Dashboard {
 const props = defineProps<{
     title: string
     pageHead: object
+    coverage: InstanceType<typeof ChatAiCoverage>["$props"]["coverage"]
     dashboard: Dashboard
     draftStats: DraftCounts & { assistant: DraftCounts & { clients: { client: string, drafts: number, people: number }[] } }
     autoSend: {
@@ -128,6 +130,8 @@ const colorOf = (index: number) => donutChart.value.datasets[0].backgroundColor[
     <PageHeading :data="pageHead" />
 
     <div class="space-y-4 p-4">
+        <ChatAiCoverage :coverage="coverage" />
+
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div v-for="card in cards" :key="card.label" class="rounded-lg border border-gray-200 px-4 py-3">
                 <div class="flex items-center gap-2 text-sm text-gray-600">

@@ -9,6 +9,12 @@
 namespace App\Mcp\Tools;
 
 use App\Actions\Chat\ChatSession\CloseChatSession;
+use App\Actions\Chat\ChatSession\DraftChatReply;
+use App\Actions\Chat\ChatSession\StoreChatAiOutcome;
+use App\Enums\CRM\Livechat\ChatAiOutcomeEnum;
+use App\Enums\CRM\Livechat\ChatAiRunKindEnum;
+use App\Enums\CRM\Livechat\ChatSenderTypeEnum;
+use App\Models\Chat\ChatAiRun;
 use App\Actions\Chat\ChatSession\PlanChatClaim;
 use App\Actions\Chat\ChatSession\RunChatAiDraftAction;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemReplacementReasonEnum;
@@ -37,17 +43,21 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 
-#[Description('Acts on a customer chat, by its Chat ID, as the user: save_draft (puts message on the chat as a draft reply the user reviews and sends from Aiku, with an optional staff_note, the facts checked, PRE tickets and one-click actions (claim or staff task) shown on the draft; nothing reaches the customer, no confirm needed; the usual way to help with a reply), reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email), unlink_customer or add_note (message = an internal note for staff, shown in the thread in pink and never sent to the customer: what was found out and what to tell them, in the user\'s language). Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant, except add_note: a note is signed by Aiku and never reaches the customer.')]
+#[Description('Acts on a customer chat, by its Chat ID, as the user: save_draft (puts message on the chat as a draft reply the user reviews and sends from Aiku, with an optional staff_note, the facts checked, PRE tickets and one-click actions (claim or staff task) shown on the draft; nothing reaches the customer, no confirm needed; the usual way to help with a reply), reply (sends message to the customer in the user\'s name; on an email chat it is emailed), assign_to_me, close, wait_for_reply (hours 1-720, the chat closes itself if the customer stays silent), stop_waiting, link_customer (customer = their reference, slug or email), unlink_customer, add_note (message = an internal note for staff, shown in the thread in pink and never sent to the customer: what was found out and what to tell them, in the user\'s language), record_outcome (outcome = why a chat was left alone: answered_by_staff, suggestion_already_waiting, held, answered_elsewhere, spam, thanks or notice, with a short reason; no confirm needed), start_run (run_kind, teams, model; returns a run_id) or finish_run (run_id). Every chat a sweep looks at ends with exactly one of save_draft, add_note or record_outcome carrying the run_id, so the coverage report on /chat/ai counts it. Call customer-service-chat-tool first. Without confirm=true nothing happens and a preview comes back: show the user the exact reply text, in the customer\'s language, and send only after they say yes in their own words. A chat held by a colleague is refused. Only for users enrolled to serve customers through their assistant, except add_note: a note is signed by Aiku and never reaches the customer.')]
 class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
 {
     use WithMcpChangeLog;
 
-    private const array ACTIONS = ['save_draft', 'reply', 'assign_to_me', 'close', 'wait_for_reply', 'stop_waiting', 'link_customer', 'unlink_customer', 'add_note'];
+    private const array ACTIONS = ['save_draft', 'reply', 'assign_to_me', 'close', 'wait_for_reply', 'stop_waiting', 'link_customer', 'unlink_customer', 'add_note', 'record_outcome', 'start_run', 'finish_run'];
+
+    private const array BOOKKEEPING = ['add_note', 'record_outcome', 'start_run', 'finish_run'];
+
+    private const array RUN_ACTIONS = ['start_run', 'finish_run'];
 
     public function handle(Request $request): Response
     {
         $request->validate([
-            'chat_id'      => ['required', 'string', 'max:40'],
+            'chat_id'      => ['required_unless:action,'.implode(',', self::RUN_ACTIONS), 'nullable', 'string', 'max:40'],
             'action'       => ['required', 'in:'.implode(',', self::ACTIONS)],
             'message'      => ['required_if:action,reply,save_draft,add_note', 'nullable', 'string', 'max:5000'],
             'staff_note'   => ['sometimes', 'nullable', 'string', 'max:2000'],
@@ -73,13 +83,36 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'customer'     => ['required_if:action,link_customer', 'nullable', 'string', 'max:255'],
             'confirm'      => ['sometimes', 'boolean'],
             'request_text' => ['required_if:confirm,true', 'nullable', 'string', 'max:4000'],
+            'outcome'      => ['required_if:action,record_outcome', 'nullable', 'in:'.implode(',', [...ChatAiOutcomeEnum::skips(), ChatAiOutcomeEnum::NOTE->value, ChatAiOutcomeEnum::REVIEW_FAILED_NOTE->value])],
+            'reason'       => ['sometimes', 'nullable', 'string', 'max:500'],
+            'run_id'       => ['required_if:action,finish_run', 'nullable', 'integer'],
+            'run_kind'     => ['required_if:action,start_run', 'nullable', Rule::enum(ChatAiRunKindEnum::class)],
+            'teams'        => ['sometimes', 'nullable', 'array', 'max:10'],
+            'teams.*'      => ['string', 'max:40'],
+            'model'        => ['sometimes', 'nullable', 'string', 'max:80'],
         ]);
 
-        $isNote = $request->string('action')->toString() === 'add_note';
+        $action = $request->string('action')->toString();
 
-        $denied = $isNote ? null : $this->notEnrolled($request);
+        $denied = in_array($action, self::BOOKKEEPING) ? null : $this->notEnrolled($request);
         if ($denied) {
             return $denied;
+        }
+
+        $run = null;
+        if ($request->filled('run_id')) {
+            $run = ChatAiRun::where('group_id', $request->user()->group_id)->find($request->integer('run_id'));
+            if (!$run) {
+                return Response::error('No run with that run_id. Start one with start_run. Nothing was changed.');
+            }
+        }
+
+        if ($action === 'start_run') {
+            return $this->startRun($request);
+        }
+
+        if ($action === 'finish_run') {
+            return $this->finishRun($run);
         }
 
         [$chatSession, $error] = $this->chatSessionFor($request, toActOnIt: true);
@@ -87,7 +120,6 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             return $error;
         }
 
-        $action   = $request->string('action')->toString();
         $customer = null;
 
         if ($action === 'link_customer') {
@@ -103,11 +135,15 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
         }
 
         if ($action === 'save_draft') {
-            return $this->saveDraft($request, $chatSession);
+            return $this->saveDraft($request, $chatSession, $run);
         }
 
         if ($action === 'add_note') {
-            return $this->addNote($request, $chatSession);
+            return $this->addNote($request, $chatSession, $run);
+        }
+
+        if ($action === 'record_outcome') {
+            return $this->recordOutcome($request, $chatSession, $run);
         }
 
         if (!$request->boolean('confirm')) {
@@ -151,7 +187,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
      * A draft only lands in the agent's draft box, so it needs no confirmation: discarding it there
      * is the undo. It is refused on a colleague's chat and in a language the customer does not write.
      */
-    private function saveDraft(Request $request, ChatSession $chatSession): Response
+    private function saveDraft(Request $request, ChatSession $chatSession, ?ChatAiRun $run): Response
     {
         if (!$this->userCanDisposeOfChat($request->user(), $chatSession)) {
             return Response::error($this->chatHeldByAnotherAgentMessage($chatSession).' Nothing was saved.');
@@ -194,6 +230,12 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'actions'      => $actions,
         ])]);
 
+        StoreChatAiOutcome::run($chatSession, ChatAiOutcomeEnum::DRAFT, [
+            'chat_ai_draft_id'   => $draft->id,
+            'trigger_message_id' => $draft->trigger_message_id,
+            'run_id'             => $run?->id,
+        ]);
+
         return Response::json([
             'saved'     => 'draft',
             'chat'      => $chatSession->ulid,
@@ -227,9 +269,10 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
      * A note stays in the thread for every colleague to read and has no undo, so it is previewed first.
      * It is allowed on a colleague's chat and on a closed one: that is where what was found out is needed.
      */
-    private function addNote(Request $request, ChatSession $chatSession): Response
+    private function addNote(Request $request, ChatSession $chatSession, ?ChatAiRun $run): Response
     {
-        $text = trim($request->string('message')->toString());
+        $text    = trim($request->string('message')->toString());
+        $outcome = $request->get('outcome') === ChatAiOutcomeEnum::REVIEW_FAILED_NOTE->value ? ChatAiOutcomeEnum::REVIEW_FAILED_NOTE : ChatAiOutcomeEnum::NOTE;
 
         if (!$request->boolean('confirm')) {
             return $this->askToConfirm(['action' => 'add_note', 'chat' => $chatSession->ulid, 'note' => $text]);
@@ -237,10 +280,95 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
 
         $note = StoreChatEvent::make()->internalNote($chatSession, $text, $request->user()->id);
 
+        StoreChatAiOutcome::run($chatSession, $outcome, [
+            'note_event_id' => $note->id,
+            'reason'        => $request->get('reason'),
+            'run_id'        => $run?->id,
+        ]);
+
         return Response::json([
             'done'    => 'add_note',
             'chat'    => $chatSession->ulid,
             'note_id' => $note->id,
+        ]);
+    }
+
+    /**
+     * Why the sweep left a chat alone, so the coverage report counts it instead of showing it as not
+     * worked. Nothing reaches anybody, so no preview; the reasons the tables can check are checked.
+     */
+    private function recordOutcome(Request $request, ChatSession $chatSession, ?ChatAiRun $run): Response
+    {
+        $outcome = ChatAiOutcomeEnum::from($request->string('outcome')->toString());
+
+        if (!in_array($outcome->value, ChatAiOutcomeEnum::skips())) {
+            return Response::error('record_outcome is for chats left alone; a note is recorded by add_note. Nothing was recorded.');
+        }
+
+        $triggerId = StoreChatAiOutcome::latestCustomerMessageId($chatSession);
+        if (!$triggerId) {
+            return Response::error('The customer has not written in this chat, so there is nothing to account for. Nothing was recorded.');
+        }
+
+        $refused = match ($outcome) {
+            ChatAiOutcomeEnum::ANSWERED_BY_STAFF => $chatSession->messages()->where('sender_type', ChatSenderTypeEnum::AGENT)->where('id', '>', $triggerId)->exists()
+                ? null : 'No staff reply after the customer\'s latest message.',
+            ChatAiOutcomeEnum::SUGGESTION_ALREADY_WAITING => DraftChatReply::pendingDraft($chatSession)
+                ? null : 'No suggestion is waiting on this chat.',
+            ChatAiOutcomeEnum::HELD => !$this->userCanDisposeOfChat($request->user(), $chatSession)
+                ? null : 'Nobody else holds this chat.',
+            default => null,
+        };
+
+        if ($refused) {
+            return Response::error($refused.' Nothing was recorded.');
+        }
+
+        $recorded = StoreChatAiOutcome::run($chatSession, $outcome, [
+            'reason'             => $request->get('reason'),
+            'run_id'             => $run?->id,
+            'trigger_message_id' => $triggerId,
+        ]);
+
+        return Response::json([
+            'done'       => 'record_outcome',
+            'chat'       => $chatSession->ulid,
+            'outcome'    => $recorded->outcome->value,
+            'outcome_id' => $recorded->id,
+        ]);
+    }
+
+    private function startRun(Request $request): Response
+    {
+        $run = ChatAiRun::create([
+            'group_id'           => $request->user()->group_id,
+            'kind'               => ChatAiRunKindEnum::from($request->string('run_kind')->toString()),
+            'teams'              => array_values($request->get('teams') ?? []),
+            'model'              => $request->get('model'),
+            'started_by_user_id' => $request->user()->id,
+            'started_at'         => now(),
+        ]);
+
+        return Response::json([
+            'done'      => 'start_run',
+            'run_id'    => $run->id,
+            'next_step' => 'Pass this run_id to every save_draft, add_note and record_outcome of this run, then call finish_run.',
+        ]);
+    }
+
+    private function finishRun(ChatAiRun $run): Response
+    {
+        $counts = [];
+        foreach ($run->outcomes()->selectRaw('outcome, channel, count(*) as total')->groupBy('outcome', 'channel')->toBase()->get() as $row) {
+            $counts[$row->outcome][$row->channel] = (int) $row->total;
+        }
+
+        $run->update(['finished_at' => now(), 'counts' => $counts]);
+
+        return Response::json([
+            'done'   => 'finish_run',
+            'run_id' => $run->id,
+            'counts' => $counts,
         ]);
     }
 
@@ -316,7 +444,7 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'chat_id'      => $schema->string()->description('Chat ID copied from the Overview panel of the chat')->required(),
+            'chat_id'      => $schema->string()->description('Chat ID copied from the Overview panel of the chat; not needed for start_run and finish_run'),
             'action'       => $schema->string()->enum(self::ACTIONS)->description('What to do on the chat')->required(),
             'message'      => $schema->string()->description('For add_note: the note for staff. For save_draft and reply: the full text for the customer, plain text, in the language reply_in names, signed as the user would sign it. In a draft, [[what to check]] marks something only the user can decide'),
             'staff_note'   => $schema->string()->description('For save_draft only: a short note for staff shown on the draft itself, never sent to the customer, in the user\'s language. Start it with "Before sending:" when staff must do something first (refund, credit, replacement); otherwise what was checked and anything uncertain'),
@@ -342,6 +470,12 @@ class CustomerServiceChatWriteTool extends AikuCustomerServiceTool
             'customer'     => $schema->string()->description('For link_customer: the customer\'s reference, slug or email'),
             'confirm'      => $schema->boolean()->description('true only after the user has seen the preview and said yes'),
             'request_text' => $schema->string()->description('The user\'s request, verbatim, kept in the AI changes log; required with confirm=true'),
+            'outcome'      => $schema->string()->enum([...ChatAiOutcomeEnum::skips(), ChatAiOutcomeEnum::NOTE->value, ChatAiOutcomeEnum::REVIEW_FAILED_NOTE->value])->description('For record_outcome: why the chat was left alone (answered_by_staff, suggestion_already_waiting, held, answered_elsewhere, spam, thanks, notice). For add_note: review_failed_note when the note replaces a draft that failed review, note otherwise'),
+            'reason'       => $schema->string()->description('For record_outcome and add_note: one short line on why, for the coverage report'),
+            'run_id'       => $schema->integer()->description('The run_id start_run returned; pass it to save_draft, add_note and record_outcome, and to finish_run'),
+            'run_kind'     => $schema->string()->enum(array_column(ChatAiRunKindEnum::cases(), 'value'))->description('For start_run: hourly, early_sweep or manual'),
+            'teams'        => $schema->array()->items($schema->string())->description('For start_run: the teams this run covers, e.g. ["es_sk", "aw_aroma"]'),
+            'model'        => $schema->string()->description('For start_run: the model running the sweep'),
         ];
     }
 }

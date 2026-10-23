@@ -1049,3 +1049,134 @@ test('a customer message no longer starts an in-app draft: only the cloud assist
     \App\Actions\Chat\ChatSession\FlagUrgentChatRequest::assertPushed(1);
     expect(\App\Models\Chat\ChatAiDraft::where('chat_session_id', $session->id)->exists())->toBeFalse();
 });
+
+test('the AI coverage report counts every chat a customer wrote to once, by what was done with their latest message', function () {
+    $group  = $this->organisation->group;
+    $before = \App\Actions\Chat\Reports\GetChatAiCoverage::run($group, 'last_hour')['matrix'];
+
+    $customerWrites = fn (ChatSession $session, string $text) => ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT,
+        'sender_type'     => ChatSenderTypeEnum::GUEST,
+        'message_text'    => $text,
+    ]);
+    $staffReplies = fn (ChatSession $session) => ChatMessage::create([
+        'chat_session_id' => $session->id,
+        'message_type'    => ChatMessageTypeEnum::TEXT,
+        'sender_type'     => ChatSenderTypeEnum::AGENT,
+        'message_text'    => 'Thanks, done.',
+    ]);
+    $record = fn (ChatSession $session, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum $outcome) => \App\Actions\Chat\ChatSession\StoreChatAiOutcome::run($session, $outcome);
+
+    $drafted = noiseTestEmailSession($this->shop, 'drafted@example.com', 'Where is my order', 'Where is my order?');
+    $record($drafted, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::DRAFT);
+    $record($drafted, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::SPAM);
+
+    $wroteAgain = noiseTestEmailSession($this->shop, 'again@example.com', 'Refund', 'Can I have a refund?');
+    $record($wroteAgain, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::NOTE);
+    $customerWrites($wroteAgain, 'Also, the lid was cracked.');
+
+    $answered = noiseTestEmailSession($this->shop, 'answered@example.com', 'Invoice', 'Send me the invoice please');
+    $staffReplies($answered);
+
+    $binned = noiseTestEmailSession($this->shop, 'promo@example.com', 'SEO offer', 'Rank first on Google');
+    $binned->update(['is_spam' => true]);
+
+    $thanked = noiseTestEmailSession($this->shop, 'thanks@example.com', 'Re: order', 'Thank you!');
+    $record($thanked, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::THANKS);
+    $staffReplies($thanked);
+
+    $held = noiseTestEmailSession($this->shop, 'held@example.com', 'Wholesale', 'Can I open an account?');
+    $record($held, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::SPAM);
+    $record($held, \App\Enums\CRM\Livechat\ChatAiOutcomeEnum::HELD);
+
+    $whatsapp = noiseTestWhatsappSession($this->shop, '+447700900'.mt_rand(100, 999), 'Is the shop open on Sunday?');
+
+    $old = noiseTestEmailSession($this->shop, 'old@example.com', 'Old', 'Written yesterday');
+    $old->messages()->update(['created_at' => now()->subDay()]);
+
+    $after = \App\Actions\Chat\Reports\GetChatAiCoverage::run($group, 'last_hour')['matrix'];
+    $delta = fn (string $row, string $column = 'total') => $after[$row][$column] - $before[$row][$column];
+
+    expect($delta('received'))->toBe(7)
+        ->and($delta('received', 'email'))->toBe(6)
+        ->and($delta('received', 'whatsapp'))->toBe(1)
+        ->and($delta('draft', 'email'))->toBe(1)
+        ->and($delta('note'))->toBe(0)
+        ->and($delta('answered_by_staff', 'email'))->toBe(1)
+        ->and($delta('spam', 'email'))->toBe(1)
+        ->and($delta('thanks', 'email'))->toBe(1)
+        ->and($delta('held', 'email'))->toBe(1)
+        ->and($delta('worked'))->toBe(4)
+        ->and($delta('not_worked', 'email'))->toBe(1)
+        ->and($delta('not_worked', 'whatsapp'))->toBe(1);
+
+    foreach ([$after, $before] as $matrix) {
+        foreach (['email', 'website', 'whatsapp', 'total'] as $column) {
+            $rows = collect(['answered_by_staff', 'suggestion_already_waiting', 'worked', 'not_worked'])->sum(fn ($row) => $matrix[$row][$column]);
+            $worked = collect(\App\Actions\Chat\Reports\GetChatAiCoverage::WORKED)->sum(fn ($row) => $matrix[$row][$column]);
+            expect($rows)->toBe($matrix['received'][$column])->and($worked)->toBe($matrix['worked'][$column]);
+        }
+    }
+
+    $segments = \App\Actions\Chat\Reports\GetChatAiCoverage::make()->segments($group, 'last_hour');
+    $listed   = \Illuminate\Support\Facades\DB::query()->fromSub(\App\Actions\Chat\Reports\GetChatAiCoverage::make()->chats($group, $segments), 'coverage')
+        ->where('channel', '<>', 'whatsapp')
+        ->whereIn('session_id', [$drafted->id, $wroteAgain->id, $answered->id, $binned->id, $thanked->id, $held->id, $old->id])
+        ->pluck('bucket', 'session_id');
+
+    expect($listed->sortKeys()->all())->toBe([
+        $drafted->id    => 'draft',
+        $wroteAgain->id => 'not_worked',
+        $answered->id   => 'answered_by_staff',
+        $binned->id     => 'spam',
+        $thanked->id    => 'thanks',
+        $held->id       => 'held',
+    ])->and(\App\Models\Chat\ChatAiOutcome::where('chat_session_id', $held->id)->count())->toBe(1);
+
+    expect(fn () => \App\Models\Chat\ChatAiOutcome::factory()->forChatSession($drafted, $drafted->messages()->max('id'))->create())
+        ->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+
+    actingAs($this->user);
+    $page = get(route('grp.chat.ai.dashboard', ['window' => 'last_hour']))->assertOk()->viewData('page')['props'];
+    expect($page['coverage']['matrix']['received']['total'])->toBe($after['received']['total'])
+        ->and($page['coverage']['trend']['unit'])->toBe('hour');
+
+    $chats = get(route('grp.chat.ai.coverage', ['window' => 'last_hour', 'row' => 'not_worked', 'channel' => 'email']))->assertOk()->viewData('page')['props']['data']['data'];
+    expect(collect($chats)->pluck('contact'))->toContain('again@example.com')->not->toContain('drafted@example.com');
+
+    foreach ([$drafted, $wroteAgain, $answered, $binned, $thanked, $held, $old] as $session) {
+        $session->messages()->withTrashed()->forceDelete();
+        $session->forceDelete();
+    }
+    $whatsapp->messages()->withTrashed()->forceDelete();
+    $whatsapp->forceDelete();
+});
+
+test('the AI coverage windows follow each team clock: overnight, team hours and today', function () {
+    $coverage = \App\Actions\Chat\Reports\GetChatAiCoverage::make();
+    $group    = $this->organisation->group;
+    $window   = fn (string $key, string $now) => collect($coverage->segments($group, $key, now: \Illuminate\Support\Carbon::parse($now)))
+        ->mapWithKeys(fn ($segment) => [$segment['label'] => [$segment['from']->toDateTimeString(), $segment['to']->toDateTimeString()]])
+        ->all();
+
+    expect($window('overnight', '2026-10-23 10:00:00'))->toBe([
+        'ES + SK'    => ['2026-10-22 14:00:00', '2026-10-23 06:00:00'],
+        'AW + Aroma' => ['2026-10-22 15:00:00', '2026-10-23 07:00:00'],
+    ])->and($window('overnight', '2026-10-23 03:30:00'))->toBe([
+        'ES + SK'    => ['2026-10-22 14:00:00', '2026-10-23 03:30:00'],
+        'AW + Aroma' => ['2026-10-22 15:00:00', '2026-10-23 03:30:00'],
+    ])->and($window('overnight', '2026-10-26 06:30:00'))->toBe([
+        'ES + SK'    => ['2026-10-23 14:00:00', '2026-10-26 06:30:00'],
+        'AW + Aroma' => ['2026-10-23 15:00:00', '2026-10-26 06:30:00'],
+    ])->and($window('team_hours', '2026-10-23 10:00:00'))->toBe([
+        'ES + SK'    => ['2026-10-23 06:00:00', '2026-10-23 10:00:00'],
+        'AW + Aroma' => ['2026-10-23 07:00:00', '2026-10-23 10:00:00'],
+    ])->and($window('team_hours', '2026-10-24 12:00:00'))->toBe([
+        'ES + SK'    => ['2026-10-23 06:00:00', '2026-10-23 14:00:00'],
+        'AW + Aroma' => ['2026-10-23 07:00:00', '2026-10-23 15:00:00'],
+    ])->and($window('today', '2026-10-23 10:00:00'))->toBe([
+        'ES + SK'    => ['2026-10-22 22:00:00', '2026-10-23 10:00:00'],
+        'AW + Aroma' => ['2026-10-22 23:00:00', '2026-10-23 10:00:00'],
+    ]);
+});
