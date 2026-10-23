@@ -19,4 +19,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | routes/grp/web/org/** | .ai/rules/org.md |
 | resources/js/Components/Procurement/** | .ai/rules/procurement.md |
 | app/Actions/Iris/Reviews/** | .ai/rules/reviews.md |
+| app/Actions/SupplyChain/** | .ai/rules/supply-chain.md |
 | tests/** | .ai/rules/tests.md |

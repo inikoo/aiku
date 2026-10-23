@@ -18,6 +18,7 @@ use App\Enums\SupplyChain\SupplierProduct\SupplierUnitEnum;
 use App\Models\Goods\Stock;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Currency;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
@@ -321,6 +322,22 @@ class SupplierProduct extends Model implements HasMedia, Auditable
         return null;
     }
 
+
+    /**
+     * Units per pack as the SKO composition declares it: the packing every organisation holding
+     * the one stock this supplier product feeds agrees on, null when there is no single answer.
+     */
+    public function skoPackedIn(): ?int
+    {
+        $stockIds = $this->stocks()->pluck('stocks.id');
+        if ($stockIds->count() !== 1) {
+            return null;
+        }
+
+        $packings = OrgStock::where('stock_id', $stockIds->first())->distinct()->pluck('packed_in');
+
+        return $packings->count() === 1 && $packings->first() ? (int) $packings->first() : null;
+    }
 
     public function packingSpecs(): HasMany
     {

@@ -20,6 +20,7 @@ use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use Illuminate\Support\Facades\DB;
 
 trait WithSupplierProductShowcase
 {
@@ -42,6 +43,71 @@ trait WithSupplierProductShowcase
             'trade_units' => $this->getSupplierProductTradeUnits($supplierProduct),
             'stocks'      => $this->getSupplierProductStocks($supplierProduct),
             'composition' => $this->getSupplierProductComposition($supplierProduct, $organisationId),
+            'triangle'    => $this->getSupplierProductTriangle($supplierProduct),
+        ];
+    }
+
+    /**
+     * The composition triangle (TU, SKO, P) of the one stock this supplier product feeds. Units per pack
+     * is set in the SKO composition, so the eye cries when the supplier product says otherwise.
+     */
+    private function getSupplierProductTriangle(SupplierProduct $supplierProduct): ?array
+    {
+        $tradeUnit = $supplierProduct->tradeUnits->first();
+        $stock     = $supplierProduct->stocks->first();
+        if (!$tradeUnit || !$stock || $supplierProduct->stocks->count() !== 1) {
+            return null;
+        }
+
+        $orgStocks     = $stock->orgStocks()->with('organisation:id,code')->get();
+        $skoPackedIn   = $supplierProduct->skoPackedIn();
+        $sellQuantities = DB::table('model_has_trade_units')
+            ->where('model_type', 'Product')
+            ->where('trade_unit_id', $tradeUnit->id)
+            ->pluck('quantity');
+        $distinctSellQuantities = $sellQuantities->map(fn ($quantity) => (float) $quantity)->unique();
+
+        $warning = $skoPackedIn !== null && $supplierProduct->units_per_pack !== null && $skoPackedIn !== $supplierProduct->units_per_pack
+            ? __('Units per pack says :supplier but the SKO is packed in :sko. The SKO composition is the one that counts: change it there.', [
+                'supplier' => $supplierProduct->units_per_pack,
+                'sko'      => $skoPackedIn,
+            ])
+            : null;
+
+        return [
+            'trade_units'       => [
+                [
+                    'code'             => $tradeUnit->code,
+                    'type'             => $tradeUnit->type,
+                    'quantity'         => $distinctSellQuantities->count() === 1 ? $distinctSellQuantities->first() : null,
+                    'packed_in'        => $skoPackedIn,
+                    'packed_in_by_org' => $orgStocks->map(fn (OrgStock $orgStock) => [
+                        'org_code'  => $orgStock->organisation->code,
+                        'packed_in' => $orgStock->packed_in,
+                    ])->values()->all(),
+                ],
+            ],
+            'products_count'    => $sellQuantities->count(),
+            'mood'              => $warning ? 'crying' : ($orgStocks->pluck('packed_in')->unique()->count() > 1 ? 'angry' : null),
+            'warning'           => $warning,
+            'trade_unit'        => [
+                'code'  => $tradeUnit->code,
+                'route' => $this->groupRoute([
+                    'name'       => 'grp.trade_units.units.show',
+                    'parameters' => ['tradeUnit' => $tradeUnit->slug],
+                ]),
+            ],
+            'stock'             => [
+                'code'  => $stock->code,
+                'route' => $this->groupRoute([
+                    'name'       => 'grp.goods.stocks.show',
+                    'parameters' => ['stock' => $stock->slug],
+                ]),
+            ],
+            'composition_route' => request()->user()?->authTo('goods.edit') ? $this->groupRoute([
+                'name'       => 'grp.goods.stocks.composition',
+                'parameters' => ['stock' => $stock->slug],
+            ]) : null,
         ];
     }
 

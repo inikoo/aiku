@@ -15,6 +15,7 @@ use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Actions\Goods\TradeUnit\Hydrators\TradeUnitsHydrateStocks;
 use App\Actions\Inventory\OrgStock\SyncOrgStockTradeUnits;
 use App\Actions\Masters\MasterAsset\AskMastersToReviewComposition;
+use App\Actions\SupplyChain\SupplierProduct\SyncSupplierProductUnitsPerPackFromSko;
 use App\Actions\Traits\ModelHydrateSingleTradeUnits;
 use App\Models\Goods\Stock;
 use App\Models\SysAdmin\User;
@@ -57,6 +58,10 @@ class SyncStockTradeUnits
                 ->all();
 
             Bus::chain($jobs)->dispatch();
+        }
+
+        foreach ($stock->supplierProducts as $supplierProduct) {
+            SyncSupplierProductUnitsPerPackFromSko::run($supplierProduct);
         }
 
         $requester = $userId ? User::find($userId) : null;
