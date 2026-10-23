@@ -19,7 +19,7 @@ class GetWebpageStructuredDataSource
      * What the public site receives for this webpage when a visitor is logged out, so the JSON-LD
      * it builds in the browser can be built the same way in aiku.
      *
-     * @return array{webpage_data: array<string, mixed>, web_blocks: array<int, mixed>, breadcrumbs: array<int, mixed>, website_url: string, website_name: ?string, currency_code: ?string}|null
+     * @return array{webpage_data: array<string, mixed>, web_blocks: array<int, mixed>, breadcrumbs: array<int, mixed>, website_url: string, website_name: ?string, terms_url: ?string, currency_code: ?string}|null
      */
     public function handle(Webpage $webpage): ?array
     {
@@ -37,6 +37,7 @@ class GetWebpageStructuredDataSource
             'breadcrumbs'   => Arr::get($webpageData, 'breadcrumbs', []),
             'website_url'   => $website->storefront?->getCanonicalUrl() ?? $website->getUrl(),
             'website_name'  => $website->name,
+            'terms_url'     => $website->getTermsAndConditionsUrl(),
             'currency_code' => $webpage->shop->currency?->code,
         ];
     }

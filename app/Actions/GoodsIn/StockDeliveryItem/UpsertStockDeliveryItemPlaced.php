@@ -122,12 +122,6 @@ class UpsertStockDeliveryItemPlaced extends OrgAction
         $this->stockDeliveryItem = $stockDeliveryItem;
         $this->initialisation($stockDeliveryItem->organisation, $request);
 
-        if ($missing = $stockDeliveryItem->stockDelivery->costsMissingForPutAway()) {
-            throw ValidationException::withMessages([
-                'costs' => __('Put-away is blocked until procurement enters the costs of this delivery (amount, estimate or not applicable): :costs', ['costs' => implode(', ', $missing)]),
-            ]);
-        }
-
         return $this->handle($stockDeliveryItem, $this->validatedData);
     }
 

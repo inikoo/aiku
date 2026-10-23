@@ -9,6 +9,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveriesCostingReminder;
 use App\Actions\SysAdmin\User\UI\GetLoggedUser;
 use App\Actions\UI\AikuPublic\BlogPosts;
 use App\Actions\UI\Grp\GetFirstLoadProps;
@@ -135,6 +136,7 @@ class HandleInertiaGrpRequests extends Middleware
                 ],
                 'help' => fn () => BlogPosts::helpFor($routeName, $user?->language?->code),
                 'can_move_stock' => fn () => $this->canMoveStockInRouteWarehouse($request, $user),
+                'costing_reminder' => fn () => $user ? GetStockDeliveriesCostingReminder::run($user) : null,
                 'ziggy' => [
                     'location' => $request->url(),
                 ],

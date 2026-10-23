@@ -15,7 +15,7 @@ register(
 		`)
 )
 
-const { parseStructuredData } = await import("../../resources/js/Iris/Composables/useStructuredData.ts")
+const { parseStructuredData, withImageLicense } = await import("../../resources/js/Iris/Composables/useStructuredData.ts")
 
 test("webpages with no structured data write no JSON-LD at all", () => {
 	for (const raw of [[], [""], "[]", '[""]', {}, "", null, "not json"]) {
@@ -85,4 +85,35 @@ test("building a webpage's structured data leaves the page props it reads untouc
 	buildWebpageStructuredData({ webpage_data, web_blocks, currency_code: "GBP" })
 
 	assert.equal(JSON.stringify({ webpage_data, web_blocks }), before)
+})
+
+test("every image URL in the structured data carries the website's licence, for the Licensable badge in Google Images", () => {
+	const license = { websiteName: "AW Aromatics", termsUrl: "https://www.aw-aromatics.com/terms-and-conditions" }
+	const licensedImage = (contentUrl: string) => ({
+		"@type": "ImageObject",
+		contentUrl,
+		license: license.termsUrl,
+		acquireLicensePage: license.termsUrl,
+		creditText: "AW Aromatics",
+		creator: { "@type": "Organization", name: "AW Aromatics" },
+		copyrightNotice: "© AW Aromatics",
+	})
+
+	const licensed = withImageLicense(
+		[
+			{ "@type": "Product", image: ["https://media.aiku.io/a.jpg", "https://media.aiku.io/b.jpg"] },
+			{ "@type": "ProductGroup", hasVariant: [{ "@type": "Product", image: "https://media.aiku.io/c.jpg" }] },
+			{ "@type": "Product", image: { "@type": "ImageObject", contentUrl: "https://media.aiku.io/d.jpg" } },
+		],
+		license
+	)
+
+	assert.deepEqual(licensed[0].image, [licensedImage("https://media.aiku.io/a.jpg"), licensedImage("https://media.aiku.io/b.jpg")])
+	assert.deepEqual(licensed[1].hasVariant[0].image, licensedImage("https://media.aiku.io/c.jpg"))
+	assert.deepEqual(licensed[2].image, { "@type": "ImageObject", contentUrl: "https://media.aiku.io/d.jpg" })
+})
+
+test("image URLs stay plain when the website has no name and no terms page", () => {
+	const nodes = [{ "@type": "Product", image: ["https://media.aiku.io/a.jpg"] }]
+	assert.deepEqual(withImageLicense(nodes, { websiteName: null, termsUrl: null }), nodes)
 })

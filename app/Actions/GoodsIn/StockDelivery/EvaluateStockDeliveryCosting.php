@@ -59,12 +59,16 @@ class EvaluateStockDeliveryCosting
             $repricedSince = RepriceStockDeliveryOrgStockMovements::run($stockDelivery);
         }
 
+        foreach ($repricedSince as $orgStockId => $fromDate) {
+            RebuildOrgStockHistoriesSince::dispatch($orgStockId, $fromDate)->delay(60)->afterCommit();
+        }
+
         StockDeliveriesHydrateCosts::run($stockDelivery);
 
         $stockDelivery->refresh();
 
         if ($stockDelivery->is_costed && Arr::has($stockDelivery->data, 'costing_reopened')) {
-            $this->closeReopenedCosting($stockDelivery, $repricedSince);
+            $this->closeReopenedCosting($stockDelivery);
         }
 
         return $stockDelivery;
@@ -178,7 +182,7 @@ class EvaluateStockDeliveryCosting
     /**
      * @param array<int, string> $repricedSince
      */
-    private function closeReopenedCosting(StockDelivery $stockDelivery, array $repricedSince): void
+    private function closeReopenedCosting(StockDelivery $stockDelivery): void
     {
         $reopened = Arr::get($stockDelivery->data, 'costing_reopened');
 
@@ -191,10 +195,6 @@ class EvaluateStockDeliveryCosting
         $stockDelivery->auditCustomOld = $stockDelivery->auditCustomNew = [];
 
         $stockDelivery->update(['data' => Arr::except($stockDelivery->data, 'costing_reopened')]);
-
-        foreach ($repricedSince as $orgStockId => $fromDate) {
-            RebuildOrgStockHistoriesSince::dispatch($orgStockId, $fromDate)->delay(60)->afterCommit();
-        }
     }
 
     private function isCosted($costs): bool

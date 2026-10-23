@@ -114,6 +114,7 @@ const structuredDataJsonLd = computed(() => {
             web_blocks: props.web_blocks,
             currency_code: layout.iris?.currency?.code,
             website_name: layout.iris?.website?.name,
+            terms_url: layout.iris?.website?.terms_url,
         }).map(toJsonLd)
     } catch (error) {
         console.error("Failed to build structured data:", error)

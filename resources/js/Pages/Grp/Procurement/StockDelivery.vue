@@ -230,13 +230,11 @@ const props = defineProps<{
 		currency: string | null
 		checklist: any[]
 		org_currency_id: number
-		put_away_blocked: string[]
-		costs_are_users_job: boolean
-		costed_on_route: routeType | null
+		costs_missing: string[]
 		agent_invoice_missing: boolean
 		storeCostRoute: routeType
 		distributeExtraCostRoute: routeType | null
-	}
+	} | null
 	items?: {}
 	pending_items?: {}
 	done_items?: {}
@@ -434,6 +432,11 @@ const orgPerOrder = computed(() => {
 
 const openCostBlocks = ref<Record<string, boolean>>({})
 const costBlocks = computed(() => {
+	const costing = props.costing
+	if (!costing) {
+		return []
+	}
+
 	const { currency, org_currency, items, org_items } = props.box_stats.third_block
 
 	const money = (code: string | null, amount: number) => locale.currencyFormat(code ?? "", amount)
@@ -510,21 +513,21 @@ const costBlocks = computed(() => {
 		.filter(row => !row.paid_at)
 		.reduce((sum, row) => sum + (row.allocations.find(allocation => allocation.stock_delivery_id === props.service_invoices?.stock_delivery_id)?.amount ?? 0) * Number(row.exchange), 0)
 	const invoiceBalance = agentInvoice && agentInvoice.balance_due !== null && agentInvoiceRate !== null ? agentInvoice.balance_due * agentInvoiceRate : null
-	const pendingLocalCosts = props.costing.checklist.filter(row => row.type !== "agent_invoice" && !row.received_at && !row.is_na)
+	const pendingLocalCosts = costing.checklist.filter(row => row.type !== "agent_invoice" && !row.received_at && !row.is_na)
 	const waiting = (rows: typeof pendingLocalCosts) => rows.filter(row => row.is_waiting_for_invoice).map(row => `${row.label}: ${row.waiting_label}`)
 	const missingLocalCosts = pendingLocalCosts.filter(row => !row.is_waiting_for_invoice).map(row => row.label)
 	const localCostsStatus = [
 		...waiting(pendingLocalCosts),
 		...(missingLocalCosts.length ? [ctrans("Missing: :costs", { costs: missingLocalCosts.join(", ") })] : []),
 	].join(" · ")
-	const waitingInvoice = waiting(props.costing.checklist.filter(row => row.type === "agent_invoice" && !row.received_at))[0]
-	const estimateRows = props.costing.checklist.filter(row => row.is_estimate && !row.is_na)
+	const waitingInvoice = waiting(costing.checklist.filter(row => row.type === "agent_invoice" && !row.received_at))[0]
+	const estimateRows = costing.checklist.filter(row => row.is_estimate && !row.is_na)
 	const estimateText = (row: typeof estimateRows[number]) => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`
 	const invoiceEstimate = estimateRows.filter(row => row.type === "agent_invoice").map(estimateText)[0]
 	const localEstimates = estimateRows.filter(row => row.type !== "agent_invoice").map(estimateText)
 	const isRising = pendingLocalCosts.some(row => row.is_waiting_for_invoice)
 	const status = (missing: string | null, done: string) =>
-		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
+		!isCostingVisible.value || costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
 
 	const invoiceBlock = {
 		...firstBlock,
@@ -535,10 +538,10 @@ const costBlocks = computed(() => {
 		detail: "",
 		balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
 		balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
-		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : (invoiceEstimate ?? null), ctrans("Invoice received")),
+		status: status(costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : (invoiceEstimate ?? null), ctrans("Invoice received")),
 	}
 
-	if (props.costing.viewed_by_agent) {
+	if (costing.viewed_by_agent) {
 		return [invoiceBlock]
 	}
 
@@ -573,19 +576,19 @@ const costBlocks = computed(() => {
 				? ctrans("for every :one of goods, :extra of extra costs", { one: String(money(orgCurrency, 1)), extra: String(money(orgCurrency, (invoiceTotal + localTotal - invoiceGoods) / invoiceGoods)) })
 				: "",
 			percent: invoiceGoods > 0 ? `+${percentOfGoods(invoiceTotal + localTotal - invoiceGoods)}%` : "",
-			status: props.costing.put_away_blocked.length
-				? status(ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") }), "")
-				: props.costing.is_costed
+			status: costing.costs_missing.length
+				? status(ctrans("Costs missing: :costs", { costs: costing.costs_missing.join(", ") }), "")
+				: costing.is_costed
 				? status(estimateRows.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
 				: (isRising ? status(ctrans("This total will increase: an invoice is still to come"), "") : null),
 			title: ctrans("Landed total"),
 			rows: [
 				{ label: ctrans("Goods"), value: money(orgCurrency, invoiceGoods), sub: null as string | null, isTotal: false, note: "" },
 				...(agentInvoiceInDelivery > 0 || !agentInvoice || agentInvoiceRate === null ? [] : agentInvoice.charges_list).map(charge => ({ ...costLine(charge.description, charge.amount * (agentInvoiceRate ?? 1)), tag: agentInvoice?.kind === "supplier" ? ctrans("Supplier") : ctrans("Agent") })),
-				...props.costing.checklist
+				...costing.checklist
 					.filter(row => row.type !== "agent_invoice" && !row.is_na)
 					.map(row => {
-						const orgAmount = row.org_amount ?? (row.amount != null && row.currency_id === props.costing.org_currency_id ? Number(row.amount) : null)
+						const orgAmount = row.org_amount ?? (row.amount != null && row.currency_id === costing.org_currency_id ? Number(row.amount) : null)
 
 						return orgAmount != null
 							? costLine(row.is_estimate ? `${row.label} (${ctrans("estimate")})` : row.label, Number(orgAmount))
@@ -660,7 +663,7 @@ const confirmDispatchStockDelivery = (action: any) => {
 
 	confirm.require({
 		group: "stock-delivery",
-		message: props.costing.agent_invoice_missing
+		message: props.costing?.agent_invoice_missing
 			? (props.is_container ? ctrans("The agent invoice has not been received yet. Are you sure you want to mark this container as dispatched?") : ctrans("The agent invoice has not been received yet. Are you sure you want to mark this stock delivery as dispatched?"))
 			: (props.is_container ? ctrans("Are you sure you want to mark this container as dispatched?") : ctrans("Are you sure you want to mark this stock delivery as dispatched?")),
 		header: props.is_container ? ctrans("Dispatch Container") : ctrans("Dispatch Stock Delivery"),
@@ -693,16 +696,10 @@ const confirmUndispatchStockDelivery = (action: any) => {
 	})
 }
 
-const receiveWithoutCostsAction = ref<any>(null)
-const receiveReason = ref("")
-const receiveAcknowledged = ref(false)
-const canReceiveWithoutCosts = computed(() => receiveReason.value.trim().length >= 5 && (!props.costing.costs_are_users_job || receiveAcknowledged.value))
-
-const receiveStockDelivery = (action: any, data: { reason?: string } = {}) =>
-	router.patch(route(action.route.name, action.route.parameters), data, {
+const receiveStockDelivery = (action: any) =>
+	router.patch(route(action.route.name, action.route.parameters), {}, {
 		onStart: () => { receiveLoading.value = true },
 		onFinish: () => { receiveLoading.value = false },
-		onSuccess: () => { receiveWithoutCostsAction.value = null; receiveReason.value = "" },
 		onError: (errors: Record<string, string>) => {
 			notify({
 				title: ctrans("Something went wrong"),
@@ -713,13 +710,6 @@ const receiveStockDelivery = (action: any, data: { reason?: string } = {}) =>
 	})
 
 const confirmReceiveStockDelivery = (action: any) => {
-	if (props.costing.put_away_blocked.length) {
-		receiveReason.value = ""
-		receiveAcknowledged.value = false
-		receiveWithoutCostsAction.value = action
-		return
-	}
-
 	confirm.require({
 		group: "stock-delivery",
 		message: props.is_container ? ctrans("Are you sure you want to mark this container as received? This can not be reverted.") : ctrans("Are you sure you want to mark this stock delivery as received? This can not be reverted."),
@@ -1121,7 +1111,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 	<AgentContainerInvoicePanel v-if="agentInvoice" :data="agentInvoice" :currencyCode="box_stats.third_block.currency ?? ''" class="mb-4" />
 
-	<div class="grid grid-cols-2 xl:grid-cols-4 text-gray-500 divide-x divide-gray-300 border-b border-gray-300">
+	<div class="grid grid-cols-2 text-gray-500 divide-x divide-gray-300 border-b border-gray-300" :class="{ 'xl:grid-cols-4': costing }">
 		<!-- First Block -->
 		<BoxStatPallet class="p-4">
 			<div class="flex flex-col gap-4">
@@ -1361,7 +1351,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</BoxStatPallet>
 
 		<!-- Third Block: costs -->
-		<BoxStatPallet class="col-span-2">
+		<BoxStatPallet v-if="costing" class="col-span-2">
 			<div>
 				<table class="w-full text-sm">
 					<thead>
@@ -1549,6 +1539,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 	</Dialog>
 
 	<Dialog
+		v-if="costing"
 		:visible="!!costingSection"
 		modal
 		dismissableMask
@@ -1568,13 +1559,6 @@ const confirmDeleteStockDelivery = (action: any) => {
 				</button>
 			</div>
 		</template>
-		<div v-if="costing.costed_on_route" class="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
-			<FontAwesomeIcon icon="fal fa-info-circle" fixed-width aria-hidden="true" />
-			<span>{{ ctrans("Costs are entered on the procurement page of this delivery.") }}</span>
-			<Link :href="route(costing.costed_on_route.name, costing.costed_on_route.parameters)" class="font-medium underline">
-				{{ ctrans("Open the procurement page") }}
-			</Link>
-		</div>
 		<StockDeliveryInvoiceEntry
 			v-if="costingSection === 'invoice' && box_stats.invoice_entry"
 			:route="box_stats.invoice_entry.route"
@@ -1605,7 +1589,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:key="currentTab"
 		:data="props[currentTab]"
 		:tab="currentTab"
-		:costing="currentTab === 'items' ? costing : undefined"
+		:costing="currentTab === 'items' ? costing ?? undefined : undefined"
 		:detachRoute="attachmentRoutes.detachRoute"
 		:updateRoute="currentTab === 'attachments' ? attachmentRoutes.updateRoute : undefined"
 		:scopeOptions="currentTab === 'attachments' ? attachmentScopes : undefined"
@@ -1689,65 +1673,6 @@ const confirmDeleteStockDelivery = (action: any) => {
 		</template>
 	</Dialog>
 
-	<Dialog
-		:visible="!!receiveWithoutCostsAction"
-		modal
-		:closable="false"
-		:style="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }"
-		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
-		@update:visible="(visible: boolean) => { if (!visible) receiveWithoutCostsAction = null }"
-	>
-		<template #header>
-			<div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
-				<FontAwesomeIcon :icon="faExclamationTriangle" :class="costing.costs_are_users_job ? 'text-red-500' : 'text-amber-500'" fixed-width aria-hidden="true" />
-				{{ costing.costs_are_users_job ? ctrans("Receiving without its costs") : ctrans("Costs not entered yet") }}
-			</div>
-		</template>
-		<div class="space-y-3 text-sm text-gray-700">
-			<p>{{ ctrans("The costs of this delivery have not been entered yet: :costs.", { costs: costing.put_away_blocked.join(", ") }) }}</p>
-			<template v-if="costing.costs_are_users_job">
-				<p>{{ ctrans("Entering the costs before the goods arrive is part of the procurement job. Without them the goods stay in goods-in, can not be put away or sold, and the stock value and margins are wrong until they are in.") }}</p>
-				<p class="font-medium text-red-700">{{ ctrans("Enter the costs, an estimate or not applicable first whenever you can. Receive like this only when it truly can not wait.") }}</p>
-			</template>
-			<p v-else>{{ ctrans("You can receive and count it, but its goods can not be put away until procurement enters the costs, so nothing is sold at the wrong cost.") }}</p>
-			<label class="block">
-				<span class="text-gray-600">{{ ctrans("Why is it being received without its costs?") }}</span>
-				<InputText v-model="receiveReason" class="mt-1 w-full" autofocus maxlength="255" :placeholder="ctrans('e.g. lorry at the door, invoice not sent yet')" />
-			</label>
-			<button
-				v-if="costing.costs_are_users_job"
-				type="button"
-				role="checkbox"
-				:aria-checked="receiveAcknowledged"
-				class="flex items-start gap-2 text-left"
-				@click="receiveAcknowledged = !receiveAcknowledged"
-			>
-				<FontAwesomeIcon :icon="receiveAcknowledged ? 'fas fa-check-square' : 'fal fa-square'" class="mt-0.5 text-lg leading-none" :class="receiveAcknowledged ? 'text-gray-700' : 'text-gray-400'" fixed-width aria-hidden="true" />
-				<span>{{ ctrans("I know these costs should have been entered before receiving, and I will get them in.") }}</span>
-			</button>
-		</div>
-		<template #footer>
-			<div class="flex w-full flex-wrap items-center justify-between gap-3">
-				<p class="max-w-xs text-xs text-gray-500">
-					{{ costing.costs_are_users_job
-						? ctrans("This is recorded under your name in the history of this delivery and reported to the supply chain managers.")
-						: ctrans("Your reason is noted in the history of this delivery and the supply chain team is let know, so they can get the costs in.") }}
-				</p>
-				<div class="flex gap-2">
-					<Button type="tertiary" :label="ctrans('Cancel')" @click="receiveWithoutCostsAction = null">
-						<template #icon>
-							<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
-						</template>
-					</Button>
-					<Button type="tertiary" :label="costing.costs_are_users_job ? ctrans('Receive anyway') : ctrans('Receive')" :disabled="!canReceiveWithoutCosts" :loading="receiveLoading" @click="receiveStockDelivery(receiveWithoutCostsAction, { reason: receiveReason.trim() })">
-						<template #icon>
-							<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
-						</template>
-					</Button>
-				</div>
-			</div>
-		</template>
-	</Dialog>
 
 	<Dialog
 		v-if="add_purchase_orders"

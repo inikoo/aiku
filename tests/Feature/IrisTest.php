@@ -12,6 +12,7 @@ use App\Actions\Iris\Docs\ShowIrisDocs;
 use App\Actions\UI\AikuPublic\BlogPosts;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Helpers\Language;
@@ -45,6 +46,7 @@ use App\Enums\CRM\Appointment\AppointmentSourceEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Http\Middleware\HandleIrisInertiaRequests;
+use App\Http\Resources\Web\WebsiteIrisResource;
 use App\Actions\CRM\Appointment\Widget\AppointmentWidgetKey;
 use App\Actions\CRM\Appointment\Widget\EnableShopAppointmentWidget;
 use App\Models\CRM\Appointment;
@@ -1197,4 +1199,15 @@ test('the hourly data feed run checks every read mark of a shop at once and rebu
 
     expect(array_map(fn ($row) => $export->map($row), $feedRows))->toBe($fullRows->map(fn ($row) => $export->map($row))->all())
         ->and(count($feedRows))->toBeGreaterThan(0);
+});
+
+test('iris website data links its live terms page, the licence Google Images reads for product images (HELP-4262)', function () {
+    $termsWebpage = $this->website->webpages()->where('sub_type', WebpageSubTypeEnum::TERMS_AND_CONDITIONS)->firstOrFail();
+
+    $termsWebpage->update(['state' => WebpageStateEnum::CLOSED]);
+    expect(WebsiteIrisResource::make($this->website)->getArray()['terms_url'])->toBeNull();
+
+    $termsWebpage->update(['state' => WebpageStateEnum::LIVE]);
+    expect(WebsiteIrisResource::make($this->website)->getArray()['terms_url'])->toBe($termsWebpage->fresh()->getCanonicalUrl())
+        ->and($termsWebpage->fresh()->getCanonicalUrl())->toEndWith('terms-and-conditions');
 });

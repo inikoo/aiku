@@ -25,7 +25,7 @@ use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\UpdateStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryCost;
 use App\Actions\GoodsIn\StockDelivery\RepairStockDeliveryCostings;
-use App\Actions\GoodsIn\StockDelivery\ReportStockDeliveryReceivedWithoutCosts;
+use App\Actions\GoodsIn\StockDelivery\GetStockDeliveriesCostingReminder;
 use App\Actions\GoodsIn\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\PdfStockDelivery;
@@ -1197,7 +1197,7 @@ test('UI show stock delivery pending and done item tabs', function () {
     $this->get($procurementUrl)->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
-            ->where('costing.costed_on_route', null)
+            ->has('costing.checklist')
             ->where('tabs.current', StockDeliveryTabsEnum::ITEMS->value)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
@@ -1212,25 +1212,21 @@ test('UI show stock delivery pending and done item tabs', function () {
             ->component('Procurement/StockDelivery')
             ->where('tabs.current', StockDeliveryTabsEnum::PENDING_ITEMS->value)
             ->where('pageHead.edit', false)
-            ->where('costing.can_edit', false)
-            ->where('costing.costed_on_route.name', 'grp.org.procurement.stock_deliveries.show')
+            ->where('costing', null)
+            ->where('invoice_costing', [])
+            ->where('service_invoices', null)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::PENDING_ITEMS->value)
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::DONE_ITEMS->value)
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::ITEMS->value)
             ->missing('tabs.navigation.showcase')
             ->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
-            ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2)
-            ->where('costing.costed_on_route.parameters', [$this->organisation->slug, $stockDelivery->slug]);
+            ->has(StockDeliveryTabsEnum::PENDING_ITEMS->value.'.data', 2);
     });
 
     $goodsInClerk = User::factory()->create(['group_id' => $warehouse->group_id]);
     $goodsInClerk->assignRole(RolesEnum::getRoleName(RolesEnum::GOODS_IN_CLERK->value, $warehouse));
-    $this->actingAs($goodsInClerk)->get($goodsInUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('costing.costed_on_route', null));
+    $this->actingAs($goodsInClerk)->get($goodsInUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('costing', null));
     $this->actingAs($this->adminGuest->getUser());
-
-    $stockDelivery->update(['is_costed' => true]);
-    $this->get($goodsInUrl)->assertInertia(fn (AssertableInertia $page) => $page->where('costing.costed_on_route', null));
-    $stockDelivery->update(['is_costed' => false]);
 
     $this->withExceptionHandling();
     $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::ITEMS->value)->assertNotFound();
@@ -1686,6 +1682,69 @@ test('under delivered stock delivery item is placed and books in the delivery', 
         ->and($stockDeliveryItem->state)->toBe(StockDeliveryItemStateEnum::PLACED)
         ->and($stockDelivery->fresh()->state)->toBe(StockDeliveryStateEnum::BOOKED_IN)
         ->and($stockDelivery->fresh()->booked_in_at)->not->toBeNull();
+});
+
+test('the warehouse puts away a delivery without costs, procurement is told once and reminded daily with a reason after 5 working days', function () {
+    Notification::fake();
+    $user = $this->adminGuest->getUser();
+    Cache::forget(GetStockDeliveriesCostingReminder::cacheKey($user));
+
+    $stockDelivery = createStockDeliveryWithItems($this, 'NO-COSTS-PUT-AWAY', [10]);
+    $stockDelivery = DispatchStockDelivery::make()->action($stockDelivery);
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+
+    $stockDeliveryItem = SetStockDeliveryItemCheckedQuantity::make()->action($stockDelivery->items()->first(), ['unit_quantity_checked' => 10]);
+    expect($stockDelivery->fresh()->costsMissing())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty']);
+
+    $this->patch(route('grp.models.stock-delivery-item.place', $stockDeliveryItem->id), ['quantity' => 4, 'location_org_stock_id' => createLocationOrgStockFor($this, $stockDeliveryItem)->id])
+        ->assertSessionHasNoErrors();
+    $this->patch(route('grp.models.stock-delivery-item.place', $stockDeliveryItem->id), ['quantity' => 6, 'location_org_stock_id' => createLocationOrgStockFor($this, $stockDeliveryItem)->id])
+        ->assertSessionHasNoErrors();
+
+    $stockDelivery->refresh();
+    expect($stockDelivery->state)->toBe(StockDeliveryStateEnum::BOOKED_IN)
+        ->and($stockDelivery->audits()->where('event', 'booked_in_without_costs')->count())->toBe(1)
+        ->and($stockDelivery->costsMissing())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty'])
+        ->and(StockDelivery::whereKey($stockDelivery->id)->withCostsMissing()->exists())->toBeTrue();
+
+    $reminder = GetStockDeliveriesCostingReminder::run($user);
+    $listed   = collect($reminder['deliveries'])->firstWhere('id', $stockDelivery->id);
+    expect($listed['needs_reason'])->toBeFalse();
+
+    $stockDelivery->update(['booking_in_at' => null, 'booked_in_at' => now()->subWeekdays(6)]);
+    $listed = collect(GetStockDeliveriesCostingReminder::make()->deliveries($user))->firstWhere('id', $stockDelivery->id);
+    expect($listed['days'])->toBe(6)
+        ->and($listed['needs_reason'])->toBeTrue();
+
+    $acknowledge = fn (array $reasons) => $this->post(route('grp.models.costing_reminder.acknowledge'), ['reasons' => $reasons]);
+    $acknowledge([])->assertSessionHasErrors("reasons.$stockDelivery->id");
+    expect(GetStockDeliveriesCostingReminder::run($user))->not->toBeNull();
+
+    $reasons     = collect(GetStockDeliveriesCostingReminder::make()->deliveries($user))->where('needs_reason', true)->mapWithKeys(fn (array $delivery) => [$delivery['id'] => 'Forwarder has not sent the bill'])->all();
+    $acknowledge = fn (array $reasons, array $remindOn = []) => $this->post(route('grp.models.costing_reminder.acknowledge'), ['reasons' => $reasons, 'remind_on' => $remindOn]);
+    $acknowledge($reasons, [$stockDelivery->id => now()->addMonth()->addDay()->toDateString()])->assertSessionHasErrors("remind_on.$stockDelivery->id");
+    $acknowledge($reasons, [$stockDelivery->id => now()->addDays(10)->toDateString()])->assertSessionHasNoErrors();
+
+    $audit = $stockDelivery->audits()->where('event', 'costing_late_reason')->latest('id')->first();
+    expect($audit->new_values['reason'])->toBe('Forwarder has not sent the bill')
+        ->and($audit->new_values['remind_on'])->toBe(now()->addDays(10)->toDateString())
+        ->and(GetStockDeliveriesCostingReminder::run($user))->toBeNull()
+        ->and(collect(GetStockDeliveriesCostingReminder::make()->deliveries($user))->pluck('id'))->not->toContain($stockDelivery->id);
+
+    $this->travel(10)->days();
+    expect(collect(GetStockDeliveriesCostingReminder::make()->deliveries($user))->pluck('id'))->toContain($stockDelivery->id);
+    $this->travelBack();
+
+    \Illuminate\Support\Facades\Queue::fake();
+    $stockDeliveryItem = $stockDeliveryItem->fresh();
+    $stockDelivery     = \App\Actions\GoodsIn\StockDelivery\StartStockDeliveryCosting::make()->action($stockDelivery->fresh());
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::AGENT_INVOICE->value, 'amount' => $stockDeliveryItem->net_amount, 'received_at' => now()]);
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::SHIPPING->value, 'amount' => 50, 'received_at' => now()]);
+    \App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'is_na' => true]);
+
+    expect($stockDelivery->fresh()->is_costed)->toBeTrue()
+        ->and($stockDelivery->fresh()->costsMissing())->toBe([]);
+    \App\Actions\Inventory\OrgStock\Stock\RebuildOrgStockHistoriesSince::assertPushed();
 });
 
 test('stock delivery item confirmation sets confirmed_at real column', function () {
@@ -2554,19 +2613,19 @@ describe('stock delivery costing checklist', function () {
 
     test('the agent or supplier invoice waiting for its invoice takes an estimate that lets put-away through until the real invoice replaces it', function () {
         $stockDelivery = $this->costingStockDelivery;
-        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_REQUIRED_FROM]);
 
         $invoice = StoreStockDeliveryCost::make()->action($stockDelivery, [
             'type'                   => StockDeliveryCostTypeEnum::AGENT_INVOICE->value,
             'is_waiting_for_invoice' => true,
         ]);
-        expect($stockDelivery->refresh()->costsMissingForPutAway())->toContain('Agent or supplier invoice');
+        expect($stockDelivery->refresh()->costsMissing())->toContain('Agent or supplier invoice');
 
         $invoice = UpdateStockDeliveryCost::make()->action($invoice, ['amount' => 13320]);
         expect($invoice->is_estimate)->toBeTrue()
             ->and($invoice->is_waiting_for_invoice)->toBeTrue()
             ->and($invoice->received_at)->not->toBeNull()
-            ->and($stockDelivery->refresh()->costsMissingForPutAway())->not->toContain('Agent or supplier invoice');
+            ->and($stockDelivery->refresh()->costsMissing())->not->toContain('Agent or supplier invoice');
 
         $invoice = UpdateStockDeliveryCost::make()->action($invoice, [
             'amount'                 => 6500,
@@ -2883,17 +2942,12 @@ describe('stock delivery service invoices', function () {
         $attach(['type' => StockDeliveryCostTypeEnum::EXTRA->value, 'attachments' => [$pdf('extra.pdf')]])->assertSessionHasErrors('cost');
 
         $stockDelivery->created_at = '2026-10-01';
-        expect($stockDelivery->costsMissingForPutAway())->toBe([]);
-        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
-        expect($stockDelivery->costsMissingForPutAway())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty'])
-            ->and(StockDelivery::whereKey($stockDelivery->id)->withCostsMissingForPutAway()->exists())->toBeTrue();
+        expect($stockDelivery->costsMissing())->toBe([]);
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_REQUIRED_FROM]);
+        expect($stockDelivery->costsMissing())->toBe(['Agent or supplier invoice', 'Shipping', 'Duty'])
+            ->and(StockDelivery::whereKey($stockDelivery->id)->withCostsMissing()->exists())->toBeTrue();
 
-        $receive = fn (array $data) => $this->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), $data);
-        $receive([])->assertSessionHasErrors('reason');
-        expect($stockDelivery->refresh()->state)->not->toBe(StockDeliveryStateEnum::RECEIVED);
-        $receive(['reason' => 'Lorry at the door'])->assertSessionDoesntHaveErrors(['reason']);
-        ReportStockDeliveryReceivedWithoutCosts::run($stockDelivery, User::first(), $stockDelivery->costsMissingForPutAway(), 'Lorry at the door');
-        expect($stockDelivery->audits()->where('event', 'received_without_costs')->exists())->toBeTrue();
+        $this->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id))->assertSessionDoesntHaveErrors(['reason']);
         $stockDelivery->update(['created_at' => '2026-10-01']);
 
         $storeCost = fn (array $data) => $this->post(route('grp.models.stock-delivery.cost.store', $stockDelivery->id), ['type' => StockDeliveryCostTypeEnum::EXTRA->value] + $data);

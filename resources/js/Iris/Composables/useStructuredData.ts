@@ -66,6 +66,52 @@ export const parseStructuredData = (raw: unknown): StructuredDataValue | null =>
     }
 }
 
+export type ImageLicense = {
+    websiteName?: string | null
+    termsUrl?: string | null
+}
+
+const toLicensedImageObject = (contentUrl: string, { websiteName, termsUrl }: ImageLicense): StructuredDataNode => {
+    const imageObject: StructuredDataNode = { "@type": "ImageObject", contentUrl }
+
+    if (termsUrl) {
+        imageObject.license = termsUrl
+        imageObject.acquireLicensePage = termsUrl
+    }
+
+    if (websiteName) {
+        imageObject.creditText = websiteName
+        imageObject.creator = { "@type": "Organization", name: websiteName }
+        imageObject.copyrightNotice = `© ${websiteName}`
+    }
+
+    return imageObject
+}
+
+const licenseImageValue = (value: unknown, license: ImageLicense): unknown => {
+    if (typeof value === "string" && value.length) return toLicensedImageObject(value, license)
+    if (Array.isArray(value)) return value.map((item) => licenseImageValue(item, license))
+
+    return withImageLicense(value, license)
+}
+
+export const withImageLicense = <T>(value: T, license: ImageLicense): T => {
+    if (!license.websiteName && !license.termsUrl) return value
+
+    if (Array.isArray(value)) {
+        return value.map((item) => withImageLicense(item, license)) as T
+    }
+
+    if (!isPlainObject(value)) return value
+
+    return Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [
+            key,
+            key === "image" ? licenseImageValue(item, license) : withImageLicense(item, license),
+        ])
+    ) as T
+}
+
 export const toJsonLd = (data: StructuredDataValue): string => JSON.stringify(data).replace(/</g, "\\u003c")
 
 export const generateProductsStructureFromProductsList = ({

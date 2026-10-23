@@ -659,6 +659,7 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgentFeePercentage;
 use App\Actions\SupplyChain\DepositRequest\CancelAgentMoneyRequest;
 use App\Actions\SupplyChain\DepositRequest\PayAgentMoneyRequest;
 use App\Actions\SupplyChain\Supplier\UpdateSupplierAdvancePercentage;
+use App\Actions\GoodsIn\StockDelivery\AcknowledgeStockDeliveriesCostingReminder;
 use App\Actions\GoodsIn\StockDelivery\ApplyStockDeliveryDeposit;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDeliveryDepositApplication;
 use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
@@ -821,6 +822,7 @@ Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 Route::patch('notification/{notification}/unread', MarkNotificationAsUnread::class)->name('notifications.unread');
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
+Route::post('costing-reminder', AcknowledgeStockDeliveriesCostingReminder::class)->name('costing_reminder.acknowledge');
 
 Route::prefix('ticket')->name('ticket.')->group(function () {
     Route::post('/', StoreTicket::class)->name('store');

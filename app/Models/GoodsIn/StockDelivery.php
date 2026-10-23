@@ -140,7 +140,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
     use HasSearch;
     use HasStageMarks;
 
-    public const string COSTS_BEFORE_PUT_AWAY_FROM = '2026-10-12';
+    public const string COSTS_REQUIRED_FROM = '2026-10-12';
 
     public const int TO_COST_ACTIVITY_DAYS = 120;
 
@@ -152,9 +152,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
         StockDeliveryStateEnum::PLACED,
     ];
 
-    public const array STATES_PAST_PUT_AWAY = [
-        StockDeliveryStateEnum::BOOKED_IN,
-        StockDeliveryStateEnum::PLACED,
+    public const array STATES_WITHOUT_COSTS = [
         StockDeliveryStateEnum::CANCELLED,
         StockDeliveryStateEnum::NOT_RECEIVED,
     ];
@@ -372,15 +370,16 @@ class StockDelivery extends Model implements HasMedia, Auditable
     }
 
     /**
-     * Goods are only put away, and so sold, once procurement has said what they cost: the agent or supplier
-     * invoice, the shipping and the duty each need an amount, an estimate or a not applicable. Deliveries
-     * created before the rule started and partner deliveries, which cost themselves, are let through.
+     * The costs procurement still owes on a delivery: the agent or supplier invoice, the shipping and the duty
+     * each need an amount, an estimate or a not applicable. They never hold the warehouse back; procurement is
+     * told when booking in starts and reminded every day. Deliveries created before the rule started and partner
+     * deliveries, which cost themselves, owe nothing.
      *
      * @return array<int, string> labels of the costs still missing
      */
-    public function costsMissingForPutAway(): array
+    public function costsMissing(): array
     {
-        if ($this->parent_type === 'OrgPartner' || in_array($this->state, self::STATES_PAST_PUT_AWAY, true) || $this->created_at?->lt(self::COSTS_BEFORE_PUT_AWAY_FROM)) {
+        if ($this->is_costed || $this->parent_type === 'OrgPartner' || in_array($this->state, self::STATES_WITHOUT_COSTS, true) || $this->created_at?->lt(self::COSTS_REQUIRED_FROM)) {
             return [];
         }
 
@@ -422,17 +421,18 @@ class StockDelivery extends Model implements HasMedia, Auditable
     }
 
     /**
-     * The same rule as costsMissingForPutAway(), for lists and counts.
+     * The same rule as costsMissing(), for lists and counts.
      */
-    public function scopeWithCostsMissingForPutAway(Builder $query): Builder
+    public function scopeWithCostsMissing(Builder $query): Builder
     {
         $isReady = fn (StockDeliveryCostTypeEnum $type) => fn ($query) => $query->where('type', $type)
             ->where(fn ($query) => $query->whereNotNull('received_at')->orWhere('is_na', true));
 
         return $query
-            ->whereNotIn('stock_deliveries.state', self::STATES_PAST_PUT_AWAY)
+            ->where('stock_deliveries.is_costed', false)
+            ->whereNotIn('stock_deliveries.state', self::STATES_WITHOUT_COSTS)
             ->where('stock_deliveries.parent_type', '!=', 'OrgPartner')
-            ->where('stock_deliveries.created_at', '>=', self::COSTS_BEFORE_PUT_AWAY_FROM)
+            ->where('stock_deliveries.created_at', '>=', self::COSTS_REQUIRED_FROM)
             ->where(fn ($query) => $query
                 ->whereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::SHIPPING))
                 ->orWhereDoesntHave('costs', $isReady(StockDeliveryCostTypeEnum::DUTY))
