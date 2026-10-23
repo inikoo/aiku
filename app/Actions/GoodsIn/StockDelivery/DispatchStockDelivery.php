@@ -50,6 +50,11 @@ class DispatchStockDelivery extends OrgAction
         return $agentOrganisationId && $request->user()->authTo("procurement.$agentOrganisationId.edit");
     }
 
+    public static function buyersManageAgentDeliveries(StockDelivery $stockDelivery): bool
+    {
+        return (bool) Arr::get($stockDelivery->agent?->settings, 'buyers_manage_stock_deliveries', false);
+    }
+
     /**
      * Documents a delivery ships with: always the packing list, and the bill of lading for a container.
      *
@@ -88,8 +93,15 @@ class DispatchStockDelivery extends OrgAction
             $validator->errors()->add('state', __('This delivery is managed by the partner until you receive it'));
         }
         if (!$this->asAction && $this->stockDelivery->agent_id) {
+            $byBuyer      = request()->user()->authTo("procurement.{$this->organisation->id}.edit");
             $agentInvoice = $this->stockDelivery->agentInvoice()->first();
-            if (!$agentInvoice) {
+            $validSources = $byBuyer
+                ? [StockDeliveryInvoiceSourceEnum::AGENT, StockDeliveryInvoiceSourceEnum::ACTUAL]
+                : [StockDeliveryInvoiceSourceEnum::AGENT];
+
+            if ($byBuyer && !self::buyersManageAgentDeliveries($this->stockDelivery)) {
+                $validator->errors()->add('state', __('Only the agent can mark this container as dispatched'));
+            } elseif (!in_array($agentInvoice?->source, $validSources, true)) {
                 $validator->errors()->add('invoice', __('Make the invoice of this container before dispatching it'));
             } elseif ($agentInvoice->source === StockDeliveryInvoiceSourceEnum::AGENT && !StoreAgentInvoice::matchesContainer($agentInvoice, $this->stockDelivery)) {
                 $validator->errors()->add('invoice', __('The container changed after its invoice was made, make the invoice again before dispatching it'));

@@ -50,6 +50,9 @@ class UpdateAgent extends OrgAction
 
         $modelData = $this->pullSupplierJsonColumns($modelData);
         $modelData = $this->pullJourneyStageDays($agent, $modelData);
+        if (array_key_exists('buyers_manage_stock_deliveries', $modelData)) {
+            $modelData['settings']['buyers_manage_stock_deliveries'] = (bool) Arr::pull($modelData, 'buyers_manage_stock_deliveries');
+        }
 
         if (Arr::has($modelData, 'image')) {
             $image = Arr::pull($modelData, 'image');
@@ -157,6 +160,7 @@ class UpdateAgent extends OrgAction
             'timezone_id'  => ['sometimes', 'required', 'exists:timezones,id'],
             'language_id'  => ['sometimes', 'required', 'exists:languages,id'],
             'status'       => ['sometimes', 'required', 'boolean'],
+            'buyers_manage_stock_deliveries' => ['sometimes', 'boolean'],
             'image'        => ['sometimes', 'nullable', File::image()->max(12 * 1024)],
         ];
 

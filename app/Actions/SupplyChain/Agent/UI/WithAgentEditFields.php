@@ -118,6 +118,12 @@ trait WithAgentEditFields
                         'value'   => Arr::get($agent->settings, 'cooling_period'),
                         'options' => ['inputType' => 'number']
                     ],
+                    'buyers_manage_stock_deliveries' => [
+                        'type'        => 'toggle',
+                        'label'       => __('Buyers can mark containers as dispatched'),
+                        'information' => __('Off: only the agent marks its containers as dispatched. On: buyers can too, once the invoice is made or entered'),
+                        'value'       => (bool) Arr::get($agent->settings, 'buyers_manage_stock_deliveries', false),
+                    ],
                 ]
             ],
             [

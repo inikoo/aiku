@@ -699,6 +699,10 @@ class ShowStockDelivery extends OrgAction
             }
         }
 
+        if ($stockDelivery->agent_id && !$this->viewedByAgent && !DispatchStockDelivery::buyersManageAgentDeliveries($stockDelivery)) {
+            $actions = array_values(array_filter($actions, fn (array $action) => $action['key'] !== 'dispatch_stock_delivery'));
+        }
+
         if ($stockDelivery->isManagedByPartner()) {
             $actions = $stockDelivery->state === StockDeliveryStateEnum::DISPATCHED
                 ? array_values(array_filter($actions, fn (array $action) => $action['key'] === 'receive_stock_delivery'))

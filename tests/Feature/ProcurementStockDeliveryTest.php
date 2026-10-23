@@ -128,6 +128,7 @@ use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Notifications\SupplierProductAvailabilityChangedNotification;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
+use App\Actions\SupplyChain\Agent\UpdateAgent;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -1556,6 +1557,8 @@ test('an agent invoices a container from its lines, its charges are the ledger l
     $first->updateQuietly(['net_amount' => 100]);
     $second->updateQuietly(['net_amount' => 40]);
 
+    setPermissionsTeamId($this->group->id);
+    actingAs(agentOrganisationAdmin($agent->organisation, 'agt-inv-'.Str::lower(Str::random(6))));
     $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
 
     $invoice = StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh());
@@ -1613,20 +1616,25 @@ test('an agent invoices a container from its lines, its charges are the ledger l
     expect(fn () => StoreAgentInvoice::make()->handle($agent, $stockDelivery->refresh()))->toThrow(ValidationException::class);
 });
 
-test('the buyer enters the paper invoice of an agent container still in process, then dispatches it (HELP-3947)', function () {
+test('only the agent marks its container as dispatched, unless the agent lets buyers do it, and then only once the buyer has entered the invoice (HELP-3947, HELP-4284)', function () {
     $this->withoutVite();
     $agent         = createFreshOrgAgent($this)->agent;
     $stockDelivery = createStockDeliveryWithItems($this, 'AGENT-PAPER-'.Str::random(6), [10]);
     $stockDelivery->updateQuietly(['agent_id' => $agent->id]);
+    $showPage = fn () => $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]));
+    $dispatch = fn () => $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods']);
 
-    expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::IN_PROCESS);
+    $showPage()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('box_stats.invoice_entry.is_agent', true)
+        ->where('pageHead.actions', fn ($actions) => !str_contains(json_encode($actions), 'dispatch_stock_delivery')));
+    $dispatch()->assertSessionHasErrors('state');
 
-    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('stock_delivery.state', StockDeliveryStateEnum::IN_PROCESS->value)
-            ->where('box_stats.invoice_entry.is_agent', true));
+    UpdateAgent::make()->action($agent, ['buyers_manage_stock_deliveries' => true]);
+    expect($agent->refresh()->settings['buyers_manage_stock_deliveries'])->toBeTrue();
 
-    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id))->assertSessionHasErrors('invoice');
+    $showPage()->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('pageHead.actions', fn ($actions) => str_contains(json_encode($actions), 'dispatch_stock_delivery')));
+    $dispatch()->assertSessionHasErrors('invoice');
 
     $this->post(route('grp.models.stock-delivery.invoice.store', $stockDelivery->id), [
         'reference'    => 'AW CHINA-143',
@@ -1636,9 +1644,7 @@ test('the buyer enters the paper invoice of an agent container still in process,
         'attachments'  => [\Illuminate\Http\UploadedFile::fake()->create('INR INVOICE.xlsx', 20, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')],
     ])->assertSessionHasNoErrors();
 
-    expect($stockDelivery->attachments()->wherePivot('scope', 'Invoice')->pluck('file_name')->implode(','))->toContain('.xlsx');
-
-    $this->patch(route('grp.models.stock-delivery.dispatch', $stockDelivery->id), ['reason' => 'Packing list comes with the goods'])->assertSessionHasNoErrors();
+    $dispatch()->assertSessionHasNoErrors();
 
     expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::DISPATCHED)
         ->and($stockDelivery->is_costed)->toBeFalse();

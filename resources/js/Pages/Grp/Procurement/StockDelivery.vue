@@ -634,6 +634,7 @@ const cancelLoading = ref(false)
 
 const dispatchWithoutEvidenceAction = ref<any>(null)
 const dispatchReason = ref("")
+const dispatchInvoiceError = ref<string | null>(null)
 
 const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 	router.patch(route(action.route.name, action.route.parameters), data, {
@@ -641,9 +642,13 @@ const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 		onFinish: () => { dispatchLoading.value = false },
 		onSuccess: () => { dispatchWithoutEvidenceAction.value = null; dispatchReason.value = "" },
 		onError: (errors) => {
+			if (errors?.invoice) {
+				dispatchInvoiceError.value = errors.invoice
+				return
+			}
 			notify({
 				title: ctrans("Something went wrong"),
-				text: errors?.invoice ?? errors?.reason ?? (props.is_container ? ctrans("Failed to dispatch container") : ctrans("Failed to dispatch stock delivery")),
+				text: errors?.reason ?? (props.is_container ? ctrans("Failed to dispatch container") : ctrans("Failed to dispatch stock delivery")),
 				type: "error",
 			})
 		},
@@ -1628,6 +1633,27 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:options="attachmentScopes"
 	/>
 
+	<Dialog
+		:visible="!!dispatchInvoiceError"
+		modal
+		:style="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:pt="{ header: { class: '!px-4 !py-2.5 border-b border-gray-200' }, content: { class: '!p-4' } }"
+		@update:visible="(visible: boolean) => { if (!visible) dispatchInvoiceError = null }"
+	>
+		<template #header>
+			<div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+				<FontAwesomeIcon :icon="faExclamationTriangle" class="text-amber-500" fixed-width aria-hidden="true" />
+				{{ ctrans("Invoice needed") }}
+			</div>
+		</template>
+		<div class="space-y-3 text-sm text-gray-700">
+			<p>{{ dispatchInvoiceError }}</p>
+			<p>{{ ctrans("Make the invoice from the container lines first. An invoice file in the attachments does not count.") }}</p>
+		</div>
+		<template #footer>
+			<Button type="tertiary" :label="ctrans('Close')" @click="dispatchInvoiceError = null" />
+		</template>
+	</Dialog>
 	<Dialog
 		:visible="!!dispatchWithoutEvidenceAction"
 		modal
