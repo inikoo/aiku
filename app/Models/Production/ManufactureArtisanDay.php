@@ -98,6 +98,6 @@ class ManufactureArtisanDay extends Model
     public function needsAction(): bool
     {
         return $this->status == ManufactureArtisanDayStatusEnum::RUNNING_JOB
-            || (in_array($this->status, [ManufactureArtisanDayStatusEnum::OVER, ManufactureArtisanDayStatusEnum::UNDER]) && !$this->isResolved());
+            || (in_array($this->status, [ManufactureArtisanDayStatusEnum::OVER, ManufactureArtisanDayStatusEnum::UNDER, ManufactureArtisanDayStatusEnum::NO_BREAK]) && !$this->isResolved());
     }
 }

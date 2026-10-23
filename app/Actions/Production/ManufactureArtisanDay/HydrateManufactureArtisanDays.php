@@ -13,6 +13,7 @@ use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\WorkSchedule;
 use App\Models\Production\ManufactureArtisanDay;
+use App\Models\Production\ManufactureBreak;
 use App\Models\Production\ManufactureHoursTolerance;
 use App\Models\Production\ManufactureTaskSession;
 use App\Models\Production\Production;
@@ -46,6 +47,11 @@ class HydrateManufactureArtisanDays
             ->with('employee.organisation.timezone')
             ->get();
 
+        $breaksByUser = ManufactureBreak::whereIn('user_id', $sessions->pluck('user_id')->unique())
+            ->whereBetween('started_at', [$from->copy()->startOfDay()->subDay(), $to->copy()->endOfDay()->addDay()])
+            ->get(['user_id', 'started_at'])
+            ->groupBy('user_id');
+
         $days = $sessions
             ->groupBy(fn (ManufactureTaskSession $session) => $session->employee_id.'|'.$this->shiftDay($session->employee, $session->started_at))
             ->filter(function (Collection $daySessions, string $key) use ($fromDate, $toDate) {
@@ -71,7 +77,7 @@ class HydrateManufactureArtisanDays
             $employee = $daySessions->first()?->employee ?? $existing[$key]->employee;
             $tolerances[$date] ??= ManufactureHoursTolerance::minutesOn($production->id, $date);
 
-            $this->hydrateDay($production, $employee, $date, $daySessions, $tolerances[$date], $existing[$key] ?? null);
+            $this->hydrateDay($production, $employee, $date, $daySessions, $tolerances[$date], $existing[$key] ?? null, $breaksByUser);
         }
     }
 
@@ -107,7 +113,10 @@ class HydrateManufactureArtisanDays
         return $date >= now()->setTimezone($employee->organisation->timezone?->name ?? config('app.timezone'))->toDateString();
     }
 
-    private function hydrateDay(Production $production, Employee $employee, string $date, Collection $sessions, int $tolerance, ?ManufactureArtisanDay $day): void
+    /**
+     * @param  Collection<int, Collection<int, ManufactureBreak>>  $breaksByUser
+     */
+    private function hydrateDay(Production $production, Employee $employee, string $date, Collection $sessions, int $tolerance, ?ManufactureArtisanDay $day, Collection $breaksByUser): void
     {
         $schedule        = $this->schedule($employee);
         $shift           = $schedule ? $employee->scheduledShiftOn($date, $schedule) : null;
@@ -134,6 +143,7 @@ class HydrateManufactureArtisanDays
             $isDayRunning                                               => ManufactureArtisanDayStatusEnum::IN_PROGRESS,
             $recordedMinutes > $expectedMinutes + $tolerance            => ManufactureArtisanDayStatusEnum::OVER,
             $recordedMinutes < $expectedMinutes - $tolerance            => ManufactureArtisanDayStatusEnum::UNDER,
+            $this->isMissingBreak($sessions, $shift, $breaksByUser)     => ManufactureArtisanDayStatusEnum::NO_BREAK,
             default                                                     => ManufactureArtisanDayStatusEnum::OK,
         };
 
@@ -157,5 +167,25 @@ class HydrateManufactureArtisanDays
         ]);
         $day->is_warning_open = $day->needsAction();
         $day->save();
+    }
+
+    /**
+     * A day with an unpaid break in the profile but no break clocked between its first job and its last. The break is
+     * never deducted from pay: the day is flagged for a supervisor to check instead.
+     *
+     * @param  array{start: Carbon, end: Carbon, unpaid_break_minutes: int}|array{}  $shift
+     * @param  Collection<int, Collection<int, ManufactureBreak>>  $breaksByUser
+     */
+    private function isMissingBreak(Collection $sessions, array $shift, Collection $breaksByUser): bool
+    {
+        if (($shift['unpaid_break_minutes'] ?? 0) <= 0 || $sessions->isEmpty()) {
+            return false;
+        }
+
+        $firstStart = $sessions->min('started_at');
+        $lastEnd    = $sessions->max(fn (ManufactureTaskSession $session) => $session->ended_at ?? now());
+
+        return !$breaksByUser->get($sessions->first()->user_id, collect())
+            ->contains(fn (ManufactureBreak $break) => $break->started_at->greaterThanOrEqualTo($firstStart) && $break->started_at->lessThan($lastEnd));
     }
 }

@@ -1542,7 +1542,7 @@ describe('production reward pay bands', function () {
 
     test('each artisan day is checked against the shift: overtime is approved or not, a short day gets a reason, a job left running is not overtime', function () {
         $friday = now()->startOfWeek()->addDays(4)->setTime(20, 0);
-        $this->travelTo($friday);
+        $this->travelTo($friday->copy()->addDay());
         $employee = employeeOnDayShift($this->organisation);
         $employee->getEffectiveWorkSchedule()->days->each(fn ($day) => $day->breaks()->create(['start_time' => '12:30:00', 'end_time' => '13:30:00', 'is_paid' => false]));
         $timezone = $employee->organisation->timezone?->name ?? config('app.timezone');
@@ -1555,6 +1555,21 @@ describe('production reward pay bands', function () {
         $session(2, '08:00', '12:00');
         $session(2, '12:00', '15:30', ['job_order_item_task_id' => null, 'manufacture_task_id' => null, 'activity_type' => \App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum::CLEANING]);
         $session(3, '08:00', '18:00', ['left_open_after_shift_at' => $at(3, '16:00')]);
+        $session(4, '08:00', '12:00');
+        $session(4, '12:30', '16:00');
+        foreach ([0, 1, 2] as $weekday) {
+            \App\Models\Production\ManufactureBreak::create([
+                'group_id'        => $this->production->group_id,
+                'organisation_id' => $this->production->organisation_id,
+                'production_id'   => $this->production->id,
+                'user_id'         => $operator->id,
+                'employee_id'     => $employee->id,
+                'planned_minutes' => 30,
+                'minutes'         => 30,
+                'started_at'      => $at($weekday, '12:00'),
+                'ended_at'        => $at($weekday, '12:30'),
+            ]);
+        }
 
         $period = ['from' => $friday->copy()->startOfWeek()->toDateString(), 'to' => $friday->toDateString()];
         $days   = function () use ($employee, $period) {
@@ -1564,7 +1579,7 @@ describe('production reward pay bands', function () {
         };
 
         $week = $days();
-        expect($week)->toHaveCount(4)
+        expect($week)->toHaveCount(5)
             ->and($week[1]->expected_minutes)->toBe(450)
             ->and($week[1]->recorded_minutes)->toBe(540)
             ->and($week[1]->status->value)->toBe('over')
@@ -1576,30 +1591,36 @@ describe('production reward pay bands', function () {
             ->and($week[4]->recorded_minutes)->toBe(0)
             ->and($week[4]->unchecked_running_jobs)->toBe(1)
             ->and($week[4]->status->value)->toBe('running_job')
-            ->and($week->where('is_warning_open', true)->keys()->all())->toBe([1, 2, 4]);
+            ->and($week[5]->recorded_minutes)->toBe(450)
+            ->and($week[5]->status->value)->toBe('no_break')
+            ->and($week->where('is_warning_open', true)->keys()->all())->toBe([1, 2, 4, 5]);
 
         get(route('grp.org.productions.show.artisans.daily_hours', [$this->organisation->slug, $this->production->slug, 'open_only' => 1] + $period))
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Org/Production/ArtisanDays')
                 ->where('tolerance_minutes', 30)
-                ->where('data.data', fn ($rows) => collect($rows)->where('user_id', $operator->id)->pluck('status')->sort()->values()->all() === ['over', 'running_job', 'under']));
+                ->where('data.data', fn ($rows) => collect($rows)->where('user_id', $operator->id)->pluck('status')->sort()->values()->all() === ['no_break', 'over', 'running_job', 'under']));
 
         $resolve = \App\Actions\Production\ManufactureArtisanDay\ResolveManufactureArtisanDay::make();
         expect(fn () => $resolve->action($week[1], $operator, ['resolution' => 'not_approved']))->toThrow(ValidationException::class)
-            ->and(fn () => $resolve->action($week[1], $operator, ['resolution' => 'reason_given', 'resolution_reason' => 'sick']))->toThrow(ValidationException::class);
+            ->and(fn () => $resolve->action($week[1], $operator, ['resolution' => 'reason_given', 'resolution_reason' => 'sick']))->toThrow(ValidationException::class)
+            ->and(fn () => $resolve->action($week[1], $operator, ['resolution' => 'checked']))->toThrow(ValidationException::class);
 
         $resolve->action($week[1], $operator, ['resolution' => 'not_approved', 'resolution_note' => 'Not asked to stay']);
         $resolve->action($week[2], $operator, ['resolution' => 'reason_given', 'resolution_reason' => 'sick']);
+        $resolve->action($week[5], $operator, ['resolution' => 'checked', 'resolution_note' => 'Skipped lunch to leave on time']);
         $week = $days();
         expect($week[1]->is_warning_open)->toBeFalse()
             ->and($week[1]->resolved_by_user_id)->toBe($operator->id)
             ->and($week[2]->is_warning_open)->toBeFalse()
-            ->and($week[2]->resolution_reason->value)->toBe('sick');
+            ->and($week[2]->resolution_reason->value)->toBe('sick')
+            ->and($week[5]->is_warning_open)->toBeFalse()
+            ->and($week[5]->recorded_minutes)->toBe(450);
 
-        get(route('grp.org.productions.show.artisans.payroll', [$this->organisation->slug, $this->production->slug] + $period))
+        get(route('grp.org.productions.show.artisans.payroll', [$this->organisation->slug, $this->production->slug, 'to' => $friday->copy()->addDay()->toDateString()] + $period))
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('data.data', fn ($rows) => collect($rows)->firstWhere('user_id', $operator->id)['not_authorised_overtime']['minutes'] === 90
-                    && collect($rows)->firstWhere('user_id', $operator->id)['working_hours'] == 22.5));
+                    && collect($rows)->firstWhere('user_id', $operator->id)['working_hours'] == 30));
 
         $mondayLong->update(['ended_at' => $at(0, '16:45')]);
         expect($days()[1]->recorded_minutes)->toBe(525)

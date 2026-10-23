@@ -20,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
- * A supervisor's answer to a day over or under the shift. Not authorising overtime leaves the hours in payroll: it only
+ * A supervisor's answer to a day over or under the shift, or with no break clocked. Not authorising overtime leaves the hours in payroll: it only
  * marks them for the accountant and HR, with the reason.
  */
 class ResolveManufactureArtisanDay extends OrgAction
@@ -30,7 +30,7 @@ class ResolveManufactureArtisanDay extends OrgAction
         $resolution = ManufactureArtisanDayResolutionEnum::from($modelData['resolution']);
         if (!$resolution->answers($day->status)) {
             throw ValidationException::withMessages([
-                'resolution' => __('This day is not over or under the shift any more'),
+                'resolution' => __('This day is not flagged for this any more'),
             ]);
         }
 

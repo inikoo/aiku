@@ -17,6 +17,7 @@ enum ManufactureArtisanDayResolutionEnum: string
     case APPROVED     = 'approved';
     case NOT_APPROVED = 'not_approved';
     case REASON_GIVEN = 'reason_given';
+    case CHECKED      = 'checked';
 
     public static function labels($forElements = false): array
     {
@@ -24,6 +25,7 @@ enum ManufactureArtisanDayResolutionEnum: string
             'approved'     => __('Overtime approved'),
             'not_approved' => __('Overtime not authorised'),
             'reason_given' => __('Reason given'),
+            'checked'      => __('Break checked'),
         ];
     }
 
@@ -32,6 +34,7 @@ enum ManufactureArtisanDayResolutionEnum: string
         return match ($this) {
             self::APPROVED, self::NOT_APPROVED => $status == ManufactureArtisanDayStatusEnum::OVER,
             self::REASON_GIVEN                 => $status == ManufactureArtisanDayStatusEnum::UNDER,
+            self::CHECKED                      => $status == ManufactureArtisanDayStatusEnum::NO_BREAK,
         };
     }
 }

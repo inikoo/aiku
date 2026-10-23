@@ -20,6 +20,7 @@ enum ManufactureArtisanDayStatusEnum: string
     case RUNNING_JOB = 'running_job';
     case IN_PROGRESS = 'in_progress';
     case NO_SHIFT    = 'no_shift';
+    case NO_BREAK    = 'no_break';
 
     public static function labels($forElements = false): array
     {
@@ -30,6 +31,7 @@ enum ManufactureArtisanDayStatusEnum: string
             'running_job' => __('Job left running'),
             'in_progress' => __('Shift not over'),
             'no_shift'    => __('No shift set'),
+            'no_break'    => __('No break clocked'),
         ];
     }
 }

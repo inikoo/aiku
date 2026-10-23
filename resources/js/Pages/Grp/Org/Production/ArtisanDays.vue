@@ -39,9 +39,9 @@ type ArtisanDay = {
     difference_minutes: number | null
     tolerance_minutes: number
     unchecked_running_jobs: number
-    status: "ok" | "over" | "under" | "running_job" | "in_progress" | "no_shift"
+    status: "ok" | "over" | "under" | "running_job" | "in_progress" | "no_shift" | "no_break"
     is_warning_open: boolean
-    resolution: "approved" | "not_approved" | "reason_given" | null
+    resolution: "approved" | "not_approved" | "reason_given" | "checked" | null
     resolution_label: string | null
     resolution_reason: string | null
     resolution_note: string | null
@@ -108,6 +108,7 @@ const statusClass: Record<ArtisanDay["status"], string> = {
     running_job: "bg-amber-100 text-amber-800",
     in_progress: "bg-gray-100 text-gray-600",
     no_shift: "bg-gray-100 text-gray-500",
+    no_break: "bg-amber-100 text-amber-800",
 }
 
 const resolving = ref<ArtisanDay | null>(null)
@@ -126,7 +127,7 @@ const noteRequired = computed(() => resolving.value?.status === "over" ? resolut
 function openResolve(day: ArtisanDay) {
     resolving.value = day
     errors.value = {}
-    resolution.value = day.status === "over" ? (day.resolution === "not_approved" ? "not_approved" : "approved") : "reason_given"
+    resolution.value = day.status === "over" ? (day.resolution === "not_approved" ? "not_approved" : "approved") : day.status === "no_break" ? "checked" : "reason_given"
     reason.value = null
     note.value = day.is_resolution_current ? day.resolution_note ?? "" : ""
 }
@@ -252,11 +253,11 @@ function saveTolerance() {
                 <span v-else-if="item.resolution && item.is_warning_open" class="text-xs text-amber-700">
                     {{ ctrans('Hours changed since :by answered (:minutes)', { by: item.resolved_by ?? '', minutes: clockMinutes(item.resolved_minutes) }) }}
                 </span>
-                <template v-if="can_resolve && (item.status === 'over' || item.status === 'under')">
+                <template v-if="can_resolve && ['over', 'under', 'no_break'].includes(item.status)">
                     <button v-if="item.is_resolution_current" type="button" class="rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" v-tooltip="ctrans('Change')" :aria-label="ctrans('Change')" @click="openResolve(item)">
                         <FontAwesomeIcon :icon="['fal', 'pencil']" fixed-width aria-hidden="true" />
                     </button>
-                    <Button v-else type="tertiary" size="xs" :label="item.status === 'over' ? ctrans('Approve or not') : ctrans('Give reason')" @click="openResolve(item)" />
+                    <Button v-else type="tertiary" size="xs" :label="item.status === 'over' ? ctrans('Approve or not') : item.status === 'no_break' ? ctrans('Mark as checked') : ctrans('Give reason')" @click="openResolve(item)" />
                 </template>
             </div>
         </template>
@@ -266,13 +267,14 @@ function saveTolerance() {
         <div v-if="resolving" class="space-y-3 text-sm">
             <div class="text-gray-700">
                 <template v-if="resolving.status === 'over'">{{ ctrans('Recorded :recorded against a shift of :expected: :difference over.', { recorded: clockMinutes(resolving.recorded_minutes), expected: clockMinutes(resolving.expected_minutes), difference: clockMinutes(resolving.difference_minutes) }) }}</template>
+                <template v-else-if="resolving.status === 'no_break'">{{ ctrans('No break clocked on this day. Nothing is taken off the pay: check with the artisan whether they took a break.') }}</template>
                 <template v-else>{{ ctrans('Recorded :recorded against a shift of :expected: :difference short.', { recorded: clockMinutes(resolving.recorded_minutes), expected: clockMinutes(resolving.expected_minutes), difference: clockMinutes(-(resolving.difference_minutes ?? 0)) }) }}</template>
             </div>
             <template v-if="resolving.status === 'over'">
                 <SegmentedToggle v-model="resolution" :options="overOptions" :aria-label="ctrans('Overtime')" />
                 <div v-if="resolution === 'not_approved'" class="text-xs text-gray-500">{{ ctrans('The hours stay in payroll, marked as not authorised with your reason, for the accountant and HR.') }}</div>
             </template>
-            <label v-else class="flex flex-col gap-1">
+            <label v-else-if="resolving.status === 'under'" class="flex flex-col gap-1">
                 <span class="text-xs text-gray-500">{{ ctrans('Why was the day short?') }}</span>
                 <Select v-model="reason" :options="reasonOptions" optionLabel="label" optionValue="value" :placeholder="ctrans('Choose a reason')" :invalid="!!errors.resolution_reason" :class="fieldFocusClass" />
             </label>
