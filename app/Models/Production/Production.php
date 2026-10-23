@@ -95,6 +95,16 @@ class Production extends Model implements Auditable
         'factory_location_id',
     ];
 
+    public const array DEFAULT_MIX_BATCH_SIZES_KG = [25, 50, 56.4];
+
+    /**
+     * @return array<int, float>
+     */
+    public function mixBatchSizesKg(): array
+    {
+        return array_map('floatval', $this->settings['mix_batch_sizes_kg'] ?? self::DEFAULT_MIX_BATCH_SIZES_KG);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

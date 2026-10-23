@@ -78,8 +78,8 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
                 $this->refuse(__('This step is counted in whole packs of :size, enter a whole number', ['size' => $packSize]));
             }
             $mixBatchKg = $task->mixBatchKg();
-            if ($mixBatchKg && fmod($quantity, $mixBatchKg) != 0) {
-                $this->refuse(__('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]));
+            if ($mixBatchKg && !JobOrderItemTask::isWholeMixBatches($quantity, $mixBatchKg)) {
+                $this->refuse(JobOrderItemTask::wholeMixBatchesMessage($mixBatchKg));
             }
 
             $data       = $jobOrder->data ?? [];
@@ -143,8 +143,8 @@ class CorrectManufactureTaskSessionQuantity extends OrgAction
             $this->refuse(__('This step is counted in whole packs of :size, enter a whole number', ['size' => $packSize]));
         }
         $mixBatchKg = $to->mixBatchKg();
-        if ($mixBatchKg && fmod($quantity, $mixBatchKg) != 0) {
-            $this->refuse(__('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => 2 * $mixBatchKg, 'triple' => 3 * $mixBatchKg]));
+        if ($mixBatchKg && !JobOrderItemTask::isWholeMixBatches($quantity, $mixBatchKg)) {
+            $this->refuse(JobOrderItemTask::wholeMixBatchesMessage($mixBatchKg));
         }
         $left = max(0, (float) $to->quantity_required - (float) $to->quantity_made);
         if (!$to->isRecordedInKg() && $quantity > $left) {

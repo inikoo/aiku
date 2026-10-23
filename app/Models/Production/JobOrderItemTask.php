@@ -161,9 +161,21 @@ class JobOrderItemTask extends Model
         return $this->setRequiredQuantity($recipeQuantity);
     }
 
-    public function mixBatchKg(): ?int
+    public function mixBatchKg(): ?float
     {
         return $this->isRecordedInKg() ? ($this->recipeStep()?->mix_batch_kg ?: null) : null;
+    }
+
+    public static function isWholeMixBatches(float $quantity, float $mixBatchKg): bool
+    {
+        $batches = $quantity / $mixBatchKg;
+
+        return abs($batches - round($batches)) < 1e-6;
+    }
+
+    public static function wholeMixBatchesMessage(float $mixBatchKg): string
+    {
+        return __('This mix is made in whole batches of :kg kg, enter :kg, :double, :triple…', ['kg' => $mixBatchKg, 'double' => round(2 * $mixBatchKg, 3), 'triple' => round(3 * $mixBatchKg, 3)]);
     }
 
     /**
@@ -171,7 +183,7 @@ class JobOrderItemTask extends Model
      *
      * @param Collection<int, JobOrderItemTask> $members
      */
-    public static function sharedMixBatchKg(Collection $members): ?int
+    public static function sharedMixBatchKg(Collection $members): ?float
     {
         $sizes = $members->map(fn (JobOrderItemTask $member) => $member->mixBatchKg())->unique();
 

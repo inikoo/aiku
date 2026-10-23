@@ -18,7 +18,7 @@ use Illuminate\Support\Collection;
  * @property int $position
  * @property numeric $units_per_artefact
  * @property numeric|null $standard_rate
- * @property int|null $mix_batch_kg
+ * @property float|null $mix_batch_kg
  * @property-read \App\Models\Production\Artefact|null $artefact
  * @property-read \App\Models\Production\ManufactureTask|null $manufactureTask
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Production\RecipeStepRawMaterial> $rawMaterials
@@ -35,6 +35,10 @@ class ArtefactManufactureTask extends Pivot
     public $incrementing = true;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'mix_batch_kg' => 'float',
+    ];
 
     /**
      * An artefact is one unit of its SKO, so a step counted in units that asks for the SKO's whole pack

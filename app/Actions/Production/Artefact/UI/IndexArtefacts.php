@@ -335,6 +335,8 @@ class IndexArtefacts extends OrgAction
 
         return [
             'set_route' => ['name' => 'grp.models.production.artefacts.set_mix_batch', 'parameters' => [$production->id]],
+            'sizes_kg'  => $production->mixBatchSizesKg(),
+            'sizes_route' => ['name' => 'grp.models.production.mix_batch_sizes.update', 'parameters' => [$production->id]],
         ];
     }
 

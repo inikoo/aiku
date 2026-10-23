@@ -17,13 +17,15 @@ import { notify } from '@kyvg/vue3-notification'
 import { ctrans } from '@/Composables/useTrans'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCheckSquare, faExclamationTriangle, faChevronDown, faTasks } from '@fal'
+import { faCheckSquare, faExclamationTriangle, faChevronDown, faTasks, faPencil, faPlus, faTimes, faCheck } from '@fal'
+import Dialog from 'primevue/dialog'
+import InputNumber from 'primevue/inputnumber'
 import Modal from '@/Components/Utils/Modal.vue'
 import Popover from '@/Components/Popover.vue'
 import SegmentedToggle from '@/Components/Utils/SegmentedToggle.vue'
 import '@/Composables/Icon/ArtefactStateEnum'
 
-library.add(faCheckSquare, faExclamationTriangle, faChevronDown, faTasks)
+library.add(faCheckSquare, faExclamationTriangle, faChevronDown, faTasks, faPencil, faPlus, faTimes, faCheck)
 
 type MoveTarget = { id: number, code: string, name: string }
 type MoveProps = { families_route: routeType, move_route: routeType, create_route: routeType }
@@ -37,7 +39,7 @@ const props = defineProps<{
     setShelfLife?: { set_route: routeType }
     setState?: { set_state_route: routeType }
     setRecipe?: SetRecipeProps
-    setMixBatch?: { set_route: routeType }
+    setMixBatch?: { set_route: routeType, sizes_kg: number[], sizes_route: routeType }
 }>()
 
 const routeCurrent = route().current()
@@ -50,7 +52,40 @@ const selected = ref<Record<string, boolean>>({})
 const isMoving = ref(false)
 const batchSize = ref<number | null>(null)
 const shelfLifeDays = ref<number | null>(null)
-const mixBatchKg = ref<'25' | '50' | 'none'>('50')
+const mixBatchSizes = computed(() => props.setMixBatch?.sizes_kg ?? [])
+const mixBatchKg = ref<string>(String(mixBatchSizes.value.includes(50) ? 50 : mixBatchSizes.value[0] ?? 'none'))
+const mixBatchOptions = computed(() => [
+    ...mixBatchSizes.value.map((size) => ({ value: String(size), label: ctrans(':size kg', { size }) })),
+    { value: 'none', label: ctrans('Exact kg') },
+])
+const editingMixBatchSizes = ref<(number | null)[] | null>(null)
+const mixBatchSizesErrors = ref<Record<string, string>>({})
+
+const openMixBatchSizes = () => {
+    editingMixBatchSizes.value = [...mixBatchSizes.value]
+    mixBatchSizesErrors.value = {}
+}
+
+const saveMixBatchSizes = () => {
+    if (!props.setMixBatch || !editingMixBatchSizes.value) return
+
+    router.patch(
+        route(props.setMixBatch.sizes_route.name, props.setMixBatch.sizes_route.parameters),
+        { sizes: editingMixBatchSizes.value.filter((size) => size !== null) },
+        {
+            preserveScroll: true,
+            onStart: () => isMoving.value = true,
+            onFinish: () => isMoving.value = false,
+            onError: (errors) => mixBatchSizesErrors.value = errors,
+            onSuccess: () => {
+                editingMixBatchSizes.value = null
+                if (mixBatchKg.value !== 'none' && !mixBatchSizes.value.includes(Number(mixBatchKg.value))) {
+                    mixBatchKg.value = String(mixBatchSizes.value[0] ?? 'none')
+                }
+            },
+        }
+    )
+}
 const confirmingDiscontinue = ref(false)
 const isRecipeModalOpen = ref(false)
 const bulkAction = ref('batch_size')
@@ -311,7 +346,10 @@ function productionRoute(artefact: { slug: string }) {
                 <SegmentedToggle
                     v-model="mixBatchKg"
                     :ariaLabel="ctrans('Mix batch size')"
-                    :options="[{ value: '25', label: ctrans('25 kg') }, { value: '50', label: ctrans('50 kg') }, { value: 'none', label: ctrans('Exact kg') }]" />
+                    :options="mixBatchOptions" />
+                <button type="button" class="rounded px-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" v-tooltip="ctrans('Mix batch sizes')" :aria-label="ctrans('Mix batch sizes')" @click="openMixBatchSizes">
+                    <FontAwesomeIcon :icon="['fal', 'pencil']" fixed-width aria-hidden="true" />
+                </button>
                 <Button
                     type="primary"
                     size="s"
@@ -425,6 +463,30 @@ function productionRoute(artefact: { slug: string }) {
         :setRecipe="setRecipe"
         @close="isRecipeModalOpen = false"
         @saved="onRecipeSaved" />
+
+    <Dialog :visible="!!editingMixBatchSizes" modal :closable="!isMoving" :header="ctrans('Mix batch sizes')" :style="{ width: '24rem' }" @update:visible="(visible: boolean) => { if (!visible && !isMoving) editingMixBatchSizes = null }">
+        <div class="text-xs text-gray-500">{{ ctrans('The batch sizes recipes can choose from. A size taken off the list stays on the recipes already using it.') }}</div>
+        <div v-for="(size, index) in editingMixBatchSizes ?? []" :key="index" class="mt-2 flex items-center gap-2">
+            <InputNumber v-model="editingMixBatchSizes![index]" :min="0" :maxFractionDigits="3" suffix=" kg" fluid :invalid="!!mixBatchSizesErrors[`sizes.${index}`]" :aria-label="ctrans('Batch size')" class="[&.p-focus]:!border-[--app-accent] [&_input:focus]:!border-[--app-accent]" />
+            <button type="button" class="rounded px-1 text-red-500 hover:bg-gray-100" :aria-label="ctrans('Remove')" @click="editingMixBatchSizes?.splice(index, 1)">
+                <FontAwesomeIcon :icon="['fal', 'times']" fixed-width aria-hidden="true" />
+            </button>
+        </div>
+        <div v-for="(error, key) in mixBatchSizesErrors" :key="key" class="mt-2 text-sm text-red-600">{{ error }}</div>
+        <div class="mt-4 flex justify-between gap-2">
+            <Button type="tertiary" :label="ctrans('Add size')" @click="editingMixBatchSizes?.push(null)">
+                <template #icon><FontAwesomeIcon :icon="['fal', 'plus']" fixed-width aria-hidden="true" /></template>
+            </Button>
+            <div class="flex gap-2">
+                <Button type="tertiary" :label="ctrans('Cancel')" :disabled="isMoving" @click="editingMixBatchSizes = null">
+                    <template #icon><FontAwesomeIcon :icon="['fal', 'times']" fixed-width class="text-red-500" aria-hidden="true" /></template>
+                </Button>
+                <Button type="tertiary" :label="ctrans('Save')" :loading="isMoving" @click="saveMixBatchSizes">
+                    <template #icon><FontAwesomeIcon :icon="['fal', 'check']" fixed-width class="text-green-600" aria-hidden="true" /></template>
+                </Button>
+            </div>
+        </div>
+    </Dialog>
 
     <Table ref="tableRef" :resource="data" :name="tab" class="mt-5" :isCheckBox="!!(moveToDepartment || moveToFamily || setBatchSize || setShelfLife || setState || setRecipe || setMixBatch)" checkboxKey="id" @onSelectRow="(rows) => selected = { ...rows }">
         <template #cell(state)="{ item: artefact }">

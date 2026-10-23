@@ -21,7 +21,7 @@ class SetArtefactsMixBatch extends OrgAction
     /**
      * Sets the mix batch size on every kg recipe step of the selected artefacts; open jobs read it from the recipe.
      *
-     * @param  array{artefacts: array<int, int>, mix_batch_kg: int|null}  $modelData
+     * @param  array{artefacts: array<int, int>, mix_batch_kg: float|null}  $modelData
      */
     public function handle(Production $production, array $modelData): int
     {
@@ -44,7 +44,7 @@ class SetArtefactsMixBatch extends OrgAction
         return [
             'artefacts'    => ['required', 'array', 'min:1'],
             'artefacts.*'  => ['integer'],
-            'mix_batch_kg' => ['present', 'nullable', Rule::in([25, 50])],
+            'mix_batch_kg' => ['present', 'nullable', Rule::in($this->production->mixBatchSizesKg())],
         ];
     }
 

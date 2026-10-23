@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlus, faTrashAlt } from '@fal'
 import InputNumber from 'primevue/inputnumber'
@@ -54,6 +54,7 @@ const props = defineProps<{
         artefact_name: string
         currency_code: string
         recipe: RecipeRow[]
+        mix_batch_sizes_kg: number[]
         routes: {
             task_options: routeType
             raw_material_options: routeType
@@ -171,11 +172,16 @@ async function commitStep(row: RecipeRow) {
     attach(row.id, position, units, standardRate)
 }
 
-const mixBatchOptions = [
-    { label: ctrans('Not in batches'), value: null },
-    { label: '25 kg', value: 25 },
-    { label: '50 kg', value: 50 },
-]
+const mixBatchSizes = computed(() => props.data.mix_batch_sizes_kg ?? [])
+
+function mixBatchOptions(row: RecipeRow) {
+    const sizes = row.mix_batch_kg && !mixBatchSizes.value.includes(row.mix_batch_kg) ? [...mixBatchSizes.value, row.mix_batch_kg] : mixBatchSizes.value
+
+    return [
+        { label: ctrans('Not in batches'), value: null },
+        ...sizes.map((size) => ({ label: ctrans(':size kg', { size }), value: size })),
+    ]
+}
 
 function setMixBatch(row: RecipeRow, mixBatchKg: number | null) {
     attach(row.id, Number(row.position), Number(row.units_per_artefact), undefined, { mix_batch_kg: mixBatchKg })
@@ -307,7 +313,7 @@ function detachRawMaterial(stepId: number, rawMaterialId: number) {
                     </span>
                     <Select
                         :modelValue="row.mix_batch_kg"
-                        :options="mixBatchOptions"
+                        :options="mixBatchOptions(row)"
                         optionLabel="label"
                         optionValue="value"
                         size="small"

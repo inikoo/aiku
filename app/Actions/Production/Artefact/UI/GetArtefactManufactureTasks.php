@@ -60,6 +60,7 @@ class GetArtefactManufactureTasks
             'artefact_name'       => $artefact->name,
             'currency_code'       => $artefact->organisation->currency->code,
             'recipe'              => $recipe,
+            'mix_batch_sizes_kg'  => $artefact->production->mixBatchSizesKg(),
             'routes'              => [
                 'task_options' => [
                     'name'       => 'grp.json.production.manufacture_tasks.index',

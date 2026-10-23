@@ -66,7 +66,7 @@ class AttachManufactureTaskToArtefact extends OrgAction
             'position'            => ['sometimes', 'integer', 'min:1'],
             'units_per_artefact'  => ['sometimes', 'numeric', 'gt:0'],
             'standard_rate'       => ['sometimes', 'nullable', 'numeric', 'gt:0'],
-            'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in([25, 50])],
+            'mix_batch_kg'        => ['sometimes', 'nullable', Rule::in($this->artefact->production->mixBatchSizesKg())],
             'confirm_open_jobs'   => ['sometimes', 'boolean'],
         ];
     }

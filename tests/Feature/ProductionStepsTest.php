@@ -1132,7 +1132,7 @@ test('a mix with a batch size is asked and recorded in whole batches, rounded on
         ->assertSessionHasErrors('mix_batch_kg');
     \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 50])
         ->assertSessionHasNoErrors();
-    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(50);
+    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(50.0);
 
     [$mixA, $mixB] = collect([541, 400])->map(function (int $quantity) use ($artefact) {
         $jobOrder = StoreJobOrder::make()->action($this->production, []);
@@ -1142,7 +1142,7 @@ test('a mix with a batch size is asked and recorded in whole batches, rounded on
         return $item->tasks()->first();
     })->all();
     expect((float) $mixA->quantity_required)->toBe(54.1)
-        ->and($mixA->mixBatchKg())->toBe(50);
+        ->and($mixA->mixBatchKg())->toBe(50.0);
 
     \Pest\Laravel\post(route('grp.models.production.combined_task.store', ['production' => $this->production->id]), ['job_order_item_task_ids' => [$mixA->id, $mixB->id]])->assertSessionHasNoErrors();
     $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
@@ -1192,8 +1192,8 @@ test('HELP-4232 a mix batch size is set on the kg steps of many artefacts at onc
         ->assertSessionHasErrors('mix_batch_kg');
     \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => $artefacts->pluck('id')->all(), 'mix_batch_kg' => 50])
         ->assertSessionHasNoErrors();
-    expect($mixBatchOf($artefacts[0], $mixTask))->toBe(50)
-        ->and($mixBatchOf($artefacts[1], $mixTask))->toBe(50)
+    expect($mixBatchOf($artefacts[0], $mixTask))->toBe(50.0)
+        ->and($mixBatchOf($artefacts[1], $mixTask))->toBe(50.0)
         ->and($mixBatchOf($artefacts[0], $packTask))->toBeNull();
 
     $jobOrder = StoreJobOrder::make()->action($this->production, []);
@@ -1205,12 +1205,53 @@ test('HELP-4232 a mix batch size is set on the kg steps of many artefacts at onc
     $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
         ->first(fn (array $task) => in_array($pack->id, array_column($task['steps'], 'id')));
     expect(collect($floorTask['steps'])->firstWhere('id', $pack->id)['pack_size'])->toBe(6)
-        ->and(collect($floorTask['steps'])->firstWhere('id', $item->tasks()->where('manufacture_task_id', $mixTask->id)->value('id'))['mix_batch_kg'])->toBe(50);
+        ->and(collect($floorTask['steps'])->firstWhere('id', $item->tasks()->where('manufacture_task_id', $mixTask->id)->value('id'))['mix_batch_kg'])->toBe(50.0);
 
     \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => [$artefacts[1]->id], 'mix_batch_kg' => null])
         ->assertSessionHasNoErrors();
     expect($mixBatchOf($artefacts[1], $mixTask))->toBeNull()
-        ->and($mixBatchOf($artefacts[0], $mixTask))->toBe(50);
+        ->and($mixBatchOf($artefacts[0], $mixTask))->toBe(50.0);
+});
+
+test('HELP-4279 a mix is made in 56.4 kg batches, and the production manager keeps the list of batch sizes', function () {
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+
+    $suffix   = rand(10000, 99999);
+    $mixTask  = StoreManufactureTask::make()->action($this->production, ['code' => 'MXD'.$suffix, 'name' => 'Mixing '.$suffix, 'is_piece_rate' => false, 'is_recorded_in_kg' => true]);
+    $artefact = StoreArtefact::make()->action($this->production, ['code' => 'BD'.$suffix, 'name' => 'Bath bomb '.$suffix]);
+    $artefact->manufactureTasks()->sync([$mixTask->id => ['position' => 1, 'units_per_artefact' => 0.1]]);
+
+    expect($this->production->refresh()->mixBatchSizesKg())->toContain(56.4);
+    \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => [$artefact->id], 'mix_batch_kg' => 56.4])
+        ->assertSessionHasNoErrors();
+    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(56.4);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 1500]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $mix = $item->tasks()->first();
+    expect($mix->mixBatchKg())->toBe(56.4);
+
+    $session = StartManufactureTaskSession::make()->action($user, $mix);
+    expect(fn () => CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 150]))->toThrow(ValidationException::class, 'whole batches of 56.4 kg, enter 56.4, 112.8, 169.2');
+    expect((float) CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 169.2])->quantity_made)->toBe(169.2);
+
+    \Pest\Laravel\patch(route('grp.models.production.mix_batch_sizes.update', [$this->production->id]), ['sizes' => [50, 0]])
+        ->assertSessionHasErrors('sizes.1');
+    \Pest\Laravel\patch(route('grp.models.production.mix_batch_sizes.update', [$this->production->id]), ['sizes' => [56.4, 30, 50]])
+        ->assertSessionHasNoErrors();
+    expect($this->production->refresh()->mixBatchSizesKg())->toBe([30.0, 50.0, 56.4]);
+
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 25, 'confirm_open_jobs' => true])
+        ->assertSessionHasErrors('mix_batch_kg');
+    \Pest\Laravel\post(route('grp.models.artefact.manufacture-task.attach', ['artefact' => $artefact->id]), ['manufacture_task_id' => $mixTask->id, 'position' => 1, 'units_per_artefact' => 0.1, 'mix_batch_kg' => 30, 'confirm_open_jobs' => true])
+        ->assertSessionHasNoErrors();
+    expect($artefact->manufactureTasks()->first()->pivot->mix_batch_kg)->toBe(30.0);
+
+    \Pest\Laravel\patch(route('grp.models.production.mix_batch_sizes.update', [$this->production->id]), ['sizes' => [25, 50, 56.4]])
+        ->assertSessionHasNoErrors();
 });
 
 test('a mix entered on Making by mistake is moved to the mix step and Making goes back to do', function () {

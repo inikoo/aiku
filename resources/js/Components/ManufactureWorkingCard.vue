@@ -77,8 +77,8 @@ const kgInUnits = computed(() => unit.value && props.session.task.kg_per_unit &&
 const mixBatch = computed(() => props.session.task.mix_batch_kg ?? null)
 const remainingBatches = computed(() => mixBatch.value ? Math.ceil(remaining.value / mixBatch.value - 1e-9) : null)
 const batchesMade = computed({
-    get: () => quantityMade.value === null || !mixBatch.value ? null : quantityMade.value / mixBatch.value,
-    set: (batches: number | string | null) => quantityMade.value = batches === null || batches === '' ? null : Math.max(0, Math.floor(Number(batches))) * (mixBatch.value ?? 1),
+    get: () => quantityMade.value === null || !mixBatch.value ? null : Math.round(quantityMade.value / mixBatch.value * 1000) / 1000,
+    set: (batches: number | string | null) => quantityMade.value = batches === null || batches === '' ? null : Math.round(Math.max(0, Math.floor(Number(batches))) * (mixBatch.value ?? 1) * 1000) / 1000,
 })
 const inPieces = (packs: number) => Math.round(packs * (packSize.value ?? 1)).toLocaleString()
 const notWholePacks = computed(() => packSize.value !== null && quantityMade.value !== null && !Number.isInteger(quantityMade.value) && quantityMade.value !== remaining.value)
@@ -337,7 +337,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     type="button"
                     class="mt-3 rounded-lg border-2 border-dashed border-[--app-accent-muted] px-4 py-2 text-left hover:bg-[--app-accent-soft]"
                     :title="ctrans('Tap to fill quantity made')"
-                    @click="quantityMade = remainingBatches !== null && mixBatch ? remainingBatches * mixBatch : remaining"
+                    @click="quantityMade = remainingBatches !== null && mixBatch ? Math.round(remainingBatches * mixBatch * 1000) / 1000 : remaining"
                 >
                     <span v-if="remainingBatches !== null" class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ ctrans(':batches × :size kg', { batches: remainingBatches, size: mixBatch ?? 0 }) }}</span>
                     <span v-else class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ packsLabel(remaining, packSize) }}</span>

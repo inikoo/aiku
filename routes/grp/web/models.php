@@ -621,6 +621,7 @@ use App\Actions\Production\ManufactureTaskSession\ContinueManufactureTaskSession
 use App\Actions\Production\ManufactureBreak\StartManufactureBreak;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureNonProductiveSession;
 use App\Actions\Production\Production\UpdateManufacturePreparationReasons;
+use App\Actions\Production\Production\UpdateProductionMixBatchSizes;
 use App\Actions\Production\ManufactureBreak\EndManufactureBreak;
 use App\Actions\Production\ManufactureBreak\CorrectManufactureBreakEnd;
 use App\Actions\Production\ManufactureTaskSession\StartManufactureTaskSession;
@@ -1785,6 +1786,7 @@ Route::patch('/manufacture-task-session/{manufactureTaskSession:id}/continue-aft
 Route::post('/production/{production:id}/break', StartManufactureBreak::class)->name('production.break.store')->withoutScopedBindings();
 Route::post('/production/{production:id}/non-productive-session', StartManufactureNonProductiveSession::class)->name('production.non_productive_session.store')->withoutScopedBindings();
 Route::patch('/production/{production:id}/preparation-reasons', UpdateManufacturePreparationReasons::class)->name('production.preparation_reasons.update')->withoutScopedBindings();
+Route::patch('/production/{production:id}/mix-batch-sizes', UpdateProductionMixBatchSizes::class)->name('production.mix_batch_sizes.update')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/end', EndManufactureBreak::class)->name('manufacture-break.end')->withoutScopedBindings();
 Route::patch('/manufacture-break/{manufactureBreak:id}/correct-end', CorrectManufactureBreakEnd::class)->name('manufacture-break.correct_end')->withoutScopedBindings();
 
