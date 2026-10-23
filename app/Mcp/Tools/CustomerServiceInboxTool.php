@@ -32,7 +32,7 @@ class CustomerServiceInboxTool extends AikuCustomerServiceTool
     public function handle(Request $request): Response
     {
         $request->validate([
-            'limit'         => ['sometimes', 'integer', 'min:1', 'max:50'],
+            'limit'         => ['sometimes', 'integer', 'min:1', 'max:300'],
             'unopened_only'          => ['sometimes', 'boolean'],
             'premonition_fixed_only' => ['sometimes', 'boolean'],
             'shops'                  => ['sometimes', 'nullable', 'array'],
@@ -107,7 +107,7 @@ class CustomerServiceInboxTool extends AikuCustomerServiceTool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'limit'         => $schema->integer()->description('How many chats, 30 unless asked, at most 50')->min(1)->max(50),
+            'limit'         => $schema->integer()->description('How many chats, 30 unless asked, at most 300')->min(1)->max(300),
             'unopened_only'          => $schema->boolean()->description('Only chats no staff member has opened since the customer last wrote'),
             'shops'                  => $schema->array()->items($schema->string())->description('Only chats of these shops, by shop_slug'),
             'premonition_fixed_only' => $schema->boolean()->description('Only chats whose waiting draft named a PRE ticket that engineers have since resolved: work these again from the start and save a new draft'),

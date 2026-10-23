@@ -2902,7 +2902,7 @@ describe('customer service tools', function () {
     test('lists the chats waiting on the user, and drops one once it is answered or a colleague holds it', function () {
         $this->chat->update(['last_visitor_message_at' => now()->subMinutes(20), 'last_agent_message_at' => null]);
 
-        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceInboxTool::class, ['limit' => 50])
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceInboxTool::class, ['limit' => 300])
             ->assertOk()
             ->assertSee($this->chat->ulid)
             ->assertSee('20 minutes ago');
