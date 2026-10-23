@@ -9,7 +9,9 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
+use App\Enums\Goods\ProductDevelopment\ProductDevelopmentMemberRoleEnum;
 use App\Models\Goods\ProductDevelopment;
+use App\Models\Goods\ProductDevelopmentArtwork;
 use App\Models\Goods\ProductDevelopmentComment;
 use App\Models\Goods\ProductDevelopmentDesignRound;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,21 +27,28 @@ class GetProductDevelopmentComments
      */
     private array $versions = [];
 
+    /**
+     * @var array<int, string> the development roles of each commenter, e.g. "Owner, Buyer"
+     */
+    private array $roles = [];
+
 
     /**
      * @return array<string, mixed>
      */
-    public function handle(ProductDevelopment $productDevelopment, ?ProductDevelopmentDesignRound $designRound = null): array
+    public function handle(ProductDevelopment $productDevelopment, ?ProductDevelopmentDesignRound $designRound = null, ?ProductDevelopmentArtwork $artwork = null): array
     {
+        $subject  = $designRound ?? $artwork;
         $comments = $productDevelopment->comments()
             ->with(['user', 'media', 'resolvedBy'])
             ->when(
-                $designRound,
-                fn (Builder $query) => $query->where('model_type', 'ProductDevelopmentDesignRound')->where('model_id', $designRound->id),
-                fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('model_type')->orWhere('model_type', '!=', 'ProductDevelopmentDesignRound'))
+                $subject,
+                fn (Builder $query) => $query->where('model_type', $subject->getMorphClass())->where('model_id', $subject->id),
+                fn (Builder $query) => $query->where(fn (Builder $query) => $query->whereNull('model_type')->orWhereNotIn('model_type', ['ProductDevelopmentDesignRound', 'ProductDevelopmentArtwork']))
             )
             ->orderBy('id')
             ->get();
+        $this->roles = $this->roles($productDevelopment);
         $this->versions = $designRound
             ? $productDevelopment->designRounds()->where('round', $designRound->round->value)->where('product_development_item_id', $designRound->product_development_item_id)->pluck('version', 'id')->all()
             : [];
@@ -70,6 +79,23 @@ class GetProductDevelopmentComments
     }
 
     /**
+     * @return array<int, string>
+     */
+    private function roles(ProductDevelopment $productDevelopment): array
+    {
+        $labels = ProductDevelopmentMemberRoleEnum::labels();
+        $roles  = $productDevelopment->members()->get(['user_id', 'role'])
+            ->groupBy('user_id')
+            ->map(fn ($members) => $members->map(fn ($member) => $labels[$member->role->value])->all());
+
+        if ($productDevelopment->owner_id) {
+            $roles->put($productDevelopment->owner_id, [__('Owner'), ...$roles->get($productDevelopment->owner_id, [])]);
+        }
+
+        return $roles->map(fn (array $names) => implode(', ', $names))->all();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function comment(ProductDevelopmentComment $comment): array
@@ -80,13 +106,15 @@ class GetProductDevelopmentComments
             'user_id'    => $comment->user_id,
             'user'       => $comment->user?->contact_name ?: $comment->user?->username,
             'username'   => $comment->user?->username,
+            'role'       => $this->roles[$comment->user_id] ?? null,
             'avatar'     => $comment->user?->image_id ? $comment->user->imageSources(48, 48) : null,
             'created_at' => $comment->created_at?->toIso8601String(),
             'images'      => $comment->ticketImageSources(),
             'attachments' => $comment->ticketAttachments('grp.media.download'),
             'pin'         => $comment->data['pin'] ?? null,
             'stroke'      => $comment->data['stroke'] ?? null,
-            'version'     => $this->versions[$comment->model_id] ?? null,
+            'version'     => $this->versions[$comment->model_id] ?? $comment->data['version'] ?? null,
+            'review'      => $comment->data['review'] ?? null,
             'status'      => $comment->status?->value,
             'resolved_by' => $comment->resolvedBy?->contact_name ?: $comment->resolvedBy?->username,
             'resolved_in' => $comment->data['resolved_in_version'] ?? null,

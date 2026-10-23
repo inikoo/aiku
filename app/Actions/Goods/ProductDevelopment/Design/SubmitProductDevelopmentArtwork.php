@@ -54,6 +54,7 @@ class SubmitProductDevelopmentArtwork extends OrgAction
             'reviewed_by_id'     => null,
             'reviewed_at'        => null,
         ]);
+        ProductDevelopmentArtworks::recordVersion($artwork);
 
         RecordProductDevelopmentActivity::record($artwork->productDevelopment, RecordProductDevelopmentActivity::ARTWORK_SUBMITTED, [], [
             'artwork' => ProductDevelopmentArtworks::label($artwork),

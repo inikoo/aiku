@@ -14,11 +14,12 @@ use App\Models\Helpers\Media;
 use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
  * The current artwork of one SKU in one design section: an uploaded PDF or a layout built in Aiku.
- * Only the latest file is kept; the version counts the files and submissions so far.
+ * It holds the latest version; every version sent for review is also kept in its versions.
  *
  * @property int $id
  * @property int $product_development_id
@@ -44,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @property-read Media|null $media
  * @property-read User|null $updatedBy
  * @property-read User|null $reviewedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentArtworkVersion> $versions
  * @mixin \Eloquent
  */
 class ProductDevelopmentArtwork extends Model
@@ -99,5 +101,10 @@ class ProductDevelopmentArtwork extends Model
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by_id');
+    }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(ProductDevelopmentArtworkVersion::class, 'artwork_id')->orderByDesc('version');
     }
 }
