@@ -218,7 +218,7 @@ class GetSocialMediaPerformance
     /**
      * @param Collection<int, Shop> $shops
      *
-     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, views: int, interactions: int, interaction_rate: float|null, avg_daily_viewers: int|null, visits: int|null, new_follows: int|null, link_clicks: int, followers: int|null, followers_accounts: int, follower_growth: int|null}
+     * @return array{posts: int, reach: int, impressions: int, engagements: int, engagement_rate: float|null, views: int, organic_views: int, ad_views: int, unsplit_views: int, interactions: int, interaction_rate: float|null, avg_daily_viewers: int|null, visits: int|null, new_follows: int|null, link_clicks: int, followers: int|null, followers_accounts: int, follower_growth: int|null}
      */
     private function organicTotals(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
@@ -241,6 +241,7 @@ class GetSocialMediaPerformance
             : null;
 
         $views        = $this->dailyOrPosts($shops, $platform, $from, $to, 'impressions', 'p.impressions');
+        $split        = $this->viewsSplit($accountIds, $from, $to)->first();
         $interactions = $this->dailyOrPosts($shops, $platform, $from, $to, 'engagements', self::ENGAGEMENTS);
         $visits       = $this->dailySum($accountIds, $from, $to, 'profile_visits');
 
@@ -251,6 +252,9 @@ class GetSocialMediaPerformance
             'engagements'       => (int) $totals->engagements,
             'engagement_rate'   => $this->rate((int) $totals->engagements, (int) $totals->reach),
             'views'             => $views,
+            'organic_views'     => (int) ($split->organic ?? 0),
+            'ad_views'          => (int) ($split->ads ?? 0),
+            'unsplit_views'     => max(0, $views - (int) ($split->organic ?? 0) - (int) ($split->ads ?? 0)),
             'interactions'      => $interactions,
             'interaction_rate'  => $this->rate($interactions, $views),
             'avg_daily_viewers' => $this->averageDailyViewers($accountIds, $from, $to),
@@ -293,6 +297,31 @@ class GetSocialMediaPerformance
             ->selectRaw("social_media_account_id, SUM($column) as total")
             ->pluck('total', 'social_media_account_id')
             ->map(fn ($total) => (int) $total);
+    }
+
+    /**
+     * Views split by where they came from, on the days an account reports both its views and the
+     * part ads brought: ads are boosts and campaigns, organic the rest. Days synced before Meta was
+     * asked for the split, uploads and posts-only accounts stay out of both and are shown as not
+     * split, so an old day never passes for organic.
+     *
+     * @return Collection<string|int, object{organic: int, ads: int}> bucket date (or 0 for the whole period) => split
+     */
+    private function viewsSplit(Collection $accountIds, ?Carbon $from, ?Carbon $to, ?string $bucket = null, string $groupColumn = ''): Collection
+    {
+        $key = $bucket ? "date_trunc('$bucket', date)::date" : ($groupColumn ?: '0');
+
+        return DB::table('social_media_account_daily_stats')
+            ->whereIn('social_media_account_id', $accountIds)
+            ->whereNotNull('impressions')
+            ->whereNotNull('ad_impressions')
+            ->when($from, fn (Builder $query) => $query->where('date', '>=', $from->toDateString()))
+            ->when($to, fn (Builder $query) => $query->where('date', '<=', $to->toDateString()))
+            ->when($key !== '0', fn (Builder $query) => $query->groupByRaw($key))
+            ->selectRaw("$key as bucket, SUM(GREATEST(impressions - ad_impressions, 0)) as organic, SUM(LEAST(ad_impressions, impressions)) as ads")
+            ->get()
+            ->keyBy(fn ($row) => (string) $row->bucket)
+            ->map(fn ($row) => (object) ['organic' => (int) $row->organic, 'ads' => (int) $row->ads]);
     }
 
     private function dailySum(Collection $accountIds, ?Carbon $from, ?Carbon $to, string $column): ?int
@@ -356,7 +385,14 @@ class GetSocialMediaPerformance
             }
         }
 
-        if ($organic['views'] > 0 && ($paid['ad_impressions'] ?? 0) > 0) {
+        if ($organic['views'] > 0 && $organic['ad_views'] > 0) {
+            $parts[] = __('Ads brought :share% of views (:ads of :views); :organic were organic.', [
+                'share'   => round($organic['ad_views'] / $organic['views'] * 100),
+                'ads'     => number_format($organic['ad_views']),
+                'views'   => number_format($organic['views']),
+                'organic' => number_format($organic['organic_views']),
+            ]);
+        } elseif ($organic['views'] > 0 && ($paid['ad_impressions'] ?? 0) > 0) {
             $parts[] = __('Ads were shown :impressions times beside :views views.', ['impressions' => number_format($paid['ad_impressions']), 'views' => number_format($organic['views'])]);
         }
 
@@ -604,7 +640,7 @@ class GetSocialMediaPerformance
      *
      * @param Collection<int, Shop> $shops
      *
-     * @return array{bucket: string, points: array<int, array{date: string, posts: int, reach: int, engagements: int, views: int, interactions: int, followers: int|null}>}
+     * @return array{bucket: string, points: array<int, array{date: string, posts: int, reach: int, engagements: int, views: int, organic_views: int, ad_views: int, interactions: int, followers: int|null}>}
      */
     private function trend(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to, ?string $bucket = null): array
     {
@@ -649,6 +685,7 @@ class GetSocialMediaPerformance
             ->mapWithKeys(fn ($value, $key) => [(string) $key => (int) $value]);
 
         $views        = $this->bucketDailyOrPosts($shops, $platform, $from, $to, $bucket, 'impressions', 'p.impressions');
+        $split        = $this->viewsSplit($this->accountsQuery($shops, $platform)->pluck('a.id'), $from, $to, $bucket);
         $interactions = $this->bucketDailyOrPosts($shops, $platform, $from, $to, $bucket, 'engagements', self::ENGAGEMENTS);
 
         $dates = $posts->keys()->merge($followers->keys())->merge($views->keys())->merge($interactions->keys())->unique()->sort()->values();
@@ -665,8 +702,10 @@ class GetSocialMediaPerformance
                 'posts'        => (int) ($posts[$date]->posts ?? 0),
                 'reach'        => (int) ($posts[$date]->reach ?? 0),
                 'engagements'  => (int) ($posts[$date]->engagements ?? 0),
-                'views'        => $views[$date] ?? 0,
-                'interactions' => $interactions[$date] ?? 0,
+                'views'         => $views[$date] ?? 0,
+                'organic_views' => $split[$date]->organic ?? 0,
+                'ad_views'      => $split[$date]->ads ?? 0,
+                'interactions'  => $interactions[$date] ?? 0,
                 'followers'    => $followers[$date] ?? null,
             ])->values()->all(),
         ];
@@ -723,8 +762,9 @@ class GetSocialMediaPerformance
 
         $totalReach = (int) $rows->sum('reach');
         $totalViews = (int) $views->sum();
+        $split      = $views->keys()->mapWithKeys(fn (string $value) => [$value => $this->viewsSplit($this->accountsQuery($shops, SocialMediaPlatformEnum::from($value))->pluck('a.id'), $from, $to)->first()]);
 
-        return $views->keys()->map(function (string $value) use ($rows, $views, $followers, $totalReach, $totalViews) {
+        return $views->keys()->map(function (string $value) use ($rows, $views, $followers, $totalReach, $totalViews, $split) {
             $row = $rows[$value] ?? null;
 
             return [
@@ -735,6 +775,8 @@ class GetSocialMediaPerformance
                 'share'           => $this->rate((int) ($row->reach ?? 0), $totalReach),
                 'views'           => $views[$value],
                 'views_share'     => $this->rate($views[$value], $totalViews),
+                'organic_views'   => (int) ($split[$value]->organic ?? 0),
+                'ad_views'        => (int) ($split[$value]->ads ?? 0),
                 'engagements'     => (int) ($row->engagements ?? 0),
                 'engagement_rate' => $this->rate((int) ($row->engagements ?? 0), (int) ($row->reach ?? 0)),
                 'followers'       => isset($followers[$value]) ? (int) $followers[$value] : null,
@@ -774,18 +816,30 @@ class GetSocialMediaPerformance
     }
 
     /**
+     * The leading posts by each figure the dashboard ranks them by, engagements, views and viewers,
+     * so a post many saw but few engaged with is still there when the ranking is by views.
+     *
      * @param Collection<int, Shop> $shops
      *
      * @return array<int, array<string, mixed>>
      */
     private function topPosts(Collection $shops, ?SocialMediaPlatformEnum $platform, ?Carbon $from, ?Carbon $to): array
     {
+        $postIds = collect([self::ENGAGEMENTS, 'p.impressions', 'p.reach'])
+            ->flatMap(fn (string $figure) => $this->posts($shops, $platform, $from, $to)
+                ->orderByRaw($figure.' DESC')
+                ->orderByDesc('p.reach')
+                ->limit(self::TOP_POSTS)
+                ->pluck('p.id'))
+            ->unique()
+            ->values();
+
         return $this->posts($shops, $platform, $from, $to)
+            ->whereIn('p.id', $postIds)
             ->join('shops as s', 's.id', '=', 'a.shop_id')
-            ->selectRaw('p.id, p.type, p.description, p.permalink, p.published_at, p.reach, p.impressions, p.saves, p.shares, p.comments, p.reactions, p.link_clicks, '.self::ENGAGEMENTS.' as engagements, a.name as account_name, a.platform, s.name as shop_name')
+            ->selectRaw('p.id, p.type, p.description, p.permalink, p.published_at, p.reach, p.impressions, p.saves, p.shares, p.comments, p.reactions, p.link_clicks, p.is_boosted, p.ad_views, p.ad_reach, p.ad_link_clicks, '.self::ENGAGEMENTS.' as engagements, a.name as account_name, a.platform, s.name as shop_name')
             ->orderByRaw(self::ENGAGEMENTS.' DESC')
             ->orderByDesc('p.reach')
-            ->limit(self::TOP_POSTS)
             ->get()
             ->map(fn ($post) => [
                 'id'              => $post->id,
@@ -807,6 +861,10 @@ class GetSocialMediaPerformance
                 'link_clicks'     => (int) $post->link_clicks,
                 'engagements'     => (int) $post->engagements,
                 'engagement_rate' => $this->rate((int) $post->engagements, (int) $post->reach),
+                'is_boosted'      => (bool) $post->is_boosted,
+                'ad_views'        => $post->ad_views === null ? null : (int) $post->ad_views,
+                'ad_reach'        => $post->ad_reach === null ? null : (int) $post->ad_reach,
+                'ad_link_clicks'  => $post->ad_link_clicks === null ? null : (int) $post->ad_link_clicks,
             ])
             ->all();
     }
@@ -828,13 +886,14 @@ class GetSocialMediaPerformance
         $dailyViews   = $this->dailyByAccount($accountIds, $from, $to, 'impressions');
         $dailyActions = $this->dailyByAccount($accountIds, $from, $to, 'engagements');
         $dailyClicks  = $this->dailyByAccount($accountIds, $from, $to, 'link_clicks');
+        $viewsSplit   = $this->viewsSplit($accountIds, $from, $to, null, 'social_media_account_id');
 
         $shopsById = $shops->keyBy('id');
 
         return $this->accountsQuery($shops, $platform)
             ->select('a.id', 'a.name', 'a.username', 'a.platform', 'a.shop_id', 'a.followers', 'a.followers_at')
             ->get()
-            ->map(function ($account) use ($posts, $shopsById, $dailyViews, $dailyActions, $dailyClicks) {
+            ->map(function ($account) use ($posts, $shopsById, $dailyViews, $dailyActions, $dailyClicks, $viewsSplit) {
                 $row          = $posts[$account->id] ?? null;
                 $shop         = $shopsById[$account->shop_id];
                 $views        = $dailyViews[$account->id] ?? (int) ($row->impressions ?? 0);
@@ -857,6 +916,8 @@ class GetSocialMediaPerformance
                     'link_clicks'     => $dailyClicks[$account->id] ?? (int) ($row->link_clicks ?? 0),
                     'engagement_rate' => $this->rate((int) ($row->engagements ?? 0), (int) ($row->reach ?? 0)),
                     'views'           => $views,
+                    'organic_views'   => (int) ($viewsSplit[(string) $account->id]->organic ?? 0),
+                    'ad_views'        => (int) ($viewsSplit[(string) $account->id]->ads ?? 0),
                     'interactions'    => $interactions,
                     'interaction_rate' => $this->rate($interactions, $views),
                 ];

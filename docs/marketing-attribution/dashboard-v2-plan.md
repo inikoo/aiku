@@ -1,6 +1,6 @@
 # Marketing dashboard v2: plan
 
-Status: phases 1–4 built on 21 October 2026, and W-shaped and U-shaped added the same day. The rest of phase 5 is still to do.
+Status: phases 1–4 built on 21 October 2026, and W-shaped and U-shaped added the same day. Customer lifetime value (CLTV) next to CAC, and the compare period, added on 22 October 2026. The rest of phase 5 is still to do.
 
 A second marketing dashboard that compares attribution models side by side: **linear** against
 **first touch**, **U-shaped** or **W-shaped**. The current dashboard stays exactly as it is. The new page is reachable
@@ -138,6 +138,29 @@ validation are left out, as `AttachTrafficSourcesToModel` does. A long period on
 now that U- and W-shaped exist the shares should be precomputed into an `order_attribution_shares` table
 when an order is submitted. That is a later phase.
 
+## Compare period
+
+A **Compare** button beside the period bar (Acquisition and Orders, not Journey) sets the period to
+compare with: **Previous period** (the same number of days right before), **Previous month** and
+**Previous year** (the same dates shifted), or **Custom** dates. It lives in the URL (`compare`,
+plus `compare_from` and `compare_to` for custom), so it does not touch the interval the other
+dashboards share, and a link carries it. The page keeps it when the tab changes. With the period
+set to All there is nothing to compare, so the button is disabled.
+
+The compared figures come from the same actions over the other dates, cached the same way, under
+`previous` in each tab's prop. A period that starts before tracking began (7 August 2026) is cut
+there and says so; one that ends before it shows the dates and no changes. Changes show as ▲/▼
+badges, green when good and red when bad (CAC, cost per order and No touch are better down), grey
+for spend. In Acquisition the customers of the earlier period have had longer to buy, so their
+buyers and CLTV read a little higher.
+
+- **Acquisition:** each KPI (paid LTV:CAC included), CAC per paid channel, and CLTV, CAC and LTV:CAC
+  in the lifetime value table.
+- **Orders:** orders and revenue, paid orders under the compared model, No touch share, each
+  channel's compared-model orders or revenue, and per paid channel ROAS, cost per order, spend and
+  orders.
+- Cohort growth and Spend and lifetime value by month are already by month and do not change.
+
 ## Tab 1 · Acquisition, "who brought them in?"
 
 The cohort is the customers who **registered** in the period. Each one counts whole for the channel
@@ -152,11 +175,51 @@ model choice.
 - **CAC per buyer:** one bar per paid channel.
 - **Revenue per buyer:** per channel, with a 30 / 90 / 180 / 365 days since registration toggle. A
   window the cohort has not fully lived through shows "Not reached yet" instead of a partial figure.
+- **Customer lifetime value:** per channel, the buyers, the gross margin per buyer so far, the
+  projected CLTV, CAC, LTV:CAC and payback, with a 1 / 2 / 3 years toggle (3 years by default, the
+  marketing team's horizon). The paid CAC card also shows the paid LTV:CAC. See
+  [Customer lifetime value](#customer-lifetime-value) below.
+- **Spend and lifetime value by month:** for one paid channel, each registration month with its ad
+  spend, buyers, CAC, CLTV and LTV:CAC, to see whether more spend brings buyers worth more.
 - **Cohort growth:** for one selected channel (default Google Ads), one row per registration month
   and columns at 30 / 90 / 180 / 365 days, over the last six months since tracking began. A cell is
   **Final** when every customer of the month is past the window, **Growing** when the oldest has at
   least passed the previous window, and **Not yet** otherwise (it would only repeat the shorter
   window). The Revenue per buyer toggle uses the same states.
+
+## Customer lifetime value
+
+CLTV is the gross margin a buyer brings over a set lifetime, counted from their first order, so it
+compares with CAC (also per buyer). Revenue would flatter it: CAC is paid from margin.
+
+**Gross margin.** The `profit_amount` and `margin` columns of orders, invoices and their lines are
+empty, so margin comes from product cost: each product line's net amount less its quantity times the
+current `effective_cost` of the product's master asset, converted with the line's own rate
+(`net_amount / grp_net_amount`). Shipping and charges are left out. Lines without a cost (about 1–3%
+of product revenue) take the shop's average margin of the last year. The cost is today's, not the
+one at the time of sale. `GetOrderGrossMargins` does this for both the hydrator and the dashboard.
+
+**Projection.** Touches exist only from 7 August 2026, so no attributed buyer is old enough for a
+lifetime figure. The shop's own history fills the gap. Once a month
+`ShopHydrateCustomerValueCurve` (command `hydrate:shop-customer-value-curve {shop?}`, scheduled on
+the 1st at 04:00 UTC, queue `hydrators-slave-low-priority` so it runs on litio against the replica)
+stores in `shop_crm_stats.customer_value_curve`, for each point of 7, 14, 30, 60, 90, 180, 365,
+730 and 1095 days after the first order, how the margin of the buyers whose first order fell in the
+two years before that point could be reached grew from each base of 7, 14, 30, 60 and 90 days.
+
+On the dashboard each buyer takes the longest base they have completed (a buyer under 7 days old
+uses the 7-day base with the margin so far), and their margin in that base is multiplied by the ratio
+to each point. The channel's CLTV is the average per buyer at 365, 730 or 1095 days. Payback is the
+day the average cumulative margin per buyer passes CAC, interpolated between points; past 1095 days
+it shows "Over 36 months". LTV:CAC is green from 3, amber from 1 and red below 1.
+
+UK on 22 October 2026: average margin 54%; the three-year margin is 3.3 × the first 90 days and
+5.6 × the first 7 days. Google Ads since 7 August: CAC 311, CLTV over 3 years 708, LTV:CAC 2.28,
+payback 9.4 months.
+
+After a deploy that adds a shop, or to see the figures before the 1st, run
+`php artisan hydrate:shop-customer-value-curve` (all open shops) or with a shop slug. Until a shop
+has a curve, the section says it is not calculated yet.
 
 ## Tab 2 · Orders, "who closed the sale?"
 
@@ -216,7 +279,9 @@ Spend is the period's `traffic_source_costs`, read the way `GetShopMarketingOver
 | `app/Actions/CRM/TrafficSource/Attribution/*` | Splitter and the data of each tab |
 | `routes/grp/web/org/shops/marketing.php` | One `GET dashboard-v2` route |
 | `resources/js/Pages/Grp/Org/Marketing/MarketingDashboardV2.vue` | Page with tabs |
-| `resources/js/Components/Marketing/V2/*` | `AcquisitionTab`, `OrdersTab`, `JourneyTab`, and `palette.ts` with the chart and channel colours |
+| `app/Actions/Catalogue/Shop/Hydrators/ShopHydrateCustomerValueCurve.php` | Monthly value curve per shop for CLTV |
+| `app/Enums/UI/Marketing/MarketingComparePeriodEnum.php` | Compare modes and their date ranges |
+| `resources/js/Components/Marketing/V2/*` | `AcquisitionTab`, `OrdersTab`, `JourneyTab`, `ComparePeriod`, `DeltaBadge`, and `palette.ts` with the chart and channel colours |
 
 ## Phases
 
@@ -229,6 +294,8 @@ Spend is the period's `traffic_source_costs`, read the way `GetShopMarketingOver
 
 ## Known limits
 
+- CLTV is a projection from the shop's past buyers, not an observation, until the attributed buyers
+  are old enough. A month with few buyers swings a lot.
 - Touches exist only from 7 August 2026, so a 365-day window cannot fill until August 2027. Cohort
   cells show Growing or Not yet until then.
 - Anonymous journeys across devices are lost until the customer logs in, and Direct visits are not

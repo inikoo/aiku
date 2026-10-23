@@ -8,6 +8,8 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Enums\SysAdmin\McpChange\McpChangeTypeEnum;
+use App\Models\SysAdmin\McpChange;
 use App\Actions\SupplyChain\StockDeliveryInvoice\EstimateStockDeliveryInvoice;
 use App\Models\SupplyChain\SupplierInvoice;
 use App\Models\SupplyChain\AgentInvoice;
@@ -794,7 +796,7 @@ test('procurement pdf links end in the file name the browser saves it under', fu
 
     $actions = $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $this->stockDelivery->slug]))
         ->assertOk()->viewData('page')['props']['pageHead']['actions'];
-    $pdfRoute = collect($actions)->firstWhere('route.name', 'grp.org.procurement.stock_deliveries.pdf')['route'];
+    $pdfRoute = collect(collect($actions)->firstWhere('key', 'documents')['button'])->firstWhere('route.name', 'grp.org.procurement.stock_deliveries.pdf')['route'];
 
     expect($filename)->toStartWith('SD-143_UK-')->toEndWith('.pdf')
         ->and($pdfRoute['parameters']['filename'])->toBe($filename);
@@ -1264,6 +1266,68 @@ test('only an accounting manager can update a costed delivery, every change is a
     actingAs($this->adminGuest->getUser());
 });
 
+test('an accounting manager can ask someone who costs deliveries to make the update, and only them (HELP-4256)', function () {
+    $stockDelivery = placedStockDeliveryWithTwoLines($this, 'COST-ASSIGN');
+    StoreStockDeliveryCost::make()->action($stockDelivery, ['type' => StockDeliveryCostTypeEnum::DUTY->value, 'is_na' => true]);
+    $stockDelivery = $stockDelivery->fresh();
+    [$first, $second] = $stockDelivery->items()->orderBy('id')->get()->all();
+
+    $suffix            = StockDelivery::count();
+    $assignee          = userWithJobPosition($this, 'buy', 'cost-assignee-'.$suffix);
+    $otherBuyer        = userWithJobPosition($this, 'buy', 'cost-other-buyer-'.$suffix);
+    $accountingManager = userWithJobPosition($this, 'acc-m', 'cost-assign-acc-m-'.$suffix);
+    $outsider          = userWithJobPosition($this, 'hr-c', 'cost-outsider-'.$suffix);
+
+    actingAs($accountingManager);
+    $this->withoutVite();
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('pageHead.actions.0.assignable_users', fn ($users) => collect($users)->contains('id', $assignee->id) && !collect($users)->contains('id', $outsider->id))
+            ->etc());
+
+    $this->patch(route('grp.models.stock-delivery.reopen-costing', $stockDelivery->id), ['reason' => 'Agent fee missing', 'assignee_id' => $outsider->id])
+        ->assertSessionHasErrors('assignee_id');
+    $this->patch(route('grp.models.stock-delivery.reopen-costing', $stockDelivery->id), ['reason' => 'Agent fee missing', 'assignee_id' => $assignee->id])
+        ->assertSessionHasNoErrors();
+
+    expect(Audit::where('auditable_type', 'StockDelivery')->where('auditable_id', $stockDelivery->id)->where('event', 'costing_reopened')->latest('id')->first()->new_values['assignee'])
+        ->toBe($assignee->contact_name);
+
+    actingAs($otherBuyer);
+    $this->patchJson(route('grp.models.stock-delivery-item.update-cost', $second->id), ['cost_extra' => 80])->assertForbidden();
+    $this->patch(route('grp.models.stock-delivery.finish-costing', $stockDelivery->id))->assertForbidden();
+
+    actingAs($assignee);
+    $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('costing.can_edit', true)
+            ->where('costing.reopened.assignee', $assignee->contact_name)
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains('key', 'finish_stock_delivery_costing'))
+            ->etc());
+    $this->patchJson(route('grp.models.stock-delivery-item.update-cost', $first->id), ['cost_extra' => 0])->assertOk();
+    $this->patchJson(route('grp.models.stock-delivery-item.update-cost', $second->id), ['cost_extra' => 80])->assertOk();
+
+    $mcpChange = new McpChange([
+        'type' => McpChangeTypeEnum::STOCK_DELIVERY_COSTS,
+        'data' => ['organisation_id' => $this->organisation->id, 'target' => ['stock_delivery_id' => $stockDelivery->id]],
+    ]);
+    $switch = McpChangeTypeEnum::STOCK_DELIVERY_COSTS->userSwitch();
+    expect($mcpChange->canBeRevertedBy($assignee->forceFill([$switch => true])))->toBeTrue()
+        ->and($mcpChange->canBeRevertedBy($otherBuyer->forceFill([$switch => true])))->toBeFalse();
+
+    Queue::fake();
+    $this->patch(route('grp.models.stock-delivery.finish-costing', $stockDelivery->id))->assertSessionHasNoErrors();
+
+    $stockDelivery = $stockDelivery->fresh();
+    expect($stockDelivery->is_costed)->toBeTrue()
+        ->and((float) $second->fresh()->cost_extra)->toBe(80.0);
+
+    $this->patch(route('grp.models.stock-delivery.reopen-costing', $stockDelivery->id), ['reason' => 'Again'])->assertForbidden();
+    $this->patchJson(route('grp.models.stock-delivery-item.update-cost', $second->id), ['cost_extra' => 70])->assertStatus(422);
+
+    actingAs($this->adminGuest->getUser());
+});
+
 test('rebuilding stock histories since a day writes each past day and today', function () {
     $orgStock = OrgStock::where('organisation_id', $this->organisation->id)->first();
 
@@ -1344,8 +1408,7 @@ test('a dispatched stock delivery with no products can not be received and is ca
     $this->get(route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('pageHead.actions.0.key', 'cancel_stock_delivery')
-            ->where('pageHead.actions', fn ($actions) => collect($actions)->pluck('key')->doesntContain('receive_stock_delivery')));
+            ->where('pageHead.actions', fn ($actions) => collect($actions)->pluck('key')->contains('cancel_stock_delivery') && collect($actions)->pluck('key')->doesntContain('receive_stock_delivery')));
 
     expect(fn () => ReceiveStockDelivery::make()->action($stockDelivery->fresh()))->toThrow(ValidationException::class);
 

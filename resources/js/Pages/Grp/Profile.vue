@@ -17,6 +17,7 @@ import ProfileVisitLogs from "@/Components/Profile/ProfileVisitLogs.vue"
 import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
 import ProfileApiTokens from "@/Components/Profile/ProfileApiTokens.vue"
+import ProfileCalendar from "@/Components/Profile/ProfileCalendar.vue"
 
 import axios from 'axios'
 import { ctrans } from "@/Composables/useTrans"
@@ -73,6 +74,7 @@ const component = computed(() => {
         todo: ProfileTodo,
         notifications: ProfileNotifications,
         kpi: ProfileKPIs,
+        calendar: ProfileCalendar,
         api_tokens: ProfileApiTokens,
         visit_logs: ProfileVisitLogs,
         timesheets: ProfileTimesheets,
@@ -112,6 +114,9 @@ const fetchTabData = async (tabSlug: string) => {
             break
         case 'kpi':
             routeName = 'grp.profile.kpis.index'
+            break
+        case 'calendar':
+            routeName = 'grp.profile.calendar.index'
             break
         case 'api_tokens':
             routeName = 'grp.profile.api-tokens.index'

@@ -3,6 +3,7 @@
 namespace App\Actions\CRM\AppointmentStaff;
 
 use App\Actions\OrgAction;
+use App\Enums\CRM\AppointmentType\AppointmentTypeMeetingModeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class StoreAppointmentStaff extends OrgAction
     {
         $user = User::findOrFail($modelData['user_id']);
 
-        return UpdateAppointmentStaff::make()->handle($shop, $user, $modelData['appointment_types']);
+        return UpdateAppointmentStaff::make()->handle($shop, $user, $modelData['meeting_modes']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -34,16 +35,13 @@ class StoreAppointmentStaff extends OrgAction
     public function rules(): array
     {
         return [
-            'user_id'             => [
+            'user_id'         => [
                 'required',
                 'integer',
                 Rule::exists('users', 'id')->where('group_id', $this->shop->group_id)->where('status', true),
             ],
-            'appointment_types'   => ['required', 'array', 'min:1'],
-            'appointment_types.*' => [
-                'integer',
-                Rule::exists('appointment_types', 'id')->where('shop_id', $this->shop->id)->whereNull('deleted_at'),
-            ],
+            'meeting_modes'   => ['required', 'array', 'min:1'],
+            'meeting_modes.*' => [Rule::enum(AppointmentTypeMeetingModeEnum::class)],
         ];
     }
 

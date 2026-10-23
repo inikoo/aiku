@@ -28,6 +28,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $saves
  * @property int $link_clicks
  * @property int $follows
+ * @property bool $is_boosted
+ * @property int|null $ad_views
+ * @property int|null $ad_reach
+ * @property int|null $ad_link_clicks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read SocialMediaAccount $socialMediaAccount
@@ -42,6 +46,7 @@ class SocialMediaPost extends Model
         return [
             'type'         => SocialMediaPostTypeEnum::class,
             'published_at' => 'datetime',
+            'is_boosted'   => 'boolean',
         ];
     }
 

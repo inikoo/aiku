@@ -14,6 +14,7 @@ import TicketUserHoverCard from "@/Components/Tickets/TicketUserHoverCard.vue"
 import ProductDevelopmentEditDialog, { type ProductDevelopmentEditKind, type ProductDevelopmentEditor } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentEditDialog.vue"
 import { computed, ref } from "vue"
 import ProductDevelopmentSidePanel from "@/Components/Goods/ProductDevelopment/ProductDevelopmentSidePanel.vue"
+import ProductDevelopmentBriefEditor, { type BriefEditor } from "@/Components/Goods/ProductDevelopment/ProductDevelopmentBriefEditor.vue"
 import ProductDevelopmentProgressBar from "@/Components/Goods/ProductDevelopment/ProductDevelopmentProgressBar.vue"
 import { productDevelopmentColor } from "@/Components/Goods/ProductDevelopment/productDevelopmentColors"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -25,6 +26,7 @@ const props = defineProps<{
     editor?: ProductDevelopmentEditor | null
     data: {
         brief: string | null
+        brief_editor: BriefEditor
         markets: string[]
         target_landing_date: string | null
         target_online_date: string | null
@@ -55,13 +57,7 @@ const formatDate = (date: string | null) => date ? useFormatTime(date, { formatT
 <template>
     <div v-if="data" class="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0 space-y-4">
-            <ProductDevelopmentSidePanel :title="ctrans('Brief')" icon="fal fa-file-alt">
-                <template #summary>
-                    <p class="line-clamp-2 whitespace-pre-line text-sm" :class="data.brief ? 'text-gray-600' : 'text-gray-400'">{{ data.brief || ctrans("No brief written yet") }}</p>
-                </template>
-                <p v-if="data.brief" class="whitespace-pre-line break-words px-4 py-3 text-sm text-gray-800">{{ data.brief }}</p>
-                <p v-else class="px-4 py-3 text-sm text-gray-400">{{ ctrans("No brief written yet") }}</p>
-            </ProductDevelopmentSidePanel>
+            <ProductDevelopmentBriefEditor :brief="data.brief" :editor="data.brief_editor" />
 
             <ProductDevelopmentSidePanel :title="ctrans('Family checklist')" icon="fal fa-clipboard-list">
                 <template #meta>

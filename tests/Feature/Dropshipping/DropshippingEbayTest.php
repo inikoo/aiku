@@ -52,6 +52,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
 use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\EbayUser;
@@ -2126,4 +2127,34 @@ test('a queued upload the queue kills still reports its failure so the waiting p
 
     expect($portfolio->refresh()->errors_response)->not->toBeNull();
     Event::assertDispatched(UploadProductToSalesChannelProgressEvent::class, fn ($event) => $event->portfolio->id === $portfolio->id && $event->statistics === ['total' => 1, 'success' => 0, 'fail' => 1]);
+});
+
+test('a bundle family is not used to find the eBay category, so bundles are not suggested into car cleaning kits', function () {
+    $department = new ProductCategory(['code' => 'aroma', 'name' => 'Aromatherapy']);
+
+    $bundle = new Product(['code' => 'BNDL-18', 'name' => 'Scented Home Bundle']);
+    $bundle->setRelation('family', new ProductCategory(['code' => 'bundles', 'name' => 'Product Bundles']));
+    $bundle->setRelation('subDepartment', null);
+    $bundle->setRelation('department', $department);
+
+    $oil = new Product(['code' => 'EO-01', 'name' => 'Lavender Oil']);
+    $oil->setRelation('family', new ProductCategory(['code' => 'EO', 'name' => 'Essential Oils']));
+    $oil->setRelation('subDepartment', null);
+    $oil->setRelation('department', $department);
+
+    $orphan = new Product(['code' => 'X-1', 'name' => 'Loose Item']);
+    $orphan->setRelation('family', null);
+    $orphan->setRelation('subDepartment', null);
+    $orphan->setRelation('department', null);
+
+    $unnamedFamily = new Product(['code' => 'X-2', 'name' => 'Loose Candle']);
+    $unnamedFamily->setRelation('family', new ProductCategory(['code' => 'X', 'name' => null]));
+    $unnamedFamily->setRelation('subDepartment', null);
+    $unnamedFamily->setRelation('department', null);
+
+    expect(StoreEbayProduct::categoryKeywords($bundle))->toBe(['Aromatherapy'])
+        ->and(StoreEbayProduct::categoryKeywords($unnamedFamily))->toBe(['Loose Candle'])
+        ->and(StoreEbayProduct::describingFamilyName($bundle))->toBeNull()
+        ->and(StoreEbayProduct::categoryKeywords($oil))->toBe(['Essential Oils', 'Aromatherapy'])
+        ->and(StoreEbayProduct::categoryKeywords($orphan))->toBe(['Loose Item']);
 });

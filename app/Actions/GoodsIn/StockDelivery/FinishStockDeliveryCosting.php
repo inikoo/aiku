@@ -27,7 +27,7 @@ class FinishStockDeliveryCosting extends OrgAction
             return true;
         }
 
-        return $request->user()->authTo("org-supervisor.{$this->organisation->id}.accounting");
+        return $this->stockDelivery->canUpdateCosting($request->user());
     }
 
     public function afterValidator(Validator $validator): void

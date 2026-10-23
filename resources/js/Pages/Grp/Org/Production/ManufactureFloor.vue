@@ -15,6 +15,7 @@ import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import { capitalize } from '@/Composables/capitalize'
 import { mixBatchesLabel } from '@/Composables/mixBatches'
+import { packsLabel } from '@/Composables/packs'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faIndustry, faLink } from "@fal"
@@ -28,6 +29,7 @@ interface FloorStep {
     quantity_required: number
     unit: string | null
     mix_batch_kg: number | null
+    pack_size: number | null
     blocked_by_step: string | null
     worked_by: string[]
     working_on_by: string[]
@@ -283,7 +285,9 @@ function stepStatus(step: FloorStep) {
     const progress = `${step.quantity_made}/${step.quantity_required}`
     const units = step.unit
         ? [`${progress} ${step.unit}`, mixBatchesLabel(step.quantity_required, step.mix_batch_kg)].filter(Boolean).join(' · ')
-        : ctransChoice(':progress unit|:progress units', step.quantity_required, { progress })
+        : step.pack_size
+            ? `${packsLabel(step.quantity_made, step.pack_size)} / ${packsLabel(step.quantity_required, step.pack_size)}`
+            : ctransChoice(':progress unit|:progress units', step.quantity_required, { progress })
     if (step.state == 'done') {
         return [ctrans('Done'), units, formatWorked(step.seconds), step.worked_by.join(', ')].filter(Boolean).join(' · ')
     }
@@ -398,7 +402,7 @@ function startTask(task: FloorTask) {
                     <div class="text-sm text-gray-600 truncate">{{ task.artefact_name }}</div>
                     <div class="text-xs text-gray-500 mt-0.5 flex justify-between">
                         <span>{{ task.task_name }} · {{ task.job_order_reference }}</span>
-                        <span class="tabular-nums">{{ task.quantity_made }}/{{ task.quantity_required }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="mixBatches(task)"> · {{ mixBatches(task) }}</template><template v-if="task.pack_size"> {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
+                        <span class="tabular-nums">{{ packsLabel(task.quantity_made, task.pack_size) }}/{{ packsLabel(task.quantity_required, task.pack_size) }}<template v-if="task.unit"> {{ task.unit }}</template><template v-if="mixBatches(task)"> · {{ mixBatches(task) }}</template><template v-if="task.pack_size"> · {{ ctrans('packs of :size', { size: task.pack_size }) }}</template></span>
                     </div>
                     <div v-if="task.continued_from || task.continued_in" class="text-xs text-gray-500 truncate">
                         <span v-if="task.continued_from">{{ ctrans('Continued from :reference', { reference: task.continued_from }) }}</span>
@@ -446,7 +450,7 @@ function startTask(task: FloorTask) {
                 </div>
                 <div v-if="open_break.worked_seconds !== null" class="mt-3 text-xl text-gray-700">
                     {{ ctrans('Worked: :duration', { duration: durationLabel(open_break.worked_seconds) }) }}
-                    <template v-if="pausedTask"> · {{ ctrans(':made of :required recorded', { made: pausedTask.quantity_made, required: pausedTask.unit ? `${pausedTask.quantity_required} ${pausedTask.unit}` : pausedTask.quantity_required }) }}</template>
+                    <template v-if="pausedTask"> · {{ ctrans(':made of :required recorded', { made: packsLabel(pausedTask.quantity_made, pausedTask.pack_size), required: pausedTask.unit ? `${pausedTask.quantity_required} ${pausedTask.unit}` : packsLabel(pausedTask.quantity_required, pausedTask.pack_size) }) }}</template>
                 </div>
                 <div class="mt-2 text-gray-600">{{ ctrans('Clock back in with your QR code to carry on with your job.') }}</div>
             </div>
@@ -530,7 +534,7 @@ function startTask(task: FloorTask) {
                 <div class="text-3xl font-semibold mt-2">{{ selectedTask.artefact_code }}</div>
                 <div class="text-xl text-gray-600">{{ selectedTask.artefact_name }}</div>
                 <div class="text-5xl font-semibold tabular-nums my-6">
-                    {{ selectedTask.quantity_made }} <span class="text-gray-400 text-3xl">/ {{ selectedTask.quantity_required }}<template v-if="selectedTask.unit"> {{ selectedTask.unit }}</template></span>
+                    {{ packsLabel(selectedTask.quantity_made, selectedTask.pack_size) }} <span class="text-gray-400 text-3xl">/ {{ packsLabel(selectedTask.quantity_required, selectedTask.pack_size) }}<template v-if="selectedTask.unit"> {{ selectedTask.unit }}</template></span>
                     <div v-if="mixBatches(selectedTask)" class="mt-1 text-3xl text-[--app-accent-strong]">{{ mixBatches(selectedTask) }}</div>
                     <div v-if="selectedTask.pack_size" class="mt-1 text-2xl text-amber-700">{{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: selectedTask.pack_size, code: selectedTask.artefact_code }) }}</div>
                 </div>

@@ -97,8 +97,8 @@ class StockDeliveryCostsTool extends Tool
         if ($stockDelivery->is_costed) {
             return Response::error("{$stockDelivery->reference} is already costed. An accounting manager changes a costed delivery with Update costing in Aiku. Nothing was changed.");
         }
-        if (Arr::has($stockDelivery->data ?? [], 'costing_reopened') && !$this->canAny($request, $organisation, [OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING])) {
-            return Response::error("The costing of {$stockDelivery->reference} is being updated by an accounting manager, who finishes it in Aiku. Nothing was changed.");
+        if (Arr::has($stockDelivery->data ?? [], 'costing_reopened') && !$stockDelivery->canUpdateCosting($request->user())) {
+            return Response::error("The costing of {$stockDelivery->reference} is being updated by an accounting manager or the person they asked, who finishes it in Aiku. Nothing was changed.");
         }
         if ($stockDelivery->parent_type === 'OrgPartner') {
             return Response::error("{$stockDelivery->reference} is a partner delivery, which has no landed costs of its own. Nothing was changed.");

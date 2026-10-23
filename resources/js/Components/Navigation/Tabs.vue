@@ -48,6 +48,7 @@ import type { Navigation } from "@/types/Tabs"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
 import { ctrans } from "@/Composables/useTrans"
+import PingIcon from "../Utils/PingIcon.vue"
 library.add(falClock, falPencil, 
 	faListUl,
 	faShapes,
@@ -336,12 +337,9 @@ const placeMobileTabOptions = () => {
 								:class="tab.icon_right.class"
 								style="margin-left: 4px" />
 
-							<FontAwesomeIcon
-								v-if="tab.indicator"
-								icon="fas fa-circle"
-								class="animate-pulse absolute top-3 -right-1 text-blue-500 text-[6px]"
-								fixed-width
-								aria-hidden="true" />
+							<span v-if="tab.indicator" class="absolute top-1 -right-1 text-orange-500 text-[6px]">
+								<PingIcon />
+							</span>
 						</button>
 					</template>
 				</nav>
@@ -402,18 +400,9 @@ const placeMobileTabOptions = () => {
 								:class="tab.icon_right.class"
 								style="margin-left: 4px" />
 
-							<FontAwesomeIcon
-								v-if="tab.indicator"
-								icon="fas fa-circle"
-								class="animate-ping absolute top-3 -right-1 text-blue-500 text-[6px]"
-								fixed-width
-								aria-hidden="true" />
-							<FontAwesomeIcon
-								v-if="tab.indicator"
-								icon="fas fa-circle"
-								class="absolute top-3 -right-1 text-blue-500 text-[6px]"
-								fixed-width
-								aria-hidden="true" />
+							<span v-if="tab.indicator" class="absolute top-0 right-0.5 text-orange-500 text-[6px]">
+								<PingIcon  />
+							</span>
 						</button>
 					</template>
 				</nav>

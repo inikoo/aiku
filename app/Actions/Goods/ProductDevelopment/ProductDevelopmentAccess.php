@@ -173,6 +173,14 @@ class ProductDevelopmentAccess
             || in_array(ProductDevelopmentMemberRoleEnum::DESIGNER, $this->memberRoles($user, $productDevelopment), true);
     }
 
+    /**
+     * Who manages design sections and uploads, replaces or builds artwork: designers, owner and purchasing.
+     */
+    public function canManageArtwork(User $user, ProductDevelopment $productDevelopment): bool
+    {
+        return $this->canDesign($user, $productDevelopment) || $this->canEdit($user, $productDevelopment);
+    }
+
     public function canApproveDesign(User $user, ProductDevelopment $productDevelopment): bool
     {
         return $productDevelopment->owner_id === $user->id

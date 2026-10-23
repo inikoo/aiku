@@ -13,6 +13,10 @@ use App\Enums\GoodsIn\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\GoodsIn\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Models\GoodsIn\StockDelivery;
 use App\Models\GoodsIn\StockDeliveryItem;
+use Spatie\Permission\Models\Permission;
+use App\Models\SysAdmin\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -21,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Events\AuditCustom;
 
 /**
- * Lets an accounting manager correct a costed delivery. The put away stock keeps its value until the costing
+ * Lets an accounting manager correct a costed delivery, or name who makes the correction (HELP-4256). The put away stock keeps its value until the costing
  * is finished again, then it is repriced and its stock history rebuilt (EvaluateStockDeliveryCosting).
  */
 class ReopenStockDeliveryCosting extends OrgAction
@@ -40,7 +44,8 @@ class ReopenStockDeliveryCosting extends OrgAction
     public function rules(): array
     {
         return [
-            'reason' => ['required', 'string', 'max:1000'],
+            'reason'      => ['required', 'string', 'max:1000'],
+            'assignee_id' => ['sometimes', 'nullable', 'integer'],
         ];
     }
 
@@ -48,6 +53,11 @@ class ReopenStockDeliveryCosting extends OrgAction
     {
         if ($this->stockDelivery->state !== StockDeliveryStateEnum::PLACED || !$this->stockDelivery->is_costed) {
             $validator->errors()->add('state', __('Only a costed stock delivery can have its costing updated'));
+        }
+
+        $assigneeId = $validator->getData()['assignee_id'] ?? null;
+        if ($assigneeId && !self::assignableUsers($this->stockDelivery)->contains('id', (int) $assigneeId)) {
+            $validator->errors()->add('assignee_id', __('That person can not edit costings in this organisation'));
         }
 
         if ($this->stockDelivery->parent_type === 'OrgPartner') {
@@ -66,8 +76,9 @@ class ReopenStockDeliveryCosting extends OrgAction
                     'costing_reopened' => [
                         'at'      => now()->toIso8601String(),
                         'user_id' => request()->user()?->id,
-                        'reason'  => $modelData['reason'],
-                        'costs'   => $costs,
+                        'reason'      => $modelData['reason'],
+                        'assignee_id' => Arr::get($modelData, 'assignee_id') ? (int) $modelData['assignee_id'] : null,
+                        'costs'       => $costs,
                     ],
                 ]),
             ]);
@@ -79,7 +90,10 @@ class ReopenStockDeliveryCosting extends OrgAction
             $stockDelivery->auditEvent     = 'costing_reopened';
             $stockDelivery->isCustomEvent  = true;
             $stockDelivery->auditCustomOld = $costs;
-            $stockDelivery->auditCustomNew = ['reason' => $modelData['reason']];
+            $stockDelivery->auditCustomNew = array_filter([
+                'reason'   => $modelData['reason'],
+                'assignee' => User::find(Arr::get($modelData, 'assignee_id'))?->contact_name,
+            ]);
             Event::dispatch(new AuditCustom($stockDelivery));
             $stockDelivery->isCustomEvent  = false;
             $stockDelivery->auditCustomOld = $stockDelivery->auditCustomNew = [];
@@ -88,6 +102,31 @@ class ReopenStockDeliveryCosting extends OrgAction
         });
 
         return $stockDelivery->refresh();
+    }
+
+    /**
+     * People who cost deliveries in this organisation and can be asked to make the update without being accounting managers.
+     *
+     * @return Collection<int, User>
+     */
+    public static function assignableUsers(StockDelivery $stockDelivery): Collection
+    {
+        $permissions = Permission::whereIn('name', [
+            "procurement.{$stockDelivery->organisation_id}",
+            "procurement.{$stockDelivery->organisation_id}.edit",
+            "accounting.{$stockDelivery->organisation_id}",
+            "accounting.{$stockDelivery->organisation_id}.edit",
+        ])->pluck('name')->all();
+
+        if (!$permissions) {
+            return new Collection();
+        }
+
+        return User::permission($permissions)
+            ->where('group_id', $stockDelivery->group_id)
+            ->where('status', true)
+            ->orderBy('contact_name')
+            ->get(['users.id', 'users.contact_name', 'users.username']);
     }
 
     /**

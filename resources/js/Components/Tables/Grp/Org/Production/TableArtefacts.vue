@@ -20,6 +20,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCheckSquare, faExclamationTriangle, faChevronDown, faTasks } from '@fal'
 import Modal from '@/Components/Utils/Modal.vue'
 import Popover from '@/Components/Popover.vue'
+import SegmentedToggle from '@/Components/Utils/SegmentedToggle.vue'
 import '@/Composables/Icon/ArtefactStateEnum'
 
 library.add(faCheckSquare, faExclamationTriangle, faChevronDown, faTasks)
@@ -36,6 +37,7 @@ const props = defineProps<{
     setShelfLife?: { set_route: routeType }
     setState?: { set_state_route: routeType }
     setRecipe?: SetRecipeProps
+    setMixBatch?: { set_route: routeType }
 }>()
 
 const routeCurrent = route().current()
@@ -48,6 +50,7 @@ const selected = ref<Record<string, boolean>>({})
 const isMoving = ref(false)
 const batchSize = ref<number | null>(null)
 const shelfLifeDays = ref<number | null>(null)
+const mixBatchKg = ref<'25' | '50' | 'none'>('50')
 const confirmingDiscontinue = ref(false)
 const isRecipeModalOpen = ref(false)
 const bulkAction = ref('batch_size')
@@ -56,6 +59,7 @@ const bulkActions = computed(() => [
     props.setBatchSize ? { value: 'batch_size', label: ctrans('Batch size') } : null,
     props.setShelfLife ? { value: 'shelf_life', label: ctrans('Shelf life') } : null,
     props.setRecipe ? { value: 'manufacture_task', label: ctrans('Manufacture task') } : null,
+    props.setMixBatch ? { value: 'mix_batch', label: ctrans('Mix batch size') } : null,
     props.moveToFamily ? { value: 'move_family', label: ctrans('Move to family') } : null,
     props.moveToDepartment ? { value: 'move_department', label: ctrans('Move to department') } : null,
     props.setState ? { value: 'discontinue', label: ctrans('Discontinue') } : null,
@@ -65,7 +69,7 @@ const bulkActions = computed(() => [
 const currentAction = computed(() => bulkActions.value.find(action => action.value === bulkAction.value))
 
 const selectedIds = computed(() => Object.entries(selected.value).filter(([, on]) => on).map(([id]) => Number(id)))
-const showBulkBar = computed(() => (props.moveToDepartment || props.moveToFamily || props.setBatchSize || props.setShelfLife || props.setState || props.setRecipe) && selectedIds.value.length > 0)
+const showBulkBar = computed(() => (props.moveToDepartment || props.moveToFamily || props.setBatchSize || props.setShelfLife || props.setState || props.setRecipe || props.setMixBatch) && selectedIds.value.length > 0)
 
 const knownArtefacts = ref<Record<number, UnifiedRecipeArtefact>>({})
 
@@ -176,6 +180,32 @@ const submitShelfLife = () => {
     )
 }
 
+const submitMixBatch = () => {
+    if (!props.setMixBatch) return
+
+    const count = selectedIds.value.length
+    const size = mixBatchKg.value === 'none' ? null : Number(mixBatchKg.value)
+
+    router.post(
+        route(props.setMixBatch.set_route.name, props.setMixBatch.set_route.parameters),
+        { artefacts: selectedIds.value, mix_batch_kg: size },
+        {
+            preserveScroll: true,
+            onStart: () => isMoving.value = true,
+            onFinish: () => isMoving.value = false,
+            onSuccess: () => {
+                notify({
+                    title: ctrans('Mix batch size set'),
+                    text: size ? ctrans(':count artefacts now mix in :size kg batches', { count: count, size: size }) : ctrans(':count artefacts now mix the exact kg', { count: count }),
+                    type: 'success',
+                })
+                clearSelection()
+            },
+            onError: (errors) => notify({ title: ctrans('Something went wrong'), text: Object.values(errors).join(' '), type: 'error' }),
+        }
+    )
+}
+
 const move = (moveRoute: routeType, payload: object, target: MoveTarget, reset: () => void) => {
     const count = selectedIds.value.length
 
@@ -275,6 +305,19 @@ function productionRoute(artefact: { slug: string }) {
                     :loading="isMoving"
                     :disabled="shelfLifeDays === null || shelfLifeDays < 1"
                     @click="submitShelfLife" />
+            </div>
+
+            <div v-if="setMixBatch && bulkAction === 'mix_batch'" class="flex items-center gap-2">
+                <SegmentedToggle
+                    v-model="mixBatchKg"
+                    :ariaLabel="ctrans('Mix batch size')"
+                    :options="[{ value: '25', label: ctrans('25 kg') }, { value: '50', label: ctrans('50 kg') }, { value: 'none', label: ctrans('Exact kg') }]" />
+                <Button
+                    type="primary"
+                    size="s"
+                    :label="ctrans('Set')"
+                    :loading="isMoving"
+                    @click="submitMixBatch" />
             </div>
 
             <Button
@@ -383,7 +426,7 @@ function productionRoute(artefact: { slug: string }) {
         @close="isRecipeModalOpen = false"
         @saved="onRecipeSaved" />
 
-    <Table ref="tableRef" :resource="data" :name="tab" class="mt-5" :isCheckBox="!!(moveToDepartment || moveToFamily || setBatchSize || setShelfLife || setState || setRecipe)" checkboxKey="id" @onSelectRow="(rows) => selected = { ...rows }">
+    <Table ref="tableRef" :resource="data" :name="tab" class="mt-5" :isCheckBox="!!(moveToDepartment || moveToFamily || setBatchSize || setShelfLife || setState || setRecipe || setMixBatch)" checkboxKey="id" @onSelectRow="(rows) => selected = { ...rows }">
         <template #cell(state)="{ item: artefact }">
             <Icon :data="artefact.state" />
         </template>

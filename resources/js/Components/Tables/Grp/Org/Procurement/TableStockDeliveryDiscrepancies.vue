@@ -26,7 +26,7 @@ import FileUpload from 'primevue/fileupload'
 library.add(faBalanceScale, faClipboardCheck, faRulerTriangle, faFileInvoiceDollar, faBoxCheck, faCheck)
 
 const props = defineProps<{
-    data: { data?: any[] }
+    data: { data?: any[], read_only?: boolean }
     tab?: string
 }>()
 
@@ -276,18 +276,18 @@ function orgStockRoute(item: any) {
                     <span v-if="item.recount_task && item.outcome === 'recount_requested'" class="text-xs text-gray-500">
                         {{ item.recount_task.reference }} · {{ item.recount_task.is_open ? ctrans('waiting for the warehouse') : ctrans('counted, pick the outcome') }}
                     </span>
-                    <button v-if="item.claim" type="button" class="text-left text-xs text-gray-600 underline decoration-dotted hover:text-gray-900" @click="openClaim(item)">
+                    <button v-if="item.claim" type="button" class="text-left text-xs text-gray-600 underline decoration-dotted hover:text-gray-900 disabled:no-underline disabled:hover:text-gray-600" :disabled="data.read_only" @click="openClaim(item)">
                         {{ formatQuantity(item.claim.quantity) }}u. · {{ money(item.claim, item.claim.amount) }} · {{ item.claim.state_label }}
                         <template v-if="item.claim.credit_note_reference"> · {{ item.claim.credit_note_reference }} {{ money(item.claim, item.claim.credit_note_amount) }}</template>
                     </button>
                     <Button
-                        v-if="!item.resolved_at && item.discrepancy !== 'within_tolerance'"
+                        v-if="!data.read_only && !item.resolved_at && item.discrepancy !== 'within_tolerance'"
                         :label="item.outcome ? ctrans('Change') : ctrans('Resolve')"
                         type="tertiary"
                         size="xs"
                         @click="openResolve(item)"
                     />
-                    <Button v-else-if="item.resolved_at && item.outcome !== 'supplier_claim'" :label="ctrans('Change')" type="tertiary" size="xs" @click="openResolve(item)" />
+                    <Button v-else-if="!data.read_only && item.resolved_at && item.outcome !== 'supplier_claim'" :label="ctrans('Change')" type="tertiary" size="xs" @click="openResolve(item)" />
                 </div>
             </template>
         </Table>

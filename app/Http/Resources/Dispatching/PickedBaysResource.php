@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property mixed $id
- * @property mixed $name
+ * @property mixed $code
  * @property mixed $slug
  */
 class PickedBaysResource extends JsonResource
@@ -23,7 +23,7 @@ class PickedBaysResource extends JsonResource
     {
         return [
             'id'                => $this->id,
-            'name'              => $this->name,
+            'code'              => $this->code,
             'slug'              => $this->slug,
         ];
     }

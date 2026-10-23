@@ -1476,6 +1476,44 @@ test('agent receives a purchase order line in batches and rejected units go back
     expect((new PurchaseOrder(['production_started_at' => now()]))->areLinesLockedByProduction())->toBeFalse();
 });
 
+test('agent order in warehouse stage follows its goods receipts, checks and packing', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+    $line          = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, $this->orgStocks[0], [...PurchaseOrderTransaction::factory()->definition(), 'quantity_ordered' => 100]);
+    $purchaseOrder->updateQuietly([
+        'state'              => App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum::SUBMITTED,
+        'delivery_state'     => App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStateEnum::IN_PROCESS,
+        'submitted_at'       => now(),
+        'sample_approved_at' => now(),
+    ]);
+    $line->updateQuietly(['state' => App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum::SUBMITTED]);
+
+    $stage = fn () => collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder->refresh(), []))->firstWhere('key', 'in_warehouse');
+    $steps = fn () => collect($stage()['steps'])->pluck('date', 'key')->map(fn ($date) => $date !== null)->all();
+    $receive = fn (float $quantity) => App\Actions\Procurement\AgentGoodsReceipt\StoreAgentGoodsReceipt::make()->action($this->agent, [
+        'lines' => [['purchase_order_transaction_id' => $line->id, 'quantity' => $quantity]],
+    ]);
+
+    $first = $receive(60)->items()->sole();
+    expect($stage()['number'])->toBe(4)
+        ->and($stage()['reached'])->toBeTrue()
+        ->and($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => false, 'warehouse_packed_at' => false]);
+
+    $second = $receive(40)->items()->sole();
+    $check  = App\Actions\Procurement\AgentGoodsReceipt\CheckAgentGoodsReceiptItem::make();
+    $check->handle($first, ['quantity_rejected' => 0]);
+    expect($steps()['warehouse_checked_at'])->toBeFalse();
+
+    $check->handle($second, ['quantity_rejected' => 0]);
+    expect($steps())->toBe(['warehouse_arrived_at' => true, 'warehouse_checked_at' => true, 'warehouse_packed_at' => false]);
+
+    App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction::make()->action($line);
+    expect($steps()['warehouse_packed_at'])->toBeTrue()
+        ->and(collect(App\Actions\Procurement\PurchaseOrder\UI\GetPurchaseOrderStages::make()->forUi($purchaseOrder, []))->firstWhere('key', 'ready')['number'])->toBe(5);
+});
+
 test('UI agent shopping dashboard renders', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.show.shopping.dashboard', [$this->organisation->slug, $this->orgAgent->slug]));
     $response->assertOk();
@@ -2016,6 +2054,41 @@ test('UI agent browse shows what the other organisations hold on their drafts fo
             ->where('products.ordering.active.cover', $otherBucket)
             ->where('products.data', fn ($products) => !collect($products)->pluck('code')->contains($supplierProduct->code))
             ->etc());
+});
+
+test('agent draft purchase order items show our SKO code next to the supplier code', function () {
+    [$orgSupplier, $orgSupplierProduct] = createAgentOrgSupplierWithProduct($this);
+    $orgSupplierProduct->update(['state' => OrgSupplierProductStateEnum::ACTIVE, 'is_available' => true]);
+    $supplierProduct = $orgSupplierProduct->supplierProduct;
+    $orgStock        = $this->orgStocks[0];
+
+    $originalLinks   = DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->get()->map(fn ($link) => (array) $link)->all();
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert([
+        'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $orgStock->stock_id)->where('supplier_product_id', $supplierProduct->id)->value('id')
+            ?? DB::table('stock_has_supplier_products')->insertGetId(['stock_id' => $orgStock->stock_id, 'supplier_product_id' => $supplierProduct->id]),
+        'org_stock_id'            => $orgStock->id,
+        'org_supplier_product_id' => $orgSupplierProduct->id,
+        'status'                  => true,
+        'local_priority'          => 100,
+        'created_at'              => now(),
+        'updated_at'              => now(),
+    ]);
+
+    expect($orgStock->code)->not->toBe($supplierProduct->code);
+
+    $draft = StorePurchaseOrder::make()->action($orgSupplier, [], strict: false);
+    StorePurchaseOrderTransaction::make()->action($draft, $supplierProduct->historicSupplierProduct, $orgStock, PurchaseOrderTransaction::factory()->definition());
+
+    $this->get(route('grp.org.procurement.org_agents.show.purchase-orders.show', [$this->organisation->slug, $this->orgAgent->slug, $draft->slug]).'?tab=items')
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.0.code', $supplierProduct->code)
+            ->where('items.data.0.org_stock_code', $orgStock->code)
+            ->etc());
+
+    DB::table('org_stock_has_org_supplier_products')->where('org_supplier_product_id', $orgSupplierProduct->id)->delete();
+    DB::table('org_stock_has_org_supplier_products')->insert($originalLinks);
 });
 
 test('agent purchase order products tab hides products whose SKO is discontinued or the supplier no longer has, unless already on the draft', function () {

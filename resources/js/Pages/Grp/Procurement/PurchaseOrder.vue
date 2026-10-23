@@ -56,7 +56,7 @@ import { notify } from "@kyvg/vue3-notification"
 
 import { useLocaleStore } from "@/Stores/locale"
 import { useTabChange } from "@/Composables/tab-change"
-import type { OrderingLevel } from "@/Composables/useOrderingLevel"
+import { getOrderingLevels, type OrderingLevel } from "@/Composables/useOrderingLevel"
 import { capitalize } from "@/Composables/capitalize"
 import { useFormatTime } from "@/Composables/useFormatTime"
 
@@ -68,12 +68,12 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel } from "@fal"
+import { faIdCardAlt, faEnvelope, faPhone, faWeight, faCube, faShoppingCart, faStickyNote, faShip, faBox, faHandHoldingBox, faPaperPlane, faExclamationTriangle, faClipboardList, faPeopleArrows, faCalendarAlt, faDownload, faSearch, faChevronDown, faChevronRight, faTimes, faBan, faThLarge, faList, faFileExcel, faCheckDouble, faBoxOpen, faPlus as falPlus } from "@fal"
 import { faArrowCircleDown, faArrowCircleLeft, faArrowCircleRight, faBars, faExclamationCircle, faInventory, faPencil, faShare, faTruck } from "@fas"
 import { faPlus } from "@far"
 
 library.add(
-	faDownload, faChevronDown, faChevronRight, faBan,
+	faDownload, faChevronDown, faChevronRight, faBan, faCheckDouble, faBoxOpen, falPlus,
 	faIdCardAlt,
 	faEnvelope,
 	faPhone,
@@ -791,6 +791,8 @@ const productsViewOptions = [
 	{ label: ctrans("List"), value: "list", icon: faList },
 ]
 
+const productsLevelOptions = getOrderingLevels().map((level) => ({ label: level.quantity, value: level.key, icon: level.icon }))
+
 const productBucketLabels = computed(() =>
 	Object.fromEntries((props.products?.ordering?.cover ?? []).map((bucket) => [bucket.value, { label: bucket.title, tone: bucket.tone }]))
 )
@@ -858,8 +860,45 @@ const pageHeadButtonGroups: Record<string, string[]> = {
 
 const pageHeadWrappedActionKeys = ["edit", "delete_purchase_order"]
 
-const pageHeadWithGroupedActions = computed<PageHeadingTypes>(() => {
+const stageActionKeys: Record<string, string[]> = {
+	submitted: ["undo_confirm_purchase_order", "cancel_purchase_order"],
+	in_warehouse: ["packing_instructions"],
+	shipped: ["new_stock_delivery"],
+	received: ["edit_estimated_delivery_date"],
+}
+
+const stageActions = computed<Record<string, Action[]>>(() => {
 	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean)
+	const stageKeys = (props.stages?.stages ?? []).map((stage) => stage.key)
+
+	return Object.fromEntries(
+		Object.entries(stageActionKeys)
+			.filter(([stageKey]) => stageKeys.includes(stageKey))
+			.map(([stageKey, keys]) => [stageKey, actions.filter((action) => keys.includes(action.key))])
+			.filter(([, stageActionList]) => stageActionList.length)
+	)
+})
+
+const stageActionLoading: Record<string, () => boolean> = {
+	undo_confirm_purchase_order: () => undoConfirmLoading.value,
+	cancel_purchase_order: () => cancelLoading.value,
+	new_stock_delivery: () => newStockDeliveryLoading.value,
+	edit_estimated_delivery_date: () => confirmLoading.value,
+}
+
+function runStageAction(action: Action) {
+	const handlers: Record<string, (action: Action) => void> = {
+		undo_confirm_purchase_order: confirmUndoConfirmPurchaseOrder,
+		cancel_purchase_order: confirmCancelPurchaseOrder,
+		new_stock_delivery: openDeliveryScopeModal,
+		edit_estimated_delivery_date: openEstimatedDeliveryDateModal,
+	}
+	handlers[action.key]?.(action)
+}
+
+const pageHeadWithGroupedActions = computed<PageHeadingTypes>(() => {
+	const actionsInStages = Object.values(stageActions.value).flat().map((action) => action.key)
+	const actions: Action[] = (props.pageHead.actions ?? []).filter(Boolean).filter((action: Action) => !actionsInStages.includes(action.key))
 	const actionsByKey = Object.fromEntries(actions.map((action) => [action.key, action]))
 	const placedGroupKeys = new Set<string>()
 
@@ -1102,6 +1141,35 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 		<template v-else-if="payments" #stage-deposit_paid>
 			<PurchaseOrderDepositPayments :payments="payments" :org-currency-code="box_stats.third_block.org_currency" :org-rate="paymentsOrgRate" />
+		</template>
+		<template v-for="(actions, stageKey) in stageActions" :key="stageKey" #[`stage-${stageKey}`]>
+			<div class="mt-2 flex flex-col gap-1">
+				<template v-for="action in actions" :key="action.key">
+					<a v-if="action.key === 'packing_instructions'" :href="route(action.route.name, action.route.parameters)" target="_blank">
+						<Button type="tertiary" size="xs" full :label="action.label" :tooltip="action.tooltip">
+							<template #icon>
+								<FontAwesomeIcon :icon="action.icon" class="text-gray-500" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+					</a>
+					<span v-else v-tooltip="action.disabled_reason">
+						<Button
+							type="tertiary"
+							size="xs"
+							full
+							:label="action.label"
+							:tooltip="action.disabled_reason ? undefined : action.tooltip"
+							:disabled="!!action.disabled_reason"
+							:loading="stageActionLoading[action.key]?.()"
+							@click="() => runStageAction(action)"
+						>
+							<template #icon>
+								<FontAwesomeIcon :icon="action.icon" :class="action.style === 'delete' ? 'text-red-500' : 'text-gray-500'" fixed-width aria-hidden="true" />
+							</template>
+						</Button>
+					</span>
+				</template>
+			</div>
 		</template>
 	</PurchaseOrderStages>
 	<div v-else-if="timelines" class="py-2 border-b border-gray-300">
@@ -1377,7 +1445,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 					<Checkbox :modelValue="products.ordering.active.hide_ordered" binary size="small" @update:modelValue="(value: boolean) => filterProducts('hide_ordered', value ? '1' : null)" />
 					{{ ctrans("Hide what is already on order") }}
 				</label>
-				<SegmentedToggle v-model="productsView" class="ml-auto" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
+				<SegmentedToggle v-model="currentLevel" class="ml-auto" :options="productsLevelOptions" :ariaLabel="ctrans('Order in cartons, SKOs or units')" />
+				<SegmentedToggle v-model="productsView" :options="productsViewOptions" :ariaLabel="ctrans('Show products as cards or as a list')" />
 			</div>
 			<AgentOrderingItems
 				:key="`${products.ordering.active.cover}-${products.ordering.active.rank}-${products.ordering.active.hide_ordered}`"
@@ -1386,6 +1455,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 				:currency="products.ordering.currency"
 				:bucketLabels="productBucketLabels"
 				:view="productsView"
+				:level="currentLevel"
 				:reloadOnly="['products', 'box_stats', 'pageHead']"
 				tableName="products"
 			/>

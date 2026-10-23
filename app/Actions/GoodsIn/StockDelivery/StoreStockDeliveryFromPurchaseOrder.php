@@ -287,18 +287,23 @@ class StoreStockDeliveryFromPurchaseOrder extends OrgAction
      */
     public static function openAgentDeliveries(PurchaseOrder $purchaseOrder): Collection
     {
+        return self::openAgentDeliveriesQuery($purchaseOrder)->get(['id', 'reference', 'slug', 'date', 'number_purchase_orders']);
+    }
+
+    /**
+     * @return EloquentBuilder<StockDelivery>
+     */
+    public static function openAgentDeliveriesQuery(PurchaseOrder $purchaseOrder): EloquentBuilder
+    {
         $orgAgent = $purchaseOrder->isAgentOrder() ? $purchaseOrder->orgAgentOfOrder() : null;
-        if (!$orgAgent) {
-            return new Collection();
-        }
 
         return StockDelivery::query()
+            ->when(!$orgAgent, fn (EloquentBuilder $query) => $query->whereRaw('false'))
             ->where('parent_type', 'OrgAgent')
-            ->where('parent_id', $orgAgent->id)
+            ->where('parent_id', $orgAgent?->id)
             ->where('state', StockDeliveryStateEnum::IN_PROCESS)
             ->where('currency_id', $purchaseOrder->currency_id)
-            ->orderByDesc('id')
-            ->get(['id', 'reference', 'slug', 'date', 'number_purchase_orders']);
+            ->orderByDesc('id');
     }
 
     public function action(PurchaseOrder $purchaseOrder, array $modelData = []): StockDelivery

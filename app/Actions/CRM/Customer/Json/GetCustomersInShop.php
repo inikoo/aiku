@@ -24,8 +24,6 @@ class GetCustomersInShop extends OrgAction
     public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $value = is_array($value) ? implode(',', $value) : $value;
-
             $digits = preg_match('/[\p{L}@]/u', (string) $value) ? '' : preg_replace('/\D/', '', (string) $value);
 
             $query->where(function ($query) use ($value, $digits) {

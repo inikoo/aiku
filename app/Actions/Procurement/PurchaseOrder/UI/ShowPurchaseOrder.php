@@ -27,7 +27,6 @@ use App\Http\Resources\Procurement\ProcurementNoteResource;
 use App\Actions\OrgAction;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
 use App\Actions\Procurement\PurchaseOrder\PdfPurchaseOrder;
 use App\Actions\Procurement\OrgAgent\GetAgentStockCoverBuckets;
 use App\Actions\Procurement\OrgAgent\UI\IndexAgentCoverBucketItems;
@@ -87,7 +86,7 @@ class ShowPurchaseOrder extends OrgAction
     use WithPurchaseOrderWeightAndVolume;
     use WithAgentOrganisation;
 
-    private const array AGENT_ACTION_KEYS = ['confirm_purchase_order', 'edit_estimated_delivery_date', 'cancel_purchase_order'];
+    private const array AGENT_ACTION_KEYS = ['edit_estimated_delivery_date', 'cancel_purchase_order'];
 
     private bool $agentCanEdit = false;
 
@@ -653,24 +652,6 @@ class ShowPurchaseOrder extends OrgAction
             ],
             PurchaseOrderStateEnum::SUBMITTED => [
                 [
-                    'label'   => __('Confirm'),
-                    'tooltip' => __('Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.'),
-                    'type'    => 'button',
-                    'style'   => 'save',
-                    'key'     => 'confirm_purchase_order',
-                    'estimated_receiving_date' => $purchaseOrder->estimatedReceivingDate(),
-                    'disabled_reason' => ($pendingPriceChanges = $purchaseOrder->numberPendingPriceChanges())
-                        ? UpdatePurchaseOrderStateToConfirmed::pendingPriceChangesMessage($purchaseOrder, $pendingPriceChanges)
-                        : null,
-                    'route'   => [
-                        'method'     => 'patch',
-                        'name'       => 'grp.models.purchase-order.confirm',
-                        'parameters' => [
-                            'purchaseOrder' => $purchaseOrder->id,
-                        ],
-                    ],
-                ],
-                [
                     'label'   => __('Delivery date'),
                     'tooltip' => __('Change estimated delivery date'),
                     'type'    => 'button',
@@ -682,21 +663,6 @@ class ShowPurchaseOrder extends OrgAction
                         'method'     => 'patch',
                         'name'       => 'grp.models.purchase-order.update',
                         'parameters' => ['purchaseOrder' => $purchaseOrder->id],
-                    ],
-                ],
-                [
-                    'label'   => __('Undo Submit'),
-                    'tooltip' => __('Revert Purchase Order to In Process'),
-                    'type'    => 'button',
-                    'style'   => 'delete',
-                    'icon'    => 'fal fa-paper-plane',
-                    'key'     => 'undo_submit_purchase_order',
-                    'route'   => [
-                        'method'     => 'patch',
-                        'name'       => 'grp.models.purchase-order.undo-submit',
-                        'parameters' => [
-                            'purchaseOrder' => $purchaseOrder->id,
-                        ],
                     ],
                 ],
                 [
@@ -835,7 +801,7 @@ class ShowPurchaseOrder extends OrgAction
     }
 
     /**
-     * The seven-stage tracker replaces the state timeline once a supplier or agent order is sent.
+     * The stage tracker replaces the state timeline once a supplier or agent order is sent.
      */
     public function getStages(PurchaseOrder $purchaseOrder): ?array
     {

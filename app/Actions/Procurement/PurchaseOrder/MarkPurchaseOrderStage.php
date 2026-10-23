@@ -26,7 +26,8 @@ use OwenIt\Auditing\Events\AuditCustom;
 
 /**
  * Records the date of a purchase order stage. Stages go in order: skipping one, completing a stage without its
- * gate, backdating or clearing a date needs a reason, written to the order's history.
+ * gate, backdating or clearing a date needs a reason, written to the order's history. Any stage past submitted
+ * means the supplier took the order, so a submitted order is confirmed, unless a price change is still unanswered.
  * Agents mark only their own stages, on their own orders.
  */
 class MarkPurchaseOrderStage extends OrgAction
@@ -57,6 +58,11 @@ class MarkPurchaseOrderStage extends OrgAction
         $date  = $this->stamp(Arr::get($modelData, 'date'));
         $old   = $purchaseOrder->{$field}?->toDateString();
 
+        if (self::confirmsOrder($purchaseOrder, $date) && !$purchaseOrder->numberPendingPriceChanges()) {
+            $purchaseOrder = UpdatePurchaseOrderStateToConfirmed::make()->action($purchaseOrder);
+            $purchaseOrder->update(['confirmed_at' => $date->min(now())]);
+        }
+
         $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, [$field => $date]);
         BroadcastAgentIncomingPurchaseOrdersChanged::dispatchFor($purchaseOrder);
 
@@ -65,6 +71,11 @@ class MarkPurchaseOrderStage extends OrgAction
         }
 
         return $purchaseOrder;
+    }
+
+    public static function confirmsOrder(PurchaseOrder $purchaseOrder, mixed $date): bool
+    {
+        return $date !== null && $purchaseOrder->state === PurchaseOrderStateEnum::SUBMITTED;
     }
 
     public static function auditOverride(PurchaseOrder $purchaseOrder, string $field, ?string $old, ?string $new, string $reason): void

@@ -291,6 +291,7 @@ class IndexAgentCoverBucketItems extends OrgAction
                 'units_per_pack'       => $row->units_per_pack ? (float) $row->units_per_pack : 1,
                 'has_org_stock'        => $row->org_stock_id !== null,
                 'org_stock_id'         => $row->org_stock_id,
+                'org_stock_code'       => $orgStock?->code,
                 'discontinue_suggestions' => $discontinueSuggestions->get($row->org_stock_id) ?? ['times' => 0, 'people' => 0],
                 'stock_in_locations'   => $orgStock?->quantity_in_locations === null ? null : trimDecimalZeros($orgStock->quantity_in_locations),
                 'quarterly_usage'      => $quarterlyUsage->get($row->org_stock_id) ?? [],

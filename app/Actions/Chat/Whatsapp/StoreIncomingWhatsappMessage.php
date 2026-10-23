@@ -8,7 +8,6 @@
 namespace App\Actions\Chat\Whatsapp;
 
 use App\Actions\Chat\ChatSession\ClassifyChatSessionNoise;
-use App\Actions\Chat\ChatSession\DraftChatReply;
 use App\Actions\Chat\ChatSession\SendOutOfHoursReply;
 use App\Actions\Chat\ChatSession\FlagUrgentChatRequest;
 use App\Actions\Chat\ChatSession\SuggestChatSessionCustomer;
@@ -161,10 +160,6 @@ class StoreIncomingWhatsappMessage
 
         SendOutOfHoursReply::dispatch($metaChatSession);
         FlagUrgentChatRequest::dispatch($metaChatSession);
-
-        if (config('chat.ai_drafts')) {
-            DraftChatReply::dispatch($metaChatSession);
-        }
 
         $metaChatMessage = $metaChatMessage->fresh(['attachment', 'metaChatSession']);
 

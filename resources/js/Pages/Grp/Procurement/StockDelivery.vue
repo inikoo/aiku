@@ -15,6 +15,8 @@ import ConfirmDialog from "primevue/confirmdialog"
 import Dialog from "primevue/dialog"
 import DatePicker from "primevue/datepicker"
 import InputText from "primevue/inputtext"
+import Select from "primevue/select"
+import Textarea from "primevue/textarea"
 import { useConfirm } from "primevue/useconfirm"
 import { notify } from "@kyvg/vue3-notification"
 
@@ -42,6 +44,7 @@ import TableProcurementNotes from '@/Components/Tables/Grp/Org/Procurement/Table
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import Action from "@/Components/Forms/Fields/Action.vue"
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 
 import { useLocaleStore } from "@/Stores/locale"
@@ -223,7 +226,7 @@ const props = defineProps<{
 		viewed_by_agent: boolean
 		can_edit: boolean
 		can_edit_payments: boolean
-		reopened: { at: string, by: string | null, reason: string } | null
+		reopened: { at: string, by: string | null, reason: string, assignee: string | null } | null
 		currency: string | null
 		checklist: any[]
 		org_currency_id: number
@@ -259,6 +262,8 @@ const currentTab = ref(props.tabs.current)
 const isModalUploadOpen = ref(false)
 const costingSection = ref<"invoice" | "landed" | null>(null)
 const isCostingVisible = computed(() => !["in_process", "cancelled", "not_received"].includes(props.stock_delivery.state))
+const settingsAction = computed(() => props.pageHead.actions?.find((action: any) => action?.key === "settings"))
+const pageHeadWithoutSettings = computed(() => ({ ...props.pageHead, actions: props.pageHead.actions?.filter((action: any) => action?.key !== "settings") }))
 const isInvoiceVisible = computed(() => isCostingVisible.value || (props.stock_delivery.state === "in_process" && !!props.box_stats.invoice_entry?.is_agent))
 
 const component = computed(() => {
@@ -513,7 +518,10 @@ const costBlocks = computed(() => {
 		...(missingLocalCosts.length ? [ctrans("Missing: :costs", { costs: missingLocalCosts.join(", ") })] : []),
 	].join(" · ")
 	const waitingInvoice = waiting(props.costing.checklist.filter(row => row.type === "agent_invoice" && !row.received_at))[0]
-	const estimates = props.costing.checklist.filter(row => row.is_estimate && !row.is_na).map(row => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`)
+	const estimateRows = props.costing.checklist.filter(row => row.is_estimate && !row.is_na)
+	const estimateText = (row: typeof estimateRows[number]) => `${ctrans("Estimated")} ${row.label}: ${row.waiting_label}`
+	const invoiceEstimate = estimateRows.filter(row => row.type === "agent_invoice").map(estimateText)[0]
+	const localEstimates = estimateRows.filter(row => row.type !== "agent_invoice").map(estimateText)
 	const isRising = pendingLocalCosts.some(row => row.is_waiting_for_invoice)
 	const status = (missing: string | null, done: string) =>
 		!isCostingVisible.value || props.costing.is_partner ? null : { isMissing: !!missing, text: missing ?? done }
@@ -527,7 +535,7 @@ const costBlocks = computed(() => {
 		detail: "",
 		balance: invoiceBalance === null ? "" : money(orgCurrency, invoiceBalance),
 		balanceSub: agentInvoice && agentInvoice.balance_due !== null && agentInvoice.currency !== agentInvoice.org_currency ? money(agentInvoice.currency, agentInvoice.balance_due) : "",
-		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : null, ctrans("Invoice received")),
+		status: status(props.costing.agent_invoice_missing ? (waitingInvoice ?? ctrans("Invoice not received yet")) : (invoiceEstimate ?? null), ctrans("Invoice received")),
 	}
 
 	if (props.costing.viewed_by_agent) {
@@ -543,9 +551,9 @@ const costBlocks = computed(() => {
 			balance: serviceInvoiceRows.length ? money(orgCurrency, unpaidLocal) : "",
 			detail: [
 				...(serviceInvoiceRows.length ? [ctrans(":count service invoices, :unpaid unpaid", { count: String(serviceInvoiceRows.length), unpaid: String(serviceInvoiceRows.filter(row => !row.paid_at).length) })] : []),
-				...(estimates.length ? [ctrans(":count estimated", { count: String(estimates.length) })] : []),
+				...(localEstimates.length ? [ctrans(":count estimated", { count: String(localEstimates.length) })] : []),
 			].join(" · "),
-			status: status([localCostsStatus, ...estimates.filter((text, index) => props.costing.checklist.filter(row => row.is_estimate && !row.is_na)[index].type !== "agent_invoice")].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
+			status: status([localCostsStatus, ...localEstimates].filter(Boolean).join(" · ") || null, ctrans("Local costs complete")),
 			title: ctrans("Landed costs"),
 			rows: localCosts.map(row => ({
 				label: row.label,
@@ -568,7 +576,7 @@ const costBlocks = computed(() => {
 			status: props.costing.put_away_blocked.length
 				? status(ctrans("Put-away blocked until these costs are in: :costs", { costs: props.costing.put_away_blocked.join(", ") }), "")
 				: props.costing.is_costed
-				? status(estimates.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
+				? status(estimateRows.length ? ctrans("Costed with an estimate: the real invoice is still to come") : null, ctrans("Costed"))
 				: (isRising ? status(ctrans("This total will increase: an invoice is still to come"), "") : null),
 			title: ctrans("Landed total"),
 			rows: [
@@ -637,6 +645,11 @@ const dispatchStockDelivery = (action: any, data: { reason?: string } = {}) =>
 			})
 		},
 	})
+
+const openAttachmentsTab = () => {
+	dispatchWithoutEvidenceAction.value = null
+	handleTabUpdate("attachments")
+}
 
 const confirmDispatchStockDelivery = (action: any) => {
 	if (props.missing_evidence?.length) {
@@ -824,7 +837,7 @@ const confirmStartStockDeliveryCosting = (action: any) => {
 
 const updateCostingLoading = ref(false)
 
-const patchCosting = (action: any, data: Record<string, string>, failure: string) => {
+const patchCosting = (action: any, data: Record<string, string | number | null>, failure: string) => {
 	router.patch(route(action.route.name, action.route.parameters), data, {
 		preserveScroll: true,
 		onStart: () => { updateCostingLoading.value = true },
@@ -847,13 +860,21 @@ const confirmReopenStockDeliveryCosting = (action: any) => {
 		rejectProps: { label: ctrans("Cancel"), severity: "secondary", outlined: true },
 		acceptProps: { label: ctrans("Update costing"), severity: "danger" },
 		accept: () => {
-			const reason = window.prompt(ctrans("Why does the costing need to change?"))
-			if (!reason?.trim()) {
-				return
-			}
-			patchCosting(action, { reason: reason.trim() }, ctrans("Failed to update the costing"))
+			reopenCostingReason.value = ""
+			reopenCostingAssigneeId.value = null
+			reopenCostingAction.value = action
 		},
 	})
+}
+
+const reopenCostingAction = ref<any>(null)
+const reopenCostingReason = ref("")
+const reopenCostingAssigneeId = ref<number | null>(null)
+
+const submitReopenStockDeliveryCosting = () => {
+	const action = reopenCostingAction.value
+	reopenCostingAction.value = null
+	patchCosting(action, { reason: reopenCostingReason.value.trim(), assignee_id: reopenCostingAssigneeId.value }, ctrans("Failed to update the costing"))
 }
 
 const confirmFinishStockDeliveryCosting = (action: any) => {
@@ -901,32 +922,37 @@ const confirmDeleteStockDelivery = (action: any) => {
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
-		<template v-if="add_purchase_orders" #otherBefore>
-			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
-				<Button
-					type="tertiary"
-					:label="ctrans('Add items')"
-					:disabled="add_purchase_orders.purchase_orders.length === 0"
-					@click="openAddItems"
-				>
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-			</span>
-			<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
-				<Button
-					type="tertiary"
-					:label="ctrans('Add purchase orders')"
-					:disabled="add_purchase_orders.purchase_orders.length === 0"
-					@click="openAddPurchaseOrders"
-				>
-					<template #icon>
-						<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
-					</template>
-				</Button>
-			</span>
+	<PageHeading :data="pageHeadWithoutSettings">
+		<template #otherBefore>
+			<Action v-if="settingsAction" :action="settingsAction" />
+			<div v-if="add_purchase_orders" class="inline-flex divide-x divide-gray-300 overflow-hidden rounded-md border border-gray-300">
+				<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Pick single items of the purchase orders, and how many of each')">
+					<Button
+						type="tertiary"
+						:label="ctrans('Add items')"
+						:disabled="add_purchase_orders.purchase_orders.length === 0"
+						class="rounded-none border-none"
+						@click="openAddItems"
+					>
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</span>
+				<span v-tooltip="add_purchase_orders.purchase_orders.length === 0 ? ctrans('No confirmed purchase orders of this agent are waiting for a container') : ctrans('Add everything still awaiting delivery on whole purchase orders')">
+					<Button
+						type="tertiary"
+						:label="ctrans('Add purchase orders')"
+						:disabled="add_purchase_orders.purchase_orders.length === 0"
+						class="rounded-none border-none"
+						@click="openAddPurchaseOrders"
+					>
+						<template #icon>
+							<FontAwesomeIcon icon="fal fa-plus" class="text-green-600" fixed-width aria-hidden="true" />
+						</template>
+					</Button>
+				</span>
+			</div>
 		</template>
 		<template #other>
 			<Button
@@ -939,6 +965,25 @@ const confirmDeleteStockDelivery = (action: any) => {
 					<FontAwesomeIcon icon="fal fa-upload" class="text-green-600" fixed-width aria-hidden="true" />
 				</template>
 			</Button>
+		</template>
+
+		<template #button-group-documents="{ action }">
+			<div class="inline-flex divide-x divide-gray-300 overflow-hidden rounded-md border border-gray-300">
+				<a
+					v-for="button in action.button"
+					:key="button.key"
+					:href="route(button.route.name, button.route.parameters)"
+					:target="button.target"
+				>
+					<Button
+						type="tertiary"
+						:label="button.label"
+						:icon="button.icon"
+						:tooltip="button.tooltip"
+						class="rounded-none border-none"
+					/>
+				</a>
+			</div>
 		</template>
 
 		<template #button-dispatch-stock-delivery="{ action }">
@@ -1058,6 +1103,7 @@ const confirmDeleteStockDelivery = (action: any) => {
 		:header="ctrans('Delete container')"
 		:route="responsibilityDeleteAction.route"
 		:phrase="responsibilityDeleteAction.responsibility.phrase"
+		:minReasonLength="responsibilityDeleteAction.responsibility.min_reason_length"
 		:warnings="responsibilityDeleteAction.responsibility.warnings"
 	/>
 
@@ -1433,6 +1479,48 @@ const confirmDeleteStockDelivery = (action: any) => {
 	</div>
 
 	<Dialog
+		:visible="!!reopenCostingAction"
+		modal
+		:header="ctrans('Update costing')"
+		:style="{ width: '30rem', maxWidth: 'calc(100vw - 2rem)' }"
+		:draggable="false"
+		@update:visible="(visible: boolean) => { if (!visible) reopenCostingAction = null }"
+	>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-2">
+				<label for="stock-delivery-reopen-costing-reason" class="font-medium text-gray-700">
+					{{ ctrans("Why does the costing need to change?") }}
+				</label>
+				<Textarea id="stock-delivery-reopen-costing-reason" v-model="reopenCostingReason" rows="3" autoResize fluid />
+			</div>
+			<div class="flex flex-col gap-2">
+				<label for="stock-delivery-reopen-costing-assignee" class="font-medium text-gray-700">
+					{{ ctrans("Who makes the update") }}
+				</label>
+				<Select
+					v-model="reopenCostingAssigneeId"
+					inputId="stock-delivery-reopen-costing-assignee"
+					:options="reopenCostingAction?.assignable_users ?? []"
+					optionLabel="name"
+					optionValue="id"
+					:placeholder="ctrans('Me')"
+					filter
+					showClear
+					fluid
+				/>
+				<span class="text-sm text-gray-500">
+					{{ ctrans("They can change the costs of this delivery and finish the costing, without being an accounting manager.") }}
+				</span>
+			</div>
+		</div>
+
+		<template #footer>
+			<Button :label="ctrans('Cancel')" type="secondary" @click="reopenCostingAction = null" />
+			<Button :label="ctrans('Update costing')" type="save" :disabled="!reopenCostingReason.trim()" @click="submitReopenStockDeliveryCosting" />
+		</template>
+	</Dialog>
+
+	<Dialog
 		:visible="!!estimatedDeliveryDateAction"
 		modal
 		:header="ctrans('Estimated delivery date')"
@@ -1571,7 +1659,17 @@ const confirmDeleteStockDelivery = (action: any) => {
 			</div>
 		</template>
 		<div class="space-y-3 text-sm text-gray-700">
-			<p>{{ ctrans("Not uploaded yet: :documents. Upload them in the Attachments tab, or give a reason to dispatch without them.", { documents: (missing_evidence ?? []).join(", ") }) }}</p>
+			<div>
+				<p>{{ ctrans("Not uploaded yet:") }}</p>
+				<ul class="mt-1 list-disc space-y-0.5 pl-5">
+					<li v-for="document in missing_evidence ?? []" :key="document">{{ document }}</li>
+				</ul>
+			</div>
+			<p>{{ ctrans("Upload them in the Attachments tab, or give a reason to dispatch without them.") }}</p>
+			<button v-if="tabs.navigation?.attachments" type="button" class="inline-flex items-center gap-1.5 font-medium text-[--app-accent] hover:text-[--app-accent-strong] hover:underline" @click="openAttachmentsTab">
+				<FontAwesomeIcon :icon="faPaperclip" fixed-width aria-hidden="true" />
+				{{ ctrans("Open the Attachments tab") }}
+			</button>
 			<label class="block">
 				<span class="text-gray-600">{{ ctrans("Reason (kept in the delivery's history)") }}</span>
 				<InputText v-model="dispatchReason" class="mt-1 w-full" autofocus maxlength="500" />

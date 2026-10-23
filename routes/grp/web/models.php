@@ -11,6 +11,8 @@ use App\Actions\Goods\ProductDevelopment\StoreProductDevelopment;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentComment;
 use App\Actions\Goods\ProductDevelopment\SyncProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopment;
+use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentItemBrief;
+use App\Actions\Goods\ProductDevelopment\RemoveProductDevelopmentBriefFile;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentChecklistItem;
 use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentSupplierProduct;
 use App\Actions\Goods\ProductDevelopment\UpdateProductDevelopmentCommentStatus;
@@ -20,7 +22,14 @@ use App\Actions\Goods\ProductDevelopment\RemindProductDevelopmentMembers;
 use App\Actions\Goods\ProductDevelopment\LinkProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\StoreProductDevelopmentPurchaseOrder;
 use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignVersion;
-use App\Actions\Goods\ProductDevelopment\Design\SkipProductDevelopmentDesignRound;
+use App\Actions\Goods\ProductDevelopment\Design\StoreProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\DeleteProductDevelopmentDesignSection;
+use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\StartProductDevelopmentArtworkInAiku;
+use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentArtworkLayout;
+use App\Actions\Goods\ProductDevelopment\Design\SubmitProductDevelopmentArtwork;
+use App\Actions\Goods\ProductDevelopment\Design\ReviewProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Design\UpdateProductDevelopmentDesignVersion;
 use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignImage;
 use App\Actions\Goods\ProductDevelopment\Design\UploadProductDevelopmentDesignArtwork;
@@ -170,6 +179,8 @@ use App\Actions\CRM\Appointment\AcceptAppointment;
 use App\Actions\CRM\Appointment\DeclineAppointment;
 use App\Actions\CRM\Appointment\RescheduleAppointment;
 use App\Actions\CRM\Appointment\StoreAppointment;
+use App\Actions\CRM\AppointmentBlock\DeleteAppointmentBlock;
+use App\Actions\CRM\AppointmentBlock\StoreAppointmentBlock;
 use App\Actions\CRM\Appointment\UpdateAppointment;
 use App\Actions\CRM\AppointmentStaff\DeleteAppointmentStaff;
 use App\Actions\CRM\AppointmentStaff\StoreAppointmentStaff;
@@ -242,6 +253,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerNote;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\BulkStoreFulfilmentTransactions;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
@@ -335,8 +347,10 @@ use App\Actions\Goods\TradeUnitFamily\UI\AssignBrandTagsToTradeUnitFamily;
 use App\Actions\Goods\TradeUnitFamily\UpdateTradeUnitFamily;
 use App\Actions\GoodsIn\StockDelivery\StoreStockDeliveryFromPurchaseOrder;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrdersToStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToNewAgentContainer;
 use App\Actions\GoodsIn\StockDelivery\AddPurchaseOrderItemsToStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderFromStockDelivery;
+use App\Actions\GoodsIn\StockDelivery\RemovePurchaseOrderItemFromStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DeleteStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\CancelStockDelivery;
 use App\Actions\GoodsIn\StockDelivery\DispatchStockDelivery;
@@ -543,6 +557,7 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrderTransaction\AnswerPurchaseOrderTransactionPriceChange;
 use App\Actions\Procurement\PurchaseOrderTransaction\AskPurchaseOrderTransactionPriceChange;
 use App\Actions\Procurement\PurchaseOrderTransaction\CancelPurchaseOrderTransaction;
+use App\Actions\Procurement\PurchaseOrderTransaction\PackPurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrderTransaction\UpdatePurchaseOrderTransaction;
 use App\Actions\Production\Artefact\AttachManufactureTaskToArtefact;
@@ -567,6 +582,7 @@ use App\Actions\Production\Artefact\MoveArtefactsToFamily;
 use App\Actions\Production\Artefact\SetArtefactsState;
 use App\Actions\Production\Artefact\SetArtefactsBatchSize;
 use App\Actions\Production\Artefact\SetArtefactsShelfLife;
+use App\Actions\Production\Artefact\SetArtefactsMixBatch;
 use App\Actions\Production\Artefact\SetArtefactsRecipe;
 use App\Actions\Production\ArtefactFamily\DeleteArtefactFamily;
 use App\Actions\Production\ArtefactFamily\MoveArtefactFamiliesToDepartment;
@@ -727,6 +743,7 @@ use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\DuplicateModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\ReplaceModelHasWebBlockContent;
 use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Redirect\DeleteRedirect;
 use App\Actions\Web\Redirect\StoreRedirectFromWebpage;
@@ -1230,6 +1247,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletDelivery'])->name('transaction.store');
+    Route::post('transactions', [BulkStoreFulfilmentTransactions::class, 'inPalletDelivery'])->name('transaction.bulk_store');
     Route::patch('delete', DeletePalletDelivery::class)->name('delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
@@ -1251,6 +1269,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPalletReturn'])->name('attachment.detach')->withoutScopedBindings();
 
     Route::post('transaction', [StoreFulfilmentTransaction::class, 'inPalletReturn'])->name('transaction.store');
+    Route::post('transactions', [BulkStoreFulfilmentTransactions::class, 'inPalletReturn'])->name('transaction.bulk_store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     Route::post('attach-pallet/{pallet:id}', AttachPalletToReturn::class)->name('pallet.attach')->withoutScopedBindings();
     Route::delete('detach-pallet/{pallet:id}', DetachPalletFromReturn::class)->name('pallet.detach');
@@ -1383,6 +1402,8 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::post('prospect', StoreProspect::class)->name('prospect.store');
     Route::post('appointment', StoreAppointment::class)->name('appointment.store');
     Route::post('appointment-type', StoreAppointmentType::class)->name('appointment_type.store');
+    Route::post('appointment-block', StoreAppointmentBlock::class)->name('appointment_block.store');
+    Route::delete('appointment-block/{appointmentBlock:id}', DeleteAppointmentBlock::class)->name('appointment_block.delete');
     Route::post('appointment-staff', StoreAppointmentStaff::class)->name('appointment_staff.store');
     Route::patch('appointment-staff/{user:id}', UpdateAppointmentStaff::class)->name('appointment_staff.update')->withoutScopedBindings();
     Route::delete('appointment-staff/{user:id}', DeleteAppointmentStaff::class)->name('appointment_staff.delete')->withoutScopedBindings();
@@ -1618,6 +1639,7 @@ Route::name('model_has_web_block.')->prefix('model-has-web-block')->middleware(E
         Route::patch('', UpdateModelHasWebBlocks::class)->name('update');
         Route::delete('', DeleteModelHasWebBlocks::class)->name('delete');
         Route::post('images', UploadImagesToModelHasWebBlocks::class)->name('images.store');
+        Route::post('replace-content/{source:id}', ReplaceModelHasWebBlockContent::class)->name('replace_content')->withoutScopedBindings();
     });
 });
 
@@ -1705,6 +1727,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
     Route::post('artefacts/batch-size', SetArtefactsBatchSize::class)->name('artefacts.set_batch_size');
     Route::post('artefacts/shelf-life', SetArtefactsShelfLife::class)->name('artefacts.set_shelf_life');
     Route::post('artefacts/recipe', SetArtefactsRecipe::class)->name('artefacts.set_recipe');
+    Route::post('artefacts/mix-batch', SetArtefactsMixBatch::class)->name('artefacts.set_mix_batch');
     Route::post('artefacts/state', SetArtefactsState::class)->name('artefacts.set_state');
     Route::post('artefact-families/move-to-department', MoveArtefactFamiliesToDepartment::class)->name('artefact_families.move_to_department');
     Route::post('artefact-upload', ImportArtefact::class)->name('artefacts.upload');
@@ -1840,6 +1863,7 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
     Route::patch('cancel', CancelStockDelivery::class)->name('cancel');
     Route::post('purchase-orders', AddPurchaseOrdersToStockDelivery::class)->name('purchase_orders.add');
     Route::post('purchase-order-items', AddPurchaseOrderItemsToStockDelivery::class)->name('purchase_order_items.add');
+    Route::delete('purchase-order-items/{purchaseOrderTransaction:id}', RemovePurchaseOrderItemFromStockDelivery::class)->name('purchase_order_items.remove')->withoutScopedBindings();
     Route::delete('purchase-orders/{purchaseOrder:id}', RemovePurchaseOrderFromStockDelivery::class)->name('purchase_orders.remove')->withoutScopedBindings();
     Route::patch('start-costing', StartStockDeliveryCosting::class)->name('start-costing');
     Route::patch('reopen-costing', ReopenStockDeliveryCosting::class)->name('reopen-costing');
@@ -1931,6 +1955,8 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('transactions/{purchaseOrderTransaction:id}/cancel', CancelPurchaseOrderTransaction::class)->name('transaction.cancel')->withoutScopedBindings();
     Route::post('transactions/{purchaseOrderTransaction:id}/price-change', AskPurchaseOrderTransactionPriceChange::class)->name('transaction.price_change.ask')->withoutScopedBindings();
     Route::patch('transactions/{purchaseOrderTransaction:id}/price-change', AnswerPurchaseOrderTransactionPriceChange::class)->name('transaction.price_change.answer')->withoutScopedBindings();
+    Route::patch('transactions/{purchaseOrderTransaction:id}/pack', PackPurchaseOrderTransaction::class)->name('transaction.pack')->withoutScopedBindings();
+    Route::post('new-container', AddPurchaseOrderItemsToNewAgentContainer::class)->name('new_container');
 });
 
 Route::name('email.')->prefix('email/')->group(function () {
@@ -2079,6 +2105,8 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::patch('{productDevelopment:id}/update', UpdateProductDevelopment::class)->name('update')->withoutScopedBindings();
     Route::patch('{productDevelopment:id}/members', SyncProductDevelopmentMembers::class)->name('members.sync')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/files', UploadProductDevelopmentFiles::class)->name('files.upload')->withoutScopedBindings();
+    Route::delete('brief-file/{productDevelopmentFile:id}', RemoveProductDevelopmentBriefFile::class)->name('brief_file.remove')->withoutScopedBindings();
+    Route::patch('item/{productDevelopmentItem:id}/brief', UpdateProductDevelopmentItemBrief::class)->name('item.brief')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/comments', StoreProductDevelopmentComment::class)->name('comments.store')->withoutScopedBindings();
     Route::patch('stage/{productDevelopmentStage:id}/due-date', UpdateProductDevelopmentStageDueDate::class)->name('stage.due_date')->withoutScopedBindings();
     Route::post('checklist-item/{productDevelopmentChecklistItem:id}/factory-photo', UploadProductDevelopmentFactoryPhoto::class)->name('checklist_item.factory_photo')->withoutScopedBindings();
@@ -2089,13 +2117,20 @@ Route::name('product_development.')->prefix('product-development')->group(functi
     Route::post('{productDevelopment:id}/remind', RemindProductDevelopmentMembers::class)->name('remind')->withoutScopedBindings();
     Route::patch('{productDevelopment:id}/sign-off', SignOffProductDevelopment::class)->name('sign_off')->withoutScopedBindings();
     Route::patch('comment/{productDevelopmentComment:id}/status', UpdateProductDevelopmentCommentStatus::class)->name('comment.status')->withoutScopedBindings();
-    Route::patch('{productDevelopment:id}/design/skip', SkipProductDevelopmentDesignRound::class)->name('design.skip')->withoutScopedBindings();
     Route::post('{productDevelopment:id}/design', StoreProductDevelopmentDesignVersion::class)->name('design.store')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}', UpdateProductDevelopmentDesignVersion::class)->name('design.update')->withoutScopedBindings();
     Route::post('design/{productDevelopmentDesignRound:id}/artwork', UploadProductDevelopmentDesignArtwork::class)->name('design.artwork')->withoutScopedBindings();
-    Route::post('design/{productDevelopmentDesignRound:id}/image', UploadProductDevelopmentDesignImage::class)->name('design.image')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}/submit', SubmitProductDevelopmentDesignVersion::class)->name('design.submit')->withoutScopedBindings();
     Route::patch('design/{productDevelopmentDesignRound:id}/review', ReviewProductDevelopmentDesignVersion::class)->name('design.review')->withoutScopedBindings();
+    Route::post('{productDevelopment:id}/design-section', StoreProductDevelopmentDesignSection::class)->name('design_section.store')->withoutScopedBindings();
+    Route::patch('design-section/{productDevelopmentDesignSection:id}', UpdateProductDevelopmentDesignSection::class)->name('design_section.update')->withoutScopedBindings();
+    Route::delete('design-section/{productDevelopmentDesignSection:id}', DeleteProductDevelopmentDesignSection::class)->name('design_section.delete')->withoutScopedBindings();
+    Route::post('design-section/{productDevelopmentDesignSection:id}/artwork', UploadProductDevelopmentArtwork::class)->name('design_section.artwork.upload')->withoutScopedBindings();
+    Route::post('design-section/{productDevelopmentDesignSection:id}/artwork/aiku', StartProductDevelopmentArtworkInAiku::class)->name('design_section.artwork.aiku')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/layout', UpdateProductDevelopmentArtworkLayout::class)->name('artwork.layout')->withoutScopedBindings();
+    Route::post('artwork/{productDevelopmentArtwork:id}/image', UploadProductDevelopmentDesignImage::class)->name('artwork.image')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/submit', SubmitProductDevelopmentArtwork::class)->name('artwork.submit')->withoutScopedBindings();
+    Route::patch('artwork/{productDevelopmentArtwork:id}/review', ReviewProductDevelopmentArtwork::class)->name('artwork.review')->withoutScopedBindings();
 });
 
 Route::name('trade_unit_family.')->prefix('trade-unit-family')->group(function () {

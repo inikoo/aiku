@@ -286,12 +286,13 @@ test('set shipper api credentials from the command', function ($createdShipper) 
     $createdShipper->update($originalApiSettings);
 })->depends('create shipper');
 
-test('dpd gb label pdf keeps one page per parcel', function () {
-    $html = str_repeat('<div style="page-break-after: always">label</div>', 3);
+test('dpd gb label pdf keeps one page per parcel and drops the blank page dpd puts after each label', function () {
+    $html = '<body style="margin:0">'.str_repeat('<div style="height:175mm;page-break-after:always">label</div>', 3).'</body>';
 
     $pdf = (new CallApiDpdGbShipping())->labelPdf($html, 3);
 
-    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3);
+    expect(preg_match_all('/\/Type\s*\/Page[^s]/', $pdf))->toBe(3)
+        ->and(preg_match('/\/Length 0>>/', $pdf))->toBe(0);
 })->skip(fn () => !is_dir(base_path('node_modules/puppeteer')) && !is_dir(trim((string) shell_exec('npm root -g')).'/puppeteer'), 'puppeteer is not installed');
 
 test('dpd gb login reads the credentials by name whatever their order', function () {
@@ -1607,6 +1608,28 @@ test('short pick keeps submitted order amounts until the note is picked', functi
         ->and((float) $order->net_amount)->toBe((float) $transaction->net_amount);
 });
 
+test('a picked order sent back to handling or waiting gets its submitted amounts back', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this, 4);
+    $order        = $deliveryNote->orders()->first();
+    $transaction  = $order->transactions()->first();
+    $submittedNet = (float) $transaction->net_amount;
+
+    StoreNotPickPicking::make()->action($item, $this->user, []);
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote->refresh());
+    expect((float) $transaction->refresh()->net_amount)->toBeLessThan($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToHandlingBlocked::make()->action($order->refresh(), $deliveryNote);
+    expect((float) $transaction->refresh()->net_amount)->toBe($submittedNet)
+        ->and((float) $order->refresh()->net_amount)->toBe($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToPicked::make()->action($order, $deliveryNote);
+    expect((float) $transaction->refresh()->net_amount)->toBeLessThan($submittedNet);
+
+    \App\Actions\Ordering\Order\UpdateState\UpdateOrderStateToHandling::make()->action($order->refresh());
+    expect((float) $transaction->refresh()->net_amount)->toBe($submittedNet)
+        ->and((float) $order->refresh()->net_amount)->toBe($submittedNet);
+});
+
 test('delivery note finalise and dispatch', function () {
     [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote);
@@ -2291,7 +2314,11 @@ test('change picking bay on delivery note', function () {
 test('a delivery note waiting for the warehouse can be given a picked bay', function () {
     [$deliveryNote] = handlingDeliveryNoteWithPicking($this);
     $deliveryNote->update(['state' => DeliveryNoteStateEnum::HANDLING_BLOCKED]);
+    $deliveryNote->deliveryNoteItems()->update(['quantity_waiting_warehouse' => 1]);
     $pickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'WPB'.Str::random(4)]);
+
+    expect(ShowDeliveryNote::make()->getHandlingBlockedActions($deliveryNote))
+        ->toBe([['type' => 'button', 'key' => 'trigger-set-as-picked-or-packed']]);
 
     \App\Actions\Dispatching\PickedBay\ChangePickingBaysDeliveryNote::run($deliveryNote, ['picked_bay' => $pickedBay->id]);
     \App\Actions\Dispatching\PickedBay\AttachDeliveryNoteToPickedBay::run($pickedBay, $deliveryNote);
@@ -2300,7 +2327,8 @@ test('a delivery note waiting for the warehouse can be given a picked bay', func
     expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::HANDLING_BLOCKED)
         ->and($pickedBay->refresh()->number_delivery_notes)->toBe(1)
         ->and($deliveryNote->pickedBays->pluck('id')->all())->toBe([$pickedBay->id])
-        ->and($deliveryNote->sort_picked_bays)->toBe($pickedBay->code);
+        ->and($deliveryNote->sort_picked_bays)->toBe($pickedBay->code)
+        ->and(ShowDeliveryNote::make()->getHandlingBlockedActions($deliveryNote))->toBe([]);
 });
 
 test('a delivery note leaves its picked bay when dispatched and can not be put in one once packing started (HELP-4200)', function () {
@@ -3125,6 +3153,70 @@ test('picking upsert from waiting warehouse', function () {
 
     \App\Actions\Dispatching\Picking\UpsertPickingFromWaitingWarehouse::run($item->refresh(), $this->user, ['quantity' => 1, 'location_org_stock_id' => $los->id]);
     expect($item->refresh()->pickings()->exists())->toBeTrue();
+});
+
+test('replenishing a waiting line asks to confirm the picked bay of its delivery note', function () {
+    [$deliveryNote, $item] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $pickedBay             = StorePickedBay::make()->handle($this->warehouse, ['code' => 'BAY'.Str::random(4)]);
+    AttachDeliveryNoteToPickedBay::make()->handle($pickedBay, $deliveryNote);
+    $locationOrgStock = $item->orgStock->locationOrgStocks()->where('quantity', '>=', 4)->first();
+
+    expect(\App\Actions\Dispatching\Picking\PickAllItemFromWaitingWarehouse::pickedBayPrompt($item))->toBeNull();
+
+    $item->update(['locked_at' => null]);
+    actingAs($this->user);
+    post(route('grp.models.delivery_note_item.picking_all_from_waiting_warehouse.store', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+    ])->assertRedirect()->assertSessionHas('inertia.flash_data.picked_bay_prompt', [
+        'delivery_note'  => [
+            'id'        => $deliveryNote->id,
+            'slug'      => $deliveryNote->slug,
+            'reference' => $deliveryNote->reference,
+            'is_ready'  => true,
+        ],
+        'org_stock_code' => $item->orgStock->code,
+        'picked_bays'    => [['id' => $pickedBay->id, 'code' => $pickedBay->code]],
+    ]);
+
+    expect((float)$item->refresh()->quantity_waiting_warehouse)->toBe(0.0)
+        ->and($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::PICKED);
+});
+
+test('typing a waiting quantity asks for the picked bay only once nothing is left waiting', function () {
+    [$deliveryNote, $item] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $locationOrgStock      = $item->orgStock->locationOrgStocks()->where('quantity', '>=', 4)->first();
+    $item->update(['locked_at' => null]);
+    actingAs($this->user);
+
+    post(route('grp.models.delivery_note_item.picking.upsert_from_waiting_warehouse', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 1,
+    ])->assertRedirect()->assertSessionMissing('inertia.flash_data.picked_bay_prompt');
+
+    $picking = $item->refresh()->pickings()->latest('id')->first();
+
+    post(route('grp.models.delivery_note_item.picking.upsert_from_waiting_warehouse', $item->id), [
+        'location_org_stock_id' => $locationOrgStock->id,
+        'quantity'              => 4,
+        'picking_id'            => $picking->id,
+    ])->assertRedirect()->assertSessionHas('inertia.flash_data.picked_bay_prompt.picked_bays', []);
+
+    expect((float)$item->refresh()->quantity_waiting_warehouse)->toBe(0.0);
+});
+
+test('the picked bays list gives each bay its code and searches by it, HELP-4229', function () {
+    $pickedBay      = StorePickedBay::make()->handle($this->warehouse, ['code' => 'zona_'.Str::random(4)]);
+    $otherPickedBay = StorePickedBay::make()->handle($this->warehouse, ['code' => 'other_'.Str::random(4)]);
+    actingAs($this->user);
+
+    getJson(route('grp.json.picked_bays.list', $this->warehouse))
+        ->assertOk()
+        ->assertJsonFragment(['id' => $pickedBay->id, 'code' => $pickedBay->code]);
+
+    getJson(route('grp.json.picked_bays.list', [$this->warehouse, 'filter[global]' => $pickedBay->code]))
+        ->assertOk()
+        ->assertJsonFragment(['code' => $pickedBay->code])
+        ->assertJsonMissing(['code' => $otherPickedBay->code]);
 });
 
 test('lowering a pick from the waiting warehouse panel puts the difference back on the shelf', function () {
@@ -4493,6 +4585,23 @@ test('lines waiting for customer service show the order CRM note and the warehou
 
     expect($row['delivery_note_internal_notes'])->toBe('30/9 emailed re oos')
         ->and($row['delivery_note_private_warehouse_note'])->toBe('shelf empty');
+});
+
+test('lines waiting for customer service flag other items still waiting in the warehouse or not picked', function () {
+    [$deliveryNote, $item] = handlingDeliveryNoteWithPicking($this);
+
+    $item->update(['quantity_picked' => 0, 'quantity_waiting_crm' => 1, 'quantity_not_picked' => 1]);
+    $deliveryNote->update(['number_items_waiting_crm' => 1, 'number_items_waiting_warehouse' => 2]);
+
+    $rows = get(route('grp.org.shops.show.ordering.backlog.waiting_items', [$this->organisation->slug, $deliveryNote->shop->slug]))
+        ->assertOk()
+        ->viewData('page')['props']['waiting_crm_items']['data'];
+
+    $row = collect($rows)->firstWhere('delivery_note_id', $deliveryNote->id);
+
+    expect($row['delivery_note_number_items_waiting_warehouse'])->toBe(2)
+        ->and($row['delivery_note_number_items_not_picked'])->toBe($deliveryNote->deliveryNoteItems()->where('quantity_not_picked', '>', 0)->count())
+        ->and($row['delivery_note_number_items_not_picked'])->toBeGreaterThanOrEqual(1);
 });
 
 test('lines waiting for customer service carry the product order line net and tax inclusive amounts', function () {
@@ -7241,4 +7350,19 @@ test('picking screen rows load pickings with their locations and batch codes, an
         ->and($queries->filter(fn (string $query) => str_contains($query, 'from "packings"'))->count())->toBe(1)
         ->and($pickingRow['location_code'])->toBe($picking->location->code)
         ->and($pickingRow['batch_code_id'])->toBe($picking->batch_code_id ?? (string) $picking->orgStock->main_batch_code_id);
+});
+
+test('waiting items grouped by delivery note show the picked bays of each delivery note', function () {
+    [$deliveryNote] = waitingDeliveryNoteWithItemWaitingForWarehouse($this);
+    $pickedBay      = StorePickedBay::make()->handle($this->warehouse, ['code' => 'BAY'.Str::random(4)]);
+    AttachDeliveryNoteToPickedBay::make()->handle($pickedBay, $deliveryNote);
+
+    actingAs($this->user);
+    get(route('grp.org.warehouses.show.dispatching.waiting_items', [$this->organisation->slug, $this->warehouse->slug, 'tab' => 'grouped_by_delivery_note']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where(
+            'grouped_by_delivery_note.data',
+            fn ($rows) => collect($rows)->firstWhere('delivery_note_id', $deliveryNote->id)['picked_bays']
+                == [['id' => $pickedBay->id, 'slug' => $pickedBay->slug, 'name' => $pickedBay->code]]
+        )->etc());
 });

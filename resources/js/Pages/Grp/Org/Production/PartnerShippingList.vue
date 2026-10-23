@@ -505,7 +505,7 @@ function jobOrderHref(item: { job_order_slug: string }) {
     <div v-if="Object.keys(selected).length" class="sticky top-0 z-10 mx-4 mt-4 flex items-center justify-between rounded-lg bg-indigo-600 px-4 py-2 text-white">
         <span>{{ ctransChoice(":count line selected|:count lines selected", Object.keys(selected).length) }}</span>
         <div class="flex gap-2">
-            <button type="button" class="rounded bg-white px-3 py-1 text-indigo-600" @click="createJobOrders">
+            <button type="button" class="rounded bg-white px-3 py-1 text-indigo-600" @click="createJobOrders()">
                 {{ ctrans("Create job orders") }}
             </button>
         </div>

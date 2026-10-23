@@ -9,6 +9,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,8 +55,27 @@ class HideRetailPricesFromIrisVisitors
         return $response;
     }
 
+    /**
+     * Web blocks carry API resources that Inertia only turns into arrays when it renders, after these keys are stripped.
+     */
+    public static function resolved(mixed $data): mixed
+    {
+        if ($data instanceof Responsable) {
+            $response = $data->toResponse(request());
+            $data     = method_exists($response, 'getData') ? $response->getData(true) : $data;
+        } elseif ($data instanceof Arrayable) {
+            $data = $data->toArray();
+        }
+
+        return is_array($data) ? array_map(self::resolved(...), $data) : $data;
+    }
+
     public static function withoutHiddenKeys(mixed $data): mixed
     {
+        if ($data instanceof Responsable || $data instanceof Arrayable) {
+            $data = self::resolved($data);
+        }
+
         if (!is_array($data)) {
             return $data;
         }

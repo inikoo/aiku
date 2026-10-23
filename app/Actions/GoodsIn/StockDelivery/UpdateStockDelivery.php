@@ -196,8 +196,8 @@ class UpdateStockDelivery extends OrgAction
             if ($stockDelivery->is_costed) {
                 throw ValidationException::withMessages(['org_exchange' => __('This stock delivery is costed, an accounting manager can change it with Update costing')]);
             }
-            if (Arr::has($stockDelivery->data, 'costing_reopened') && !$request->user()->authTo("org-supervisor.{$stockDelivery->organisation_id}.accounting")) {
-                throw ValidationException::withMessages(['org_exchange' => __('Only an accounting manager can change the costing while it is being updated')]);
+            if (Arr::has($stockDelivery->data, 'costing_reopened') && !$stockDelivery->canUpdateCosting($request->user())) {
+                throw ValidationException::withMessages(['org_exchange' => __('Only an accounting manager, or the person they asked, can change the costing while it is being updated')]);
             }
         }
 

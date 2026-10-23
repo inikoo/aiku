@@ -9,6 +9,7 @@
 namespace App\Actions\Ordering\Order\UpdateState;
 
 use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
+use App\Actions\Ordering\Order\GenerateInvoiceFromOrder;
 use App\Actions\Ordering\Order\HasOrderHydrators;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -45,29 +46,18 @@ class UpdateOrderStateToHandling extends OrgAction
             OrderStateEnum::PICKED,
             OrderStateEnum::FINALISED,
         ])) {
-            if ($oldState == OrderStateEnum::PACKED || $oldState == OrderStateEnum::FINALISED) {
+            if ($oldState->isPickedOrLater()) {
                 /** @var Transaction $transaction */
-                foreach ($order->transactions()->where('model_type', 'Product')->get() as $transaction) {
-                    $historicAsset = $transaction->historicAsset;
-
-                    $discountsRatio = 1;
-                    if ($transaction->gross_amount != 0) {
-                        $discountsRatio = $transaction->net_amount / $transaction->gross_amount;
-                    }
-
-
-                    $gross = $historicAsset->price * $transaction->quantity_ordered;
-                    $net   = $historicAsset->price * $discountsRatio * $transaction->quantity_ordered;
-
+                foreach ($order->transactions()->where('model_type', 'Product')->where('is_follow_on', false)->get() as $transaction) {
+                    $submittedAmounts = GenerateInvoiceFromOrder::make()->recalculateTransactionTotals($transaction, null);
 
                     $transaction->update(
                         [
-
                             'quantity_picked' => null,
-                            'gross_amount'    => $gross,
-                            'net_amount'      => $net,
-                            'org_net_amount'  => $net * $transaction->org_exchange,
-                            'grp_net_amount'  => $net * $transaction->grp_exchange,
+                            'gross_amount'    => $submittedAmounts['gross_amount'],
+                            'net_amount'      => $submittedAmounts['net_amount'],
+                            'org_net_amount'  => $submittedAmounts['org_net_amount'],
+                            'grp_net_amount'  => $submittedAmounts['grp_net_amount'],
                         ]
                     );
                 }

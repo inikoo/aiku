@@ -91,7 +91,10 @@ class ExportSocialMediaPosts extends OrgAction
             fputcsv($output, [__('Figure'), __('This period'), __('Compared period'), __('Change %')]);
             foreach ([
                 'posts'             => __('Posts'),
-                'views'             => __('Views'),
+                'views'             => __('Views (all)'),
+                'organic_views'     => __('Organic views'),
+                'ad_views'          => __('Views from ads'),
+                'unsplit_views'     => __('Views not split (synced before the split)'),
                 'avg_daily_viewers' => __('Viewers per day'),
                 'interactions'      => __('Interactions'),
                 'interaction_rate'  => __('Interaction rate %'),
@@ -117,15 +120,15 @@ class ExportSocialMediaPosts extends OrgAction
             }
 
             fputcsv($output, []);
-            fputcsv($output, [__('Platform'), __('Views'), __('Share of views %'), __('Posts'), __('Followers')]);
+            fputcsv($output, [__('Platform'), __('Views (all)'), __('Share of views %'), __('Organic views'), __('Views from ads'), __('Posts'), __('Followers')]);
             foreach ($report['platforms'] as $platform) {
-                fputcsv($output, [$platform['label'], $platform['views'], $platform['views_share'], $platform['posts'], $platform['followers']]);
+                fputcsv($output, [$platform['label'], $platform['views'], $platform['views_share'], $platform['organic_views'], $platform['ad_views'], $platform['posts'], $platform['followers']]);
             }
 
             fputcsv($output, []);
-            fputcsv($output, [__('Account'), __('Platform'), __('Brand'), __('Market'), __('Followers'), __('Posts'), __('Views'), __('Interactions'), __('Link clicks')]);
+            fputcsv($output, [__('Account'), __('Platform'), __('Brand'), __('Market'), __('Followers'), __('Posts'), __('Views (all)'), __('Organic views'), __('Views from ads'), __('Interactions'), __('Link clicks')]);
             foreach ($report['accounts'] as $account) {
-                fputcsv($output, [$account['name'], $account['platform_label'], $account['shop_name'], $account['country_code'], $account['followers'], $account['posts'], $account['views'], $account['interactions'], $account['link_clicks']]);
+                fputcsv($output, [$account['name'], $account['platform_label'], $account['shop_name'], $account['country_code'], $account['followers'], $account['posts'], $account['views'], $account['organic_views'], $account['ad_views'], $account['interactions'], $account['link_clicks']]);
             }
 
             fputcsv($output, []);

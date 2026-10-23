@@ -42,6 +42,14 @@ class SyncShopFromMeta
 
     public const int RUNNING_MINS = 120;
 
+    public const int RETRY_AFTER_LIMIT_MINS = 60;
+
+    /**
+     * The lines a Meta command prints for an account or shop it fetched; anything else it prints is
+     * what went wrong.
+     */
+    private const string FETCHED_LINE = '/post\(s\), \d+ day\(s\)\.$|channel campaign-day\(s\) of spend\.$|campaign-day\(s\) with spend left to another shop/';
+
     public string $jobQueue = 'default';
 
     public int $jobTimeout = 1800;
@@ -56,27 +64,43 @@ class SyncShopFromMeta
         return now()->addMinutes(self::RUNNING_MINS);
     }
 
-    public function handle(Shop $shop, ?int $days = null): array
+    /**
+     * A part Meta's usage limit stopped is synced again once, by itself, after the limit has had an
+     * hour to recover; a second stop is left for the nightly run or the user.
+     *
+     * @param array<int, string> $parts
+     */
+    public function handle(Shop $shop, ?int $days = null, array $parts = ['organic', 'paid'], bool $isRetry = false): array
     {
         $results = [];
         $status  = self::status($shop);
 
         try {
-            if (self::hasOrganic($shop)) {
+            if (in_array('organic', $parts, true) && self::hasOrganic($shop)) {
                 $results['organic'] = $this->runCommand('social-media:fetch-meta', ['shop' => $shop->slug, '--days' => $days ?? ($status['organic_updated_at'] ? self::ORGANIC_DAYS : self::MAX_DAYS)]);
             }
 
-            if (self::hasPaid($shop)) {
+            if (in_array('paid', $parts, true) && self::hasPaid($shop)) {
                 $results['paid'] = $this->runCommand('traffic-source:fetch-meta-costs', ['shop' => $shop->slug, '--days' => $days ?? ($status['paid_updated_at'] ? self::PAID_DAYS : self::MAX_DAYS)]);
             }
         } finally {
             Cache::forget(self::runningKey($shop));
         }
 
+        $limited = collect($results)->filter(fn (array $result) => $result['limited'])->keys()->all();
+
+        if ($limited !== [] && !$isRetry) {
+            self::dispatch($shop, $days, $limited, true)->delay(now()->addMinutes(self::RETRY_AFTER_LIMIT_MINS));
+        }
+
+        $message = collect($results)->map(fn (array $result, string $part) => $result['ok'] ? null : $part.': '.$result['message'])->filter()->implode(' · ');
+
         $result = [
             'finished_at' => now()->toIso8601String(),
             'ok'          => collect($results)->every(fn (array $result) => $result['ok']),
-            'message'     => collect($results)->map(fn (array $result, string $part) => $result['ok'] ? null : $part.': '.$result['message'])->filter()->implode(' · ') ?: null,
+            'message'     => ($limited !== [] && !$isRetry
+                ? $message.' '.__(':parts will sync again by itself in about :minutes minutes.', ['parts' => ucfirst(implode(' and ', $limited)), 'minutes' => self::RETRY_AFTER_LIMIT_MINS])
+                : $message) ?: null,
         ];
 
         Cache::put(self::resultKey($shop), $result, now()->addDays(30));
@@ -176,7 +200,7 @@ class SyncShopFromMeta
     }
 
     /**
-     * @return array{ok: bool, message: string|null}
+     * @return array{ok: bool, limited: bool, message: string|null}
      */
     private function runCommand(string $command, array $arguments): array
     {
@@ -184,12 +208,16 @@ class SyncShopFromMeta
             $exitCode = Artisan::call($command, $arguments);
             $output   = trim(Artisan::output());
         } catch (\Throwable $e) {
-            return ['ok' => false, 'message' => $this->withoutToken($e->getMessage())];
+            return ['ok' => false, 'limited' => false, 'message' => $this->withoutToken($e->getMessage())];
         }
+
+        $lines    = collect(explode("\n", $output))->map(fn (string $line) => trim($line))->filter();
+        $problems = $lines->reject(fn (string $line) => preg_match(self::FETCHED_LINE, $line));
 
         return [
             'ok'      => $exitCode === 0,
-            'message' => $exitCode === 0 ? null : $this->withoutToken((string) collect(explode("\n", $output))->filter()->last()),
+            'limited' => $exitCode !== 0 && str_contains($output, 'usage limit'),
+            'message' => $exitCode === 0 ? null : $this->withoutToken((string) ($problems->isNotEmpty() ? $problems->implode(' ') : $lines->last())),
         ];
     }
 

@@ -113,6 +113,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Inventory\OrgStock;
 use App\Models\GoodsIn\StockDeliveryItem;
 use App\Http\Resources\Procurement\StockDeliveryItemResource;
+use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
@@ -904,11 +905,15 @@ test('purchase order stages go in order and ask a reason to skip, backdate or cl
     $user  = $this->adminGuest->getUser();
 
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasErrors('reason');
-    expect($purchaseOrder->refresh()->production_started_at)->toBeNull();
+    expect($purchaseOrder->refresh()->production_started_at)->toBeNull()
+        ->and(collect(GetPurchaseOrderStages::make()->forUi($purchaseOrder, ['production_started_at']))->firstWhere('key', 'in_production')['marks'][0])
+        ->toMatchArray(['label' => __('Confirm and Start Production'), 'confirms_order' => true]);
 
     $this->patch($route, ['field' => 'deposit_paid_at', 'date' => $today])->assertSessionHasErrors('field');
     $purchaseOrder->refresh()->updateQuietly(['deposit_paid_at' => now()]);
     $this->patch($route, ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED)
+        ->and($purchaseOrder->confirmed_at)->not->toBeNull();
     $this->patch($route, ['field' => 'qc_passed_at', 'date' => $today])->assertSessionHasErrors('reason');
     $this->patch($route, ['field' => 'production_started_at', 'date' => now()->subDays(3)->toDateString()])->assertSessionHasErrors('reason');
     $this->patch($route, ['field' => 'production_started_at', 'date' => now()->addDays(2)->toDateString()])->assertSessionHasErrors('date');
@@ -1017,9 +1022,12 @@ test('a purchase order with no deposit needed counts the deposit stage as done',
     [$orgSupplier] = createAgentOrgSupplierWithProduct($this);
     $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
     $purchaseOrder->updateQuietly(['state' => PurchaseOrderStateEnum::SUBMITTED, 'submitted_at' => now()->subDays(5), 'deposit_amount' => 0]);
-    $today = now($purchaseOrder->organisation->timezone?->name)->toDateString();
 
-    $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'production_started_at', 'date' => $today])->assertSessionHasNoErrors();
+    $startedDay = now()->subDays(3)->toDateString();
+    $this->patch(route('grp.models.purchase-order.stage', $purchaseOrder->id), ['field' => 'production_started_at', 'date' => $startedDay, 'reason' => 'Agent told us late'])->assertSessionHasNoErrors();
+
+    expect($purchaseOrder->refresh()->state)->toBe(PurchaseOrderStateEnum::CONFIRMED)
+        ->and($purchaseOrder->confirmed_at->toDateString())->toBe($startedDay);
 
     $this->get(route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
@@ -1973,6 +1981,32 @@ test('adding a product to a purchase order creates the missing org stock', funct
     expect((float)$line->refresh()->net_amount)->toBe(240.0);
 });
 
+test('a supplier product is ordered in SKOs short of a whole carton', function () {
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
+    $stock     = StoreStock::make()->action($this->group, array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE]));
+    SyncStockTradeUnits::run($stock, [$tradeUnit->id => ['quantity' => 1]]);
+
+    $supplierProduct = StoreSupplierProduct::make()->action($this->orgSupplier->supplier, [
+        'code'             => 'oil-25kg-carton',
+        'name'             => 'Oil in 25kg cartons',
+        'cost'             => 16,
+        'trade_units'      => [$tradeUnit->id],
+        'units_per_pack'   => 1,
+        'units_per_carton' => 25
+    ]);
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->orgSupplier, $supplierProduct);
+    $purchaseOrder      = $this->orgSupplier->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->first()
+        ?? StorePurchaseOrder::make()->action($this->orgSupplier, PurchaseOrder::factory()->definition());
+
+    $this->post(route('grp.models.purchase-order.transaction.store', [$purchaseOrder->id, $orgSupplierProduct->id]), ['quantity_ordered' => 10])
+        ->assertSessionHasNoErrors();
+
+    $line = $purchaseOrder->purchaseOrderTransactions()->where('org_supplier_product_id', $orgSupplierProduct->id)->first();
+
+    expect((float)$line->quantity_ordered)->toBe(10.0)
+        ->and((float)$line->net_amount)->toBe(160.0);
+});
+
 test('staff add notes to a purchase order and read them on its stock delivery', function () {
     $purchaseOrder = $this->purchaseOrder;
     $stockDelivery = $this->stockDelivery;
@@ -2263,8 +2297,7 @@ test('purchase orders are numbered with the org supplier format, skipping refere
     $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
     $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
 
-    $organisationFormatReference = UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier);
-    expect($organisationFormatReference)->toStartWith('PO');
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0001');
 
     UpdateOrgSupplier::make()->action($orgSupplier, [
         'purchase_order_reference_format' => 'Camacho-%04d_UK',
@@ -2286,7 +2319,40 @@ test('purchase orders are numbered with the org supplier format, skipping refere
     $orgSupplier->refresh();
 
     expect($orgSupplier->purchaseOrderSerialReference)->toBeNull()
-        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($organisationFormatReference);
+        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($supplier->code.'-0001');
+});
+
+test('a supplier without its own number format is numbered from its code, carrying on from its Aurora number', function () {
+    $supplier    = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
+
+    StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => 'Brow Farm-003']), strict: false)
+        ->update(['source_id' => '4:'.fake()->unique()->numberBetween(900000, 999999), 'created_at' => now()->subDay()]);
+    StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => 'Conti-AWChina-071-AROMA']), strict: false);
+
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0004')
+        ->and(StorePurchaseOrder::make()->action($orgSupplier, $orderData, strict: false)->reference)->toBe($supplier->code.'-0004')
+        ->and($orgSupplier->purchaseOrderSerialReference()->value('format'))->toBe($supplier->code.'-%04d');
+});
+
+test('a supplier whose last Aurora reference ends in a tracking number is numbered from its Aurora order count', function () {
+    $supplier    = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->first();
+    $orderData   = Arr::except(PurchaseOrder::factory()->definition(), 'reference');
+
+    foreach (['3PDirect-058_AWA' => 2, '3PDirect-8174841_AW' => 1] as $reference => $daysAgo) {
+        StorePurchaseOrder::make()->action($orgSupplier, array_merge($orderData, ['reference' => $reference]), strict: false)
+            ->update(['source_id' => '4:'.fake()->unique()->numberBetween(900000, 999999), 'created_at' => now()->subDays($daysAgo)]);
+    }
+
+    expect(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0003');
 });
 
 test('stock deliveries are numbered with the org supplier delivery format, skipping references already used', function () {
@@ -2308,7 +2374,7 @@ test('stock deliveries are numbered with the org supplier delivery format, skipp
 
     expect(UpdateOrgSupplier::make()->nextStockDeliveryReference($orgSupplier))->toBe('Camacho-D0009_UK')
         ->and(UpdateOrgSupplier::make()->newProcurementReference($orgSupplier, SerialReferenceModelEnum::STOCK_DELIVERY))->toBe('Camacho-D0009_UK')
-        ->and(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toStartWith('PO');
+        ->and(UpdateOrgSupplier::make()->nextPurchaseOrderReference($orgSupplier))->toBe($supplier->code.'-0001');
 
     UpdateOrgSupplier::make()->action($orgSupplier, ['stock_delivery_reference_format' => null]);
 
@@ -3528,3 +3594,15 @@ test('the agent asks the organisation about a new supplier price and confirms on
     $this->post($askRoute, ['unit_cost' => $oldUnitCost + 5])->assertSessionHasErrors('unit_cost');
     actingAs($this->adminGuest->getUser());
 });
+
+test('a purchase order whose supplier was deleted still lists, without a supplier link', function (PurchaseOrder $purchaseOrder) {
+    $supplier = $purchaseOrder->parent->supplier;
+    $supplier->delete();
+
+    $row = PurchaseOrdersResource::make($purchaseOrder->fresh()->load('parent.supplier'))->resolve();
+
+    $supplier->restore();
+
+    expect($row['supplier_slug'])->toBeNull()
+        ->and($row['parent_slug'])->toBe($purchaseOrder->parent->slug);
+})->depends('create purchase order independent supplier');

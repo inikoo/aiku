@@ -34,7 +34,7 @@ const props = defineProps<{
         description_extra: string | null
         master_department_id: number | null
         master_sub_department_id: number | null
-        trade_unit_family_id: number | null
+        trade_unit_family: string | null
         faq: { question: string, answer: string }[] | null
         meta_description: string | null
         seo_image: { original: string } | null
@@ -43,7 +43,6 @@ const props = defineProps<{
     }
     departments: { id: number, name: string }[]
     subDepartments: { id: number, name: string, master_department_id: number | null }[]
-    tradeUnitFamilies: { id: number, label: string }[]
     isGoldRewardEligible: boolean
     faqField: { master_product_category_id: number }
     extraSections: { label: string, fields: Record<string, FieldDefinition> }[]
@@ -76,7 +75,6 @@ const form = useForm<Record<string, any>>({
     description_extra: props.masterFamily.description_extra,
     master_department_id: props.masterFamily.master_department_id,
     master_sub_department_id: props.masterFamily.master_sub_department_id,
-    trade_unit_family_id: props.masterFamily.trade_unit_family_id,
     faq: cloneDeep(props.masterFamily.faq ?? []),
     meta_description: props.masterFamily.meta_description,
     seo_image: props.masterFamily.seo_image,
@@ -234,8 +232,7 @@ const save = () => {
 
                     <div class="mt-4">
                         <label class="mb-1 block text-xs font-medium text-gray-700">{{ ctrans("Trade unit family") }}</label>
-                        <Select v-model="form.trade_unit_family_id" :options="tradeUnitFamilies" optionLabel="label" optionValue="id" filter :virtualScrollerOptions="{ itemSize: 38 }" class="w-full md:w-2/3" :placeholder="ctrans('Select a Trade Unit Family')" />
-                        <p v-if="form.errors.trade_unit_family_id" class="mt-1 text-sm text-red-600">{{ form.errors.trade_unit_family_id }}</p>
+                        <InputText :modelValue="masterFamily.trade_unit_family ?? ctrans('Not linked')" class="w-full md:w-2/3" disabled />
                     </div>
                 </section>
 

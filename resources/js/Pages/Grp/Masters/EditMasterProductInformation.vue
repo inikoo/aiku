@@ -269,7 +269,7 @@ const save = () => {
                 <div class="grid min-w-0 flex-1 grid-cols-1 gap-3 md:grid-cols-2">
                     <div>
                         <label for="product-code" class="mb-1 block text-sm font-medium text-gray-700">{{ ctrans("Product code") }} <span class="text-red-500">*</span></label>
-                        <InputText id="product-code" v-model="form.code" class="font-mono" fluid :disabled="!canEdit" :invalid="!!errorOf('code')" />
+                        <InputText id="product-code" v-model="form.code" class="font-mono" fluid disabled :invalid="!!errorOf('code')" />
                         <p class="mt-1 text-xs" :class="errorOf('code') ? 'text-red-600' : 'text-gray-500'">
                             {{ errorOf("code") ?? ctrans("Letters, numbers and hyphens, e.g. :code", { code: product.code }) }}
                         </p>

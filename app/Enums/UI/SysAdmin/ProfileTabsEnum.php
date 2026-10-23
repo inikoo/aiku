@@ -23,6 +23,7 @@ enum ProfileTabsEnum: string
     case HISTORY = 'history';
     case TODO = 'todo';
     case KPI = 'kpi';
+    case CALENDAR = 'calendar';
     case API_TOKENS = 'api_tokens';
 
 
@@ -33,6 +34,12 @@ enum ProfileTabsEnum: string
                 'title'   => __('KPIs'),
                 'tooltip' => __('Key Performance Indicator'),
                 'icon'    => 'fal fa-rabbit-fast',
+            ],
+
+            ProfileTabsEnum::CALENDAR => [
+                'title'   => __('Calendar'),
+                'tooltip' => __('My appointments, task deadlines and ticket deadlines'),
+                'icon'    => 'fal fa-calendar-alt',
             ],
 
             ProfileTabsEnum::API_TOKENS => [

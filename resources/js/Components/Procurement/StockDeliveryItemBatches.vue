@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, nextTick, ref } from "vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import Dialog from "primevue/dialog"
@@ -15,13 +15,13 @@ import InputNumber from "primevue/inputnumber"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBarcodeRead, faPlus, faTrashAlt } from "@fal"
+import { faBarcodeRead, faPlus, faTrashAlt, faCheck, faTimes, faCopy } from "@fal"
 import { faExclamationTriangle } from "@fas"
 import { routeType } from "@/types/route"
 import { useLocaleStore } from "@/Stores/locale"
 import { ctrans } from "@/Composables/useTrans"
 
-library.add(faBarcodeRead, faPlus, faTrashAlt, faExclamationTriangle)
+library.add(faBarcodeRead, faPlus, faTrashAlt, faCheck, faTimes, faCopy, faExclamationTriangle)
 
 interface Batch {
 	code: string
@@ -66,13 +66,48 @@ function open() {
 	isOpen.value = true
 }
 
+const isInline = ref(false)
+const inlineCode = ref("")
+const inlineExpiry = ref<Date | null>(null)
+const inlineCodeInput = ref<any>(null)
+
+async function startInline() {
+	inlineCode.value = ""
+	inlineExpiry.value = null
+	errorMessage.value = null
+	isInline.value = true
+	await nextTick()
+	inlineCodeInput.value?.$el?.focus()
+}
+
+async function saveInline() {
+	if (inlineCode.value.trim() === "") {
+		return
+	}
+	if (props.checkedSkos <= 0) {
+		splitInline()
+		return
+	}
+	rows.value = [{ code: inlineCode.value, expiry: inlineExpiry.value, quantity: props.checkedSkos, placed: 0 }]
+	if (await save()) {
+		isInline.value = false
+	}
+}
+
+function splitInline() {
+	open()
+	rows.value[0].code = inlineCode.value
+	rows.value[0].expiry = inlineExpiry.value
+	isInline.value = false
+}
+
 function addRow() {
 	rows.value.push({ code: "", expiry: null, quantity: remaining.value > 0 ? remaining.value : null, placed: 0 })
 }
 
-async function save() {
+async function save(): Promise<boolean> {
 	if (!props.route) {
-		return
+		return false
 	}
 	isSaving.value = true
 	errorMessage.value = null
@@ -85,9 +120,11 @@ async function save() {
 		isOpen.value = false
 		notify({ title: ctrans("Success"), text: ctrans("Batches saved"), type: "success" })
 		emit("saved")
+		return true
 	} catch (error: any) {
 		const errors = error?.response?.data?.errors
 		errorMessage.value = errors ? (Object.values(errors).flat()[0] as string) : error?.response?.data?.message || ctrans("Failed to save the batches")
+		return false
 	} finally {
 		isSaving.value = false
 	}
@@ -119,12 +156,50 @@ function formatDate(iso: string | null) {
 		</div>
 
 		<Button
-			v-if="route && !batches.length"
+			v-if="route && !batches.length && !isInline"
 			:label="ctrans('Batch')"
 			icon="fal fa-plus"
 			:type="isMissing ? 'warning' : 'tertiary'"
 			size="xxs"
-			@click="open" />
+			@click="startInline" />
+
+		<div v-if="isInline" class="flex items-center gap-x-1" @keydown.esc="isInline = false">
+			<InputText
+				ref="inlineCodeInput"
+				v-model="inlineCode"
+				size="small"
+				class="w-28 !py-1 !text-xs"
+				:class="fieldFocusClass"
+				:placeholder="ctrans('Batch code')"
+				:aria-label="ctrans('Batch code')"
+				@keydown.enter.prevent="saveInline" />
+			<DatePicker
+				v-model="inlineExpiry"
+				dateFormat="dd/mm/yy"
+				:placeholder="ctrans('Best-before')"
+				size="small"
+				class="w-28"
+				:class="fieldFocusClass"
+				:pt="{ pcInputText: { root: { class: '!w-full !py-1 !text-xs' } } }"
+				:aria-label="ctrans('Best-before')"
+				@keydown.enter.prevent="saveInline" />
+			<Button v-tooltip="ctrans('Save, all :checked SKOs in this batch', { checked: locale.number(checkedSkos) })" type="tertiary" size="xxs" :loading="isSaving" :disabled="inlineCode.trim() === ''" :aria-label="ctrans('Save')" @click="saveInline">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-check" class="text-green-600" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button v-tooltip="ctrans('More than one batch')" type="tertiary" size="xxs" :aria-label="ctrans('More than one batch')" @click="splitInline">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-copy" class="text-gray-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+			<Button type="tertiary" size="xxs" :aria-label="ctrans('Cancel')" @click="isInline = false">
+				<template #icon>
+					<FontAwesomeIcon icon="fal fa-times" class="text-red-500" fixed-width aria-hidden="true" />
+				</template>
+			</Button>
+		</div>
+		<p v-if="isInline && errorMessage" class="text-red-600">{{ errorMessage }}</p>
 
 		<Dialog v-model:visible="isOpen" modal :header="ctrans('Batches in this delivery')" class="w-full max-w-xl" :closeOnEscape="false">
 			<p class="text-sm text-gray-500 mb-3">

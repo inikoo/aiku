@@ -864,9 +864,8 @@ test('purchase order submit availability follows its submittable items', functio
 
     $this->get(route('grp.org.procurement.purchase_orders.show', [$this->organisation->slug, $submittedPurchaseOrder->slug]))
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('pageHead.actions', fn ($actions) => collect($actions)->contains(
-                fn ($action) => Arr::get($action, 'key') === 'confirm_purchase_order'
-                    && Arr::get($action, 'tooltip') === 'Click once the supplier has said they can supply these products. It only records their answer here, nothing is sent to the supplier.'
+            ->where('pageHead.actions', fn ($actions) => !collect($actions)->contains(
+                fn ($action) => in_array(Arr::get($action, 'key'), ['confirm_purchase_order', 'undo_submit_purchase_order'])
             ))
             ->etc());
 
@@ -1334,7 +1333,7 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
         ->get(route('grp.org.warehouses.show.incoming.stock_deliveries.index', [$this->organisation->slug, $warehouse->slug]))
         ->assertOk();
 
-    expect($keys($actionKeys($worker)))->toBe(['receive_stock_delivery', 'csv', 'action']);
+    expect($keys($actionKeys($worker)))->toBe(['receive_stock_delivery', 'documents']);
 
     $documentRouteParameters = [$this->organisation->slug, $stockDelivery->slug];
     $this->actingAs($worker)->get(route('grp.org.procurement.stock_deliveries.pdf', $documentRouteParameters))->assertOk();
@@ -1343,8 +1342,8 @@ test('goods in workers book in stock deliveries and only goods in supervisors un
 
     $this->actingAs($worker)->patch(route('grp.models.stock-delivery.receive', $stockDelivery->id), ['reason' => 'Invoice not sent yet'])->assertRedirect();
     expect($stockDelivery->refresh()->state)->toBe(StockDeliveryStateEnum::RECEIVED)
-        ->and($keys($actionKeys($worker)))->toBe(['book_in_link', 'csv', 'action'])
-        ->and($keys($actionKeys($supervisor)))->toBe(['book_in_link', 'unreceive_stock_delivery', 'csv', 'action']);
+        ->and($keys($actionKeys($worker)))->toBe(['book_in_link', 'documents'])
+        ->and($keys($actionKeys($supervisor)))->toBe(['book_in_link', 'unreceive_stock_delivery', 'documents']);
 
     $this->actingAs($worker)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertForbidden();
     $this->actingAs($supervisor)->patch(route('grp.models.stock-delivery.unreceive', $stockDelivery->id))->assertRedirect();
@@ -1710,20 +1709,36 @@ test('UI show stock delivery under over delivered items tab', function () {
     $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
 
     $stockDeliveryItem = SetStockDeliveryItemCheckedQuantity::make()->action($stockDelivery->items()->first(), ['unit_quantity_checked' => 8]);
+
+    expect($stockDelivery->fresh()->state)->toBe(StockDeliveryStateEnum::CHECKED);
+
+    $warehouse      = $this->organisation->warehouses()->oldest('id')->first() ?? createWarehouse();
+    allowGoodsInOn($warehouse, $this->adminGuest->getUser());
+    $procurementUrl = route('grp.org.procurement.stock_deliveries.show', [$this->organisation->slug, $stockDelivery->slug]);
+    $goodsInUrl     = route('grp.org.warehouses.show.incoming.stock_deliveries.show', [$this->organisation->slug, $warehouse->slug, $stockDelivery->slug]);
+
+    $this->withoutExceptionHandling();
+
+    $this->get($procurementUrl)->assertInertia(fn (AssertableInertia $page) => $page->missing('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value));
+
+    $this->get($goodsInUrl.'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->has('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
+            ->where(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.read_only', true)
+            ->has(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.data', 1);
+    });
+
     UpsertStockDeliveryItemPlaced::make()->action($stockDeliveryItem, ['quantity' => 8, 'location_org_stock_id' => createLocationOrgStockFor($this, $stockDeliveryItem)->id]);
 
     expect($stockDelivery->fresh()->state)->toBe(StockDeliveryStateEnum::BOOKED_IN);
 
-    $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.procurement.stock_deliveries.show', [
-        $this->organisation->slug,
-        $stockDelivery->slug,
-    ]).'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
+    $response = $this->get($procurementUrl.'?tab='.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value);
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/StockDelivery')
             ->has('tabs.navigation.'.StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value)
+            ->where(StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.read_only', false)
             ->has(
                 StockDeliveryTabsEnum::UNDER_OVER_DELIVERED->value.'.data',
                 1,
@@ -2535,6 +2550,32 @@ describe('stock delivery costing checklist', function () {
 
         UpdateStockDeliveryCost::make()->action($shipping, ['received_at' => null]);
         expect($stockDelivery->refresh()->is_costed)->toBeFalse();
+    });
+
+    test('the agent or supplier invoice waiting for its invoice takes an estimate that lets put-away through until the real invoice replaces it', function () {
+        $stockDelivery = $this->costingStockDelivery;
+        $stockDelivery->update(['created_at' => StockDelivery::COSTS_BEFORE_PUT_AWAY_FROM]);
+
+        $invoice = StoreStockDeliveryCost::make()->action($stockDelivery, [
+            'type'                   => StockDeliveryCostTypeEnum::AGENT_INVOICE->value,
+            'is_waiting_for_invoice' => true,
+        ]);
+        expect($stockDelivery->refresh()->costsMissingForPutAway())->toContain('Agent or supplier invoice');
+
+        $invoice = UpdateStockDeliveryCost::make()->action($invoice, ['amount' => 13320]);
+        expect($invoice->is_estimate)->toBeTrue()
+            ->and($invoice->is_waiting_for_invoice)->toBeTrue()
+            ->and($invoice->received_at)->not->toBeNull()
+            ->and($stockDelivery->refresh()->costsMissingForPutAway())->not->toContain('Agent or supplier invoice');
+
+        $invoice = UpdateStockDeliveryCost::make()->action($invoice, [
+            'amount'                 => 6500,
+            'received_at'            => today()->toDateString(),
+            'is_waiting_for_invoice' => false,
+        ]);
+        expect($invoice->is_estimate)->toBeFalse()
+            ->and($invoice->is_waiting_for_invoice)->toBeFalse()
+            ->and((float) $invoice->amount)->toBe(6500.0);
     });
 
     test('costs in another currency are converted to the delivery currency', function () {
@@ -3595,8 +3636,10 @@ test('an agent fills a container with part of a line, packs a product inside ano
         ->and((new StockDeliveryItemsExport($container))->headings())->toContain('cbm', 'packed_inside');
 
     $this->withoutVite();
-    $agentPageActionKeys = collect($this->get(route('grp.org.agent.stock_deliveries.show', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk()->viewData('page')['props']['pageHead']['actions'])->pluck('key');
-    expect($agentPageActionKeys)->toContain('csv', 'action');
+    $agentPageActions = collect($this->get(route('grp.org.agent.stock_deliveries.show', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk()->viewData('page')['props']['pageHead']['actions']);
+    expect($agentPageActions->pluck('key')->first())->toBe('delete_stock_delivery')
+        ->and($agentPageActions->pluck('key')->last())->toBe('dispatch_stock_delivery')
+        ->and(collect($agentPageActions->firstWhere('key', 'documents')['button'])->pluck('key')->all())->toBe(['csv', 'action']);
 
     $this->get(route('grp.org.agent.stock_deliveries.csv', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();
     $this->get(route('grp.org.agent.stock_deliveries.pdf', [$this->orgAgent->agent->organisation->slug, $container->slug]))->assertOk();
@@ -3609,6 +3652,10 @@ test('an agent fills a container with part of a line, packs a product inside ano
     $packedInside($inner, null)->assertOk();
 
     expect(ShowStockDelivery::make()->getStockDeliveryWeightAndVolume($container)['volume'])->toBe(0.85);
+
+    $this->patchJson(route('grp.models.stock-delivery-item.confirm', $outer->id))->assertOk();
+    $this->patchJson(route('grp.models.stock-delivery-item.ready-to-ship', $outer->id))->assertOk();
+    expect($outer->refresh()->state)->toBe(StockDeliveryItemStateEnum::READY_TO_SHIP);
 
     actingAs($this->adminGuest->getUser());
 });

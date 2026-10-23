@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Inventory\OrgStockMovement\OrgStockMovementReasonEnum;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
@@ -1328,6 +1329,33 @@ test('operators tick skos packed at a partner goods out location and the tick go
     $pack($packedSlot, false)->assertRedirect();
     expect($packedSlot->refresh()->packed_at)->toBeNull()
         ->and($packedSlot->packed_by_user_id)->toBeNull();
+});
+
+test('internal consumption takes the quantity used off its location as a consumption movement with the internal use reason', function () {
+    $warehouse = createWarehouse();
+    $shelf     = StoreLocation::make()->action($warehouse, Location::factory()->definition());
+    $orgStock  = createOrgStocks($this->organisation, array_slice(createStocks($this->group), 0, 1))[0];
+    $slot      = StoreLocationOrgStock::make()->action($orgStock, $shelf, ['type' => LocationStockTypeEnum::STORING]);
+    UpdateLocationOrgStock::make()->action($slot, ['quantity' => 10]);
+    $slot->refresh();
+
+    $consume = fn (array $data) => $this->patch(route('grp.models.location_org_stock.consume', $slot->id), $data);
+
+    $consume(['quantity' => 11])->assertSessionHasErrors('quantity');
+    $consume(['quantity' => 0])->assertSessionHasErrors('quantity');
+    expect((float) $slot->refresh()->quantity)->toBe(10.0);
+
+    $consume(['quantity' => 3, 'note' => 'packing boxes'])->assertRedirect()->assertSessionHasNoErrors();
+
+    $movement = $orgStock->orgStockMovements()->latest('id')->first();
+    expect((float) $slot->refresh()->quantity)->toBe(7.0)
+        ->and($movement->type)->toBe(OrgStockMovementTypeEnum::CONSUMPTION)
+        ->and($movement->flow)->toBe(OrgStockMovementFlowEnum::OUT)
+        ->and($movement->reason)->toBe(OrgStockMovementReasonEnum::INTERNAL_USE)
+        ->and((float) $movement->quantity)->toBe(-3.0)
+        ->and($movement->note)->toBe('packing boxes')
+        ->and($movement->user_id)->toBe($this->user->id)
+        ->and($movement->location_id)->toBe($shelf->id);
 });
 
 test('stock json endpoints refuse users without the warehouse or organisation inventory rule', function () {

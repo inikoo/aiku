@@ -5,10 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { computed, ref, reactive, watch, inject } from 'vue'
+import { computed, ref, reactive, watch, inject, nextTick } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import axios from 'axios'
+import { debounce, type DebouncedFunc } from 'lodash-es'
 import Table from '@/Components/Table/Table.vue'
 import NumberWithButtonSave from '@/Components/NumberWithButtonSave.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -21,7 +22,7 @@ import { routeType } from '@/types/route'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faExclamationCircle as falExclamationCircle } from '@fal'
+import { faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faTimes, faExclamationCircle as falExclamationCircle } from '@fal'
 import { faExclamationCircle, faSpinner } from '@fas'
 import ConfirmPopup from 'primevue/confirmpopup'
 import InputNumber from 'primevue/inputnumber'
@@ -30,9 +31,10 @@ import { Dialog } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { ctrans } from '@/Composables/useTrans'
 
-library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, falExclamationCircle)
+library.add(faInventory, faBox, faSpellCheck, faBoxCheck, faTrashAlt, faExclamationCircle, faSpinner, faClipboardList, faSeedling, faTruck, faCheck, faClipboardCheck, faCheckDouble, faTimesCircle, faSave, faUndoAlt, faHandHoldingBox, faBoxOpen, faTimes, falExclamationCircle)
 
 import DiscontinueSuggestion from "@/Components/Procurement/DiscontinueSuggestion.vue"
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 const props = defineProps<{
     data: { data?: any[], container_lines?: { id: number, code: string | null, packed_inside_stock_delivery_item_id: number | null }[] },
     tab?: string,
@@ -174,6 +176,23 @@ const selectedLocationCode = reactive<Record<number, string | null>>({})
 const isModalLocation = ref(false)
 const selectedOtherLocation = reactive<Record<number, { id: number, code: string } | null>>({})
 const selectedItemValue = ref<any>(null)
+const otherLocationItemId = ref<number | null>(null)
+const otherLocationSelect = ref<InstanceType<typeof PureMultiselectInfiniteScroll> | null>(null)
+
+async function startOtherLocation(item: any) {
+    otherLocationItemId.value = item.id
+    await nextTick()
+    otherLocationSelect.value?.multiselectRef?.focus()
+    otherLocationSelect.value?.multiselectRef?.open()
+}
+
+function selectOtherLocation(item: any, location: { id: number, code: string } | null) {
+    if (!location) {
+        return
+    }
+    selectedOtherLocation[item.id] = { id: location.id, code: location.code }
+    otherLocationItemId.value = null
+}
 
 function findLocation(locationsList: any[], locationCode: string | null) {
     return locationsList?.find(location => location.location_code == locationCode) || locationsList?.[0]
@@ -310,32 +329,61 @@ async function saveAllCosts() {
 }
 
 const cbmInContainerDraft = reactive<Record<number, number | null>>({})
+const cbmInContainerSaved = reactive<Record<number, { value: number | null, isSet: boolean }>>({})
 const savingCbmInContainerId = ref<number | null>(null)
+const cbmInContainerSaves = new Map<number, DebouncedFunc<() => void>>()
 
 watch(() => props.data?.data, (items) => {
+    cbmInContainerSaves.forEach(save => save.cancel())
+    cbmInContainerSaves.clear()
+
     for (const id of Object.keys(cbmInContainerDraft)) {
         delete cbmInContainerDraft[Number(id)]
+        delete cbmInContainerSaved[Number(id)]
     }
 
     for (const item of items ?? []) {
         if (item.cbmInContainerRoute) {
-            cbmInContainerDraft[item.id] = item.cbm_in_container === null ? null : Number(item.cbm_in_container)
+            const value = item.cbm_in_container === null ? null : Number(item.cbm_in_container)
+            cbmInContainerDraft[item.id] = value
+            cbmInContainerSaved[item.id] = { value, isSet: item.is_cbm_in_container_set }
         }
     }
 }, { immediate: true })
 
-function isCbmInContainerChanged(item: any) {
-    const draft = cbmInContainerDraft[item.id]
+function isCbmInContainerChanged(item: any, value: number | null) {
+    const saved = cbmInContainerSaved[item.id]
 
-    if (draft === null || draft === undefined) {
-        return item.is_cbm_in_container_set
+    if (value === null) {
+        return saved.isSet
     }
 
-    return item.cbm_in_container === null || Number(draft) !== Number(item.cbm_in_container)
+    return !saved.isSet || saved.value === null || Number(value) !== Number(saved.value)
+}
+
+function queueCbmInContainerSave(item: any, value: number | null) {
+    cbmInContainerDraft[item.id] = value
+
+    if (!cbmInContainerSaves.has(item.id)) {
+        cbmInContainerSaves.set(item.id, debounce(() => saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null), 800))
+    }
+
+    cbmInContainerSaves.get(item.id)?.()
+}
+
+function flushCbmInContainerSave(item: any) {
+    cbmInContainerSaves.get(item.id)?.flush()
 }
 
 async function saveCbmInContainer(item: any, value: number | null) {
-    if (!item.cbmInContainerRoute) {
+    cbmInContainerSaves.get(item.id)?.cancel()
+
+    const itemCbm = item.volume === null ? null : Number(item.volume)
+    if (value !== null && value === itemCbm) {
+        value = null
+    }
+
+    if (!item.cbmInContainerRoute || !isCbmInContainerChanged(item, value)) {
         return
     }
 
@@ -343,8 +391,11 @@ async function saveCbmInContainer(item: any, value: number | null) {
 
     try {
         await axios.patch(route(item.cbmInContainerRoute.name, item.cbmInContainerRoute.parameters), { cbm_in_container: value })
-        await reloadStockDelivery()
-        notify({ title: ctrans('Success'), text: ctrans('CBM in container updated'), type: 'success' })
+        cbmInContainerSaved[item.id] = { value: value ?? itemCbm, isSet: value !== null }
+        if (value === null) {
+            cbmInContainerDraft[item.id] = itemCbm
+        }
+        router.reload({ only: ['box_stats'] })
     } catch (error: any) {
         notify({
             title: ctrans('Something went wrong'),
@@ -551,9 +602,10 @@ async function savePackedInside(item: any, outerItemId: number | null) {
         </template>
 
         <template #cell(volume)="{ item }">
-            <div class="space-y-1">
-                <div v-tooltip="ctrans('CBM of the item')" class="whitespace-nowrap">
-                    <span v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</span>
+            <div class="grid w-max grid-cols-[auto_auto] items-center gap-x-2 gap-y-1">
+                <span class="text-xs text-gray-500">{{ ctrans('Item') }}</span>
+                <span class="whitespace-nowrap tabular-nums">
+                    <template v-if="item.volume !== null">{{ locale.number(item.volume) }} m³</template>
                     <FontAwesomeIcon
                         v-else
                         v-tooltip="ctrans('Unknown CBM')"
@@ -561,71 +613,62 @@ async function savePackedInside(item: any, outerItemId: number | null) {
                         class="text-orange-500"
                         fixed-width aria-hidden="true"
                     />
-                </div>
+                </span>
 
-                <div v-if="packedInsideCode(item)" class="whitespace-nowrap text-xs text-amber-700">
-                    {{ ctrans('In container') }}: 0 m³
-                </div>
-                <div v-else-if="item.cbmInContainerRoute" class="flex items-center gap-1">
-                    <InputNumber
-                        v-model="cbmInContainerDraft[item.id]"
-                        v-tooltip="ctrans('CBM in container')"
-                        :min="0"
-                        :maxFractionDigits="4"
-                        suffix=" m³"
+                <template v-if="packedInsideCode(item) || item.cbmInContainerRoute || item.is_cbm_in_container_set">
+                    <span class="text-xs text-gray-500">{{ ctrans('In container') }}</span>
+                    <span v-if="packedInsideCode(item)" class="whitespace-nowrap text-xs tabular-nums text-amber-700">0 m³</span>
+                    <div v-else-if="item.cbmInContainerRoute" class="flex items-center gap-1">
+                        <InputNumber
+                            :modelValue="cbmInContainerDraft[item.id]"
+                            :aria-label="ctrans('CBM in container')"
+                            :min="0"
+                            :maxFractionDigits="4"
+                            suffix=" m³"
+                            size="small"
+                            :placeholder="item.volume !== null ? `${locale.number(item.volume)} m³` : undefined"
+                            inputClass="w-24 text-right"
+                            @input="(event: { value: number | string | null }) => queueCbmInContainerSave(item, typeof event.value === 'number' ? event.value : null)"
+                            @blur="flushCbmInContainerSave(item)"
+                            @keydown.enter="flushCbmInContainerSave(item)"
+                        />
+                        <LoadingIcon v-if="savingCbmInContainerId === item.id" />
+                        <Button
+                            v-else-if="cbmInContainerSaved[item.id]?.isSet"
+                            :tooltip="ctrans('Use the CBM of the item again')"
+                            type="tertiary"
+                            size="xs"
+                            :loading="savingCbmInContainerId === item.id"
+                            :disabled="savingCbmInContainerId === item.id"
+                            @click="saveCbmInContainer(item, null)"
+                            icon="fal fa-undo-alt"
+                        >
+                            <!-- <template #icon>
+                                <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
+                            </template> -->
+                        </Button>
+                    </div>
+                    <span v-else class="whitespace-nowrap tabular-nums">{{ locale.number(item.cbm_in_container) }} m³</span>
+                </template>
+
+                <template v-if="item.packedInsideRoute && !packedItemCodes(item).length && (item.packed_inside_stock_delivery_item_id || outerLineOptions(item).length)">
+                    <span class="text-xs text-gray-500">{{ ctrans('Packed inside') }}</span>
+                    <Select
+                        :modelValue="item.packed_inside_stock_delivery_item_id"
+                        :options="outerLineOptions(item)"
+                        optionLabel="label"
+                        optionValue="value"
+                        :placeholder="ctrans('None')"
+                        :aria-label="ctrans('Packed inside another product')"
+                        filter
+                        showClear
                         size="small"
-                        :placeholder="ctrans('In container')"
-                        :disabled="savingCbmInContainerId === item.id"
-                        inputClass="w-24 text-right"
-                        @keydown.enter="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
+                        :loading="savingPackedInsideId === item.id"
+                        :disabled="savingPackedInsideId === item.id"
+                        class="w-40"
+                        @update:modelValue="(value: number | null) => savePackedInside(item, value ?? null)"
                     />
-                    <Button
-                        v-if="isCbmInContainerChanged(item)"
-                        :tooltip="ctrans('Save the CBM in container')"
-                        type="tertiary"
-                        size="xs"
-                        :loading="savingCbmInContainerId === item.id"
-                        :disabled="savingCbmInContainerId === item.id"
-                        @click="saveCbmInContainer(item, cbmInContainerDraft[item.id] ?? null)"
-                    >
-                        <template #icon>
-                            <FontAwesomeIcon icon="fal fa-save" class="text-green-600" fixed-width aria-hidden="true" />
-                        </template>
-                    </Button>
-                    <Button
-                        v-else-if="item.is_cbm_in_container_set"
-                        :tooltip="ctrans('Use the CBM of the item again')"
-                        type="tertiary"
-                        size="xs"
-                        :loading="savingCbmInContainerId === item.id"
-                        :disabled="savingCbmInContainerId === item.id"
-                        @click="saveCbmInContainer(item, null)"
-                    >
-                        <template #icon>
-                            <FontAwesomeIcon icon="fal fa-undo-alt" class="text-gray-500" fixed-width aria-hidden="true" />
-                        </template>
-                    </Button>
-                </div>
-                <div v-else-if="item.is_cbm_in_container_set" v-tooltip="ctrans('CBM in container')" class="whitespace-nowrap text-xs text-gray-500">
-                    {{ ctrans('In container') }}: {{ locale.number(item.cbm_in_container) }} m³
-                </div>
-
-                <Select
-                    v-if="item.packedInsideRoute && !packedItemCodes(item).length && (item.packed_inside_stock_delivery_item_id || outerLineOptions(item).length)"
-                    :modelValue="item.packed_inside_stock_delivery_item_id"
-                    :options="outerLineOptions(item)"
-                    optionLabel="label"
-                    optionValue="value"
-                    :placeholder="ctrans('Packed inside…')"
-                    :aria-label="ctrans('Packed inside another product')"
-                    filter
-                    showClear
-                    size="small"
-                    :loading="savingPackedInsideId === item.id"
-                    :disabled="savingPackedInsideId === item.id"
-                    class="w-40"
-                    @update:modelValue="(value: number | null) => savePackedInside(item, value ?? null)"
-                />
+                </template>
             </div>
         </template>
 
@@ -905,13 +948,29 @@ async function savePackedInside(item: any, outerItemId: number | null) {
                     />
                     <span v-else class="text-red-500 italic text-xs">{{ ctrans('No location yet') }}</span>
                     <Button
+                        v-if="otherLocationItemId !== item.id || !item.searchLocationsRoute"
                         v-tooltip="ctrans('Book in to any location in the warehouse')"
                         :label="item.locations?.length || selectedOtherLocation[item.id] ? ctrans('Other location') : ctrans('Choose location')"
                         icon="fal fa-inventory"
                         :type="item.locations?.length || selectedOtherLocation[item.id] ? 'tertiary' : 'secondary'"
                         size="xs"
-                        @click="() => { isModalLocation = true; selectedItemValue = item }"
+                        @click="() => item.searchLocationsRoute ? startOtherLocation(item) : (isModalLocation = true, selectedItemValue = item)"
                     />
+                </div>
+                <div v-if="otherLocationItemId === item.id && item.searchLocationsRoute" class="flex items-center gap-x-1 w-64" @keydown.esc="otherLocationItemId = null">
+                    <PureMultiselectInfiniteScroll
+                        :ref="(el: any) => { otherLocationSelect = el }"
+                        :modelValue="selectedOtherLocation[item.id]?.id ?? null"
+                        :fetchRoute="item.searchLocationsRoute"
+                        labelProp="code"
+                        valueProp="id"
+                        fetchOnOpen
+                        :placeholder="ctrans('Search location code')"
+                        @selectedObject="(location: any) => selectOtherLocation(item, location)"
+                    />
+                    <button type="button" class="h-7 w-7 shrink-0 text-gray-400 hover:text-gray-600" :aria-label="ctrans('Cancel')" @click="otherLocationItemId = null">
+                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                    </button>
                 </div>
                 <label
                     v-if="!item.has_picking_location && (item.locations?.length || selectedOtherLocation[item.id])"

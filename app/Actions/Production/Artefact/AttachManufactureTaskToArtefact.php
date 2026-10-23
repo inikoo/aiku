@@ -14,6 +14,7 @@ use App\Actions\Production\ManufactureTaskSession\RecalculateUntargetedManufactu
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Models\Production\JobOrderItem;
 use App\Models\Production\Artefact;
+use App\Models\Production\ArtefactManufactureTask;
 use App\Models\Production\ManufactureTask;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
@@ -72,7 +73,21 @@ class AttachManufactureTaskToArtefact extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->asAction || filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN) || $validator->errors()->isNotEmpty()) {
+        if ($this->asAction || $validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $manufactureTask = ManufactureTask::find($this->get('manufacture_task_id'));
+        $unitsPerArtefact = $this->get('units_per_artefact', 1);
+        $currentUnits     = $this->artefact->manufactureTasks()->find($manufactureTask->id)?->pivot->units_per_artefact;
+
+        if ((float) $currentUnits !== (float) $unitsPerArtefact && ArtefactManufactureTask::countsSkoPackAgain($this->artefact, (bool) $manufactureTask->is_recorded_in_kg, $unitsPerArtefact)) {
+            $validator->errors()->add('units_per_artefact', ArtefactManufactureTask::skoPackCountedAgainMessage(collect([$this->artefact])));
+
+            return;
+        }
+
+        if (filter_var($this->get('confirm_open_jobs'), FILTER_VALIDATE_BOOLEAN)) {
             return;
         }
 

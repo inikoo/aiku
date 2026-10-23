@@ -12,6 +12,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\AppointmentType;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -36,6 +37,9 @@ class StoreIrisAppointment extends IrisAction
                 ]);
             }
 
+            $startsAt = Carbon::parse($modelData['date'].' '.$modelData['time'], $shop->timezone?->name ?? 'UTC');
+            $userId   = GetAppointmentTypeAvailableSlots::make()->freeStaffId($appointmentType, $startsAt, $startsAt->copy()->addMinutes($appointmentType->duration_minutes));
+
             return StoreAppointment::make()->action($shop, array_filter([
                 'appointment_type_id' => $appointmentType->id,
                 'starts_at'           => $modelData['date'].' '.$modelData['time'],
@@ -46,8 +50,9 @@ class StoreIrisAppointment extends IrisAction
                 'notes'               => Arr::get($modelData, 'notes'),
                 'marketing_opt_in'    => (bool) Arr::get($modelData, 'marketing_opt_in', false),
                 'customer_id'         => $customerId,
+                'user_id'             => $userId,
                 'source'              => AppointmentSourceEnum::WEBSITE->value,
-                'state'               => AppointmentStateEnum::REQUESTED->value,
+                'state'               => $userId ? AppointmentStateEnum::ACCEPTED->value : AppointmentStateEnum::REQUESTED->value,
             ], fn ($value) => !is_null($value) && $value !== ''));
         });
     }
@@ -99,6 +104,7 @@ class StoreIrisAppointment extends IrisAction
 
         return [
             'id'               => $appointment->id,
+            'state'            => $appointment->state->value,
             'appointment_type' => $appointment->appointmentType->name,
             'starts_at'        => $appointment->starts_at->copy()->setTimezone($timezone)->format('Y-m-d H:i'),
             'ends_at'          => $appointment->ends_at->copy()->setTimezone($timezone)->format('H:i'),

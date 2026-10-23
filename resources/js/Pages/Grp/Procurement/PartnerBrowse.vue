@@ -15,10 +15,9 @@ import { useFormatTime } from "@/Composables/useFormatTime"
 import { usePartnerProductionStages, type PartnerProductionStage } from "@/Composables/usePartnerProductionStages"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faHistory } from "@fal"
-library.add(faHistory)
+import { faHistory, faExclamationTriangle } from "@fal"
+library.add(faHistory, faExclamationTriangle)
 import { ctrans } from "@/Composables/useTrans"
-import { snapToBatch } from "@/Composables/snapToBatch"
 import { PageHeadingTypes } from "@/types/PageHeading"
 
 type CategoryCard = { id: number, slug: string, code: string, name: string, image: object | null, number_current_products?: number, type?: string }
@@ -89,6 +88,7 @@ function goTo(params: Record<string, string | number>) {
 const browseTab = ref<"categories" | "collections">("categories")
 
 const quantities = ref<Record<number, number>>({})
+const sendingQuantities: Record<number, number> = {}
 const commitTimers: Record<number, ReturnType<typeof setTimeout>> = {}
 
 const HISTORY_PREVIEW = 2
@@ -112,9 +112,8 @@ function setQuantity(product: ProductCard, quantity: number) {
 }
 
 function commitQuantity(product: ProductCard) {
-    const quantity = snapToBatch(product.ordered_quantity ?? 0, quantityFor(product), product.order_quantum)
-    quantities.value[product.id] = quantity
-    if (quantity === (product.ordered_quantity ?? 0) || !product.org_stock_slug) {
+    const quantity = quantityFor(product)
+    if (quantity === (product.ordered_quantity ?? 0) || quantity === sendingQuantities[product.id] || !product.org_stock_slug) {
         return
     }
 
@@ -123,7 +122,9 @@ function commitQuantity(product: ProductCard) {
         preserveState: true,
         only: ["miniCart", "products"],
         onSuccess: () => { delete quantities.value[product.id] },
+        onFinish: () => { if (sendingQuantities[product.id] === quantity) { delete sendingQuantities[product.id] } },
     }
+    sendingQuantities[product.id] = quantity
 
     const organisation = route().params["organisation"]
 
@@ -136,14 +137,14 @@ function commitQuantity(product: ProductCard) {
         } else {
             router.patch(
                 route("grp.org.procurement.org_partners.show.shopping_list.update", [organisation, props.orgPartner.id, product.shopping_list_item_id]),
-                { quantity },
+                { quantity, break_batch: true },
                 reloadOptions
             )
         }
     } else if (quantity > 0) {
         router.post(
             route(props.addRoute.name, [...props.addRoute.parameters, product.org_stock_id]),
-            { quantity },
+            { quantity, break_batch: true },
             reloadOptions
         )
     }
@@ -315,8 +316,13 @@ function commitQuantity(product: ProductCard) {
                                 @update:modelValue="(value: number) => setQuantity(product, value)"
                             />
                             <span
-                                v-if="product.order_quantum > 1"
-                                v-tooltip="ctrans('Made in batches: ordered in multiples of :quantum SKOs', { quantum: product.order_quantum })"
+                                v-if="product.order_quantum > 1 && quantityFor(product) % product.order_quantum"
+                                v-tooltip="ctrans('Not a whole batch: the hub makes :quantum SKOs at a time, so a part batch can take longer to be made', { quantum: product.order_quantum })"
+                                class="cursor-help whitespace-nowrap text-xs font-medium text-amber-600"
+                            ><FontAwesomeIcon icon="fal fa-exclamation-triangle" fixed-width aria-hidden="true" /> {{ ctrans("Part batch") }}</span>
+                            <span
+                                v-else-if="product.order_quantum > 1"
+                                v-tooltip="ctrans('Made in batches of :quantum SKOs', { quantum: product.order_quantum })"
                                 class="cursor-help text-xs tabular-nums text-gray-400"
                             >×{{ product.order_quantum }}</span>
                             <button

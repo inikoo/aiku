@@ -9,13 +9,16 @@
 namespace App\Actions\Dropshipping\WooCommerce\Product;
 
 use App\Actions\Traits\Authorisations\WithCustomerSalesChannelEditAuthorisation;
+use App\Actions\Dropshipping\Portfolio\Logs\StorePlatformPortfolioLog;
+use App\Actions\Dropshipping\Portfolio\Logs\UpdatePlatformPortfolioLog;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Dropshipping\WithPortfolioErrorResponse;
 use App\Actions\OrgAction;
+use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsStatusEnum;
+use App\Enums\Ordering\PlatformLogs\PlatformPortfolioLogsTypeEnum;
 use App\Events\UploadProductToSalesChannelProgressEvent;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Dropshipping\WooCommerceUser;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\MaxAttemptsExceededException;
@@ -45,8 +48,8 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public const int MAX_CONCURRENT_CREATES_PER_STORE = 4;
 
     /**
-     * At 4 creates at a time a store takes ~750 products an hour, so an 8k bulk upload waits in
-     * DispatchWooUploadQueue for ~11h, and an upload's window must outlast the whole upload.
+     * Counted from when the create is dispatched for a free slot: the wait in DispatchWooUploadQueue
+     * does not use it up, as a slow store can take days over a big upload.
      */
     public const int RETRY_FOR_HOURS = 24;
 
@@ -68,17 +71,15 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     public function handle(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null): Portfolio
     {
         try {
-            $result = true;
-            if ($checkConnection) {
-                $result = $wooCommerceUser->checkConnection();
-            }
+            $connection = $checkConnection ? $wooCommerceUser->checkConnectionWithError() : ['success' => true, 'message' => null];
 
-            if ($result) {
+            if ($connection['success']) {
                 $portfolio = StoreWooCommerceProduct::run($wooCommerceUser, $portfolio);
             } else {
                 $wooCommerceUser->customerSalesChannel->update([
                     'ban_stock_update_util' => now()->addSeconds(10)
                 ]);
+                $this->recordConnectionFailure($portfolio, $connection['message'] ?? __('Could not connect to your store, please check your channel connection and try again.'));
             }
         } catch (\Throwable $e) {
             $this->recordPortfolioUploadFailure($portfolio, $e);
@@ -96,10 +97,34 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
     }
 
     /**
-     * A job only runs once DispatchWooUploadQueue found it a free slot, and frees it to the next in
-     * the store's list. A burst of finishes can start a job for a slot another job then takes; that
-     * one waits a beat holding its unique lock, as back in the list a finishing create could pop it
-     * while the lock is still held and its dispatch would be dropped.
+     * Must not say "timed out": the nightly RetryTimedOutWooUploads would queue it again while the
+     * store is still turning us away.
+     */
+    private function recordConnectionFailure(Portfolio $portfolio, string $message): void
+    {
+        $log = StorePlatformPortfolioLog::run($portfolio, [
+            'type' => PlatformPortfolioLogsTypeEnum::UPLOAD
+        ]);
+
+        UpdatePlatformPortfolioLog::run($log, [
+            'status'   => PlatformPortfolioLogsStatusEnum::FAIL,
+            'response' => $message
+        ]);
+
+        UpdatePortfolio::run($portfolio, [
+            'errors_response' => $this->portfolioErrorResponse($message)
+        ]);
+    }
+
+    /**
+     * A job only runs once DispatchWooUploadQueue reserved it a free slot, and frees it to the next
+     * in the store's list. A burst of finishes can still start a job for a slot another job then
+     * takes; that one keeps its reservation and waits a beat holding its unique lock, as back in the
+     * list a finishing create could pop it while the lock is still held and its dispatch would be
+     * dropped.
+     *
+     * $retryUntil is unused but must stay: jobs queued before 22 Oct carry it, and Laravel Actions
+     * only passes the job in when asJob takes more parameters than the job was queued with.
      */
     public function asJob(JobDecorator $job, WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): void
     {
@@ -112,6 +137,7 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
                 ->block(0)
                 ->then(
                     function () use ($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress) {
+                        DispatchWooUploadQueue::releaseReservedSlot($wooCommerceUser, $portfolio);
                         $this->handle($wooCommerceUser, $portfolio, $checkConnection, $bulkProgress);
 
                         return true;
@@ -125,6 +151,7 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         }
 
         if (!$hadSlot) {
+            DispatchWooUploadQueue::reserveSlot($wooCommerceUser, $portfolio);
             $job->release(DispatchWooUploadQueue::CHECK_AGAIN_SECONDS);
         }
     }
@@ -134,15 +161,6 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         return 'woo_product_create_'.$wooCommerceUser->id;
     }
 
-    public function giveUpWaiting(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, ?array $bulkProgress): void
-    {
-        $this->recordGaveUpWaiting($portfolio);
-
-        if ($bulkProgress) {
-            $this->broadcastBulkProgress($wooCommerceUser, $portfolio->refresh(), $bulkProgress);
-        }
-    }
-
     private function recordGaveUpWaiting(Portfolio $portfolio): void
     {
         UpdatePortfolio::run($portfolio, [
@@ -150,12 +168,9 @@ class StoreNewProductToCurrentWooCommerce extends OrgAction implements ShouldBeU
         ]);
     }
 
-    /**
-     * An upload that waited in the store's list keeps the window it was given when it was queued.
-     */
-    public function getJobRetryUntil(WooCommerceUser $wooCommerceUser, Portfolio $portfolio, bool $checkConnection = true, ?array $bulkProgress = null, ?int $retryUntil = null): \DateTimeInterface
+    public function getJobRetryUntil(): \DateTimeInterface
     {
-        return $retryUntil ? Carbon::createFromTimestamp($retryUntil) : now()->addHours(self::RETRY_FOR_HOURS);
+        return now()->addHours(self::RETRY_FOR_HOURS);
     }
 
     /**

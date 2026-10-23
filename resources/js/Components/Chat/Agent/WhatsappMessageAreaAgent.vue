@@ -160,15 +160,6 @@ const { closingAt, closingIn, onClosing: onClosingEvent, keepOpen } = useChatClo
 const { waitingIn, setWaiting, onCustomerMessage: onCustomerWaitMessage } = useChatWaitingForCustomer(chatSession, () =>
     chatSession.value?.ulid ? route("grp.org.chat.agents.whatsapp.sessions.wait_for_customer", [props.organisationSlug, chatSession.value.ulid]) : null
 )
-const onSuggestedAction = async (action: "close" | "wait") => {
-    if (action === "wait") {
-        setWaiting(72)
-        return
-    }
-    if (!chatSession.value?.ulid) return
-    await axios.patch(route("grp.org.chat.agents.whatsapp.sessions.close", [(chatSession.value as any)?.organisation?.id, chatSession.value.ulid]))
-    emit("close-session")
-}
 const onWaitPicked = (event: Event) => {
     const select = event.target as HTMLSelectElement
     const hours = Number(select.value)
@@ -1314,7 +1305,7 @@ onUnmounted(() => {
                 </button>
             </div>
 
-            <ChatAiDraftBox whatsapp :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" @action="onSuggestedAction" />
+            <ChatAiDraftBox whatsapp :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" />
 
             <div class="rounded-xl border border-gray-200 bg-white shadow-sm focus-within:border-gray-400 focus-within:shadow-md transition-shadow">
                 <div v-if="hasTemplate"

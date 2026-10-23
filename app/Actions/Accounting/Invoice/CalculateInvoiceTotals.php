@@ -56,6 +56,11 @@ class CalculateInvoiceTotals extends OrgAction
             $taxAmount = $invoice->order->getMarketplaceTaxAmount() ?? $taxAmount;
         }
 
+        $creditNoteAmount = data_get($invoice->data, 'credit_note_amount');
+        if ($invoice->type == InvoiceTypeEnum::REFUND && $creditNoteAmount && abs($netAmount + $taxAmount + $creditNoteAmount) < 0.015) {
+            $taxAmount = round(-$creditNoteAmount - $netAmount, 2);
+        }
+
         $totalAmount = $netAmount + $taxAmount;
 
         data_set($modelData, 'rental_amount', $rentalNet);

@@ -4,7 +4,7 @@
   -->
 
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3"
+import { Head, router } from "@inertiajs/vue3"
 import { ref } from "vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -12,7 +12,7 @@ import DashboardSettings from "@/Components/DataDisplay/Dashboard/DashboardSetti
 import AcquisitionTab from "@/Components/Marketing/V2/AcquisitionTab.vue"
 import OrdersTab from "@/Components/Marketing/V2/OrdersTab.vue"
 import JourneyTab from "@/Components/Marketing/V2/JourneyTab.vue"
-import { useTabChange } from "@/Composables/tab-change"
+import ComparePeriod, { CompareProp } from "@/Components/Marketing/V2/ComparePeriod.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeadingTypes } from "@/types/PageHeading"
 import { Tabs as TSTabs } from "@/types/Tabs"
@@ -28,13 +28,34 @@ const props = defineProps<{
     tabs: TSTabs
     intervals: Intervals
     settings: Settings
+    compare: CompareProp
     acquisition?: InstanceType<typeof AcquisitionTab>["$props"]["data"]
     orders?: InstanceType<typeof OrdersTab>["$props"]["data"]
     journey?: InstanceType<typeof JourneyTab>["$props"]["data"]
 }>()
 
 const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => {
+    if (tabSlug === currentTab.value) {
+        return
+    }
+
+    const url = new URL(window.location.href)
+    const target = new URLSearchParams({ tab: tabSlug })
+    ;["compare", "compare_from", "compare_to"].forEach(key => {
+        const value = url.searchParams.get(key)
+        if (value) {
+            target.set(key, value)
+        }
+    })
+
+    router.get(`${url.pathname}?${target.toString()}`, {}, {
+        only: [tabSlug],
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => { currentTab.value = tabSlug },
+    })
+}
 </script>
 
 <template>
@@ -46,8 +67,12 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
             :intervals="intervals"
             :settings="settings"
             :currentTab="currentTab"
-            :reloadOnly="['intervals', currentTab]"
-        />
+            :reloadOnly="['intervals', 'compare', currentTab]"
+        >
+            <template #actions>
+                <ComparePeriod v-if="currentTab !== 'journey'" :compare="compare" :currentTab="currentTab" />
+            </template>
+        </DashboardSettings>
     </div>
     <AcquisitionTab v-if="currentTab === 'acquisition' && acquisition" :key="`${acquisition.from}-${acquisition.to}`" :data="acquisition" />
     <OrdersTab v-if="currentTab === 'orders' && orders" :data="orders" />

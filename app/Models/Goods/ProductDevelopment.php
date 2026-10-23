@@ -66,6 +66,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentMember> $members
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentStage> $stages
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentItem> $items
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentDesignSection> $designSections
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentArtwork> $artworks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductDevelopmentChecklistItem> $checklistItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Brand> $brands
  * @mixin \Eloquent
@@ -198,6 +200,16 @@ class ProductDevelopment extends Model implements Auditable, HasMedia
     public function designRounds(): HasMany
     {
         return $this->hasMany(ProductDevelopmentDesignRound::class);
+    }
+
+    public function designSections(): HasMany
+    {
+        return $this->hasMany(ProductDevelopmentDesignSection::class)->orderBy('position')->orderBy('id');
+    }
+
+    public function artworks(): HasMany
+    {
+        return $this->hasMany(ProductDevelopmentArtwork::class);
     }
 
     public function brands(): MorphToMany

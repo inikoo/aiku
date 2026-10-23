@@ -58,7 +58,7 @@ class GetAgentContainerInvoiceData
             ],
             'ledger_route'         => $organisation->agent ? [
                 'name'       => 'grp.org.agent.accounting.ledger.index',
-                'parameters' => [$organisation->slug, 'filter' => ['global' => $stockDelivery->reference]],
+                'parameters' => ['organisation' => $organisation->slug, 'filter' => ['global' => $stockDelivery->reference]],
             ] : null,
         ];
     }

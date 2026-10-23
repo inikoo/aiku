@@ -121,6 +121,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('product-developments:remind')->dailyAt('08:00')->timezone('Europe/London')->onOneServer();
         $schedule->command('appointments:close-past')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
         $schedule->command('appointments:remind')->everyFifteenMinutes()->onOneServer()->withoutOverlapping();
+        $schedule->command('appointments:reconcile-google-calendar')->everyTwoHours()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:sync-leave-cover-roles')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('hr:add-leave-cover-collaborators')->hourly()->onOneServer()->withoutOverlapping();
         $schedule->command('currency:warm')->everyFourHours()->onOneServer()->withoutOverlapping(30);
@@ -1260,6 +1261,15 @@ class Kernel extends ConsoleKernel
             );
 
             $this->logSchedule(
+                $schedule->command('hydrate:shop-customer-value-curve')->monthlyOn(1, '04:00')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
+                    monitorSlug: 'HydrateShopCustomerValueCurve',
+                ),
+                name: 'HydrateShopCustomerValueCurve',
+                type: 'command',
+                scheduledAt: now()->format('H:i')
+            );
+
+            $this->logSchedule(
                 $schedule->command('hydrate:shop-sales-forecast')->dailyAt('00:40')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
                     monitorSlug: 'ForecastShopSales',
                 ),
@@ -1637,15 +1647,6 @@ class Kernel extends ConsoleKernel
                     monitorSlug: 'HydrateChatKnowledge',
                 ),
                 name: 'HydrateChatKnowledge',
-                type: 'command',
-                scheduledAt: now()->format('H:i')
-            );
-
-            $this->logSchedule(
-                $schedule->command('chat:hydrate-reply-examples')->dailyAt('03:50')->timezone('UTC')->onOneServer()->withoutOverlapping()->sentryMonitor(
-                    monitorSlug: 'HydrateChatReplyExamples',
-                ),
-                name: 'HydrateChatReplyExamples',
                 type: 'command',
                 scheduledAt: now()->format('H:i')
             );

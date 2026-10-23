@@ -60,6 +60,8 @@ Route::get('architecture', function () {
         'Cache-Control' => 'public, max-age=3600',
     ]);
 })->name('architecture');
+Route::view('privacy', 'aiku-public.legal.privacy')->name('privacy');
+Route::view('terms', 'aiku-public.legal.terms')->name('terms');
 Route::get('sitemap.xml', ShowSitemap::class)->name('sitemap');
 Route::get('feed.xml', ShowFeed::class)->name('feed');
 Route::get(config('services.indexnow.key', 'indexnow-key-not-set').'.txt', function () {

@@ -29,6 +29,7 @@ class GetIrisAppointmentTypes extends IrisAction
                     'description'       => $appointmentType->description,
                     'meeting_mode'      => $appointmentType->meeting_mode->value,
                     'meeting_mode_label' => $appointmentType->meeting_mode->label(),
+                    'media'             => $appointmentType->media()?->value,
                     'location'          => $appointmentType->location,
                     'duration_minutes'  => $appointmentType->duration_minutes,
                     'slots'             => (object) GetAppointmentTypeAvailableSlots::run($appointmentType),

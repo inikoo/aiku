@@ -176,6 +176,10 @@ class SendChatMessageByGmail
             $subject = 'Re: '.$subject;
         }
 
+        if (! self::headerAddress($toAddress)) {
+            throw new RuntimeException("Reply {$chatMessage->id} not emailed: the conversation's address \"{$toAddress}\" is not one Gmail can send to");
+        }
+
         $to = $this->mailbox($toAddress, $toName);
 
         // Without a name of our own on the From line the customer's mail client shows whatever
@@ -192,7 +196,7 @@ class SendChatMessageByGmail
 
         $copies = array_map(
             fn (array $person) => $this->mailbox($person['address'], $person['name']),
-            Arr::get($chatMessage->metadata ?? [], 'email_cc', [])
+            array_filter(Arr::get($chatMessage->metadata ?? [], 'email_cc', []), fn (array $person) => self::headerAddress($person['address']))
         );
 
         if ($copies) {
@@ -389,6 +393,8 @@ class SendChatMessageByGmail
      */
     public static function mailbox(string $address, ?string $name): string
     {
+        $address = self::headerAddress($address) ?? $address;
+
         if (! $name) {
             return $address;
         }
@@ -400,6 +406,24 @@ class SendChatMessageByGmail
         };
 
         return "{$name} <{$address}>";
+    }
+
+    /**
+     * Gmail refuses a header naming an accented domain as written (info@mémorablemoments.be),
+     * so the domain goes in its punycode form. Null when the address still is not one, as an
+     * accented name before the @ is, which no header can carry.
+     */
+    public static function headerAddress(?string $address): ?string
+    {
+        $address = trim((string) $address);
+        $domain  = Str::afterLast($address, '@');
+
+        if (str_contains($address, '@') && preg_match('/[^\x20-\x7E]/', $domain)) {
+            $domain  = idn_to_ascii($domain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46) ?: $domain;
+            $address = Str::beforeLast($address, '@').'@'.$domain;
+        }
+
+        return filter_var($address, FILTER_VALIDATE_EMAIL) ? $address : null;
     }
 
     public static function encodeHeader(string $value): string

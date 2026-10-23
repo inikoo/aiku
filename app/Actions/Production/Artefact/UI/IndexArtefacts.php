@@ -327,6 +327,17 @@ class IndexArtefacts extends OrgAction
         ];
     }
 
+    public function getSetMixBatchProps(Production $production, bool $canEdit): ?array
+    {
+        if (!$canEdit) {
+            return null;
+        }
+
+        return [
+            'set_route' => ['name' => 'grp.models.production.artefacts.set_mix_batch', 'parameters' => [$production->id]],
+        ];
+    }
+
     public function getSetRecipeProps(Production $production, bool $canEdit): ?array
     {
         if (!$canEdit) {
@@ -546,6 +557,7 @@ class IndexArtefacts extends OrgAction
                 'set_shelf_life'     => $this->parent instanceof Production ? $this->getSetShelfLifeProps($this->parent, $this->canEdit) : null,
                 'set_state'          => $this->parent instanceof Production ? $this->getSetStateProps($this->parent, $this->canEdit) : null,
                 'set_recipe'         => $this->parent instanceof Production ? $this->getSetRecipeProps($this->parent, $this->canEdit) : null,
+                'set_mix_batch'      => $this->parent instanceof Production ? $this->getSetMixBatchProps($this->parent, $this->canEdit) : null,
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => $this->parent instanceof Group ? Arr::except(ArtefactsTabsEnum::navigation(), [ArtefactsTabsEnum::ARTEFACTS_HISTORIES->value]) : ArtefactsTabsEnum::navigation(),

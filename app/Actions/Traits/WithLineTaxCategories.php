@@ -387,7 +387,7 @@ trait WithLineTaxCategories
         $rowsTax = round(array_sum(array_column($breakdown, 'tax_amount')), 2);
         $rowsNet = round(array_sum(array_column($breakdown, 'net_amount')), 2);
 
-        if (abs($rowsTax - (float)$document->tax_amount) > 0.01 || abs($rowsNet - (float)$document->net_amount) > 0.01) {
+        if (round(abs($rowsTax - (float)$document->tax_amount), 2) > 0.01 || round(abs($rowsNet - (float)$document->net_amount), 2) > 0.01) {
             Log::warning('Tax rows do not add up to the stored header', [
                 'document'   => class_basename($document).' '.$document->id,
                 'header_net' => $document->net_amount,
@@ -397,6 +397,10 @@ trait WithLineTaxCategories
             ]);
 
             return [];
+        }
+
+        if (count($breakdown) == 1) {
+            $breakdown[array_key_first($breakdown)]['tax_amount'] = (float)$document->tax_amount;
         }
 
         return $breakdown;

@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Web\Redirect\StoreRedirectFromWebsite;
+use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -47,12 +48,15 @@ class ProcessUpdateWebpageUrl
         $key = config('iris.cache.webpage_path.prefix').'_'.$webpage->website_id.'_'.strtolower($oldUrl);
         Cache::forget($key);
 
-        StoreRedirectFromWebsite::make()->action($webpage->website, [
-            'from_url'     => $oldUrl,
-            'to_url'       => $webpage->id,
-        ]);
         UpdateWebpageCanonicalUrl::run($webpage);
         BreakWebpageCache::run($webpage);
+
+        if ($webpage->state == WebpageStateEnum::LIVE) {
+            StoreRedirectFromWebsite::make()->action($webpage->website, [
+                'from_url' => $oldUrl,
+                'to_url'   => $webpage->id,
+            ]);
+        }
     }
 
 

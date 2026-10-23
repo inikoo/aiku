@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import Modal from '../Utils/Modal.vue'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
@@ -17,11 +17,13 @@ const props = defineProps<{
         id: number
         slug: string
         refrence: string
+        state?: string
     }
 }>()
 const layout = inject('layout', layoutStructure)
 
 const isOpenModal = ref(false)
+const isWaiting = computed(() => props.deliveryNote.state === 'handling_blocked')
 
 const listBays = ref([])
 const isLoadingFetch = ref(false)
@@ -59,6 +61,10 @@ watch(isOpenModal, (newVal) => {
 const selectedBay = ref<number | null>(null)
 const isLoadingSubmitBay = ref<number|null|undefined>(undefined)
 const submitSelectBay = (bayId?: number|null) => {
+    if (isWaiting.value && bayId === null) {
+        isOpenModal.value = false
+        return
+    }
     if (bayId !== null) {
         if (isLoadingSubmitBay.value == bayId) return;
     }
@@ -66,7 +72,9 @@ const submitSelectBay = (bayId?: number|null) => {
     // Section: Submit
     router.patch(
         route(
-            'grp.models.delivery_note.state.set_as_picked_with_picked_bay',
+            isWaiting.value
+                ? 'grp.models.delivery_note.state.change_picked_bay'
+                : 'grp.models.delivery_note.state.set_as_picked_with_picked_bay',
             {
                 deliveryNote: props.deliveryNote.id
             }
@@ -81,6 +89,7 @@ const submitSelectBay = (bayId?: number|null) => {
                 isLoadingSubmitBay.value = bayId
             },
             onSuccess: () => {
+                isOpenModal.value = false
                 // notify({
                 //     title: ctrans("Success"),
                 //     text: ctrans("Successfully submit the data"),
@@ -113,7 +122,7 @@ const submitSelectBay = (bayId?: number|null) => {
 
         <Modal :isOpen="isOpenModal" width="w-full max-w-2xl" @close="isOpenModal = false">
             <div class="font-bold text-xl text-center mb-8">
-                {{ ctrans("Select picked bay to start packing") }}
+                {{ isWaiting ? ctrans("Select the bay where you leave the picked goods until the missing products arrive") : ctrans("Select picked bay to start packing") }}
             </div>
 
             <div class="mb-1">

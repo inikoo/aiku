@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { notify } from '@kyvg/vue3-notification'
 import { nextTick, ref, watch } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faPlus, faTrashAlt } from '@fal'
@@ -121,7 +122,10 @@ function sendAttach(payload: Record<string, unknown>) {
                 if (errors.confirm_open_jobs) {
                     pendingAttach = payload
                     openJobs.value = errors.confirm_open_jobs
+                    return
                 }
+                syncDraftsWithRecipe()
+                notify({ title: ctrans('Something went wrong'), text: Object.values(errors)[0], type: 'error' })
             },
             onFinish: () => processing.value = false,
         }

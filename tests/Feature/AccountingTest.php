@@ -35,6 +35,7 @@ use App\Actions\Catalogue\Shop\UI\GetFormatedShopTimeSeriesStats;
 use App\Actions\UI\Dashboards\GetGroupDashboardTimeSeriesData;
 use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
+use App\Actions\Accounting\Invoice\StoreStandaloneCreditNote;
 use App\Actions\Accounting\InvoiceTransaction\RefundTaxTransactions;
 use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
@@ -3784,6 +3785,46 @@ test('balance increase for compensation issues a settled credit note', function 
 
     expect($plain->payment_id)->toBeNull()
         ->and(Invoice::where('customer_id', $customer->id)->where('type', InvoiceTypeEnum::REFUND)->count())->toBe(1);
+});
+
+test('a compensation credit note totals exactly what was credited even when no penny net reaches it', function () {
+    $customer = StoreCustomer::make()->action($this->shop, Customer::factory()->definition());
+
+    $creditTransaction = IncreaseCreditTransactionCustomer::make()->action($customer, [
+        'amount'            => 13.65,
+        'reason'            => CreditTransactionReasonEnum::COMPENSATE_CUSTOMER->value,
+        'issue_credit_note' => true,
+    ]);
+
+    $creditNote = Invoice::where('customer_id', $customer->id)->where('type', InvoiceTypeEnum::REFUND)->first();
+    $payment    = Payment::find($creditTransaction->payment_id);
+
+    expect((float)$creditNote->total_amount)->toBe(-13.65)
+        ->and(round((float)$creditNote->net_amount + (float)$creditNote->tax_amount, 2))->toBe(-13.65)
+        ->and((float)$payment->amount)->toBe(-13.65)
+        ->and((float)$creditTransaction->amount)->toBe(13.65)
+        ->and(array_sum(array_column($creditNote->taxBreakdown(), 'tax_amount')))->toBe((float)$creditNote->tax_amount);
+
+    $recalculated = CalculateInvoiceTotals::make()->action($creditNote->refresh());
+
+    expect((float)$recalculated->total_amount)->toBe(-13.65);
+
+    $vat20 = TaxCategory::where('rate', 0.2)->firstOrFail();
+    $recalculated->update(['tax_category_id' => $vat20->id]);
+
+    foreach ([[13.65, 11.38, 2.27], [2.01, 1.68, 0.33], [0.21, 0.18, 0.03], [0.57, 0.48, 0.09], [12.0, 10.0, 2.0]] as [$amount, $net, $tax]) {
+        expect(StoreStandaloneCreditNote::make()->netForGross($amount, 0.2))->toBe($net);
+
+        $recalculated->update(['data' => ['credit_note_amount' => $amount]]);
+        $recalculated->invoiceTransactions()->update(['tax_category_id' => $vat20->id, 'net_amount' => -$net, 'gross_amount' => -$net]);
+
+        $atVat20 = CalculateInvoiceTotals::make()->action($recalculated->refresh());
+
+        expect((float)$atVat20->net_amount)->toBe(-$net)
+            ->and((float)$atVat20->tax_amount)->toBe(-$tax)
+            ->and((float)$atVat20->total_amount)->toBe(-$amount)
+            ->and(array_column($atVat20->taxBreakdown(), 'tax_amount'))->toBe([-$tax]);
+    }
 });
 
 test('credit transaction exchange rates keep their precision below four decimals', function () {

@@ -8,6 +8,7 @@
 import { router, usePage } from '@inertiajs/vue3'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ctrans } from '@/Composables/useTrans'
+import { packsLabel } from '@/Composables/packs'
 import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
 import InputText from 'primevue/inputtext'
@@ -339,8 +340,8 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
                     @click="quantityMade = remainingBatches !== null && mixBatch ? remainingBatches * mixBatch : remaining"
                 >
                     <span v-if="remainingBatches !== null" class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ ctrans(':batches × :size kg', { batches: remainingBatches, size: mixBatch ?? 0 }) }}</span>
-                    <span v-else class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ remaining }}</span>
-                    <span class="ml-3 text-xl text-gray-500"><template v-if="unit">{{ unit }} </template>{{ ctrans('to do') }} · {{ session.task.quantity_made }} / {{ session.task.quantity_required }}</span>
+                    <span v-else class="text-7xl font-semibold tabular-nums text-[--app-accent-strong]">{{ packsLabel(remaining, packSize) }}</span>
+                    <span class="ml-3 text-xl text-gray-500"><template v-if="unit">{{ unit }} </template>{{ ctrans('to do') }} · {{ packsLabel(session.task.quantity_made, packSize) }} / {{ packsLabel(session.task.quantity_required, packSize) }}</span>
                 </button>
                 <div v-if="packSize" class="mt-2 text-2xl font-semibold text-amber-700">
                     {{ ctrans('Counted in PACKS of :size (1 pack = :size × :code)', { size: packSize, code: session.task.artefact_code ?? '' }) }}

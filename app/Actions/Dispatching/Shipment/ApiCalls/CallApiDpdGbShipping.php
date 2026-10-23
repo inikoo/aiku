@@ -216,6 +216,7 @@ class CallApiDpdGbShipping extends OrgAction
 
     /**
      * One 102 x 165 mm page per parcel, the size of the APC labels on the same thermal printers.
+     * DPD's HTML renders every parcel label followed by a blank page, so only the odd pages are kept.
      */
     public function labelPdf(string $html, int $numberParcels): string
     {
@@ -225,7 +226,7 @@ class CallApiDpdGbShipping extends OrgAction
             ->paperSize(102, 165)
             ->margins(2, 2, 2, 2)
             ->scale(0.95)
-            ->pages('1-'.max($numberParcels, 1))
+            ->pages(implode(',', range(1, 2 * max($numberParcels, 1) - 1, 2)))
             ->pdf();
     }
 

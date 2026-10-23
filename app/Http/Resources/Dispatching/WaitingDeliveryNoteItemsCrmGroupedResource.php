@@ -32,6 +32,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $organisation_slug
  * @property mixed $notes
  * @property mixed $delivery_note_state
+ * @property mixed $delivery_note_number_items_waiting_warehouse
+ * @property mixed $delivery_note_number_items_not_picked
  */
 class WaitingDeliveryNoteItemsCrmGroupedResource extends JsonResource
 {
@@ -45,6 +47,8 @@ class WaitingDeliveryNoteItemsCrmGroupedResource extends JsonResource
             'delivery_note_reference'           => $this->delivery_note_reference,
             'delivery_note_state'               => $this->delivery_note_state,
             'delivery_note_state_icon'          => $deliveryNote?->state->stateIcon()[$deliveryNote->state->value] ?? null,
+            'delivery_note_number_items_waiting_warehouse' => (int) $this->delivery_note_number_items_waiting_warehouse,
+            'delivery_note_number_items_not_picked'        => (int) $this->delivery_note_number_items_not_picked,
             'delivery_note_is_premium_dispatch' => $this->delivery_note_is_premium_dispatch,
             'delivery_note_has_extra_packing'   => $this->delivery_note_has_extra_packing,
             'delivery_note_customer_notes'      => $this->delivery_note_customer_notes,

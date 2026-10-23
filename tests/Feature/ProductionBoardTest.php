@@ -1577,3 +1577,11 @@ test('a job order planned by hand is one job with its lines on the board, even f
         'lines'  => [],
     ]))->toThrow(ValidationException::class);
 });
+
+test('creating job orders from a click event payload is a validation error, not a database error', function () {
+    actingAs($this->guest->getUser());
+
+    \Pest\Laravel\post(route('grp.org.productions.show.to_produce.job_orders.store', [$this->organisation->slug, $this->production->slug]), [
+        'ids' => ['isTrusted' => true, '_vts' => 1792585086231],
+    ])->assertSessionHasErrors('ids');
+});

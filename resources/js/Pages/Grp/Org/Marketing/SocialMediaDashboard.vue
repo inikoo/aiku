@@ -29,7 +29,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
     faAd, faArrowDown, faArrowUp, faBookmark, faChartLine, faClone, faExternalLink, faFileExport, faFilm,
     faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo,
-    faSyncAlt, faCheck, faExclamationTriangle, faCog,
+    faSyncAlt, faCheck, faExclamationTriangle, faCog, faBullhorn,
 } from '@fal'
 import { PageHeadingTypes } from '@/types/PageHeading'
 import { routeType } from '@/types/route'
@@ -40,9 +40,9 @@ import { Line } from 'vue-chartjs'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 library.add(faAd, faArrowDown, faArrowUp, faBookmark, faChartLine, faClone, faExternalLink, faFileExport, faFilm,
     faHashtag, faHeart, faHistory, faImage, faInfoCircle, faSpinnerThird, faTimes, faUpload, faVideo,
-    faSyncAlt, faCheck, faExclamationTriangle, faCog)
+    faSyncAlt, faCheck, faExclamationTriangle, faCog, faBullhorn)
 
-interface TrendPoint { date: string, posts: number, reach: number, engagements: number, views: number, interactions: number, followers: number | null }
+interface TrendPoint { date: string, posts: number, reach: number, engagements: number, views: number, organic_views: number, ad_views: number, interactions: number, followers: number | null }
 
 interface Kpis {
     posts: number
@@ -51,6 +51,9 @@ interface Kpis {
     engagements: number
     engagement_rate: number | null
     views: number
+    organic_views: number
+    ad_views: number
+    unsplit_views: number
     interactions: number
     interaction_rate: number | null
     avg_daily_viewers: number | null
@@ -93,6 +96,10 @@ interface Post {
     link_clicks: number
     engagements: number
     engagement_rate: number
+    is_boosted: boolean
+    ad_views: number | null
+    ad_reach: number | null
+    ad_link_clicks: number | null
 }
 
 interface Performance {
@@ -113,11 +120,11 @@ interface Performance {
     kpis: { current: Kpis, previous: Kpis | null }
     trend: { bucket: 'day' | 'week' | 'month', points: TrendPoint[] }
     previous_trend: { bucket: 'day' | 'week' | 'month', points: TrendPoint[] } | null
-    platforms: { platform: string, label: string, posts: number, reach: number, share: number | null, views: number, views_share: number | null, engagements: number, engagement_rate: number | null, followers: number | null }[]
+    platforms: { platform: string, label: string, posts: number, reach: number, share: number | null, views: number, views_share: number | null, organic_views: number, ad_views: number, engagements: number, engagement_rate: number | null, followers: number | null }[]
     insight: string | null
     formats: { type: string, label: string, posts: number, reach: number, average_reach: number, engagements: number, saves: number, shares: number, engagement_rate: number | null }[]
     top_posts: Post[]
-    accounts: { id: number, name: string, username: string | null, platform: string, platform_label: string, shop_name: string, shop_slug: string, country_code: string, followers: number | null, followers_at: string | null, posts: number, reach: number, engagements: number, link_clicks: number, engagement_rate: number | null, views: number, interactions: number, interaction_rate: number | null }[]
+    accounts: { id: number, name: string, username: string | null, platform: string, platform_label: string, shop_name: string, shop_slug: string, country_code: string, followers: number | null, followers_at: string | null, posts: number, reach: number, engagements: number, link_clicks: number, engagement_rate: number | null, views: number, organic_views: number, ad_views: number, interactions: number, interaction_rate: number | null }[]
     paid: {
         channels: { type: string, label: string, spend: number, revenue: number, orders: number, roas: number | null, impressions: number, clicks: number, ctr: number | null, meta_purchases: number, meta_roas: number | null }[]
         campaigns: { name: string, channel: string, placements: { channel: string, spend: number }[], owner: string | null, spend: number, revenue: number, orders: number, impressions: number, clicks: number, ctr: number | null, cpa: number | null, roas: number | null, meta_purchases: number, meta_value: number, meta_roas: number | null }[]
@@ -284,12 +291,47 @@ const delta = (current: number | null | undefined, previous: number | null | und
     return { text, direction, good }
 }
 
-interface Kpi { key: string, label: string, value: string, delta: Delta | null, sub?: string, help?: string }
+interface ViewsSplit { organic: number, ads: number, unsplit: number }
+
+interface Kpi { key: string, label: string, value: string, delta: Delta | null, sub?: string, help?: string, split?: ViewsSplit }
 
 const kpi = (key: string, label: string, value: string, change: Delta | null, sub?: string, help?: string): Kpi => ({ key, label, value, delta: change, sub, help })
 
 const current = computed(() => props.performance?.kpis.current)
 const previous = computed(() => props.performance?.kpis.previous ?? null)
+
+/* Where views came from. Meta counts content shown in an ad (boosts and campaigns) inside an
+   account's views, so the page always says which part was organic and which came from ads, and can
+   show either alone. Days synced before Meta was asked for the split are shown as not split, never
+   folded into organic. */
+type ViewsSource = 'all' | 'organic' | 'ads'
+const viewsSource = ref<ViewsSource>('all')
+watch(currentTab, (tab) => {
+    viewsSource.value = tab === 'organic' ? 'organic' : 'all'
+})
+const viewsSourceOptions = [
+    { label: ctrans('All views'), value: 'all' as ViewsSource },
+    { label: ctrans('Organic'), value: 'organic' as ViewsSource },
+    { label: ctrans('Ads'), value: 'ads' as ViewsSource },
+]
+const SOURCE_COLORS = { organic: '#3b7a2a', ads: '#7c8db5', unsplit: '#d1d5db' }
+const viewsSourceHelp = ctrans('All views: everything Meta counted on the accounts. Organic: seen without paying (posts, reels, stories, profile). Ads: seen through boosted posts and Meta Ads campaigns. Days synced before the split existed are shown as not split.')
+const viewsOf = (row: { views: number, organic_views: number, ad_views: number } | null | undefined): number | null => {
+    if (!row) return null
+    if (viewsSource.value === 'organic') return row.organic_views
+    if (viewsSource.value === 'ads') return row.ad_views
+    return row.views
+}
+const viewsLabel = computed(() => viewsSource.value === 'organic' ? ctrans('Organic views') : viewsSource.value === 'ads' ? ctrans('Views from ads') : ctrans('Views'))
+const viewsSplitOf = (row: { views: number, organic_views: number, ad_views: number }): ViewsSplit => ({
+    organic: row.organic_views,
+    ads: row.ad_views,
+    unsplit: Math.max(0, row.views - row.organic_views - row.ad_views),
+})
+const splitShare = (split: ViewsSplit, part: keyof ViewsSplit) => {
+    const total = split.organic + split.ads + split.unsplit
+    return total > 0 ? (split[part] / total * 100) : 0
+}
 
 /* Search Console style: beside each figure, the same figure in the compared period. Followers are
    only set beside each other when both periods count the same accounts. */
@@ -299,7 +341,7 @@ const previousText = (key: string): string | null => {
     if (!p || !c) return null
     const value = (number: number | null | undefined, format: (n: number) => string) => number === null || number === undefined ? '–' : format(number)
     const formats: Record<string, () => string> = {
-        views: () => value(p.views, short),
+        views: () => value(viewsOf(p), short),
         posts: () => value(p.posts, count),
         viewers: () => value(p.avg_daily_viewers, short),
         interactions: () => value(p.interactions, short),
@@ -348,7 +390,7 @@ const overviewKpis = computed<Kpi[]>(() => {
     const p = previous.value
     if (!c) return []
     return [
-        kpi('views', ctrans('Views'), short(c.views), delta(c.views, p?.views), viewersSub.value, viewsHelp),
+        { ...kpi('views', viewsLabel.value, short(viewsOf(c) ?? 0), delta(viewsOf(c), viewsOf(p)), viewersSub.value, viewsSourceHelp), split: viewsSource.value === 'all' ? viewsSplitOf(c) : undefined },
         kpi('interaction_rate', ctrans('Interaction rate'), pct(c.interaction_rate), delta(c.interaction_rate, p?.interaction_rate, { points: true }), short(c.interactions) + ' ' + ctrans('interactions'), ctrans('Interactions (reactions, comments, shares and saves) per 100 views.')),
         audienceKpi.value,
         kpi('link_clicks', ctrans('Link clicks'), short(c.link_clicks), delta(c.link_clicks, p?.link_clicks)),
@@ -363,7 +405,7 @@ const organicKpis = computed<Kpi[]>(() => {
     if (!c) return []
     return [
         kpi('posts', ctrans('Posts'), count(c.posts), delta(c.posts, p?.posts)),
-        kpi('views', ctrans('Views'), short(c.views), delta(c.views, p?.views), undefined, viewsHelp),
+        { ...kpi('views', viewsLabel.value, short(viewsOf(c) ?? 0), delta(viewsOf(c), viewsOf(p)), undefined, viewsSourceHelp), split: viewsSource.value === 'all' ? viewsSplitOf(c) : undefined },
         kpi('viewers', ctrans('Viewers per day'), c.avg_daily_viewers === null ? '–' : short(c.avg_daily_viewers), delta(c.avg_daily_viewers, p?.avg_daily_viewers), undefined, viewersHelp),
         kpi('interactions', ctrans('Interactions'), short(c.interactions), delta(c.interactions, p?.interactions)),
         kpi('visits', ctrans('Profile visits'), c.visits === null ? '–' : short(c.visits), delta(c.visits, p?.visits)),
@@ -445,11 +487,40 @@ const lineDataset = (label: string, data: number[], color: string, fill: boolean
 
 /* Views and interactions live an order of magnitude apart, so they share the x axis as two stacked
    panes rather than fighting over one y axis or inventing a second one. */
+/* Views stack organic under ads, so the line's height is still every view and each band says where
+   that part came from; picking one source draws that source alone. */
+const trendPoints = computed(() => props.performance?.trend.points ?? [])
+const trendHasSplit = computed(() => trendPoints.value.some(point => point.organic_views > 0 || point.ad_views > 0))
+const viewsLegend = computed(() => {
+    if (viewsSource.value === 'organic') return [{ label: ctrans('Organic views'), color: SOURCE_COLORS.organic }]
+    if (viewsSource.value === 'ads') return [{ label: ctrans('Views from ads'), color: SOURCE_COLORS.ads }]
+    if (!trendHasSplit.value) return [{ label: ctrans('Views'), color: SERIES.reach }]
+    return [
+        { label: ctrans('Organic'), color: SOURCE_COLORS.organic },
+        { label: ctrans('Ads'), color: SOURCE_COLORS.ads },
+        ...(trendPoints.value.some(point => point.views > point.organic_views + point.ad_views) ? [{ label: ctrans('Not split'), color: SOURCE_COLORS.unsplit }] : []),
+    ]
+})
+const viewsDatasets = computed(() => {
+    const points = trendPoints.value
+    if (viewsSource.value !== 'all') {
+        return [{ ...lineDataset(viewsLabel.value, points.map(point => viewsOf(point) ?? 0), viewsSource.value === 'ads' ? SOURCE_COLORS.ads : SOURCE_COLORS.organic, true), stack: 'views' }]
+    }
+    if (!trendHasSplit.value) {
+        return [{ ...lineDataset(ctrans('Views'), points.map(point => point.views), SERIES.reach, true), stack: 'views' }]
+    }
+    const unsplit = points.map(point => Math.max(0, point.views - point.organic_views - point.ad_views))
+    return [
+        { ...lineDataset(ctrans('Organic'), points.map(point => point.organic_views), SOURCE_COLORS.organic, true), stack: 'views', fill: 'origin' },
+        { ...lineDataset(ctrans('Ads'), points.map(point => point.ad_views), SOURCE_COLORS.ads, true), stack: 'views', fill: '-1' },
+        ...(unsplit.some(value => value > 0) ? [{ ...lineDataset(ctrans('Not split'), unsplit, SOURCE_COLORS.unsplit, true), stack: 'views', fill: '-1' }] : []),
+    ]
+})
 const reachChart = computed(() => ({
     labels: trendLabels.value,
     datasets: [
-        lineDataset(ctrans('Views'), (props.performance?.trend.points ?? []).map(point => point.views), SERIES.reach, true),
-        ...(hasComparedTrend.value ? [comparedDataset(ctrans('Views'), point => point.views, SERIES.reach)] : []),
+        ...viewsDatasets.value,
+        ...(hasComparedTrend.value ? [{ ...comparedDataset(viewsLabel.value, point => viewsOf(point), viewsSource.value === 'ads' ? SOURCE_COLORS.ads : SERIES.reach), stack: 'compared' }] : []),
     ],
 }))
 const engagementsChart = computed(() => ({
@@ -467,7 +538,7 @@ const followersChart = computed(() => ({
     ],
 }))
 
-const chartOptions = (showX: boolean, beginAtZero = true) => ({
+const chartOptions = (showX: boolean, beginAtZero = true, stacked = false) => ({
     responsive: true,
     maintainAspectRatio: false,
     interaction: { mode: 'index' as const, intersect: false },
@@ -487,6 +558,7 @@ const chartOptions = (showX: boolean, beginAtZero = true) => ({
     scales: {
         x: { display: showX, grid: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 0, font: { size: 10 }, color: '#6b7280' } },
         y: {
+            stacked,
             beginAtZero,
             grid: { color: 'rgba(0,0,0,0.05)' },
             border: { display: false },
@@ -498,21 +570,26 @@ const chartOptions = (showX: boolean, beginAtZero = true) => ({
 const maxOf = (values: number[]) => Math.max(0, ...values)
 const barWidth = (value: number, max: number) => max > 0 ? Math.max(1, value / max * 100) + '%' : '0%'
 
+const platformViewsShare = (row: { views: number, organic_views: number, ad_views: number }) => {
+    const total = platformRows.value.reduce((sum, item) => sum + (viewsOf(item) ?? 0), 0)
+    return total > 0 ? Math.round((viewsOf(row) ?? 0) / total * 1000) / 10 : 0
+}
 const platformRows = computed(() => (props.performance?.platforms ?? []).filter(row => row.posts > 0 || row.views > 0).sort((a, b) => b.views - a.views))
 const formatRows = computed(() => [...(props.performance?.formats ?? [])].filter(row => row.posts > 0).sort((a, b) => b.average_reach - a.average_reach))
 const maxFormatReach = computed(() => maxOf(formatRows.value.map(row => row.average_reach)))
 
-/* Top content: sorted on the client so the ranking question (by rate, by reach, by volume) is one
-   click, and the long tail opens on request rather than filling the screen. */
-type PostSort = 'engagement_rate' | 'reach' | 'engagements'
+/* Top content: sorted on the client so the ranking question (by rate, by views, by reach, by
+   volume) is one click, and the long tail opens on request rather than filling the screen. */
+type PostSort = 'engagement_rate' | 'impressions' | 'reach' | 'engagements'
 const postSort = ref<PostSort>('engagement_rate')
 const postSortOptions = [
     { label: ctrans('Engagement rate'), value: 'engagement_rate' as PostSort },
+    { label: ctrans('Views'), value: 'impressions' as PostSort },
     { label: ctrans('Viewers'), value: 'reach' as PostSort },
     { label: ctrans('Engagements'), value: 'engagements' as PostSort },
 ]
 const showAllPosts = ref(false)
-const sortedPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => (b[postSort.value] ?? 0) - (a[postSort.value] ?? 0)))
+const sortedPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => (b[postSort.value] ?? 0) - (a[postSort.value] ?? 0)).slice(0, 50))
 const visiblePosts = computed(() => sortedPosts.value.slice(0, showAllPosts.value ? 50 : 10))
 const overviewPosts = computed(() => [...(props.performance?.top_posts ?? [])].sort((a, b) => b.engagement_rate - a.engagement_rate).slice(0, 5))
 const postTitle = (post: Post) => post.description?.trim() || ctrans('Untitled :type', { type: post.type_label })
@@ -667,6 +744,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
             <div v-if="performance" class="space-y-4">
                 <!-- Scope: the sentence the whole screen is about, and the filters that change it -->
+                <div class="flex flex-col gap-3">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-xs text-gray-500 mr-1">{{ ctrans('Organic and paid social in one view') }} ·</span>
                     <span v-if="performance.data_until" class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs text-green-700 ring-1 ring-green-200">
@@ -688,25 +766,25 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                         <template v-else>{{ ctrans('Not synced yet') }}</template>
                     </button>
                     <FontAwesomeIcon v-if="isReloading" icon="fal fa-spinner-third" spin class="text-gray-400 text-xs" fixed-width />
-
-                    <div class="ml-auto flex flex-wrap items-center gap-2">
-                        <Select v-model="shopFilter" :options="performance.options.shops" optionLabel="name" optionValue="slug" showClear
-                                :placeholder="ctrans('All brands')" class="w-44" :pt="selectPt" @change="applyFilters" />
-                        <Select v-model="countryFilter" :options="performance.options.countries" optionLabel="name" optionValue="code" showClear
-                                :placeholder="ctrans('All markets')" class="w-40" :pt="selectPt" @change="applyFilters" />
-                        <Select v-model="platformFilter" :options="performance.options.platforms" optionLabel="label" optionValue="value" showClear
-                                :placeholder="ctrans('All platforms')" class="w-40" :pt="selectPt" @change="applyFilters" />
-                        <Select v-model="compareMode" :options="compareOptions" optionLabel="label" optionValue="value"
-                                class="w-48" :class="fieldFocusClass" :pt="selectPt" data-test="social-compare" @change="onCompareMode" />
-                        <span v-if="comparedIsEmpty" class="text-xs text-gray-400" data-test="social-compare-empty">{{ ctrans('No figures in the compared period') }}</span>
-                        <template v-if="compareMode === 'custom'">
-                            <DatePicker v-model="compareFrom" :maxDate="compareTo ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
-                                        :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare from')" />
-                            <span class="text-gray-400">–</span>
-                            <DatePicker v-model="compareTo" :minDate="compareFrom ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
-                                        :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare to')" />
-                        </template>
+                </div>
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end" data-test="social-filters">
+                    <Select v-model="shopFilter" :options="performance.options.shops" optionLabel="name" optionValue="slug" showClear
+                            :placeholder="ctrans('All brands')" class="w-full sm:w-44" :pt="selectPt" @change="applyFilters" />
+                    <Select v-model="countryFilter" :options="performance.options.countries" optionLabel="name" optionValue="code" showClear
+                            :placeholder="ctrans('All markets')" class="w-full sm:w-40" :pt="selectPt" @change="applyFilters" />
+                    <Select v-model="platformFilter" :options="performance.options.platforms" optionLabel="label" optionValue="value" showClear
+                            :placeholder="ctrans('All platforms')" class="w-full sm:w-40" :pt="selectPt" @change="applyFilters" />
+                    <Select v-model="compareMode" :options="compareOptions" optionLabel="label" optionValue="value"
+                            class="w-full sm:w-48" :class="fieldFocusClass" :pt="selectPt" data-test="social-compare" @change="onCompareMode" />
+                    <div v-if="compareMode === 'custom'" class="col-span-2 flex items-center gap-2">
+                        <DatePicker v-model="compareFrom" :maxDate="compareTo ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
+                                    class="flex-1 sm:flex-none" :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare from')" />
+                        <span class="text-gray-400">–</span>
+                        <DatePicker v-model="compareTo" :minDate="compareFrom ?? undefined" dateFormat="d M yy" :manualInput="false" showIcon iconDisplay="input"
+                                    class="flex-1 sm:flex-none" :class="fieldFocusClass" :pt="datePickerPt" :aria-label="ctrans('Compare to')" />
                     </div>
+                    <span v-if="comparedIsEmpty" class="col-span-2 text-xs text-gray-400" data-test="social-compare-empty">{{ ctrans('No figures in the compared period') }}</span>
+                </div>
                 </div>
 
                 <Tabs :current="currentTab" :navigation="tabs" @update:tab="(tab: string) => currentTab = tab" />
@@ -730,6 +808,13 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
                     <!-- Overview -->
                     <template v-if="currentTab === 'overview'">
+                        <div class="flex flex-wrap items-center justify-between gap-2" data-test="social-views-source">
+                            <span class="text-xs text-gray-500">{{ ctrans('Views from') }}</span>
+                            <div class="flex items-center gap-1">
+                                <SegmentedToggle v-model="viewsSource" :options="viewsSourceOptions" />
+                                <FontAwesomeIcon v-tooltip="viewsSourceHelp" icon="fal fa-info-circle" class="text-gray-300 cursor-help" fixed-width />
+                            </div>
+                        </div>
                         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                             <div v-for="card in overviewKpis" :key="card.key" class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                                 <div class="text-xs text-gray-400 flex items-center gap-1">
@@ -748,6 +833,16 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     </div>
                                     <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
                                 </template>
+                                <div v-if="card.split && (card.split.ads || card.split.unsplit)" class="mt-2" data-test="social-views-split">
+                                    <div class="flex h-1.5 overflow-hidden rounded-full bg-gray-100">
+                                        <span v-for="part in (['organic', 'ads', 'unsplit'] as const)" :key="part" class="h-full" :style="{ width: splitShare(card.split, part) + '%', background: SOURCE_COLORS[part] }" />
+                                    </div>
+                                    <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-gray-500 tabular-nums">
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.organic }" />{{ ctrans('Organic') }} {{ short(card.split.organic) }}</span>
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.ads }" />{{ ctrans('Ads') }} {{ short(card.split.ads) }}</span>
+                                        <span v-if="card.split.unsplit" v-tooltip="ctrans('Views of days synced before Meta was asked where they came from. Sync again to split them.')" class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.unsplit }" />{{ ctrans('Not split') }} {{ short(card.split.unsplit) }}</span>
+                                    </div>
+                                </div>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
@@ -765,13 +860,13 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                         <span class="ml-2 text-xs text-gray-400">{{ performance.period_label }}</span>
                                     </div>
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
+                                        <span v-for="item in viewsLegend" :key="item.label" class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: item.color }" />{{ item.label }}</span>
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
                                         <span v-if="hasComparedTrend" class="flex items-center gap-1.5" data-test="social-compared-legend"><span class="w-4 border-t-2 border-dashed border-gray-400" />{{ comparedRangeLabel }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
-                                    <div class="h-44 mt-3"><Line :data="reachChart" :options="chartOptions(false)" /></div>
+                                    <div class="h-44 mt-3"><Line :data="reachChart" :options="chartOptions(false, true, true)" /></div>
                                     <div class="h-28"><Line :data="engagementsChart" :options="chartOptions(true)" /></div>
                                 </template>
                                 <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No figures in this period') }}</p>
@@ -782,7 +877,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
                             <div class="rounded-xl ring-1 ring-gray-200 bg-white p-5">
                                 <span class="text-sm font-medium text-gray-800">{{ ctrans('Platform contribution') }}</span>
-                                <span class="ml-2 text-xs text-gray-400">{{ ctrans('share of views') }}</span>
+                                <span class="ml-2 text-xs text-gray-400">{{ viewsSource === 'organic' ? ctrans('share of organic views') : viewsSource === 'ads' ? ctrans('share of views from ads') : ctrans('share of views') }}</span>
                                 <div v-if="platformRows.length" class="mt-4 space-y-4">
                                     <div v-for="row in platformRows" :key="row.platform">
                                         <div class="flex items-baseline justify-between text-sm">
@@ -790,13 +885,13 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <span class="h-2.5 w-2.5 rounded-full" :style="{ background: platformColor(row.platform) }" />
                                                 {{ row.label }}
                                             </span>
-                                            <span class="tabular-nums text-gray-900">{{ short(row.views) }}</span>
+                                            <span class="tabular-nums text-gray-900">{{ short(viewsOf(row) ?? 0) }}</span>
                                         </div>
                                         <div class="mt-1.5 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-                                            <div class="h-full rounded-full" :style="{ width: (row.views_share ?? 0) + '%', background: platformColor(row.platform) }" />
+                                            <div class="h-full rounded-full" :style="{ width: platformViewsShare(row) + '%', background: platformColor(row.platform) }" />
                                         </div>
                                         <div class="mt-1 flex justify-between text-xs text-gray-400 tabular-nums">
-                                            <span>{{ pct(row.views_share) }} {{ ctrans('of total') }} · {{ count(row.posts) }} {{ ctrans('posts') }}</span>
+                                            <span>{{ pct(platformViewsShare(row)) }} {{ ctrans('of total') }} · {{ count(row.posts) }} {{ ctrans('posts') }}<template v-if="viewsSource === 'all' && row.ad_views"> · {{ ctrans('organic') }} {{ short(row.organic_views) }} · {{ ctrans('ads') }} {{ short(row.ad_views) }}</template></span>
                                             <span>{{ ctrans('ER') }} {{ pct(row.engagement_rate) }}</span>
                                         </div>
                                     </div>
@@ -815,6 +910,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     <thead class="text-xs text-gray-400 whitespace-nowrap">
                                         <tr class="text-left">
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 text-right">{{ ctrans('ER') }}</th>
@@ -829,6 +925,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                     {{ post.platform_label }} · {{ post.type_label }}
                                                 </div>
                                             </td>
+                                            <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.impressions) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
                                             <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(post.engagement_rate) }}</span></td>
@@ -862,6 +959,13 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
 
                     <!-- Organic -->
                     <template v-else-if="currentTab === 'organic' && hasOrganic">
+                        <div class="flex flex-wrap items-center justify-between gap-2" data-test="social-views-source">
+                            <span class="text-xs text-gray-500">{{ ctrans('Views from') }}</span>
+                            <div class="flex items-center gap-1">
+                                <SegmentedToggle v-model="viewsSource" :options="viewsSourceOptions" />
+                                <FontAwesomeIcon v-tooltip="viewsSourceHelp" icon="fal fa-info-circle" class="text-gray-300 cursor-help" fixed-width />
+                            </div>
+                        </div>
                         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                             <div v-for="card in organicKpis" :key="card.key" class="rounded-xl ring-1 ring-gray-200 bg-white p-4">
                                 <div class="text-xs text-gray-400">{{ card.label }}</div>
@@ -877,6 +981,16 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     </div>
                                     <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
                                 </template>
+                                <div v-if="card.split && (card.split.ads || card.split.unsplit)" class="mt-2" data-test="social-views-split">
+                                    <div class="flex h-1.5 overflow-hidden rounded-full bg-gray-100">
+                                        <span v-for="part in (['organic', 'ads', 'unsplit'] as const)" :key="part" class="h-full" :style="{ width: splitShare(card.split, part) + '%', background: SOURCE_COLORS[part] }" />
+                                    </div>
+                                    <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-gray-500 tabular-nums">
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.organic }" />{{ ctrans('Organic') }} {{ short(card.split.organic) }}</span>
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.ads }" />{{ ctrans('Ads') }} {{ short(card.split.ads) }}</span>
+                                        <span v-if="card.split.unsplit" v-tooltip="ctrans('Views of days synced before Meta was asked where they came from. Sync again to split them.')" class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.unsplit }" />{{ ctrans('Not split') }} {{ short(card.split.unsplit) }}</span>
+                                    </div>
+                                </div>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>
@@ -891,13 +1005,13 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                 <div class="flex items-baseline justify-between gap-4">
                                     <span class="text-sm font-medium text-gray-800">{{ ctrans('Views and interactions') }}</span>
                                     <div class="flex items-center gap-3 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.reach }" />{{ ctrans('Views') }}</span>
+                                        <span v-for="item in viewsLegend" :key="item.label" class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: item.color }" />{{ item.label }}</span>
                                         <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="{ background: SERIES.engagements }" />{{ ctrans('Interactions') }}</span>
                                         <span v-if="hasComparedTrend" class="flex items-center gap-1.5" data-test="social-compared-legend"><span class="w-4 border-t-2 border-dashed border-gray-400" />{{ comparedRangeLabel }}</span>
                                     </div>
                                 </div>
                                 <template v-if="hasTrend">
-                                    <div class="h-40 mt-3"><Line :data="reachChart" :options="chartOptions(false)" /></div>
+                                    <div class="h-40 mt-3"><Line :data="reachChart" :options="chartOptions(false, true, true)" /></div>
                                     <div class="h-24"><Line :data="engagementsChart" :options="chartOptions(!hasFollowersTrend)" /></div>
                                 </template>
                                 <p v-else class="text-sm text-gray-400 py-16 text-center">{{ ctrans('No figures in this period') }}</p>
@@ -949,6 +1063,7 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Content') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Account') }}</th>
                                             <th class="font-normal pb-2 pr-3">{{ ctrans('Published') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Viewers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Engagements') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('ER') }}</th>
@@ -967,6 +1082,9 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <div class="text-xs text-gray-400 flex items-center gap-1.5">
                                                     <FontAwesomeIcon :icon="formatStyle(post.type).icon" :style="{ color: formatStyle(post.type).color }" fixed-width />
                                                     {{ post.platform_label }} · {{ post.type_label }}
+                                                    <span v-if="post.is_boosted" v-tooltip="ctrans('Promoted with an ad. Figures here are organic; the Instagram app adds what the ad brought.')" class="ml-1 inline-flex items-center gap-1 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600" data-test="social-post-boosted">
+                                                        <FontAwesomeIcon icon="fal fa-bullhorn" fixed-width />{{ ctrans('Boosted') }}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td class="py-2 pr-3 text-xs text-gray-500 whitespace-nowrap">
@@ -974,6 +1092,10 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                                 <div class="text-gray-400">{{ post.shop_name }}</div>
                                             </td>
                                             <td class="py-2 pr-3 text-xs text-gray-500 whitespace-nowrap">{{ day(post.published_at) }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums" data-test="social-post-views">
+                                                {{ short(post.impressions) }}
+                                                <div v-if="post.ad_views" v-tooltip="ctrans('Views the boost ad added; organic and ad together: :total', { total: short(post.impressions + post.ad_views) })" class="text-[11px] text-gray-400" data-test="social-post-ad-views">+{{ short(post.ad_views) }} {{ ctrans('ads') }}</div>
+                                            </td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.reach) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(post.engagements) }}</td>
                                             <td class="py-2 pr-3 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(post.engagement_rate) }}</span></td>
@@ -1004,6 +1126,8 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Followers') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Posts') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Views') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Seen without paying')">{{ ctrans('Organic') }}</th>
+                                            <th class="font-normal pb-2 pr-3 text-right" v-tooltip="ctrans('Seen through boosted posts and Meta Ads campaigns')">{{ ctrans('Ads') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Interactions') }}</th>
                                             <th class="font-normal pb-2 pr-3 text-right">{{ ctrans('Clicks') }}</th>
                                             <th class="font-normal pb-2 text-right" v-tooltip="ctrans('Interactions per 100 views')">{{ ctrans('Rate') }}</th>
@@ -1025,6 +1149,8 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                             </td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ count(account.posts) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.views) }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums text-gray-600">{{ account.organic_views || account.ad_views ? short(account.organic_views) : '–' }}</td>
+                                            <td class="py-2 pr-3 text-right tabular-nums text-gray-600">{{ account.organic_views || account.ad_views ? short(account.ad_views) : '–' }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.interactions) }}</td>
                                             <td class="py-2 pr-3 text-right tabular-nums">{{ short(account.link_clicks) }}</td>
                                             <td class="py-2 text-right"><span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs tabular-nums text-gray-700">{{ pct(account.interaction_rate) }}</span></td>
@@ -1061,6 +1187,16 @@ const uploadInformation = ctrans('Upload the CSV or Excel exports from Meta Busi
                                     </div>
                                     <div class="text-[11px] text-gray-400">{{ comparedRangeLabel }}</div>
                                 </template>
+                                <div v-if="card.split && (card.split.ads || card.split.unsplit)" class="mt-2" data-test="social-views-split">
+                                    <div class="flex h-1.5 overflow-hidden rounded-full bg-gray-100">
+                                        <span v-for="part in (['organic', 'ads', 'unsplit'] as const)" :key="part" class="h-full" :style="{ width: splitShare(card.split, part) + '%', background: SOURCE_COLORS[part] }" />
+                                    </div>
+                                    <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-gray-500 tabular-nums">
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.organic }" />{{ ctrans('Organic') }} {{ short(card.split.organic) }}</span>
+                                        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.ads }" />{{ ctrans('Ads') }} {{ short(card.split.ads) }}</span>
+                                        <span v-if="card.split.unsplit" v-tooltip="ctrans('Views of days synced before Meta was asked where they came from. Sync again to split them.')" class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full" :style="{ background: SOURCE_COLORS.unsplit }" />{{ ctrans('Not split') }} {{ short(card.split.unsplit) }}</span>
+                                    </div>
+                                </div>
                                 <div v-if="card.delta" class="mt-0.5 text-xs flex items-center gap-1 tabular-nums" :class="card.delta.direction === 'flat' ? 'text-gray-400' : card.delta.good ? 'text-green-700' : 'text-red-600'">
                                     <FontAwesomeIcon v-if="card.delta.direction !== 'flat'" :icon="card.delta.direction === 'up' ? 'fal fa-arrow-up' : 'fal fa-arrow-down'" fixed-width />
                                     <span>{{ card.delta.text }}</span>

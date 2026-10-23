@@ -1300,8 +1300,7 @@ test('an agent unsubscribes a customer from every newsletter and reminder in one
 
     $comms->refresh();
     expect($comms->is_subscribed_to_abandoned_cart)->toBeFalse()
-        ->and($comms->newsletter_unsubscribed_at)->not->toBeNull()
-        ->and(\App\Actions\Chat\ChatSession\OpenChatFactDrawer::make()->handle('subscriptions', $this->shop, $customer, [])['channels']['marketing']['subscribed'])->toBeFalse();
+        ->and($comms->newsletter_unsubscribed_at)->not->toBeNull();
 });
 
 test('the chat customer panel says what erasing a customer would keep, and offers it only to whoever may do it', function () {

@@ -28,7 +28,7 @@ class ListAvailablePickedBays extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('picked_bays.name', $value);
+                $query->whereStartWith('picked_bays.code', $value);
             });
         });
 

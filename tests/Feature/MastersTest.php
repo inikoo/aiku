@@ -4005,6 +4005,25 @@ test('recommended trade units follow the linked trade unit family, not the famil
         ->and($recommended)->toContain($prefixOnlyTradeUnit->id);
 });
 
+test('master family trade unit family is read-only on edit and cannot be changed by an update', function () {
+    $masterFamily = ensureMasterProductCategory();
+
+    $linked = \App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily::make()->action(group(), ['code' => 'TUF-'.uniqid(), 'name' => 'Linked']);
+    $other  = \App\Actions\Goods\TradeUnitFamily\StoreTradeUnitFamily::make()->action(group(), ['code' => 'TUF-'.uniqid(), 'name' => 'Other']);
+    $masterFamily->update(['trade_unit_family_id' => $linked->id]);
+
+    get(route('grp.masters.master_shops.show.master_families.edit', [$masterFamily->masterShop->slug, $masterFamily->slug]))
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('masterFamily.trade_unit_family', $linked->code.' (Linked)')
+            ->missing('tradeUnitFamilies'));
+
+    UpdateMasterProductCategory::make()->action($masterFamily, ['trade_unit_family_id' => $other->id, 'name' => 'Renamed']);
+
+    expect($masterFamily->refresh())
+        ->trade_unit_family_id->toBe($linked->id)
+        ->name->toBe('Renamed');
+});
+
 test('store master variant is blocked while a product waits for its cutover retirement decision', function () {
     $masterShop   = createFreshMasterShop();
     $masterFamily = StoreMasterFamily::make()->action(

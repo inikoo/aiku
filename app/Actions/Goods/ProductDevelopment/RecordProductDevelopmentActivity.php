@@ -51,6 +51,24 @@ class RecordProductDevelopmentActivity
 
     public const string SIGN_OFF_WITHDRAWN = 'sign_off_withdrawn';
 
+    public const string SKU_BRIEF_CHANGED = 'sku_brief_changed';
+
+    public const string FILE_REMOVED = 'file_removed';
+
+    public const string DESIGN_SECTION_ADDED = 'design_section_added';
+
+    public const string DESIGN_SECTION_CHANGED = 'design_section_changed';
+
+    public const string DESIGN_SECTION_REMOVED = 'design_section_removed';
+
+    public const string ARTWORK_UPLOADED = 'artwork_uploaded';
+
+    public const string ARTWORK_SUBMITTED = 'artwork_submitted';
+
+    public const string ARTWORK_APPROVED = 'artwork_approved';
+
+    public const string ARTWORK_CHANGES_REQUIRED = 'artwork_changes_required';
+
     /**
      * @param array<string, mixed> $old
      * @param array<string, mixed> $new

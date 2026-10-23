@@ -47,7 +47,7 @@ class CreateAppointmentStaff extends OrgAction
                         [
                             'title'  => __('Staff who arranges appointments'),
                             'fields' => [
-                                'user_id'           => [
+                                'user_id'       => [
                                     'type'       => 'select',
                                     'label'      => __('User'),
                                     'required'   => true,
@@ -61,7 +61,7 @@ class CreateAppointmentStaff extends OrgAction
                                         ->map(fn (User $user) => ['id' => $user->id, 'name' => $user->chatName()]),
                                     'value'      => null,
                                 ],
-                                'appointment_types' => $this->appointmentTypesField($shop),
+                                'meeting_modes' => $this->meetingModesField($shop),
                             ],
                         ],
                     ],

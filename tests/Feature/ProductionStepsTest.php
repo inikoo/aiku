@@ -178,6 +178,36 @@ test('carrying over a job does not ask for, or pay, the earlier steps twice', fu
         ->toThrow(ValidationException::class);
 });
 
+test('a carried job gets the kg already mixed for the whole job as a done mix step, despite float drift (HELP-4235)', function () {
+    $user = auth()->user();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+
+    $suffix     = rand(10000, 99999);
+    $mixTask    = StoreManufactureTask::make()->action($this->production, ['code' => 'MXC'.$suffix, 'name' => 'Mixing '.$suffix, 'is_piece_rate' => false, 'is_recorded_in_kg' => true]);
+    $makingTask = StoreManufactureTask::make()->action($this->production, ['code' => 'MKC'.$suffix, 'name' => 'Making '.$suffix, 'is_piece_rate' => true]);
+    $artefact   = StoreArtefact::make()->action($this->production, ['code' => 'ZSS'.$suffix, 'name' => 'Steamer '.$suffix]);
+    $artefact->manufactureTasks()->sync([
+        $mixTask->id    => ['position' => 1, 'units_per_artefact' => 0.039],
+        $makingTask->id => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefact->id, 'quantity' => 2400]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $mix    = $item->tasks()->where('manufacture_task_id', $mixTask->id)->first();
+    $making = $item->tasks()->where('manufacture_task_id', $makingTask->id)->first();
+
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $mix), ['quantity_made' => 93.6]);
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($user, $making), ['quantity_made' => 2100, 'outcome' => 'carry_over']);
+
+    $carriedMix = \App\Models\Production\JobOrder::where('data->carried_from', $jobOrder->id)->firstOrFail()
+        ->jobOrderItems()->first()->tasks()->where('manufacture_task_id', $mixTask->id)->first();
+
+    expect((float) $carriedMix->quantity_required)->toBe(0.0)
+        ->and($carriedMix->state)->toBe(JobOrderItemTaskStateEnum::DONE);
+});
+
 test('breaks belong to the artisan, are capped at their planned length and only their overlap is deducted from a session', function () {
     $this->artefact->manufactureTasks()->sync([
         $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
@@ -700,6 +730,38 @@ test('a recipe change does not ask again for a step whose replaced step is alrea
     $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
 });
 
+test('a step added to the recipe is not added to an open job whose later step already has work', function () {
+    $packing   = stepTestManufactureTask($this->production, 'PACKL', 'Packing later');
+    $shrinking = stepTestManufactureTask($this->production, 'SHRINKN', 'Shrinking new');
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1],
+        $packing->id               => ['position' => 2, 'units_per_artefact' => 1],
+    ]);
+
+    $jobOrder   = StoreJobOrder::make()->action($this->production, []);
+    $packedItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 4]);
+    $madeItem   = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 3]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    foreach ([$this->manufactureTask->id, $packing->id] as $taskId) {
+        CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $packedItem->tasks()->where('manufacture_task_id', $taskId)->first()), ['quantity_made' => 4]);
+    }
+    CloseManufactureTaskSession::make()->action(StartManufactureTaskSession::make()->action($this->guest->getUser(), $madeItem->tasks()->where('manufacture_task_id', $this->manufactureTask->id)->first()), ['quantity_made' => 3]);
+
+    SetArtefactsRecipe::make()->action($this->production, [
+        'artefacts' => [$this->artefact->id],
+        'steps'     => [
+            ['manufacture_task_id' => $this->manufactureTask->id, 'position' => 1, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $shrinking->id, 'position' => 2, 'units_per_artefact' => 1],
+            ['manufacture_task_id' => $packing->id, 'position' => 3, 'units_per_artefact' => 1],
+        ],
+    ]);
+
+    expect($packedItem->tasks()->where('manufacture_task_id', $shrinking->id)->exists())->toBeFalse()
+        ->and($madeItem->tasks()->orderBy('position')->pluck('manufacture_task_id')->all())->toBe([$this->manufactureTask->id, $shrinking->id, $packing->id]);
+
+    $this->artefact->manufactureTasks()->sync([$this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1]]);
+});
+
 test('a step dropped from the recipe while a session was open on it leaves the job when that session closes with nothing made', function () {
     $mixing  = stepTestManufactureTask($this->production, 'MIXL', 'Mixing leftover');
     $filling = stepTestManufactureTask($this->production, 'FILLL', 'Filling leftover');
@@ -1093,6 +1155,46 @@ test('a mix with a batch size is asked and recorded in whole batches, rounded on
     $soloSession = CloseManufactureTaskSession::make()->action($solo, ['quantity_made' => 100]);
     expect(fn () => \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 75], 'Supervisor'))->toThrow(ValidationException::class, 'whole batches of 50 kg');
     expect((float) \App\Actions\Production\ManufactureTaskSession\CorrectManufactureTaskSessionQuantity::make()->action($soloSession, ['quantity_made' => 50], 'Supervisor')->quantity_made)->toBe(50.0);
+});
+
+test('HELP-4232 a mix batch size is set on the kg steps of many artefacts at once, and the floor counts a pack step in packs', function () {
+    $suffix   = rand(10000, 99999);
+    $mixTask  = StoreManufactureTask::make()->action($this->production, ['code' => 'MXS'.$suffix, 'name' => 'Mixing '.$suffix, 'is_piece_rate' => false, 'is_recorded_in_kg' => true]);
+    $packTask = StoreManufactureTask::make()->action($this->production, ['code' => 'PKS'.$suffix, 'name' => 'Packing '.$suffix, 'is_piece_rate' => true]);
+    $artefacts = collect(['A', 'B'])->map(function (string $letter) use ($suffix, $mixTask, $packTask) {
+        $artefact = StoreArtefact::make()->action($this->production, ['code' => 'MB'.$letter.$suffix, 'name' => 'Bath bomb '.$letter.$suffix]);
+        $artefact->manufactureTasks()->sync([
+            $mixTask->id  => ['position' => 1, 'units_per_artefact' => 0.141],
+            $packTask->id => ['position' => 2, 'units_per_artefact' => 0.1667],
+        ]);
+
+        return $artefact;
+    });
+    $mixBatchOf = fn ($artefact, $task) => ArtefactManufactureTask::where('artefact_id', $artefact->id)->where('manufacture_task_id', $task->id)->value('mix_batch_kg');
+
+    \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => $artefacts->pluck('id')->all(), 'mix_batch_kg' => 30])
+        ->assertSessionHasErrors('mix_batch_kg');
+    \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => $artefacts->pluck('id')->all(), 'mix_batch_kg' => 50])
+        ->assertSessionHasNoErrors();
+    expect($mixBatchOf($artefacts[0], $mixTask))->toBe(50)
+        ->and($mixBatchOf($artefacts[1], $mixTask))->toBe(50)
+        ->and($mixBatchOf($artefacts[0], $packTask))->toBeNull();
+
+    $jobOrder = StoreJobOrder::make()->action($this->production, []);
+    $item     = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $artefacts[0]->id, 'quantity' => 80]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $pack = $item->tasks()->where('manufacture_task_id', $packTask->id)->first();
+    expect((float) $pack->quantity_required)->toBe(13.333);
+
+    $floorTask = collect(get(route('grp.org.productions.show.floor', [$this->organisation->slug, $this->production->slug]))->viewData('page')['props']['tasks'])
+        ->first(fn (array $task) => in_array($pack->id, array_column($task['steps'], 'id')));
+    expect(collect($floorTask['steps'])->firstWhere('id', $pack->id)['pack_size'])->toBe(6)
+        ->and(collect($floorTask['steps'])->firstWhere('id', $item->tasks()->where('manufacture_task_id', $mixTask->id)->value('id'))['mix_batch_kg'])->toBe(50);
+
+    \Pest\Laravel\post(route('grp.models.production.artefacts.set_mix_batch', [$this->production->id]), ['artefacts' => [$artefacts[1]->id], 'mix_batch_kg' => null])
+        ->assertSessionHasNoErrors();
+    expect($mixBatchOf($artefacts[1], $mixTask))->toBeNull()
+        ->and($mixBatchOf($artefacts[0], $mixTask))->toBe(50);
 });
 
 test('a mix entered on Making by mistake is moved to the mix step and Making goes back to do', function () {

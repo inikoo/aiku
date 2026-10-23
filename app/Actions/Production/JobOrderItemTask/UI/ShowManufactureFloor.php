@@ -447,6 +447,7 @@ class ShowManufactureFloor extends OrgAction
                 'quantity_required' => (float)$step->quantity_required,
                 'unit'              => $step->unit(),
                 'mix_batch_kg'      => $step->mixBatchKg(),
+                'pack_size'         => $this->packSize(collect([$step])),
                 'blocked_by_step'   => $step->blockingStep($steps)?->manufactureTask->name,
                 'worked_by'         => $closedWork->map(fn (array $work) => $work['user']->contact_name ?: $work['user']->username)->unique()->values()->all(),
                 'working_on_by'     => $step->sessions->where('state', ManufactureTaskSessionStateEnum::OPEN)->map($userName)->values()->all(),

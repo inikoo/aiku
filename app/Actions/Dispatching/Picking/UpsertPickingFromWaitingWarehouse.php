@@ -27,6 +27,7 @@ class UpsertPickingFromWaitingWarehouse extends OrgAction
 {
     use WithDeliveryNoteWorkAuthorisation;
     use WithCalculateTransactionDiscount;
+    use WithPickedBayPrompt;
     /**
      * @var \App\Models\Dispatching\DeliveryNoteItem
      */
@@ -137,6 +138,7 @@ class UpsertPickingFromWaitingWarehouse extends OrgAction
         $this->deliveryNoteItem = $deliveryNoteItem;
         $this->initialisationFromWarehouse($deliveryNoteItem->deliveryNote->warehouse, $request);
         $this->handle($deliveryNoteItem, $request->user(), $this->validatedData);
+        $this->flashPickedBayPrompt($deliveryNoteItem);
     }
 
 
