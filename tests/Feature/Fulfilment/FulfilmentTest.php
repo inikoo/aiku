@@ -188,6 +188,9 @@ use Illuminate\Http\Request;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Exceptions\Fulfilment\PalletReturnStockShortException;
 use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
+use App\Actions\Fulfilment\Pallet\PickWholePalletInPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\IndexPalletsInReturnPalletWholePallets;
+use App\Http\Resources\Fulfilment\PalletReturnItemsUIResource;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\AttachPalletReturnAttachment;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturnParcelDocuments;
@@ -1787,6 +1790,41 @@ test('pallets on a submitted return can no longer be ticked, unticked or selecte
         ->and($latePallet->refresh()->pallet_return_id)->toBeNull()
         ->and($returnedPallet->refresh()->pallet_return_id)->toBe($palletReturn->id)
         ->and(PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $returnedPallet->id)->value('state'))->toBe(PalletReturnItemStateEnum::SUBMITTED);
+})->depends('set pallet delivery as booked in');
+
+test('a picked whole pallet shows the quantities picked from it, not the zero left on it', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+
+    $pallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge(['warehouse_id' => $this->warehouse->id], Pallet::factory()->definition())
+    );
+
+    $storedItem = StoreStoredItem::make()->action($fulfilmentCustomer, ['reference' => 'picked-qty-'.$pallet->id]);
+    SyncStoredItemToPallet::make()->action($pallet, ['stored_item_ids' => [$storedItem->id => ['quantity' => 7]]]);
+
+    AttachPalletToReturn::make()->action($palletReturn, $pallet);
+    $palletReturn = PickingPalletReturn::make()->action(SubmitAndConfirmPalletReturn::make()->action($palletReturn->refresh()));
+
+    $palletReturnItem = PalletReturnItem::where('pallet_return_id', $palletReturn->id)->where('pallet_id', $pallet->id)->sole();
+    PickWholePalletInPalletReturn::make()->action($palletReturnItem, []);
+
+    $row = IndexPalletsInReturnPalletWholePallets::run($palletReturn->refresh())->getCollection()->firstWhere('pallet_id', $pallet->id);
+    $resource = PalletReturnItemsUIResource::make($row)->toArray(request());
+
+    expect((float) $pallet->storedItems()->sole()->pivot->quantity)->toBe(0.0)
+        ->and($resource['stored_items']->firstWhere('reference', $storedItem->reference)['quantity'])->toBe(7)
+        ->and($resource['stored_items_quantity'])->toBe(7);
 })->depends('set pallet delivery as booked in');
 
 test('Update pallet reference', function (PalletReturn $palletReturn) {
