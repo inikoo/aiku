@@ -71,6 +71,9 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement;
+use App\Actions\Maintenance\Inventory\OrgStockMovement\RebuildMissingPickedOrgStockMovements;
+use Illuminate\Support\Carbon;
 
 use function Pest\Laravel\actingAs;
 
@@ -210,6 +213,47 @@ describe('warehouse instrumentation', function () {
 
         expect($packing->data['auto_packed'] ?? null)->toBeTrue()
             ->and($packing->done_at)->not->toBeNull();
+    });
+
+    test('rebuild missing picks writes one picked movement per dispatched line with no picking, only under a later stock check', function () {
+        [$deliveryNote, $deliveryNoteItem] = packedDeliveryNote($this);
+        $orgStock         = $deliveryNoteItem->orgStock;
+        $locationOrgStock = LocationOrgStock::where('org_stock_id', $orgStock->id)->first();
+
+        DB::table('pickings')->where('delivery_note_id', $deliveryNote->id)->delete();
+        DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->delete();
+        DB::table('delivery_notes')->where('id', $deliveryNote->id)->update(['dispatched_at' => '2026-05-10 10:00:00']);
+        DB::table('delivery_note_items')->where('id', $deliveryNoteItem->id)->update(['quantity_dispatched' => 10]);
+
+        $rebuild = RebuildMissingPickedOrgStockMovements::make();
+        $from    = Carbon::parse('2026-04-01');
+        $to      = Carbon::parse('2026-08-01');
+
+        expect($rebuild->handle($this->organisation, $from, $to, false)['2026-05']['no_later_stock_check'])->toBe(1)
+            ->and(OrgStockMovement::where('org_stock_id', $orgStock->id)->count())->toBe(0);
+
+        $audit = StoreOrgStockMovement::make()->action($orgStock, $locationOrgStock->location, [
+            'type'             => OrgStockMovementTypeEnum::AUDIT->value,
+            'quantity'         => 0,
+            'audited_quantity' => 100,
+        ], strict: false);
+        DB::table('org_stock_movements')->where('id', $audit->id)->update(['date' => '2026-07-16', 'class' => OrgStockMovementClassEnum::HELPER->value]);
+        $quantityBefore = (float)$locationOrgStock->refresh()->quantity;
+
+        $dryRun = $rebuild->handle($this->organisation, $from, $to, true);
+        expect($dryRun['2026-05']['written'])->toBe(1)
+            ->and(OrgStockMovement::where('org_stock_id', $orgStock->id)->where('type', OrgStockMovementTypeEnum::PICKED)->count())->toBe(0);
+
+        $rebuild->handle($this->organisation, $from, $to, false);
+        $picked = OrgStockMovement::where('org_stock_id', $orgStock->id)->where('type', OrgStockMovementTypeEnum::PICKED)->sole();
+
+        expect((float)$picked->quantity)->toBe(-10.0)
+            ->and($picked->parent_id)->toBe($deliveryNote->id)
+            ->and($picked->location_id)->toBe($locationOrgStock->location_id)
+            ->and($picked->date->format('Y-m-d'))->toBe('2026-05-10')
+            ->and((float)$locationOrgStock->refresh()->quantity)->toBe($quantityBefore)
+            ->and($rebuild->handle($this->organisation, $from, $to, false)['2026-05']['already_picked'])->toBe(1)
+            ->and(OrgStockMovement::where('org_stock_id', $orgStock->id)->where('type', OrgStockMovementTypeEnum::PICKED)->count())->toBe(1);
     });
 });
 
