@@ -67,9 +67,10 @@ class EraseOrgStockHistory
         }
 
         DB::transaction(function () use ($orgStock) {
+            $movementIds = DB::table('org_stock_movements')->where('org_stock_id', $orgStock->id)->select('id');
+            DB::table('pickings')->whereIn('org_stock_movement_id', $movementIds)->update(['org_stock_movement_id' => null]);
+            DB::table('sowings')->whereIn('org_stock_movement_id', $movementIds)->update(['org_stock_movement_id' => null]);
             $this->archiveAndDelete(null, 'org_stock_movements', $orgStock->id);
-            DB::table('pickings')->where('org_stock_id', $orgStock->id)->update(['org_stock_movement_id' => null]);
-            DB::table('sowings')->where('org_stock_id', $orgStock->id)->update(['org_stock_movement_id' => null]);
         });
 
         foreach ($this->stockHistoryWriteConnections() as $connection) {
