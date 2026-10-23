@@ -58,6 +58,7 @@ use App\Actions\Inventory\OrgStockMovement\DeleteOrgStockMovement;
 use App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement;
 use App\Actions\Maintenance\Inventory\OrgStockMovement\RepairPickedOrgStockMovementCost;
 use App\Actions\Maintenance\Inventory\OrgStock\EraseOrgStockHistory;
+use App\Actions\Maintenance\Inventory\OrgStock\ZeroOrgStockValue;
 use App\Actions\Inventory\OrgStockMovement\UpdateOrgStockMovement;
 use App\Actions\Inventory\Warehouse\DeleteWarehouse;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
@@ -916,4 +917,26 @@ test('erase org stock history archives the movements before deleting them and le
         ->and(DB::table('help4274_erased_org_stock_movements')->where('org_stock_id', $orgStock->id)->count())->toBe($existing)
         ->and((float)DB::table('help4274_erased_org_stock_movements')->where('id', $found->id)->value('org_amount'))->toBe(50000.0)
         ->and(OrgStockMovement::whereKey($kept->id)->exists())->toBeTrue();
+});
+
+test('zero org stock value keeps quantities, backs up and clears amounts and leaves other stock alone', function () {
+    [$orgStock, $location] = costFixStockInLocation($this->group, $this->organisation, 'ZERO-'.Str::random(4));
+    [$otherOrgStock]       = costFixStockInLocation($this->group, $this->organisation, 'ZKEEP-'.Str::random(4));
+
+    $found = StoreOrgStockMovement::make()->action($orgStock, $location, ['type' => OrgStockMovementTypeEnum::FOUND, 'quantity' => 100, 'org_amount' => 328], strict: false);
+    $kept  = StoreOrgStockMovement::make()->action($otherOrgStock, $location, ['type' => OrgStockMovementTypeEnum::FOUND, 'quantity' => 5, 'org_amount' => 10], strict: false);
+
+    $zero = ZeroOrgStockValue::make();
+
+    expect($zero->handle($orgStock, true)['total_org_amount'])->toBe(328.0)
+        ->and((float)$found->refresh()->org_amount)->toBe(328.0);
+
+    $zero->handle($orgStock, false);
+
+    expect((float)$found->refresh()->org_amount)->toBe(0.0)
+        ->and((float)$found->quantity)->toBe(100.0)
+        ->and((float)DB::table('help4274_zeroed_org_stock_movements')->where('id', $found->id)->value('org_amount'))->toBe(328.0)
+        ->and((float)$kept->refresh()->org_amount)->toBe(10.0)
+        ->and($zero->handle($orgStock, false)['movements_with_value'])->toBe(0)
+        ->and(DB::table('help4274_zeroed_org_stock_movements')->where('id', $found->id)->count())->toBe(1);
 });
