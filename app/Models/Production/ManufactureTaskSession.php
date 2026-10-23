@@ -22,6 +22,7 @@ use App\Models\SysAdmin\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -74,6 +75,8 @@ use Illuminate\Support\Collection;
  * @property \Illuminate\Support\Carbon|null $time_edited_at
  * @property \Illuminate\Support\Carbon|null $left_open_after_shift_at
  * @property string|null $shift_end_answer
+ * @property int|null $moved_into_session_id
+ * @property int|null $moved_seconds
  * @property \Illuminate\Support\Carbon|null $shift_end_resolved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -82,6 +85,8 @@ use Illuminate\Support\Collection;
  * @property-read \App\Models\Production\JobOrderItemTask|null $jobOrderItemTask
  * @property-read \App\Models\Production\JobOrder|null $jobOrder
  * @property-read \App\Models\Production\ManufactureTask|null $manufactureTask
+ * @property-read ManufactureTaskSession|null $movedInto
+ * @property-read ManufactureTaskSession|null $movedPreparation
  * @property-read \App\Models\Production\ManufacturePayBand|null $payBand
  * @property-read \App\Models\Production\ManufacturePreparationReason|null $preparationReason
  * @property-read Organisation $organisation
@@ -97,6 +102,8 @@ use Illuminate\Support\Collection;
  */
 class ManufactureTaskSession extends Model
 {
+    public const int DEFAULT_SHORT_PREPARATION_MINUTES = 10;
+
     protected static function booted(): void
     {
         static::saved(fn (self $model) => BroadcastManufactureFloorChanged::dispatch($model->production_id));
@@ -281,6 +288,30 @@ class ManufactureTaskSession extends Model
     public function payBand(): BelongsTo
     {
         return $this->belongsTo(ManufacturePayBand::class, 'pay_band_id');
+    }
+
+    /**
+     * Preparation shorter than this is part of the job step started straight after it, and asks for no reason.
+     */
+    public static function shortPreparationMinutes(Production $production): int
+    {
+        return (int) ($production->settings['short_preparation_minutes'] ?? self::DEFAULT_SHORT_PREPARATION_MINUTES);
+    }
+
+    public function isShortPreparation(Carbon $until): bool
+    {
+        return $this->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION
+            && $this->started_at->diffInSeconds($until) < self::shortPreparationMinutes($this->production) * 60;
+    }
+
+    public function movedInto(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'moved_into_session_id');
+    }
+
+    public function movedPreparation(): HasOne
+    {
+        return $this->hasOne(self::class, 'moved_into_session_id');
     }
 
     public function preparationReason(): BelongsTo

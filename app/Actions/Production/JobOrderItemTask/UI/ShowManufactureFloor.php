@@ -355,6 +355,7 @@ class ShowManufactureFloor extends OrgAction
                     'is_other' => $reason->is_other,
                 ])->all()
                 : null,
+            'short_preparation_minutes' => ManufactureTaskSession::shortPreparationMinutes($session->production),
         ];
     }
 

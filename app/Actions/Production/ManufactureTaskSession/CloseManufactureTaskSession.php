@@ -192,7 +192,7 @@ class CloseManufactureTaskSession extends OrgAction
      */
     private function preparationReason(ManufactureTaskSession $session, array $modelData): array
     {
-        if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PREPARATION) {
+        if ($session->activity_type != ManufactureTaskSessionActivityTypeEnum::PREPARATION || empty($modelData['preparation_reason_id'])) {
             return [];
         }
 
@@ -442,7 +442,8 @@ class CloseManufactureTaskSession extends OrgAction
             'finished_before_shift_end' => ['sometimes', 'boolean'],
             'activity_type'          => ['sometimes', Rule::enum(ManufactureTaskSessionActivityTypeEnum::class)->except(ManufactureTaskSessionActivityTypeEnum::floorActivities())],
             'preparation_reason_id'   => [
-                Rule::requiredIf(fn () => $this->manufactureTaskSession->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION),
+                Rule::requiredIf(fn () => $this->manufactureTaskSession->activity_type == ManufactureTaskSessionActivityTypeEnum::PREPARATION
+                    && !$this->manufactureTaskSession->isShortPreparation(now())),
                 'nullable',
                 'integer',
                 Rule::exists('manufacture_preparation_reasons', 'id')->where('production_id', $this->manufactureTaskSession->production_id)->whereNull('deleted_at'),

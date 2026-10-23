@@ -14,6 +14,7 @@ use App\Actions\Production\JobOrder\ConfirmJobOrder;
 use App\Actions\Production\JobOrderItemTask\UI\ShowManufactureFloor;
 use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Enums\Production\JobOrderItemTask\JobOrderItemTaskStateEnum;
+use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionActivityTypeEnum;
 use App\Enums\Production\ManufactureTaskSession\ManufactureTaskSessionStateEnum;
 use App\Models\Production\JobOrder;
 use App\Models\Production\JobOrderItemTask;
@@ -29,6 +30,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StartManufactureTaskSession extends OrgAction
 {
+    // ponytail: fixed gap for "straight after", make it a production setting if the floor needs it tuned
+    public const int SHORT_PREPARATION_GAP_SECONDS = 120;
+
     public function handle(User $user, JobOrderItemTask $jobOrderItemTask): ManufactureTaskSession
     {
         return DB::transaction(fn () => $this->startSession($user, $jobOrderItemTask));
@@ -120,6 +124,7 @@ class StartManufactureTaskSession extends OrgAction
         }
 
         $sessionTask = $members->first();
+        $preparation = $sessionTask->manufactureTask->is_quantity_only ? null : $this->shortPreparationJustBefore($user, $sessionTask->production_id);
 
         try {
             $session = ManufactureTaskSession::create([
@@ -131,7 +136,7 @@ class StartManufactureTaskSession extends OrgAction
                 'user_id'                => $user->id,
                 'employee_id'            => $employee?->id,
                 'state'                  => ManufactureTaskSessionStateEnum::OPEN,
-                'started_at'             => now(),
+                'started_at'             => $preparation?->started_at ?? now(),
                 'is_combined'            => $members->count() > 1,
             ]);
         } catch (UniqueConstraintViolationException) {
@@ -140,6 +145,12 @@ class StartManufactureTaskSession extends OrgAction
             ]);
         }
 
+        $preparation?->update([
+            'state'                 => ManufactureTaskSessionStateEnum::VOIDED,
+            'moved_into_session_id' => $session->id,
+            'moved_seconds'         => (int) $preparation->started_at->diffInSeconds(now()),
+        ]);
+
         foreach ($members as $member) {
             if ($member->state == JobOrderItemTaskStateEnum::TODO) {
                 $member->update(['state' => JobOrderItemTaskStateEnum::IN_PROGRESS]);
@@ -147,6 +158,32 @@ class StartManufactureTaskSession extends OrgAction
         }
 
         return $session;
+    }
+
+    /**
+     * Preparation of a few minutes closed just before this step is getting ready for it (HELP-4277): the step starts
+     * when the preparation did. A break, cleaning or another day in between keeps it as Preparation.
+     */
+    private function shortPreparationJustBefore(User $user, int $productionId): ?ManufactureTaskSession
+    {
+        $last = ManufactureTaskSession::where('user_id', $user->id)
+            ->where('state', ManufactureTaskSessionStateEnum::CLOSED)
+            ->orderByDesc('ended_at')
+            ->lockForUpdate()
+            ->first();
+
+        if (!$last
+            || $last->production_id != $productionId
+            || !$last->isNonProductive()
+            || $last->activity_type != ManufactureTaskSessionActivityTypeEnum::PREPARATION
+            || $last->ended_at->diffInSeconds(now()) > self::SHORT_PREPARATION_GAP_SECONDS
+            || !$last->started_at->isSameDay(now())
+            || !$last->isShortPreparation($last->ended_at)
+            || ManufactureBreak::where('user_id', $user->id)->where('started_at', '>=', $last->started_at)->exists()) {
+            return null;
+        }
+
+        return $last;
     }
 
     public function authorize(ActionRequest $request): bool

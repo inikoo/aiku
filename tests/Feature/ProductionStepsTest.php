@@ -1593,3 +1593,115 @@ test('artefacts are uploaded only by organisation supervisors or production r&d 
 
     expect(\Illuminate\Support\Facades\Route::has('grp.models.production.manufacture_tasks.upload'))->toBeFalse();
 });
+
+test('preparation shorter than the threshold is added to the job step started straight after it, and can be kept as preparation again', function () {
+    $this->artefact->manufactureTasks()->sync([
+        $this->manufactureTask->id => ['position' => 1, 'units_per_artefact' => 1, 'standard_rate' => null],
+    ]);
+    $user = $this->guest->getUser();
+    ManufactureTaskSession::where('user_id', $user->id)->where('state', ManufactureTaskSessionStateEnum::OPEN)
+        ->update(['state' => ManufactureTaskSessionStateEnum::CLOSED, 'ended_at' => now()]);
+    \App\Models\Production\ManufactureBreak::where('user_id', $user->id)->where(fn ($query) => $query->whereNull('ended_at')->orWhere('ended_at', '>', now()->subMinute()))->delete();
+    \App\Actions\Production\ManufactureTaskSession\SetManufactureShortPreparationMinutes::make()->action($this->production, ['minutes' => 10]);
+
+    $jobOrder     = StoreJobOrder::make()->action($this->production, []);
+    $jobOrderItem = StoreJobOrderItem::make()->action($jobOrder, ['artefact_id' => $this->artefact->id, 'quantity' => 100]);
+    ConfirmJobOrder::make()->action($jobOrder);
+    $task = $jobOrderItem->tasks()->first();
+
+    $prepare = function (int $minutes, array $reason = []) use ($user) {
+        $preparation = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'preparation']);
+        $this->travel($minutes)->minutes();
+
+        return CloseManufactureTaskSession::make()->action($preparation, $reason)->refresh();
+    };
+    $work = function () use ($user, $task) {
+        $session = StartManufactureTaskSession::make()->action($user, $task);
+        $this->travel(30)->minutes();
+
+        return CloseManufactureTaskSession::make()->action($session, ['quantity_made' => 1])->refresh();
+    };
+
+    $this->travelTo(now('UTC')->addDays(3)->setTime(9, 0));
+    $preparation = $prepare(6);
+    expect($preparation->preparation_reason_id)->toBeNull();
+    $this->travel(30)->seconds();
+    $job         = $work();
+    $preparation->refresh();
+
+    expect($preparation->state)->toBe(ManufactureTaskSessionStateEnum::VOIDED)
+        ->and($preparation->moved_into_session_id)->toBe($job->id)
+        ->and($preparation->moved_seconds)->toBe(390)
+        ->and($job->started_at->equalTo($preparation->started_at))->toBeTrue()
+        ->and(round($job->paidHours(), 4))->toEqual(round(36.5 / 60, 4));
+
+    $artisan = collect(get(route('grp.org.productions.show.artisans.index', [$this->organisation->slug, $this->production->slug, 'from' => now()->toDateString(), 'to' => now()->toDateString()]))
+        ->viewData('page')['props']['artisans'])->firstWhere('user_id', $user->id);
+    $jobRow  = collect($artisan['jobs'])->flatMap(fn ($row) => collect($row['steps'])->flatMap(fn ($step) => $step['sessions']))->firstWhere('id', $job->id);
+    expect(collect($artisan['non_productive']['sessions'])->firstWhere('id', $preparation->id))->toMatchArray(['moved_into' => $this->manufactureTask->name])
+        ->and($jobRow['preparation_minutes'])->toBe(6)
+        ->and($artisan['non_productive']['activities']['preparation'])->toEqual(0);
+
+    \App\Actions\Production\ManufactureTaskSession\UndoManufacturePreparationMove::make()->action($preparation);
+    $job->refresh();
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED)
+        ->and($preparation->moved_into_session_id)->toBeNull()
+        ->and($job->started_at->equalTo($preparation->started_at->copy()->addSeconds(390)))->toBeTrue()
+        ->and(round($job->paidHours(), 4))->toEqual(0.5)
+        ->and(fn () => \App\Actions\Production\ManufactureTaskSession\UndoManufacturePreparationMove::make()->action($preparation))->toThrow(ValidationException::class);
+
+    $preparation = $prepare(6);
+    $break       = \App\Actions\Production\ManufactureBreak\StartManufactureBreak::make()->action($user, $this->production, ['planned_minutes' => 20]);
+    \App\Actions\Production\ManufactureBreak\EndManufactureBreak::make()->action($break);
+    $work();
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    $this->travel(5)->minutes();
+    $cleaning = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'cleaning']);
+    $this->travel(2)->minutes();
+    CloseManufactureTaskSession::make()->action($cleaning, []);
+    $preparation = $prepare(6);
+    $this->travel(3)->minutes();
+    $work();
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    $reasonId = \App\Models\Production\ManufacturePreparationReason::forProduction($this->production)->firstWhere('is_other', false)->id;
+    $long     = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'preparation']);
+    $this->travel(12)->minutes();
+    expect(fn () => CloseManufactureTaskSession::make()->action($long, []))->toThrow(ValidationException::class);
+    $long = CloseManufactureTaskSession::make()->action($long, ['preparation_reason_id' => $reasonId]);
+    $work();
+    expect($long->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    $this->manufactureTask->update(['is_quantity_only' => true]);
+    $preparation = $prepare(6);
+    $work();
+    $this->manufactureTask->update(['is_quantity_only' => false]);
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    $elsewhere   = Production::whereKeyNot($this->production->id)->first() ?? StoreProduction::make()->action($this->organisation, ['code' => 'PREP2', 'name' => 'Second floor']);
+    $preparation = $prepare(6);
+    $preparation->update(['production_id' => $elsewhere->id]);
+    $work();
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    $preparation = $prepare(6);
+    $work();
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::VOIDED);
+    $this->travel(8)->days();
+    expect(fn () => \App\Actions\Production\ManufactureTaskSession\UndoManufacturePreparationMove::make()->action($preparation))->toThrow(ValidationException::class);
+    \App\Actions\Production\ManufactureTaskSession\UndoManufacturePreparationMove::make()->action($preparation, true);
+    expect($preparation->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    \App\Actions\Production\ManufactureTaskSession\SetManufactureShortPreparationMinutes::make()->action($this->production, ['minutes' => 0]);
+    $this->production->refresh();
+    $short = StartManufactureNonProductiveSession::make()->action($user, $this->production, ['activity_type' => 'preparation']);
+    $this->travel(2)->minutes();
+    expect(fn () => CloseManufactureTaskSession::make()->action($short->refresh(), []))->toThrow(ValidationException::class);
+    CloseManufactureTaskSession::make()->action($short, ['preparation_reason_id' => $reasonId]);
+    $work();
+    expect($short->refresh()->state)->toBe(ManufactureTaskSessionStateEnum::CLOSED);
+
+    \App\Actions\Production\ManufactureTaskSession\SetManufactureShortPreparationMinutes::make()->action($this->production, ['minutes' => 10]);
+    $this->travelBack();
+});

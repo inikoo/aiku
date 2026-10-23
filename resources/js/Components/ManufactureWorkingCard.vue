@@ -25,6 +25,7 @@ const props = defineProps<{
         can_reject?: boolean
         activity?: { type: string, label: string }
         preparation_reasons?: { id: number, label: string, is_other: boolean }[] | null
+        short_preparation_minutes?: number
         task: {
             task_name: string
             artefact_code: string | null
@@ -214,13 +215,14 @@ function confirmDone() {
 const preparationReasonId = ref<number | null>(null)
 const preparationReasonNote = ref('')
 const isOtherReason = computed(() => !!props.session.preparation_reasons?.find((reason) => reason.id === preparationReasonId.value)?.is_other)
-const canFinishActivity = computed(() => !props.session.preparation_reasons?.length || (preparationReasonId.value !== null && (!isOtherReason.value || preparationReasonNote.value.trim() !== '')))
+const asksPreparationReason = computed(() => !!props.session.preparation_reasons?.length && now.value - new Date(props.session.started_at).getTime() >= (props.session.short_preparation_minutes ?? 0) * 60000)
+const canFinishActivity = computed(() => !asksPreparationReason.value || (preparationReasonId.value !== null && (!isOtherReason.value || preparationReasonNote.value.trim() !== '')))
 
 function finishActivity() {
     processing.value = true
     router.patch(
         route(props.session.close_route.name, props.session.close_route.parameters),
-        props.session.preparation_reasons?.length ? { preparation_reason_id: preparationReasonId.value, preparation_reason_note: isOtherReason.value ? preparationReasonNote.value.trim() : null } : {},
+        asksPreparationReason.value ? { preparation_reason_id: preparationReasonId.value, preparation_reason_note: isOtherReason.value ? preparationReasonNote.value.trim() : null } : {},
         { preserveScroll: true, onFinish: () => { processing.value = false; confirming.value = false } }
     )
 }
@@ -288,7 +290,7 @@ function closeSession(outcome: 'complete' | 'carry_over' | null = null, manager:
         <div v-if="confirming" class="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
             <div class="text-2xl font-semibold">{{ ctrans('Finish :activity?', { activity: session.activity.label }) }}</div>
             <div class="mt-2 text-lg text-gray-700">{{ ctrans('Time logged') }}: <b class="tabular-nums">{{ elapsed }}</b></div>
-            <template v-if="session.preparation_reasons?.length">
+            <template v-if="asksPreparationReason">
                 <div class="mt-4 text-xl font-semibold">{{ ctrans('Why did you need preparation?') }}</div>
                 <div class="mt-2 grid gap-3 sm:grid-cols-2">
                     <button v-for="reason in session.preparation_reasons" :key="reason.id" type="button"

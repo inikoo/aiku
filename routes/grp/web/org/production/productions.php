@@ -48,6 +48,7 @@ use App\Actions\Production\ManufactureTaskSession\ExportManufacturePayroll;
 use App\Actions\Production\ManufactureTaskSession\UI\IndexArtisans;
 use App\Actions\Production\ManufactureArtisanDay\SetManufactureHoursTolerance;
 use App\Actions\Production\ManufactureBreak\SetManufactureBreakOverrunTolerance;
+use App\Actions\Production\ManufactureTaskSession\SetManufactureShortPreparationMinutes;
 use App\Actions\Production\ManufacturePayBand\SetManufacturePayBandsVisibleToArtisans;
 use App\Actions\Production\ManufactureArtisanDay\UI\IndexManufactureArtisanDays;
 use App\Actions\Production\ManufactureTaskSession\UI\ShowManufacturePayroll;
@@ -105,6 +106,7 @@ Route::prefix('{production}')
                         Route::get('daily-hours', IndexManufactureArtisanDays::class)->name('daily_hours');
                         Route::post('daily-hours/tolerance', SetManufactureHoursTolerance::class)->name('daily_hours.tolerance');
                         Route::post('performance/break-overrun-tolerance', SetManufactureBreakOverrunTolerance::class)->name('break_overrun_tolerance');
+                        Route::post('performance/short-preparation', SetManufactureShortPreparationMinutes::class)->name('short_preparation');
                         Route::get('payroll', ShowManufacturePayroll::class)->name('payroll');
                         Route::get('payroll/export', ExportManufacturePayroll::class)->name('payroll.export');
                         Route::post('payroll/pay-bands-visible', SetManufacturePayBandsVisibleToArtisans::class)->name('payroll.pay_bands_visible');
