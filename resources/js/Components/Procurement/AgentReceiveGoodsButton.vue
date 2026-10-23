@@ -19,14 +19,15 @@ defineProps<{
 	scopes: { suppliers: ScopeOption[]; purchase_orders: ScopeOption[] }
 	purchaseOrderId?: number | null
 	size?: string
+	full?: boolean
 }>()
 
 const isOpen = ref(false)
 </script>
 
 <template>
-	<span v-tooltip="scopes.suppliers.length === 0 ? ctrans('Nothing is in production to receive') : ctrans('Book goods a supplier delivered: they become a goods receipt and move to Received')">
-		<Button type="tertiary" :size="size" :label="ctrans('Receive goods')" :disabled="scopes.suppliers.length === 0" @click="isOpen = true">
+	<span :class="full ? 'block' : ''" v-tooltip="scopes.suppliers.length === 0 ? ctrans('Nothing is in production to receive') : ctrans('Book goods a supplier delivered: they become a goods receipt and move to Received')">
+		<Button type="tertiary" :size="size" :full="full" :label="ctrans('Receive goods')" :disabled="scopes.suppliers.length === 0" @click="isOpen = true">
 			<template #icon>
 				<FontAwesomeIcon :icon="faDolly" class="text-green-600" fixed-width aria-hidden="true" />
 			</template>

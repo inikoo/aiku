@@ -49,6 +49,7 @@ import PurchaseOrderDepositPayments, { type PurchaseOrderPaymentsData } from "@/
 import AgentPurchaseOrderMoney, { type AgentPurchaseOrderMoneyData } from "@/Components/Procurement/AgentPurchaseOrderMoney.vue"
 import PurchaseOrderStages from "@/Components/Procurement/PurchaseOrderStages.vue"
 import AgentPurchaseOrderGoodsReceipts from "@/Components/Procurement/AgentPurchaseOrderGoodsReceipts.vue"
+import AgentReceiveGoodsButton from "@/Components/Procurement/AgentReceiveGoodsButton.vue"
 import ZoomableImage from "@/Components/Utils/ZoomableImage.vue"
 import ButtonDownloadWithOptions from "@/Components/Utils/ButtonDownloadWithOptions.vue"
 import { useConfirm } from "primevue/useconfirm"
@@ -875,7 +876,7 @@ const stageActions = computed<Record<string, Action[]>>(() => {
 		Object.entries(stageActionKeys)
 			.filter(([stageKey]) => stageKeys.includes(stageKey))
 			.map(([stageKey, keys]) => [stageKey, actions.filter((action) => keys.includes(action.key))])
-			.filter(([, stageActionList]) => stageActionList.length)
+			.filter(([stageKey, stageActionList]) => stageActionList.length || (stageKey === "in_warehouse" && props.agent_receiving?.receive))
 	)
 })
 
@@ -1144,6 +1145,13 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 		</template>
 		<template v-for="(actions, stageKey) in stageActions" :key="stageKey" #[`stage-${stageKey}`]>
 			<div class="mt-2 flex flex-col gap-1">
+				<AgentReceiveGoodsButton
+					v-if="stageKey === 'in_warehouse' && agent_receiving?.receive"
+					:scopes="agent_receiving.receive.scopes"
+					:purchaseOrderId="agent_receiving.receive.purchase_order_id"
+					size="xs"
+					full
+				/>
 				<template v-for="action in actions" :key="action.key">
 					<a v-if="action.key === 'packing_instructions'" :href="route(action.route.name, action.route.parameters)" target="_blank">
 						<Button type="tertiary" size="xs" full :label="action.label" :tooltip="action.tooltip">
