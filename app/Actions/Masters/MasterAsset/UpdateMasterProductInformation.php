@@ -32,7 +32,7 @@ class UpdateMasterProductInformation extends OrgAction
 
     public function handle(MasterAsset $masterAsset, array $modelData): MasterAsset
     {
-        $masterData = Arr::only($modelData, ['code', 'name', 'price', 'description', 'description_extra', 'barcode', 'meta_description', 'seo_image', 'seo_image_url']);
+        $masterData = Arr::only($modelData, ['code', 'name', 'price', 'description', 'description_extra', 'barcode', 'meta_description', 'seo_image', 'seo_image_url', 'seo_image_alt']);
         if ($masterData !== []) {
             UpdateMasterAsset::make()->action($masterAsset, $masterData);
         }
@@ -95,6 +95,7 @@ class UpdateMasterProductInformation extends OrgAction
             'meta_description'      => ['sometimes', 'nullable', 'string', 'max:500'],
             'seo_image'             => ['sometimes', 'nullable', File::image()->max(12 * 1024)],
             'seo_image_url'         => ['sometimes', 'nullable', 'string', 'max:2048'],
+            'seo_image_alt'         => ['sometimes', 'nullable', 'string', 'max:255'],
             'marketing_weight'      => ['sometimes', 'nullable', 'integer', 'min:1'],
             'gross_weight'          => ['sometimes', 'nullable', 'integer', 'min:1'],
             'dimensions_cm'         => ['sometimes', 'array:l,w,h'],

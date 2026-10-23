@@ -356,6 +356,14 @@ class EditMasterProduct extends OrgAction
                         'information' => __('The preview image (og:image) shown when the page is shared on social media. Crop ratio from 1:1 to 3:1, served scaled down to fit 1200x1200 pixels.'),
                         'hasOther'    => [
                             [
+                                'name'        => 'seo_image_alt',
+                                'type'        => 'alt',
+                                'value'       => $masterProduct->seo_image_alt,
+                                'label'       => __('Share image alt text'),
+                                'placeholder' => __('Describe the image'),
+                                'information' => __('Alternative text of the share image, used by screen readers and shown when the image cannot be loaded. Shops that follow the master get it translated.'),
+                            ],
+                            [
                                 'name'        => 'seo_image_url',
                                 'type'        => 'url',
                                 'value'       => $masterProduct->seo_image_url,

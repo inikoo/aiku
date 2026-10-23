@@ -39,6 +39,7 @@ const props = defineProps<{
         meta_description: string | null
         seo_image: { original: string } | null
         seo_image_url: string | null
+        seo_image_alt: string | null
         vol_gr_offer: { item_quantity: number, percentage_off: number }
     }
     departments: { id: number, name: string }[]
@@ -79,6 +80,7 @@ const form = useForm<Record<string, any>>({
     meta_description: props.masterFamily.meta_description,
     seo_image: props.masterFamily.seo_image,
     seo_image_url: props.masterFamily.seo_image_url,
+    seo_image_alt: props.masterFamily.seo_image_alt,
     ...(props.isGoldRewardEligible ? { vol_gr_offer: cloneDeep(props.masterFamily.vol_gr_offer) } : {}),
     ...extraFieldValues,
 })
@@ -143,6 +145,13 @@ const isMetaDescriptionLengthOff = computed(() => metaDescriptionLength.value > 
 
 const shareImageField = {
     hasOther: [
+        {
+            name: "seo_image_alt",
+            type: "alt",
+            label: ctrans("Share image alt text"),
+            placeholder: ctrans("Describe the image"),
+            information: ctrans("Alternative text of the share image, used by screen readers and shown when the image cannot be loaded. Shops that follow the master get it translated."),
+        },
         {
             name: "seo_image_url",
             type: "url",

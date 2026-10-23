@@ -125,6 +125,7 @@ class EditMasterProductInformation extends OrgAction
                         ? ['original' => $masterAsset->seo_image_url]
                         : $masterAsset->imageSources(1200, 1200, 'seoImage'),
                     'seo_image_url'    => $masterAsset->seo_image_url,
+                    'seo_image_alt'    => $masterAsset->seo_image_alt,
                 ],
                 'information' => [
                     'is_editable'           => (bool)$tradeUnit,

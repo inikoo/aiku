@@ -40,6 +40,7 @@ const props = defineProps<{
         meta_description: string
         seo_image: { original: string } | null
         seo_image_url: string | null
+        seo_image_alt: string | null
     }
     information: {
         is_editable: boolean
@@ -101,10 +102,17 @@ const isMetaDescriptionLengthOff = computed(() => metaDescriptionLength.value > 
     && (metaDescriptionLength.value < META_DESCRIPTION_MIN_LENGTH || metaDescriptionLength.value > META_DESCRIPTION_MAX_LENGTH)
 )
 
-const shareImageFromProps = () => ({ seo_image: props.seo.seo_image as { original: string } | File | null, seo_image_url: props.seo.seo_image_url, errors: {} as Record<string, string | null> })
+const shareImageFromProps = () => ({ seo_image: props.seo.seo_image as { original: string } | File | null, seo_image_url: props.seo.seo_image_url, seo_image_alt: props.seo.seo_image_alt, errors: {} as Record<string, string | null> })
 const shareImageForm = ref(shareImageFromProps())
 const shareImageField = {
     hasOther: [
+        {
+            name: "seo_image_alt",
+            type: "alt" as const,
+            label: ctrans("Share image alt text"),
+            placeholder: ctrans("Describe the image"),
+            information: ctrans("Alternative text of the share image, used by screen readers and shown when the image cannot be loaded. Shops that follow the master get it translated."),
+        },
         {
             name: "seo_image_url",
             type: "url" as const,
@@ -208,6 +216,9 @@ const changedPayload = computed(() => {
     }
     if ((shareImageForm.value.seo_image_url ?? null) !== props.seo.seo_image_url) {
         payload.seo_image_url = shareImageForm.value.seo_image_url
+    }
+    if ((shareImageForm.value.seo_image_alt || null) !== props.seo.seo_image_alt) {
+        payload.seo_image_alt = shareImageForm.value.seo_image_alt
     }
 
     return payload
@@ -417,7 +428,7 @@ const save = () => {
                             <p class="mb-2 text-xs text-gray-500">{{ ctrans("The preview image (og:image) shown when the page is shared on social media. Crop ratio from 1:1 to 3:1, served scaled down to fit 1200x1200 pixels.") }}</p>
                             <ImageCropSquare v-if="canEdit" :form="shareImageForm" fieldName="seo_image" :fieldData="shareImageField" />
                             <Image v-else-if="seo.seo_image" :src="seo.seo_image" :alt="ctrans('Share image')" class="h-40 rounded-md object-cover" />
-                            <p v-if="errorOf('seo_image') ?? errorOf('seo_image_url')" class="mt-1 text-xs text-red-600">{{ errorOf("seo_image") ?? errorOf("seo_image_url") }}</p>
+                            <p v-if="errorOf('seo_image') ?? errorOf('seo_image_url') ?? errorOf('seo_image_alt')" class="mt-1 text-xs text-red-600">{{ errorOf("seo_image") ?? errorOf("seo_image_url") ?? errorOf("seo_image_alt") }}</p>
                         </div>
                     </div>
                 </section>

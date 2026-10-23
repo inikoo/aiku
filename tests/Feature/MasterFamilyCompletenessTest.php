@@ -234,14 +234,17 @@ test('master family meta description and share image cascade to the webpages of 
 
     $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
         'meta_description' => 'Handmade soaps for every skin type',
+        'seo_image_alt'    => 'Soap bars on a wooden tray',
     ])->assertSessionHasNoErrors();
 
-    expect($webpage->fresh()->description)->not->toBe('Handmade soaps for every skin type');
+    expect($webpage->fresh()->description)->not->toBe('Handmade soaps for every skin type')
+        ->and(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBeNull()
+        ->and($this->masterFamily->fresh()->seo_image_alt)->toBe('Soap bars on a wooden tray');
 
     data_set($settings, 'catalog.family_follow_master', true);
     $this->shop->update(['settings' => $settings]);
 
-    Translate::mock()->shouldReceive('handle')->andReturn('Translated meta description');
+    Translate::mock()->shouldReceive('handle')->andReturnUsing(fn (?string $text) => 'Translated: '.$text);
 
     $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
         'meta_description' => 'Soaps made by hand',
@@ -251,7 +254,7 @@ test('master family meta description and share image cascade to the webpages of 
     $masterFamily = $this->masterFamily->fresh();
     $webpage->refresh();
 
-    expect($webpage->description)->toBe('Translated meta description')
+    expect($webpage->description)->toBe('Translated: Soaps made by hand')
         ->and($webpage->seo_image_id)->toBe($masterFamily->seo_image_id)
         ->and($webpage->seo_image_url)->toBeNull();
 
@@ -260,6 +263,18 @@ test('master family meta description and share image cascade to the webpages of 
     ])->assertSessionHasNoErrors();
 
     expect($webpage->fresh()->seo_image_url)->toBe('https://cdn.example.com/share.png');
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_alt' => 'Three soap bars on a wooden tray',
+    ])->assertSessionHasNoErrors();
+
+    expect(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBe('Translated: Three soap bars on a wooden tray');
+
+    $this->patch(route('grp.models.master_product_category.update', $this->masterFamily->id), [
+        'seo_image_alt' => null,
+    ])->assertSessionHasNoErrors();
+
+    expect(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBeNull();
 });
 
 test('master product meta description and share image are saved like the webpage share image and counted in its checklist', function () {

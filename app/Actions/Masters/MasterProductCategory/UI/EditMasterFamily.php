@@ -130,6 +130,7 @@ class EditMasterFamily extends OrgAction
                         ? ['original' => $masterProductCategory->seo_image_url]
                         : $masterProductCategory->imageSources(1200, 1200, 'seoImage'),
                     'seo_image_url'            => $masterProductCategory->seo_image_url,
+                    'seo_image_alt'            => $masterProductCategory->seo_image_alt,
                     'vol_gr_offer'             => [
                         'item_quantity'  => (int)$masterProductCategory->gr_vol_discount_quantity,
                         'percentage_off' => (float)trimDecimalZeros($masterProductCategory->gr_vol_discount_percentage),

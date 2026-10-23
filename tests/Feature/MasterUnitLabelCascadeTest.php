@@ -500,15 +500,16 @@ test('the master meta description and share image reach the webpages of products
 
     Translate::mock()->shouldReceive('handle')->never();
 
-    UpdateMasterAsset::make()->action($this->masterAsset, ['meta_description' => 'A lamp that glows like embers']);
+    UpdateMasterAsset::make()->action($this->masterAsset, ['meta_description' => 'A lamp that glows like embers', 'seo_image_alt' => 'A glowing lamp']);
 
-    expect($webpage->fresh()->description)->not->toBe('A lamp that glows like embers');
+    expect($webpage->fresh()->description)->not->toBe('A lamp that glows like embers')
+        ->and(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBeNull();
 
     $this->shop->updateQuietly([
         'settings' => array_merge($this->shop->settings ?? [], ['catalog' => ['product_follow_master' => true]]),
     ]);
 
-    Translate::mock()->shouldReceive('handle')->andReturn('Une lampe qui brille comme des braises');
+    Translate::mock()->shouldReceive('handle')->andReturnUsing(fn (?string $text) => 'fr: '.$text);
 
     UpdateMasterAsset::make()->action($this->masterAsset, [
         'meta_description' => 'A lamp that glows like hot embers',
@@ -517,13 +518,17 @@ test('the master meta description and share image reach the webpages of products
 
     $webpage->refresh();
 
-    expect($webpage->description)->toBe('Une lampe qui brille comme des braises')
+    expect($webpage->description)->toBe('fr: A lamp that glows like hot embers')
         ->and($webpage->seo_image_id)->toBe($this->masterAsset->refresh()->seo_image_id)
         ->and($webpage->seo_image_url)->toBeNull();
 
     UpdateMasterAsset::make()->action($this->masterAsset, ['seo_image_url' => 'https://cdn.example.com/lamp.png']);
 
     expect($webpage->fresh()->seo_image_url)->toBe('https://cdn.example.com/lamp.png');
+
+    UpdateMasterAsset::make()->action($this->masterAsset, ['seo_image_alt' => 'A lamp glowing on a desk']);
+
+    expect(data_get($webpage->fresh()->seo_data, 'image_alt'))->toBe('fr: A lamp glowing on a desk');
 });
 
 test('the master product edit information page edits the meta description and share image', function () {
@@ -534,18 +539,21 @@ test('the master product edit information page edits the meta description and sh
             ->where('seo.meta_description', '')
             ->where('seo.seo_image', null)
             ->where('seo.seo_image_url', null)
+            ->where('seo.seo_image_alt', null)
             ->etc());
 
     post(route('grp.models.master_asset.information.update', $this->masterAsset->id), [
         '_method'          => 'patch',
         'meta_description' => 'A lamp that glows like embers',
         'seo_image_url'    => 'cdn.example.com/lamp.png',
+        'seo_image_alt'    => 'A glowing lamp',
     ])->assertSessionHasNoErrors();
 
     $this->masterAsset->refresh();
 
     expect($this->masterAsset->meta_description)->toBe('A lamp that glows like embers')
-        ->and($this->masterAsset->seo_image_url)->toBe('https://cdn.example.com/lamp.png');
+        ->and($this->masterAsset->seo_image_url)->toBe('https://cdn.example.com/lamp.png')
+        ->and($this->masterAsset->seo_image_alt)->toBe('A glowing lamp');
 
     post(route('grp.models.master_asset.information.update', $this->masterAsset->id), [
         '_method'   => 'patch',

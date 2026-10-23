@@ -100,6 +100,7 @@ use App\Models\Traits\HasSearch;
  * @property string|null $meta_description
  * @property int|null $seo_image_id
  * @property string|null $seo_image_url
+ * @property string|null $seo_image_alt
  * @property int|null $art1_image_id
  * @property int|null $art2_image_id
  * @property int|null $art3_image_id

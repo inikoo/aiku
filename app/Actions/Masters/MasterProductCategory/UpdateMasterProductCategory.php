@@ -209,7 +209,7 @@ class UpdateMasterProductCategory extends OrgAction
 
         $seoImageChanged = $seoImage || Arr::has($changed, 'seo_image_url');
 
-        if ($seoImageChanged || Arr::hasAny($changed, ['name', 'description', 'description_title', 'description_extra', 'code', 'category_comparison', 'meta_description'])) {
+        if ($seoImageChanged || Arr::hasAny($changed, ['name', 'description', 'description_title', 'description_extra', 'code', 'category_comparison', 'meta_description', 'seo_image_alt'])) {
 
             $english      = Language::where('code', 'en')->first();
 
@@ -274,6 +274,12 @@ class UpdateMasterProductCategory extends OrgAction
                 if ($followMaster && $productCategory->webpage) {
                     if (Arr::has($changed, 'meta_description')) {
                         $webpageData['description'] = Translate::run($masterProductCategory->meta_description, $english, $shopLanguage, 'catalogue', brief: $brief);
+                    }
+
+                    if (Arr::has($changed, 'seo_image_alt')) {
+                        $webpageData['seo_image_alt'] = filled($masterProductCategory->seo_image_alt)
+                            ? Translate::run($masterProductCategory->seo_image_alt, $english, $shopLanguage, 'catalogue', brief: $brief)
+                            : null;
                     }
 
                     if ($seoImageChanged) {
@@ -362,6 +368,7 @@ class UpdateMasterProductCategory extends OrgAction
                     ->max(12 * 1024),
             ],
             'seo_image_url'                 => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
+            'seo_image_alt'                 => ['sometimes', 'nullable', 'string', 'max:255'],
             'image'                         => [
                 'sometimes',
                 'nullable',

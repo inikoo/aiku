@@ -504,7 +504,7 @@ class UpdateMasterAsset extends OrgAction
         PropagateMasterContentToProducts::run($masterAsset, array_keys($changes));
 
         $seoImageChanged = $seoImage || $wasChanged('seo_image_url');
-        if ($seoImageChanged || $wasChanged('meta_description')) {
+        if ($seoImageChanged || $wasChanged(['meta_description', 'seo_image_alt'])) {
             $english = Language::where('code', 'en')->first();
 
             foreach ($masterAsset->products()->with(['shop.language', 'webpage'])->get() as $product) {
@@ -515,6 +515,12 @@ class UpdateMasterAsset extends OrgAction
                 $webpageData = [];
                 if ($wasChanged('meta_description')) {
                     $webpageData['description'] = Translate::run($masterAsset->meta_description, $english, $product->shop->language, 'catalogue');
+                }
+
+                if ($wasChanged('seo_image_alt')) {
+                    $webpageData['seo_image_alt'] = filled($masterAsset->seo_image_alt)
+                        ? Translate::run($masterAsset->seo_image_alt, $english, $product->shop->language, 'catalogue')
+                        : null;
                 }
 
                 if ($seoImageChanged) {
@@ -596,6 +602,7 @@ class UpdateMasterAsset extends OrgAction
             'meta_description'             => ['sometimes', 'nullable', 'string', 'max:500'],
             'seo_image'                    => ['sometimes', 'nullable', File::image()->max(12 * 1024)],
             'seo_image_url'                => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
+            'seo_image_alt'                => ['sometimes', 'nullable', 'string', 'max:255'],
             'gpsr_manual'                  => ['sometimes', 'nullable', 'string'],
             'is_for_sale'                => ['sometimes', 'boolean'],
             'is_back_order'                => ['sometimes', 'boolean'],
