@@ -167,6 +167,7 @@ const props = defineProps<{
 	allowActions: boolean
 	allow_waiting: boolean
 	allow_picker_set_not_picked: boolean
+	can_cancel_items?: boolean
     box_stats: {}
     margin_summary?: {}
     quick_pickers: {}
@@ -1255,6 +1256,7 @@ const stopSocketListener = () => {
 			:shop_type="shop_type"
 			:allowWaiting="allow_waiting"
 			:allowPickerSetNotPicked="allow_picker_set_not_picked"
+			:canCancelItems="can_cancel_items"
 			:order_slug="order_slug"
 			:warehouse
 			:deliveryNote="delivery_note"

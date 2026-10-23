@@ -1513,6 +1513,8 @@ class ShowDeliveryNote extends OrgAction
 
             'allow_waiting'               => $allowWaiting,
             'allow_picker_set_not_picked' => !$allowWaiting || (data_get($this->organisation->settings, 'orders.allow_picker_set_not_picked', false)),
+            'can_cancel_items'            => request()->user() instanceof \App\Models\SysAdmin\User && $deliveryNote->itemsCanBeCancelledBy(request()->user())
+                && $deliveryNote->deliveryNoteItems()->whereRaw('COALESCE(quantity_not_picked, 0) < quantity_required')->count() > 1,
             'showChangePickerPacker'      => $showChangePickerPacker,
             'order_slug'                  => $deliveryNote->orders->first()?->slug,
 

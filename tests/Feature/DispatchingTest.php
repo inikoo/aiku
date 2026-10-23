@@ -7366,3 +7366,68 @@ test('waiting items grouped by delivery note show the picked bays of each delive
                 == [['id' => $pickedBay->id, 'slug' => $pickedBay->slug, 'name' => $pickedBay->code]]
         )->etc());
 });
+
+test('cancelling a picked line of a replacement takes its picks back and leaves the rest of the note alive (HELP-4265)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['type' => \App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum::REPLACEMENT]);
+
+    $otherItem = StoreDeliveryNoteItem::make()->action($deliveryNote, [
+        'delivery_note_id'  => $deliveryNote->id,
+        'org_stock_id'      => $deliveryNoteItem->org_stock_id,
+        'transaction_id'    => $deliveryNoteItem->transaction_id,
+        'quantity_required' => 5,
+    ]);
+    $pickingId = $deliveryNoteItem->pickings()->first()->id;
+
+    actingAs($this->user);
+    post(route('grp.models.delivery_note_item.cancel_from_replacement', $deliveryNoteItem->id))->assertSessionHasNoErrors()->assertRedirect();
+
+    $deliveryNoteItem->refresh();
+
+    expect(\App\Models\Dispatching\Picking::find($pickingId))->toBeNull()
+        ->and((float)$deliveryNoteItem->quantity_picked)->toBe(0.0)
+        ->and((float)$deliveryNoteItem->quantity_not_picked)->toBe((float)$deliveryNoteItem->quantity_required)
+        ->and($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::HANDLING)
+        ->and($otherItem->refresh()->pickings()->where('type', \App\Enums\Dispatching\Picking\PickingTypeEnum::NOT_PICK)->exists())->toBeFalse();
+
+    $deliveryNote->deliveryNoteItems()->whereKeyNot($otherItem->id)->update(['quantity_not_picked' => DB::raw('quantity_required')]);
+
+    expect(fn () => \App\Actions\Dispatching\DeliveryNoteItem\CancelReplacementDeliveryNoteItem::make()->handle($otherItem->refresh(), $this->user))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+});
+
+test('lines of an order delivery note cannot be cancelled one by one (HELP-4265)', function () {
+    [, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+
+    actingAs($this->user);
+    post(route('grp.models.delivery_note_item.cancel_from_replacement', $deliveryNoteItem->id))->assertForbidden();
+});
+
+test('cancelling a line of a picked replacement keeps the note picked and credits the picked stock back (HELP-4265)', function () {
+    [$deliveryNote, $deliveryNoteItem] = handlingDeliveryNoteWithPicking($this);
+    $deliveryNote->update(['type' => \App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum::REPLACEMENT]);
+    $deliveryNote->deliveryNoteItems()->whereKeyNot($deliveryNoteItem->id)->delete();
+
+    $otherItem = StoreDeliveryNoteItem::make()->action($deliveryNote, [
+        'delivery_note_id'  => $deliveryNote->id,
+        'org_stock_id'      => $deliveryNoteItem->org_stock_id,
+        'transaction_id'    => $deliveryNoteItem->transaction_id,
+        'quantity_required' => 5,
+    ]);
+    StorePicking::make()->action($otherItem, $this->user, [
+        'picker_user_id'        => $this->user->id,
+        'location_org_stock_id' => \App\Models\Inventory\LocationOrgStock::where('org_stock_id', $deliveryNoteItem->org_stock_id)->first()->id,
+        'quantity'              => 5,
+    ]);
+
+    $deliveryNote = \App\Actions\Dispatching\DeliveryNote\UpdateState\UpdateDeliveryNoteStateToPicked::run($deliveryNote->refresh());
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PICKED);
+
+    \App\Actions\Dispatching\DeliveryNoteItem\CancelReplacementDeliveryNoteItem::make()->handle($deliveryNoteItem, $this->user);
+
+    expect($deliveryNote->refresh()->state)->toBe(DeliveryNoteStateEnum::PICKED)
+        ->and((float)$deliveryNoteItem->refresh()->quantity_not_picked)->toBe(10.0)
+        ->and((float)$otherItem->refresh()->quantity_picked)->toBe(5.0)
+        ->and(\App\Models\Inventory\OrgStockMovement::where('parent_type', 'DeliveryNote')->where('parent_id', $deliveryNote->id)
+            ->where('type', \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::CANCEL_PICKED)->exists())->toBeTrue();
+});

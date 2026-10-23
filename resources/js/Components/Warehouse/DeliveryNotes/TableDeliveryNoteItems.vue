@@ -21,6 +21,7 @@ import { faSkull, faWandMagic, faExclamationTriangle } from "@fas";
 import { faSpinnerThird } from "@fad";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import ButtonWithLink from "@/Components/Elements/Buttons/ButtonWithLink.vue";
+import ModalConfirmationDelete from "@/Components/Utils/ModalConfirmationDelete.vue";
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure";
 import Modal from "@/Components/Utils/Modal.vue"
 import { RadioButton, Dialog } from "primevue"
@@ -53,9 +54,9 @@ import ButtonSelectBays from "@/Components/DeliveryNote/ButtonSelectBays.vue"
 import IndivisibleSetIcon from "@/Components/Catalogue/IndivisibleSetIcon.vue"
 import { useStringToHex } from "@/Composables/useStringToHex"
 import { useIndivisibleSetMismatches } from "@/Composables/useIndivisibleSetMismatches"
-import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle, faBrowser } from "@fal"
+import { faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faCloudDownload, faEye, faInfoCircle, faBrowser, faTimes } from "@fal"
 
-library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye, faBrowser);
+library.add(faInfoCircle, faFilePdf,faSpinnerThird, faSkull, faArrowDown, faDebug, faClipboardListCheck, faUndoAlt, faHandHoldingBox, faListOl, faHourglassHalf, faWandMagic, faBox, faBarcode, faBoxOpen, faPrint, faRedo, faFileAlt, faExclamationCircle, faExclamationTriangle, faCloudDownload, faEye, faBrowser, faTimes);
 
 
 const props = defineProps<{
@@ -65,6 +66,7 @@ const props = defineProps<{
     shop_type : string
     allowWaiting: boolean
     allowPickerSetNotPicked: boolean
+    canCancelItems?: boolean
     isEditable: boolean
     packaging?: {
         current: {
@@ -1139,6 +1141,24 @@ const onSaveSplitBoxes = async () => {
                     {{ item.original_quantity_required }}
                 </span>
             </span>
+            <ModalConfirmationDelete
+                v-if="canCancelItems && Number(item.quantity_not_picked ?? 0) < Number(item.quantity_required) && !Number(item.quantity_waiting_warehouse ?? 0) && !Number(item.quantity_waiting_crm ?? 0)"
+                :title="ctrans('Cancel :code from this replacement?', { code: item.org_stock_code })"
+                :description="ctrans('The customer will not get this item. Anything already picked must go back to its location. The rest of the replacement carries on.')"
+                :noLabel="ctrans('Yes, cancel item')"
+                noIcon=""
+                :routeDelete="{
+                    method: 'post',
+                    name: 'grp.models.delivery_note_item.cancel_from_replacement',
+                    parameters: { deliveryNoteItem: item.id }
+                }"
+            >
+                <template #default="{ changeModel }">
+                    <span @click="changeModel" v-tooltip="ctrans('Cancel this item')" class="ml-2 text-red-400 hover:text-red-600 cursor-pointer">
+                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                    </span>
+                </template>
+            </ModalConfirmationDelete>
         </template>
 
         <template #cell(quantity_picked_readonly)="{ item }">
@@ -1401,6 +1421,25 @@ const onSaveSplitBoxes = async () => {
                 </span>
             </span>
 
+
+            <ModalConfirmationDelete
+                v-if="canCancelItems && Number(item.quantity_not_picked ?? 0) < Number(item.quantity_required) && !Number(item.quantity_waiting_warehouse ?? 0) && !Number(item.quantity_waiting_crm ?? 0)"
+                :title="ctrans('Cancel :code from this replacement?', { code: item.org_stock_code })"
+                :description="ctrans('The customer will not get this item. Anything already picked must go back to its location. The rest of the replacement carries on.')"
+                :noLabel="ctrans('Yes, cancel item')"
+                noIcon=""
+                :routeDelete="{
+                    method: 'post',
+                    name: 'grp.models.delivery_note_item.cancel_from_replacement',
+                    parameters: { deliveryNoteItem: item.id }
+                }"
+            >
+                <template #default="{ changeModel }">
+                    <span @click="changeModel" v-tooltip="ctrans('Cancel this item')" class="ml-2 text-red-400 hover:text-red-600 cursor-pointer">
+                        <FontAwesomeIcon icon="fal fa-times" fixed-width aria-hidden="true" />
+                    </span>
+                </template>
+            </ModalConfirmationDelete>
 
             <!-- The SKU composition changed after this was picked/packed: human decides -->
             <template v-if="item.composition_dirty_at">

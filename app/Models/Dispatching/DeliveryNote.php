@@ -679,4 +679,21 @@ class DeliveryNote extends Model implements Auditable
             "crm.$this->shop_id.edit",
         ]);
     }
+
+    /**
+     * HELP-4265. A customer can drop lines from a replacement after it was sent to the warehouse.
+     * Once packing starts the lines are in boxes, so only the whole note can be cancelled from there.
+     */
+    public function itemsCanBeCancelledBy(User $user): bool
+    {
+        return $this->type === DeliveryNoteTypeEnum::REPLACEMENT
+            && in_array($this->state, [
+                DeliveryNoteStateEnum::UNASSIGNED,
+                DeliveryNoteStateEnum::QUEUED,
+                DeliveryNoteStateEnum::HANDLING,
+                DeliveryNoteStateEnum::HANDLING_BLOCKED,
+                DeliveryNoteStateEnum::PICKED,
+            ])
+            && $this->canBeCancelledBy($user);
+    }
 }
