@@ -9,6 +9,7 @@
 
 namespace App\Actions\Goods\ProductDevelopment\UI;
 
+use App\Actions\Goods\ProductDevelopment\Design\CancelProductDevelopmentArtworkInAiku;
 use App\Actions\Goods\ProductDevelopment\Design\DeleteProductDevelopmentDesignSection;
 use App\Actions\Goods\ProductDevelopment\Design\DownloadProductDevelopmentArtwork;
 use App\Actions\Goods\ProductDevelopment\Design\ProductDevelopmentArtworks;
@@ -198,6 +199,8 @@ class GetProductDevelopmentDesignOverview
                 'can_review'     => $canReview && $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW,
                 'approval_blocked' => $artwork->status === ProductDevelopmentArtworkStatusEnum::IN_REVIEW ? ProductDevelopmentArtworks::approvalBlockedReason($artwork) : null,
                 'review_route'   => ['name' => 'grp.models.product_development.artwork.review', 'parameters' => ['productDevelopmentArtwork' => $artwork->id]],
+                'can_cancel_aiku' => $canManage && CancelProductDevelopmentArtworkInAiku::isCancellable($artwork),
+                'cancel_aiku_route' => ['name' => 'grp.models.product_development.artwork.aiku.cancel', 'parameters' => ['productDevelopmentArtwork' => $artwork->id]],
                 'comments'       => (int) ($this->commentCounts[$artwork->id] ?? 0),
                 'versions'       => $artwork->versions->map(fn (ProductDevelopmentArtworkVersion $version) => $this->version($productDevelopment, $artwork, $version))->values()->all(),
                 'comments_route' => ['name' => 'grp.product_developments.json.artwork_comments', 'parameters' => ['productDevelopment' => $productDevelopment->slug, 'artwork' => $artwork->id]],
