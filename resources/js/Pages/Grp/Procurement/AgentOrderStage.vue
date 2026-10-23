@@ -91,11 +91,11 @@ const selectAgentInvoice = (value: string | null) => {
 
         <Table :resource="rows" class="mt-0">
             <template #cell(reference)="{ item }">
-                <Link :href="item.url" :title="item.reference" class="block max-w-xs truncate font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.reference }}</Link>
+                <Link :href="item.url" v-tooltip="item.reference" class="block max-w-xs truncate font-medium text-gray-800 primaryLink w-fit underline-offset-2">{{ item.reference }}</Link>
             </template>
             <template #cell(supplier_code)="{ item }">
                 <div class="font-medium text-gray-800">{{ item.supplier_code }}</div>
-                <div :title="item.supplier_name ?? ''" class="max-w-[14rem] truncate text-xs leading-tight text-gray-500">{{ item.supplier_name }}</div>
+                <div v-tooltip="item.supplier_name ?? ''" class="max-w-[14rem] truncate text-xs leading-tight text-gray-500">{{ item.supplier_name }}</div>
             </template>
             <template #cell(purchase_orders)="{ item }">
                 <span class="tabular-nums">{{ locale.number(item.purchase_orders ?? 0) }}</span>
@@ -106,7 +106,7 @@ const selectAgentInvoice = (value: string | null) => {
             </template>
             <template #cell(eta)="{ item }">
                 <div class="whitespace-nowrap tabular-nums">{{ day(item.eta) }}</div>
-                <div v-if="item.days_late" class="text-xs font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(item.days_late) }) }}</div>
+                <div v-if="item.days_late" v-tooltip="ctrans(':count days late', { count: locale.number(item.days_late) })" class="text-xs font-medium leading-tight text-amber-600">{{ ctrans(":count days late", { count: locale.number(item.days_late) }) }}</div>
             </template>
             <template #cell(tracking_number)="{ item }">
                 <a v-if="item.tracking_number" :href="`https://www.track-trace.com/container?number=${encodeURIComponent(item.tracking_number)}`" target="_blank" rel="noopener" v-tooltip="ctrans('Track the container')" class="whitespace-nowrap font-medium text-gray-800 underline decoration-dotted underline-offset-2">{{ item.tracking_number }}</a>
