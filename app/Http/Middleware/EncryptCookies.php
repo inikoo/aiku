@@ -24,6 +24,7 @@ class EncryptCookies extends Middleware
         /* Written by the storefront JS from the first-hit response, like the other two, so it must
            stay plaintext or the server cannot read back the date it wrote. */
         'aiku_vcd',
+        'aiku_gac',
         'iris_vua'
     ];
 
