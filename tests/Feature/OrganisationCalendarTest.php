@@ -258,3 +258,22 @@ test('the calendar shows the open appointments of every shop of the organisation
 
     expect(session('errors')->first('overlap'))->toContain('Calendar Visitor');
 });
+
+test('one calendar item opens on the offers calendar, with the offers and appointments calendars in its top bar', function () {
+    $navigation = GetOrganisationNavigation::run($this->user, $this->organisation);
+
+    expect($navigation)->not->toHaveKey('calendar_offers')
+        ->and($navigation['calendar']['route']['name'])->toBe('grp.org.offer.calendar')
+        ->and($navigation['calendar']['roots'])->toBe(['grp.org.offer.calendar', 'grp.org.calendar.'])
+        ->and(collect($navigation['calendar']['topMenu']['subSections'])->pluck('route.name')->all())
+        ->toBe(['grp.org.offer.calendar', 'grp.org.calendar.index'])
+        ->and(collect($navigation['shops_index']['topMenu']['subSections'])->pluck('label'))->not->toContain(__('Calendar'));
+});
+
+test('staff who cannot see the shops only get the appointments calendar', function () {
+    $navigation = GetOrganisationNavigation::run(($this->staffWith)([]), $this->organisation);
+
+    expect($navigation['calendar']['route']['name'])->toBe('grp.org.calendar.index')
+        ->and(collect($navigation['calendar']['topMenu']['subSections'])->pluck('route.name')->all())
+        ->toBe(['grp.org.calendar.index']);
+});
