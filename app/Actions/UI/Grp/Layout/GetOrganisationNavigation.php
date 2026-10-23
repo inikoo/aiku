@@ -62,17 +62,7 @@ class GetOrganisationNavigation
                         [
                             'label'   => __('Dashboard'),
                             'tooltip' => __('Dashboard'),
-                        ],
-                        [
-                            'label'   => __('Calendar'),
-                            'tooltip' => __('Calendar'),
-                            'icon'    => ['fal', 'fa-calendar-alt'],
-                            'root'    => 'grp.org.calendar.',
-                            'route'   => [
-                                'name'       => 'grp.org.calendar.index',
-                                'parameters' => [$organisation->slug],
-                            ],
-                        ],
+                        ]
                     ]
                 ]
 
@@ -315,17 +305,6 @@ class GetOrganisationNavigation
                 'topMenu' => [],
             ];
         }
-
-        $navigation['calendar'] = [
-            'label'   => __('Calendar'),
-            'icon'    => ['fal', 'fa-calendar-alt'],
-            'root'    => 'grp.org.calendar.',
-            'route'   => [
-                'name'       => 'grp.org.calendar.index',
-                'parameters' => [$organisation->slug],
-            ],
-            'topMenu' => [],
-        ];
 
         $navigation['tasks'] = [
             'label'   => __('Tasks'),

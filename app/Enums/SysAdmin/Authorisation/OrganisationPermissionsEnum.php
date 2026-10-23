@@ -17,8 +17,6 @@ enum OrganisationPermissionsEnum: string
 
     case ORG_REPORTS = 'org-reports';
 
-    case CALENDAR_EDIT = 'calendar.edit';
-
     case AGENT = 'agent';
 
     case ACCOUNTING      = 'accounting';
