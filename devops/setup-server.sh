@@ -34,6 +34,7 @@ set -a; source "$ENV_FILE"; set +a
 : "${VARNISH_HOST_BORO:?set it in $ENV_FILE}"
 : "${VARNISH_HOST_LITIO:?set it in $ENV_FILE}"
 : "${VARNISH_PORT_LITIO:?set it in $ENV_FILE}"
+: "${VARNISH_PORT_LITIO_REPLICA:?set it in $ENV_FILE}"
 : "${NGINX_PORT:?set it in $ENV_FILE}"
 : "${APP_HOST:?set it in $ENV_FILE — boro, litio or helio}"
 : "${OCTANE_WORKERS:?set it in $ENV_FILE}"

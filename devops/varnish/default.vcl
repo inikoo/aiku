@@ -17,9 +17,23 @@ acl cache_warmer {
     # "10.0.0.10";
 }
 
+probe replica_pool_probe {
+    .request =
+        "HEAD / HTTP/1.1"
+        "Host: app.aiku.io"
+        "Connection: close";
+    .expected_response = 302;
+    .interval = 2s;
+    .timeout = 2s;
+    .window = 5;
+    .threshold = 3;
+}
+
 backend litio {
+    # logged-out page builds: litio Octane replica pool (reads litio DB replica); litio_in stays on primary pool
     .host = "{{VARNISH_HOST_LITIO}}";
-    .port = "{{VARNISH_PORT_LITIO}}";
+    .port = "{{VARNISH_PORT_LITIO_REPLICA}}";
+    .probe = replica_pool_probe;
     .connect_timeout = 1s;
     .first_byte_timeout = 30s;
     .between_bytes_timeout = 30s;
@@ -88,8 +102,13 @@ sub vcl_init {
     logged_in_vdir.add_backend(litio_in,80);
     logged_in_vdir.add_backend(boro_in,20);
 
+    # replica pool down -> litio primary pool (litio_in), not boro
+    new logged_out_litio = directors.fallback();
+    logged_out_litio.add_backend(litio);
+    logged_out_litio.add_backend(litio_in);
+
     new logged_out_vdir = directors.random();
-    logged_out_vdir.add_backend(litio,80);
+    logged_out_vdir.add_backend(logged_out_litio.backend(),80);
     logged_out_vdir.add_backend(boro,20);
 
 }
@@ -198,7 +217,7 @@ sub vcl_recv {
     }
 
     # Aiku non-cacheable iris paths
-    if (req.url ~ "^/(app|json|disclosure|unsubscribe|locale|models|catalogue|invoice|attachment|reviews|customer-reviews)(/|$)") {
+    if (req.url ~ "^/(app|json|disclosure|unsubscribe|locale|models|catalogue|invoice|attachment)(/|$)") {
         return (pass);
     }
 
@@ -390,6 +409,7 @@ sub vcl_backend_response {
             set beresp.ttl = 10d;
             set beresp.grace = 1m;
             set beresp.do_gzip = true;
+            call set_reviews_ttl;
 
 
             if (beresp.http.Vary) {
@@ -417,6 +437,7 @@ sub vcl_backend_response {
     set beresp.ttl = 10d;
     set beresp.grace = 2m;
     set beresp.keep = 10m;
+    call set_reviews_ttl;
 
 
     # Enable gzip on text-like content
@@ -425,6 +446,12 @@ sub vcl_backend_response {
     }
 
     return (deliver);
+}
+
+sub set_reviews_ttl {
+    if (bereq.url ~ "^/(reviews|customer-reviews)(/|\?|$)") {
+        set beresp.ttl = 5m;
+    }
 }
 
 sub vcl_deliver {
