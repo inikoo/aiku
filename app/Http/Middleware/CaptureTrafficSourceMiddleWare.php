@@ -17,24 +17,36 @@ use Illuminate\Support\Facades\Cookie;
 class CaptureTrafficSourceMiddleWare
 {
     /**
+     * Captures the ad click of a visitor landing on an /app/ page while logged out (registration form,
+     * register, basket). Those pages bypass Varnish, and the /app/ first-hit fetch that captures for a
+     * logged-in customer needs a login, so without this their clicks were never recorded.
+     *
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function handle(Request $request, Closure $next)
     {
-
-        if (!CaptureTrafficSource::make()->canCaptureTrafficSource()) {
+        if (!$this->isLoggedOutPageLoad($request) || !CaptureTrafficSource::make()->canCaptureTrafficSource()) {
             return $next($request);
         }
 
-        $cookies = CaptureTrafficSource::make()->getCookies();
-
-        foreach ($cookies as $key => $value) {
-            Cookie::queue($key, $value['value'], $value['duration']);
+        if (!$request->headers->has('X-Original-Referer')) {
+            $request->headers->set('X-Original-Referer', (string) $request->headers->get('referer', ''));
         }
+
+        foreach (CaptureTrafficSource::make()->getCookies() as $name => $cookie) {
+            Cookie::queue(Cookie::make($name, $cookie['value'], $cookie['duration'], '/', null, null, false));
+        }
+
         return $next($request);
     }
 
-
-
+    private function isLoggedOutPageLoad(Request $request): bool
+    {
+        return $request->isMethod('GET')
+            && !$request->ajax()
+            && !$request->header('X-Inertia')
+            && !$request->expectsJson()
+            && !auth('retina')->check();
+    }
 }

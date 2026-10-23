@@ -67,6 +67,9 @@ sub vcl_init {
     # google adds
     tracking_params_filter.add_string("gad_source");
     tracking_params_filter.add_string("gad_campaignid");
+    tracking_params_filter.add_string("gclid");
+    tracking_params_filter.add_string("gbraid");
+    tracking_params_filter.add_string("wbraid");
 
     #meta
     tracking_params_filter.add_string("fbclid");
@@ -448,6 +451,16 @@ sub vcl_deliver {
     if (resp.status == 301 || resp.status == 302 || resp.status == 303 || resp.status == 307 || resp.status == 308) {
         if (!resp.http.Cache-Control) {
             set resp.http.Cache-Control = "no-store";
+        }
+
+        # The backend redirected the URL without its ad params, give them back so the gclid reaches the landing page
+        set req.http.X-Aiku-Ad-Params = regsub(req.http.X-Stripped-Query, "^\?", "");
+        if (req.http.X-Aiku-Ad-Params ~ "." && resp.http.Location && resp.http.Location !~ "#") {
+            if (resp.http.Location ~ "\?") {
+                set resp.http.Location = resp.http.Location + "&" + req.http.X-Aiku-Ad-Params;
+            } else {
+                set resp.http.Location = resp.http.Location + "?" + req.http.X-Aiku-Ad-Params;
+            }
         }
     }
     unset resp.http.X-Aiku-Cacheable-Redirect;
