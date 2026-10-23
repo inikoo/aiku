@@ -24,6 +24,8 @@ enum McpChangeTypeEnum: string
     case MASTER_PRICES = 'master_prices';
     case STOCK_DELIVERY_COSTS = 'stock_delivery_costs';
     case CUSTOMER_SERVICE = 'customer_service';
+    case CHAT_SPAM = 'chat_spam';
+    case CHAT_CLOSED = 'chat_closed';
     case TRADE_UNIT_PROPERTIES = 'trade_unit_properties';
     case WEBSITE_REDIRECTS = 'website_redirects';
 
@@ -40,6 +42,8 @@ enum McpChangeTypeEnum: string
             'master_prices'         => __('Master prices'),
             'stock_delivery_costs'  => __('Stock delivery costs'),
             'customer_service'      => __('Customer service'),
+            'chat_spam'             => __('Chat put in spam'),
+            'chat_closed'           => __('Chat closed after thanks'),
             'trade_unit_properties' => __('Trade unit properties'),
             'website_redirects'     => __('Website redirects'),
         ];
@@ -58,7 +62,7 @@ enum McpChangeTypeEnum: string
             McpChangeTypeEnum::PLACED_ORDER => 'can_use_mcp_place_orders',
             McpChangeTypeEnum::MASTER_PRICES => 'can_use_mcp_prices',
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => 'can_use_mcp_costing',
-            McpChangeTypeEnum::CUSTOMER_SERVICE => 'can_use_mcp_customer_service',
+            McpChangeTypeEnum::CUSTOMER_SERVICE, McpChangeTypeEnum::CHAT_SPAM, McpChangeTypeEnum::CHAT_CLOSED => 'can_use_mcp_customer_service',
             McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => 'can_use_mcp_goods',
         };
     }

@@ -3104,6 +3104,153 @@ describe('customer service tools', function () {
 
         expect(App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($this->chat)->facts['client'])->toBe('TestAssistant');
     });
+    test('the assistant puts an obvious mailshot in spam without blocking the sender, and the change reverts', function () {
+        $email    = 'promo'.uniqid().'@mailshot.test';
+        $stranger = App\Models\Chat\ChatSession::create([
+            'ulid'             => (string) Illuminate\Support\Str::ulid(),
+            'status'           => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value,
+            'channel'          => App\Enums\CRM\Livechat\ChatChannelEnum::EMAIL,
+            'shop_id'          => $this->shop->id,
+            'metadata'         => ['email' => $email, 'email_subject' => 'Join our webinar'],
+            'language_id'      => 68,
+            'ai_model_version' => 'default',
+        ]);
+        $markSpam = fn (array $arguments = []) => AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['chat_id' => $stranger->ulid, 'action' => 'mark_spam', ...$arguments]);
+
+        $markSpam()->assertOk()->assertSee('Nothing was changed')->assertSee($email);
+        expect($stranger->refresh()->is_spam)->toBeFalse();
+
+        $markSpam(['confirm' => true, 'request_text' => 'bin the webinar mailshot'])->assertOk()->assertSee('change_log_id');
+
+        $change = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::CHAT_SPAM)->where('data->target->chat_session_id', $stranger->id)->sole();
+        expect($stranger->refresh()->is_spam)->toBeTrue()
+            ->and($stranger->noise_checked_at)->not->toBeNull()
+            ->and(data_get($this->shop->refresh()->settings, 'gmail.blocked_senders') ?? [])->not->toContain($email)
+            ->and($change->request_text)->toBe('bin the webinar mailshot');
+
+        $markSpam(['confirm' => true, 'request_text' => 'again'])->assertHasErrors(['already in spam']);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\AiChangesTool::class, ['revert_id' => $change->id, 'request_text' => 'that one was real'])->assertOk()->assertSee('reverted');
+        expect($stranger->refresh()->is_spam)->toBeFalse()
+            ->and($change->refresh()->reverted_at)->not->toBeNull();
+
+        $customerEmail = $this->csCustomer->refresh()->email;
+        App\Models\CRM\Customer::whereKey($this->csCustomer->id)->update(['email' => strtoupper($email)]);
+        $markSpam(['confirm' => true, 'request_text' => 'bin it'])->assertHasErrors(['from a customer']);
+        App\Models\CRM\Customer::whereKey($this->csCustomer->id)->update(['email' => $customerEmail]);
+
+        App\Models\Chat\ChatMessage::create([
+            'chat_session_id' => $stranger->id,
+            'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+            'sender_type'     => App\Enums\CRM\Livechat\ChatSenderTypeEnum::AGENT,
+            'message_text'    => 'Thanks, not for us.',
+        ]);
+        $markSpam(['confirm' => true, 'request_text' => 'bin it'])->assertHasErrors(['already answered']);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'mark_spam', 'confirm' => true, 'request_text' => 'bin it'])->assertHasErrors(['from a customer']);
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'assign_to_me', 'confirm' => true, 'request_text' => 'take it'])->assertOk();
+        $this->chat->update(['web_user_id' => null]);
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'mark_spam', 'confirm' => true, 'request_text' => 'bin it'])->assertHasErrors(['holding this chat']);
+        expect($this->chat->refresh()->is_spam)->toBeFalse();
+    });
+
+    test('a draft can only ask staff whether a chat is spam, and one click puts it in spam', function () {
+        Illuminate\Support\Facades\Event::fake([App\Events\BroadcastChatAiDraft::class, App\Events\BroadcastChatListEvent::class]);
+        $email    = 'pitch'.uniqid().'@supplier.test';
+        $stranger = App\Models\Chat\ChatSession::create([
+            'ulid'             => (string) Illuminate\Support\Str::ulid(),
+            'status'           => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value,
+            'channel'          => App\Enums\CRM\Livechat\ChatChannelEnum::EMAIL,
+            'shop_id'          => $this->shop->id,
+            'metadata'         => ['email' => $email],
+            'language_id'      => 68,
+            'ai_model_version' => 'default',
+        ]);
+        $saveDraft = fn (string $chatId, array $arguments) => AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['chat_id' => $chatId, 'action' => 'save_draft', ...$arguments]);
+
+        $saveDraft($stranger->ulid, [])->assertHasErrors(['needs a message']);
+        $saveDraft($this->chat->ulid, ['actions' => [['type' => 'spam']]])->assertHasErrors(['Action 1: This chat is from a customer']);
+        $saveDraft($stranger->ulid, ['actions' => [['type' => 'spam']]])->assertOk()->assertSee('draft_id');
+
+        $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($stranger);
+        $this->actingAs($this->user);
+        $shown = App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($stranger)->getData(true)['data'];
+        expect($shown['text'])->toBe('')
+            ->and($shown['actions'][0])->toMatchArray(['index' => 0, 'type' => 'spam', 'done' => false, 'available' => true, 'label' => 'This looks like spam. Send to bin?'])
+            ->and($stranger->refresh()->is_spam)->toBeFalse();
+
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertOk()->assertJsonPath('data.done', true)->assertJsonPath('data.label', 'Moved to spam');
+        expect($stranger->refresh()->is_spam)->toBeTrue()
+            ->and(data_get($this->shop->refresh()->settings, 'gmail.blocked_senders') ?? [])->not->toContain($email);
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertStatus(409);
+    });
+    test('the assistant closes an email that only thanks our reply as done, refuses anything else, and the change reverts', function () {
+        Illuminate\Support\Facades\Event::fake([App\Events\BroadcastChatAiDraft::class, App\Events\BroadcastChatListEvent::class]);
+        $emailChat = function (array $writers) {
+            $chat = App\Models\Chat\ChatSession::create([
+                'ulid'             => (string) Illuminate\Support\Str::ulid(),
+                'status'           => App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING->value,
+                'channel'          => App\Enums\CRM\Livechat\ChatChannelEnum::EMAIL,
+                'shop_id'          => $this->shop->id,
+                'metadata'         => ['email' => 'thanks'.uniqid().'@customer.test'],
+                'language_id'      => 68,
+                'ai_model_version' => 'default',
+            ]);
+            foreach ($writers as [$sender, $text]) {
+                App\Models\Chat\ChatMessage::create([
+                    'chat_session_id' => $chat->id,
+                    'message_type'    => App\Enums\CRM\Livechat\ChatMessageTypeEnum::TEXT,
+                    'sender_type'     => $sender,
+                    'message_text'    => $text,
+                ]);
+            }
+
+            return $chat;
+        };
+        $guest      = App\Enums\CRM\Livechat\ChatSenderTypeEnum::GUEST;
+        $agent      = App\Enums\CRM\Livechat\ChatSenderTypeEnum::AGENT;
+        $closeThanks = fn (App\Models\Chat\ChatSession $chat, array $arguments = []) => AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['chat_id' => $chat->ulid, 'action' => 'close_thanks', ...$arguments]);
+
+        $thanked = $emailChat([[$guest, 'Where is my parcel'], [$agent, 'It left today with DPD.'], [$guest, 'Great, thank you so much!']]);
+        $closeThanks($thanked)->assertOk()->assertSee('Nothing was changed')->assertSee('thank you so much');
+        expect($thanked->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING);
+
+        $closeThanks($thanked, ['confirm' => true, 'request_text' => 'close the thank-you emails'])->assertOk()->assertSee('change_log_id');
+        $change = App\Models\SysAdmin\McpChange::where('type', App\Enums\SysAdmin\McpChange\McpChangeTypeEnum::CHAT_CLOSED)->where('data->target->chat_session_id', $thanked->id)->sole();
+        expect($thanked->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::CLOSED)
+            ->and($thanked->messages()->where('metadata->automated', App\Enums\CRM\Livechat\ChatAutomationKindEnum::THANKS_CLOSED->value)->exists())->toBeTrue()
+            ->and($thanked->messages()->where('sender_type', $agent)->count())->toBe(1);
+
+        $closeThanks($thanked, ['confirm' => true, 'request_text' => 'again'])->assertHasErrors(['already closed']);
+
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\AiChangesTool::class, ['revert_id' => $change->id, 'request_text' => 'they still need help'])->assertOk()->assertSee('reverted');
+        expect($thanked->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::ACTIVE);
+
+        ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'close_thanks', 'confirm' => true, 'request_text' => 'close'])->assertHasErrors(['Only an email chat']);
+        $closeThanks($emailChat([[$agent, 'It left today.'], [$guest, 'Thanks, when will it arrive?']]), ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['may ask for something']);
+        $closeThanks($emailChat([[$agent, 'It left today.'], [$guest, 'Thanks, and AWD196419 too']]), ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['may ask for something']);
+        $closeThanks($emailChat([[$guest, 'Hello'], [$guest, 'Thank you']]), ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['does not follow a reply']);
+        $closeThanks($emailChat([[$agent, 'It left today.'], [$guest, 'Thanks. '.str_repeat('Also the invoice address changed to the new office. ', 3)]]), ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['may ask for something']);
+
+        $waiting = $emailChat([[$agent, 'We asked the warehouse.'], [$guest, 'Thank you']]);
+        App\Actions\Chat\ChatSession\StoreStaffTaskFromChatSession::make()->handle($waiting, $this->user, ['subject' => 'Check the box', 'department' => 'warehouse']);
+        $closeThanks($waiting, ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['waiting on']);
+        expect($waiting->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::WAITING);
+
+        $held = $emailChat([[$agent, 'It left today.'], [$guest, 'Thank you']]);
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['chat_id' => $held->ulid, 'action' => 'assign_to_me', 'confirm' => true, 'request_text' => 'take it'])->assertOk();
+        $closeThanks($held, ['confirm' => true, 'request_text' => 'close'])->assertHasErrors(['holding this chat']);
+
+        $offered = $emailChat([[$agent, 'It left today.'], [$guest, 'Perfect, thanks']]);
+        AikuServer::actingAs($this->user)->tool(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['chat_id' => $offered->ulid, 'action' => 'save_draft', 'actions' => [['type' => 'close']]])->assertOk();
+        $draft = App\Actions\Chat\ChatSession\DraftChatReply::pendingDraft($offered);
+        $this->actingAs($this->user);
+        expect(App\Actions\Chat\ChatSession\HandleChatAiDraft::make()->asController($offered)->getData(true)['data']['actions'][0])
+            ->toMatchArray(['type' => 'close', 'available' => true, 'label' => 'The customer only said thanks. Close as done?']);
+
+        postJson(route('grp.api.chats.ai_drafts.action', [$draft->id, 0]))->assertOk()->assertJsonPath('data.label', 'Closed as done');
+        expect($offered->refresh()->status)->toBe(App\Enums\CRM\Livechat\ChatSessionStatusEnum::CLOSED);
+    });
 
     test('a sweep run records one outcome per customer message, checks the skips it can and counts them when it finishes', function () {
         $run = ($this->csTool)(App\Mcp\Tools\CustomerServiceChatWriteTool::class, ['action' => 'start_run', 'run_kind' => 'hourly', 'teams' => ['aw_aroma'], 'model' => 'claude-opus-5-5']);

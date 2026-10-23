@@ -67,6 +67,8 @@ class GetMcpChangeSnapshot
             McpChangeTypeEnum::MASTER_PRICES => $this->masterPrices($target),
             McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->stockDeliveryCosts($target),
             McpChangeTypeEnum::CUSTOMER_SERVICE => $this->customerService($target),
+            McpChangeTypeEnum::CHAT_SPAM => $this->chatSpam($target),
+            McpChangeTypeEnum::CHAT_CLOSED => ['status' => ChatSession::find($target['chat_session_id'])?->status?->value],
             McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->tradeUnitProperties($target),
             McpChangeTypeEnum::WEBSITE_REDIRECTS => $this->websiteRedirects($target),
         };
@@ -152,6 +154,14 @@ class GetMcpChangeSnapshot
                     .', '.count($snapshot['order']['refunds']).' refunds, '.count($snapshot['order']['replacements']).' replacements, '.$snapshot['order']['follow_ons'].' in next order'
                     .collect($snapshot['order']['notes'])->filter()->map(fn ($note, $field) => ', '.$field.': '.$note)->implode('') : null,
             ])->filter()->implode('; ');
+        }
+
+        if ($type === McpChangeTypeEnum::CHAT_CLOSED) {
+            return 'chat '.$snapshot['status'];
+        }
+
+        if ($type === McpChangeTypeEnum::CHAT_SPAM) {
+            return ($snapshot['is_spam'] ? 'in spam' : 'in the inbox').($snapshot['sender_blocked'] ? ', sender blocked' : '');
         }
 
         if ($type === McpChangeTypeEnum::TRADE_UNIT_PROPERTIES) {
@@ -421,6 +431,18 @@ class GetMcpChangeSnapshot
                     ],
                 ])
                 ->all(),
+        ];
+    }
+
+    private function chatSpam(array $target): array
+    {
+        $chatSession = ChatSession::find($target['chat_session_id']);
+        $email       = strtolower((string) data_get($chatSession?->metadata, 'email'));
+
+        return [
+            'is_spam'             => (bool) $chatSession?->is_spam,
+            'spammed_by_agent_id' => $chatSession?->spammed_by_agent_id,
+            'sender_blocked'      => $email !== '' && in_array($email, data_get($chatSession?->shop?->settings, 'gmail.blocked_senders') ?? [], true),
         ];
     }
 

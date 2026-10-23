@@ -30,9 +30,9 @@ class UnmarkChatSessionAsSpam
      *
      * @throws \Throwable
      */
-    public function handle(ChatSession $chatSession, ChatAgent $agent): ChatSession
+    public function handle(ChatSession $chatSession, ChatAgent $agent, bool $unblockSender = true): ChatSession
     {
-        return DB::transaction(function () use ($chatSession, $agent) {
+        return DB::transaction(function () use ($chatSession, $agent, $unblockSender) {
             // Marking spam never changed the status or assignment, so clearing the
             // flag alone restores the exact previous state (waiting/active/closed).
             $chatSession->update([
@@ -41,7 +41,9 @@ class UnmarkChatSessionAsSpam
                 'spammed_by_agent_id' => null,
             ]);
 
-            $this->unblockSender($chatSession);
+            if ($unblockSender) {
+                $this->unblockSender($chatSession);
+            }
 
             ClassifyChatSessionNoise::humanDecided($chatSession, false);
 

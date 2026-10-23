@@ -9,6 +9,10 @@
 namespace App\Actions\SysAdmin\McpChange;
 
 use App\Models\Goods\TradeUnit;
+use App\Actions\Chat\ChatSession\ReopenChatSession;
+use App\Actions\Chat\ChatSession\UnmarkChatSessionAsSpam;
+use App\Actions\Chat\WithChatAgentAuthorisation;
+use App\Models\Chat\ChatSession;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Actions\Catalogue\ProductCategory\RelatedProducts\SyncProductCategoryRelatedProducts;
 use App\Actions\Inventory\OrgStock\DiscontinueOrgStocks;
@@ -58,11 +62,13 @@ use Lorisleiva\Actions\Concerns\AsAction;
 /**
  * Puts back the state an AI change found, through the same actions the UI uses so caches and
  * cascades run. Refused when anything moved since the change: a later edit by a person is never
- * overwritten silently.
+ * overwritten silently. A chat the assistant put in spam comes back without touching the blocked
+ * senders, since the assistant never blocks one.
  */
 class RevertMcpChange
 {
     use AsAction;
+    use WithChatAgentAuthorisation;
 
     public function handle(McpChange $mcpChange, User $user): McpChange
     {
@@ -94,6 +100,8 @@ class RevertMcpChange
                 McpChangeTypeEnum::PRODUCTION_RECORD => $this->revertProductionRecord($target, $mcpChange->before),
                 McpChangeTypeEnum::PRODUCTION_RECIPE => $this->revertProductionRecipes($mcpChange->before),
                 McpChangeTypeEnum::PLACED_ORDER, McpChangeTypeEnum::CUSTOMER_SERVICE => null,
+                McpChangeTypeEnum::CHAT_SPAM => UnmarkChatSessionAsSpam::make()->handle(ChatSession::findOrFail($target['chat_session_id']), $this->chatAgentProfileFor($user), unblockSender: false),
+                McpChangeTypeEnum::CHAT_CLOSED => ReopenChatSession::make()->handle(ChatSession::findOrFail($target['chat_session_id']), $this->chatAgentProfileFor($user)),
                 McpChangeTypeEnum::MASTER_PRICES => $this->revertMasterPrices($mcpChange->before),
                 McpChangeTypeEnum::STOCK_DELIVERY_COSTS => $this->revertStockDeliveryCosts($target, $mcpChange->before),
                 McpChangeTypeEnum::TRADE_UNIT_PROPERTIES => $this->revertTradeUnitProperties($target, $mcpChange->before, $mcpChange->after),

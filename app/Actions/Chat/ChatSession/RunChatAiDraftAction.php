@@ -11,6 +11,7 @@ namespace App\Actions\Chat\ChatSession;
 use App\Actions\Chat\WithChatAgentAuthorisation;
 use App\Enums\CRM\Livechat\ChatAiDraftStatusEnum;
 use App\Enums\SysAdmin\Authorisation\ShopPermissionsEnum;
+use App\Models\Chat\ChatAgent;
 use App\Models\Chat\ChatAiDraft;
 use App\Models\Chat\ChatSession;
 use App\Models\Ordering\Order;
@@ -25,8 +26,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 /**
- * The buttons an assistant puts on its draft: settle a claim the way the Claim panel does, or ask
- * a department to do something as a staff task. The assistant only proposes them; each runs once,
+ * The buttons an assistant puts on its draft: settle a claim the way the Claim panel does, ask a
+ * department to do something as a staff task, put a chat that is probably spam in spam, never
+ * blocking the sender, or close as done an email that only thanks us. The assistant only proposes them; each runs once,
  * when a staff member who may do it clicks, as that staff member, and the draft keeps what came of it.
  */
 class RunChatAiDraftAction
@@ -37,8 +39,9 @@ class RunChatAiDraftAction
     public function asController(ChatAiDraft $chatAiDraft, int $index, Request $request): JsonResponse
     {
         $session = $chatAiDraft->session();
+        $agent   = $session instanceof ChatSession ? $this->getAuthorisedChatAgent($session) : null;
 
-        if (!$session instanceof ChatSession || !$this->getAuthorisedChatAgent($session)) {
+        if (!$agent) {
             return response()->json(['success' => false], 403);
         }
 
@@ -47,7 +50,7 @@ class RunChatAiDraftAction
         }
 
         try {
-            $view = DB::transaction(function () use ($chatAiDraft, $index, $session, $request) {
+            $view = DB::transaction(function () use ($chatAiDraft, $index, $session, $agent, $request) {
                 $draft  = ChatAiDraft::lockForUpdate()->findOrFail($chatAiDraft->id);
                 $action = data_get($draft->facts, "actions.$index");
 
@@ -55,7 +58,7 @@ class RunChatAiDraftAction
                 abort_if(isset($action['done']), 409, __('This was already done'));
                 abort_unless(in_array($draft->status, [ChatAiDraftStatusEnum::PENDING, ChatAiDraftStatusEnum::USED, ChatAiDraftStatusEnum::EDITED], true) && !$draft->flagged_wrong_at, 422, __('This draft was discarded or replaced, so its actions can no longer be used'));
 
-                $action['done'] = $this->run($session, $request->user(), $action) + ['at' => now()->toIso8601String(), 'by' => $request->user()->id];
+                $action['done'] = $this->run($session, $request->user(), $agent, $action) + ['at' => now()->toIso8601String(), 'by' => $request->user()->id];
                 $draft->update(['facts' => array_replace_recursive($draft->facts, ['actions' => [$index => $action]])]);
 
                 return self::view($session, $action, $index);
@@ -75,8 +78,23 @@ class RunChatAiDraftAction
      *
      * @throws Throwable
      */
-    private function run(ChatSession $session, User $user, array $action): array
+    private function run(ChatSession $session, User $user, ChatAgent $agent, array $action): array
     {
+        if ($action['type'] === 'spam') {
+            $refused = MarkChatSessionAsSpam::refusedForAssistant($session, untouchedOnly: false);
+            abort_if((bool) $refused, 422, (string) $refused);
+
+            MarkChatSessionAsSpam::make()->handle($session, $agent, blockSender: false);
+
+            return ['label' => __('Moved to spam'), 'reference' => null];
+        }
+
+        if ($action['type'] === 'close') {
+            CloseChatAfterThanks::closeForAssistant($session, untouchedOnly: false);
+
+            return ['label' => __('Closed as done'), 'reference' => null];
+        }
+
         if ($action['type'] === 'task') {
             $assigneeId = isset($action['assignee']) ? $user->group->users()->where('username', $action['assignee'])->value('id') : null;
             if (isset($action['assignee']) && !$assigneeId) {
@@ -141,6 +159,18 @@ class RunChatAiDraftAction
 
         if ($action['type'] === 'task') {
             return $view + ['label' => $action['label'] ?? $action['subject']];
+        }
+
+        if ($action['type'] === 'spam') {
+            $refused = MarkChatSessionAsSpam::refusedForAssistant($session, untouchedOnly: false);
+
+            return array_replace($view, ['available' => !$refused, 'why' => $refused, 'label' => __('This looks like spam. Send to bin?')]);
+        }
+
+        if ($action['type'] === 'close') {
+            $refused = CloseChatAfterThanks::thanksToClose($session, untouchedOnly: false)[1];
+
+            return array_replace($view, ['available' => !$refused, 'why' => $refused, 'label' => __('The customer only said thanks. Close as done?')]);
         }
 
         $order = self::order($session, $action['order']);

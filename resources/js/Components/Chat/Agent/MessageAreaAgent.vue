@@ -1818,7 +1818,7 @@ const handleClickOutside = (e: MouseEvent) => {
 
         <!-- Footer: Assign-to-me banner for waiting (unassigned) chats -->
         <footer v-else-if="isWaiting" class="px-3 py-3 bg-white border-t">
-            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview assignable :assigning="isAssigningSelf || isUsingDraft" @assign-and-use="assignAndUse" />
+            <ChatAiDraftBox :session-ulid="chatSession?.ulid" preview assignable :assigning="isAssigningSelf || isUsingDraft" @assign-and-use="assignAndUse" @disposed="emit('spam-success')" />
             <div class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200">
                 <div class="text-xs text-gray-600">
                     {{ ctrans('Assign this chat to yourself to start the conversation') }}
@@ -1881,7 +1881,7 @@ const handleClickOutside = (e: MouseEvent) => {
                 <span>{{ ctrans("The customer writes in :language. A reply in another language is translated to :language before it is sent.", { language: customerLanguage.name }) }}</span>
             </div>
 
-            <ChatAiDraftBox v-if="!isEmailChat" :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" />
+            <ChatAiDraftBox v-if="!isEmailChat" :session-ulid="chatSession?.ulid" :read-only="readOnly" @use="(text) => newMessage = text" @disposed="emit('spam-success')" />
 
             <div :class="isEmailChat ? 'flex flex-wrap items-start gap-2' : ''">
             <div class="min-w-0 flex-1 basis-[28rem] rounded-xl border bg-white shadow-sm focus-within:border-gray-400 focus-within:shadow-md transition-shadow"
@@ -1946,7 +1946,7 @@ const handleClickOutside = (e: MouseEvent) => {
                 </div>
             </div>
             <ChatAiDraftBox v-if="isEmailChat" ref="aiDraftBox" inline :session-ulid="chatSession?.ulid" :read-only="readOnly"
-                class="w-full sm:w-72 shrink-0" @use="offerAiDraft" @discarded="clearAiDraft" />
+                class="w-full sm:w-72 shrink-0" @use="offerAiDraft" @discarded="clearAiDraft" @disposed="emit('spam-success')" />
             </div>
         </footer>
 
