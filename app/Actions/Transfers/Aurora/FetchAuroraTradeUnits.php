@@ -203,7 +203,7 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                 $scope = match ($scope) {
                     TradeAttachmentScopeEnum::IFRA_PRIVATE => TradeAttachmentScopeEnum::IFRA,
                     TradeAttachmentScopeEnum::SDS_PRIVATE => TradeAttachmentScopeEnum::SDS,
-                    TradeAttachmentScopeEnum::MSDS_PRIVATE => TradeAttachmentScopeEnum::MSDS,
+                    TradeAttachmentScopeEnum::MSDS_PRIVATE => TradeAttachmentScopeEnum::SDS,
                     TradeAttachmentScopeEnum::CLP_PRIVATE => TradeAttachmentScopeEnum::CLP,
                     TradeAttachmentScopeEnum::ALLERGEN_DECLARATIONS_PRIVATE => TradeAttachmentScopeEnum::ALLERGEN_DECLARATIONS,
                     TradeAttachmentScopeEnum::DOC_PRIVATE => TradeAttachmentScopeEnum::DOC,
@@ -211,6 +211,10 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                     TradeAttachmentScopeEnum::OTHER_PRIVATE => TradeAttachmentScopeEnum::OTHER,
                     default => $scope,
                 };
+            }
+
+            if ($this->hasAttachmentUploadedInAiku($tradeUnit, $scope)) {
+                continue;
             }
 
             data_set($attachmentData['modelData'], 'scope', $scope->value);
@@ -252,6 +256,14 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
         }
     }
 
+    public function hasAttachmentUploadedInAiku(TradeUnit $tradeUnit, TradeAttachmentScopeEnum $scope): bool
+    {
+        return $tradeUnit->attachments()
+            ->wherePivot('scope', $scope->value)
+            ->get()
+            ->contains(fn ($attachment) => !Arr::has(json_decode($attachment->pivot->sources ?? '[]', true) ?? [], 'bridge'));
+    }
+
     public function parseTradeUnitAttachmentScope($attachmentData): TradeAttachmentScopeEnum
     {
         $scope = TradeAttachmentScopeEnum::OTHER;
@@ -263,18 +275,18 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
         } elseif (Str::endsWith(rtrim($caption), ' sds')) {
             return TradeAttachmentScopeEnum::SDS;
         } elseif (Str::endsWith(rtrim($caption), ' msds')) {
-            return TradeAttachmentScopeEnum::MSDS;
+            return TradeAttachmentScopeEnum::SDS;
         } elseif (Str::contains($caption, 'ifra')) {
             return TradeAttachmentScopeEnum::IFRA;
         } elseif (Str::contains($caption, 'msds file')) {
-            return TradeAttachmentScopeEnum::MSDS;
+            return TradeAttachmentScopeEnum::SDS;
         } elseif (Str::contains($caption, 'allergen')) {
             return TradeAttachmentScopeEnum::ALLERGEN_DECLARATIONS;
         }
 
 
         if (Arr::get($attachmentData, 'scope') == 'MSDS') {
-            return TradeAttachmentScopeEnum::MSDS;
+            return TradeAttachmentScopeEnum::SDS;
         }
 
         return $scope;

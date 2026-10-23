@@ -27,3 +27,12 @@ test('public attachment slots match the public scopes and no private scope is pu
         expect($scope)->not->toEndWith('_private');
     }
 });
+
+test('aurora msds attachments are fetched as public sds', function (array $attachmentData) {
+    expect((new \App\Actions\Transfers\Aurora\FetchAuroraTradeUnits())->parseTradeUnitAttachmentScope($attachmentData))
+        ->toBe(TradeAttachmentScopeEnum::SDS);
+})->with([
+    [['caption' => 'CWC-05 MSDS']],
+    [['caption' => 'msds file']],
+    [['caption' => 'CLP Safety Data Sheet', 'scope' => 'MSDS']],
+]);
