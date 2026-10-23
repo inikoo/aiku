@@ -10,6 +10,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Ordering\Order\UpdateOrderPremiumDispatch;
 use App\Actions\Accounting\Invoice\CalculateInvoiceTotals;
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
@@ -7430,4 +7431,14 @@ test('cancelling a line of a picked replacement keeps the note picked and credit
         ->and((float)$otherItem->refresh()->quantity_picked)->toBe(5.0)
         ->and(\App\Models\Inventory\OrgStockMovement::where('parent_type', 'DeliveryNote')->where('parent_id', $deliveryNote->id)
             ->where('type', \App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum::CANCEL_PICKED)->exists())->toBeTrue();
+});
+
+test('premium dispatch added to an order after its delivery note was created reaches the open delivery note', function () {
+    $deliveryNote = makeDeliveryNote($this);
+    $this->order->update(['is_premium_dispatch' => false]);
+    $deliveryNote->update(['is_premium_dispatch' => false]);
+
+    UpdateOrderPremiumDispatch::make()->action($this->order, ['is_premium_dispatch' => true]);
+
+    expect($deliveryNote->refresh()->is_premium_dispatch)->toBeTrue();
 });

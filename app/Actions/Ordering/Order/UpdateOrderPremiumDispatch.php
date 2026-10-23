@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\Ordering\WithOrderingEditAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Charge\ChargeTypeEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,6 +30,10 @@ class UpdateOrderPremiumDispatch extends OrgAction
     {
         $order = $this->update($order, $modelData);
         $this->syncOrderOptionCharge($order, ChargeTypeEnum::PREMIUM, (bool) Arr::get($modelData, 'is_premium_dispatch', false));
+
+        $order->deliveryNotes()
+            ->whereNotIn('state', [DeliveryNoteStateEnum::DISPATCHED, DeliveryNoteStateEnum::CANCELLED])
+            ->update(['is_premium_dispatch' => $order->is_premium_dispatch]);
 
     }
 
