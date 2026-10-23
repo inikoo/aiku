@@ -301,6 +301,10 @@ test('pictures go to marketplaces main image first, then in the order arranged o
     expect($product->orderedImages()->pluck('id')->intersect($media->pluck('id'))->values()->all())
         ->toBe([$media[1]->id, $media[2]->id, $media[0]->id]);
 
+    $webImages = \App\Actions\Catalogue\Product\UpdateProductWebImages::run($product)->web_images['all'];
+    expect(count($webImages))->toBe($product->orderedImages()->count())
+        ->and(count($webImages))->toBe($product->images()->count() - 1);
+
     $product->images()->detach($media->pluck('id')->all());
     $product->update(['image_id' => $previousImageId]);
 });
