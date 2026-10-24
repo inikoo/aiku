@@ -307,16 +307,15 @@ test('UI Index org suppliers', function () {
     });
 });
 
-test('procurement navigation keeps agents and free suppliers and drops the lists reached through them', function () {
+test('procurement navigation keeps agents, free suppliers and purchase orders and drops the lists reached through them', function () {
     $navigation = GetOrganisationNavigation::run($this->adminGuest->getUser(), $this->organisation);
 
     expect(collect(data_get($navigation, 'procurement.topMenu.subSections'))->pluck('route.name'))
-        ->toContain('grp.org.procurement.org_agents.index', 'grp.org.procurement.org_suppliers.index')
+        ->toContain('grp.org.procurement.org_agents.index', 'grp.org.procurement.org_suppliers.index', 'grp.org.procurement.purchase_orders.index')
         ->not->toContain(
             'grp.org.procurement.shopping_list.index',
             'grp.org.procurement.org_agent_suppliers.index',
-            'grp.org.procurement.org_supplier_products.index',
-            'grp.org.procurement.purchase_orders.index'
+            'grp.org.procurement.org_supplier_products.index'
         );
 });
 

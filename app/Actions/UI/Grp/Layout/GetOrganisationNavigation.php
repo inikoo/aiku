@@ -185,6 +185,15 @@ class GetOrganisationNavigation
                                 'parameters' => [$organisation->slug],
                             ]
                         ],
+                        [
+                            'label' => __('Purchase orders'),
+                            'icon'  => ['fal', 'fa-clipboard-list'],
+                            'root'  => 'grp.org.procurement.purchase_orders.',
+                            'route' => [
+                                'name'       => 'grp.org.procurement.purchase_orders.index',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
                     ]
                 ]
             ];
