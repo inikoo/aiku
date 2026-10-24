@@ -9,6 +9,7 @@
 namespace App\Actions\Maintenance\Inventory\OrgStock;
 
 use App\Actions\Inventory\OrganisationStockHistory\Hydrators\OrganisationStockHistoryHydrateFromOrgStockHistories;
+use App\Actions\Inventory\LocationOrgStock\SyncLocationOrgStockQuantityFromMovements;
 use App\Actions\Inventory\OrgStock\HydrateOrgStock;
 use App\Actions\Traits\WithStockHistoryArchiveWrite;
 use App\Models\Inventory\OrgStock;
@@ -22,8 +23,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * Import Address Labels: a label line that picked up a 100M unit "found" worth £5M). Movements,
  * and daily histories are copied to help4274_erased_* tables first, on the same database they
  * come from, then deleted; pickings and sowings keep the warehouse record and lose only their
- * movement link. Sales time series are not stock history and stay. The organisation and group stock value days the histories fed are rolled up
- * again so the value leaves the totals too.
+ * movement link. Sales time series are not stock history and stay. Its locations are left
+ * holding nothing, and the organisation and group stock value days the histories fed are rolled
+ * up again so the value leaves the totals too.
  */
 class EraseOrgStockHistory
 {
@@ -82,6 +84,10 @@ class EraseOrgStockHistory
 
         foreach ($organisationStockHistoryIds as $organisationStockHistoryId) {
             OrganisationStockHistoryHydrateFromOrgStockHistories::run($organisationStockHistoryId);
+        }
+
+        foreach ($orgStock->locationOrgStocks as $locationOrgStock) {
+            SyncLocationOrgStockQuantityFromMovements::run($locationOrgStock);
         }
 
         HydrateOrgStock::run($orgStock);

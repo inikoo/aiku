@@ -918,7 +918,8 @@ test('erase org stock history archives the movements before deleting them and le
     expect(OrgStockMovement::where('org_stock_id', $orgStock->id)->count())->toBe(0)
         ->and(DB::table('help4274_erased_org_stock_movements')->where('org_stock_id', $orgStock->id)->count())->toBe($existing)
         ->and((float)DB::table('help4274_erased_org_stock_movements')->where('id', $found->id)->value('org_amount'))->toBe(50000.0)
-        ->and(OrgStockMovement::whereKey($kept->id)->exists())->toBeTrue();
+        ->and(OrgStockMovement::whereKey($kept->id)->exists())->toBeTrue()
+        ->and((float)LocationOrgStock::where('org_stock_id', $orgStock->id)->value('quantity'))->toBe(0.0);
 });
 
 test('zero org stock value keeps quantities, backs up and clears amounts and leaves other stock alone', function () {
