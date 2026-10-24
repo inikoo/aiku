@@ -134,11 +134,20 @@ done
 # to init; the next supervisord then starts a second one and every queue runs
 # twice. TimeoutStopSec is deliberately above the programs' stopwaitsecs so
 # workers still get their full drain window and systemd never cuts in first.
+# supervisor is ordered after Postgres and both Redis instances so a reboot
+# stops it first: on 24 Oct 2026 boro stopped them all at once, Horizon and
+# Octane hung on dead connections and the reboot sat out the drain window.
 if [[ -f /lib/systemd/system/supervisor.service || -f /etc/systemd/system/supervisor.service ]]; then
   place "$DEVOPS/systemd/supervisor.conf" /etc/systemd/system/supervisor.service.d/aiku.conf
 else
   echo "  skipped drop-in (no supervisor unit on this host)"
 fi
+# Postgres and the queue Redis listen on the vSwitch address; started before
+# networkd has configured it, Redis fails to bind and Postgres comes up on
+# localhost only, so the replica and the other host cannot reach them.
+for unit in postgresql@ redis-server@; do
+  place "$DEVOPS/systemd/wait-for-network.conf" "/etc/systemd/system/${unit}.service.d/wait-for-network.conf"
+done
 
 echo "varnish:"
 place "$DEVOPS/varnish/default.vcl" /etc/varnish/default.vcl
