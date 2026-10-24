@@ -13,8 +13,8 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * Receives `pgbackrest info --output=json` from litio (INI-113), which holds the R2
- * key the app cannot read, and keeps the newest copy for the Devops dashboard and
+ * Receives `pgbackrest info --output=json` from litio (INI-113, INI-132), which holds the
+ * repository keys the app cannot read, and keeps the newest copy for the Devops dashboard and
  * MonitorDatabaseReplicas.
  */
 class StorePgBackRestInfo
@@ -33,7 +33,13 @@ class StorePgBackRestInfo
                 'status_code'    => $stanza['status']['code'] ?? null,
                 'status_message' => $stanza['status']['message'] ?? null,
                 'backup_running' => (bool) ($stanza['status']['lock']['backup']['held'] ?? false),
+                'repos'          => array_map(fn (array $repo) => [
+                    'key'            => (int) $repo['key'],
+                    'status_code'    => $repo['status']['code'] ?? null,
+                    'status_message' => $repo['status']['message'] ?? null,
+                ], $stanza['repo'] ?? []),
                 'backups'        => array_map(fn (array $backup) => [
+                    'repo'        => (int) ($backup['database']['repo-key'] ?? 1),
                     'label'       => $backup['label'],
                     'type'        => $backup['type'],
                     'started_at'  => $backup['timestamp']['start'] ?? null,
@@ -56,6 +62,9 @@ class StorePgBackRestInfo
             '*.backup'         => ['present', 'array', 'max:200'],
             '*.backup.*.label' => ['required', 'string', 'max:64'],
             '*.backup.*.type'  => ['required', 'string', 'in:full,diff,incr'],
+            '*.backup.*.database.repo-key' => ['nullable', 'integer', 'min:1'],
+            '*.repo'           => ['sometimes', 'array', 'max:4'],
+            '*.repo.*.key'     => ['required', 'integer', 'min:1'],
         ];
     }
 

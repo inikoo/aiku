@@ -164,7 +164,7 @@ test('WAL archiving is quiet while off or recent, and alerts when it stalls or f
         ->and($monitor->archiveIssues($archiver('on', '2026-10-20 09:50:00', '2026-10-20 09:55:00')))->toBe([])
         ->and($monitor->archiveIssues($archiver('on', '2026-10-20 09:40:00'))[0])->toContain('since 20 Oct 09:40 UTC')->not->toContain('failed')
         ->and($monitor->archiveIssues($archiver('on', '2026-10-20 09:40:00', '2026-10-20 09:59:00'))[0])->toContain('last attempts failed')
-        ->and($monitor->archiveIssues($archiver('on', null))[0])->toContain('No WAL has reached Cloudflare R2 ever');
+        ->and($monitor->archiveIssues($archiver('on', null))[0])->toContain('No WAL has reached the pgBackRest repositories ever');
 });
 
 test('a stalled WAL archive alerts Discord alongside healthy replicas', function () {
@@ -177,7 +177,7 @@ test('a stalled WAL archive alerts Discord alongside healthy replicas', function
     ]]]);
 
     expect(MonitorDatabaseReplicas::run())->toHaveCount(1);
-    Http::assertSent(fn ($request) => str_contains($request['content'], 'Cloudflare R2'));
+    Http::assertSent(fn ($request) => str_contains($request['content'], 'pgBackRest repositories'));
 });
 
 test('the backup report flags a silent litio, a missing backup and a stale one, and stays quiet while archive_mode is off', function () {
@@ -204,6 +204,29 @@ test('the backup report flags a silent litio, a missing backup and a stale one, 
         ->and($monitor->backupReport($archiver, $report('2026-10-20 09:55:00', [], 2))['backup_issue'])->toContain('no pgBackRest backup')
         ->and($monitor->backupReport($archiver, $report('2026-10-20 09:55:00', [$backup('F', 'full', '2026-10-19 07:00:00')]))['backup_issue'])->toContain('19 Oct 07:00 UTC')
         ->and($monitor->backupReport((object) [...(array) $archiver, 'archive_mode' => 'off'], null)['issues'])->toBe([]);
+});
+
+test('a fresh backup in one pgBackRest repository does not hide another that stops getting them', function () {
+    $monitor  = MonitorDatabaseReplicas::make();
+    $archiver = (object) ['archive_mode' => 'on', 'last_archived_time' => '2026-10-20 09:59:00', 'last_failed_time' => null, 'archived_count' => 900, 'failed_count' => 0];
+    $backup   = fn (int $repo, string $finishedAt) => [
+        'repo' => $repo, 'label' => "F$repo", 'type' => 'full', 'started_at' => CarbonImmutable::parse($finishedAt)->subMinutes(30)->timestamp, 'finished_at' => CarbonImmutable::parse($finishedAt)->timestamp,
+        'size' => 1, 'repo_size' => 1, 'repo_delta' => 1, 'error' => false,
+    ];
+    $report = fn (array $backups, int $awsStatus = 0) => ['received_at' => '2026-10-20 09:55:00', 'stanzas' => [[
+        'name' => 'aiku', 'status_code' => 0, 'status_message' => 'ok', 'backup_running' => false, 'backups' => $backups,
+        'repos' => [['key' => 1, 'status_code' => 0, 'status_message' => 'ok'], ['key' => 2, 'status_code' => $awsStatus, 'status_message' => 'missing stanza path']],
+    ]]];
+
+    $this->travelTo('2026-10-20 10:00:00');
+
+    $healthy = $monitor->backupReport($archiver, $report([$backup(1, '2026-10-20 02:30:00'), $backup(2, '2026-10-20 03:10:00')]));
+    expect($healthy['issues'])->toBe([])
+        ->and($healthy['backups'][0]['repo_name'])->toBe('pgBackRest repository 2');
+
+    expect($monitor->backupReport($archiver, $report([$backup(1, '2026-10-20 02:30:00'), $backup(2, '2026-10-18 03:10:00')]))['issues'])->toBe(['The newest pgBackRest backup in pgBackRest repository 2 finished 18 Oct 03:10 UTC: the nightly backup on litio has not run or failed. See /var/log/pgbackrest/aiku-backup.log on litio.'])
+        ->and($monitor->backupReport($archiver, $report([$backup(1, '2026-10-20 02:30:00')]))['backup_issue'])->toContain('no pgBackRest backup in pgBackRest repository 2')->not->toContain('AWS S3 Frankfurt')
+        ->and($monitor->backupReport($archiver, $report([$backup(1, '2026-10-20 02:30:00'), $backup(2, '2026-10-20 03:10:00')], 1))['backup_issue'])->toBe('pgBackRest reports for pgBackRest repository 2: missing stanza path.');
 });
 
 test('the problems found are kept for the menu badge', function () {

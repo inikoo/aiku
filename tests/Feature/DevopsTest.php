@@ -896,8 +896,9 @@ it('keeps the pgBackRest report litio pushes and shows the backups and problems 
     $info = [[
         'name'   => 'aiku',
         'status' => ['code' => 0, 'message' => 'ok', 'lock' => ['backup' => ['held' => false]]],
+        'repo'   => [['key' => 1, 'cipher' => 'none', 'status' => ['code' => 0, 'message' => 'ok']]],
         'backup' => [
-            ['label' => '20261017-120933F', 'type' => 'full', 'timestamp' => ['start' => 1792238973, 'stop' => 1792241141], 'info' => ['size' => 328000000000, 'repository' => ['size' => 65500000000, 'delta' => 65500000000]], 'error' => false],
+            ['label' => '20261017-120933F', 'database' => ['id' => 1, 'repo-key' => 1], 'type' => 'full', 'timestamp' => ['start' => 1792238973, 'stop' => 1792241141], 'info' => ['size' => 328000000000, 'repository' => ['size' => 65500000000, 'delta' => 65500000000]], 'error' => false],
             ['label' => '20261017-120933F_20261018-020002I', 'type' => 'incr', 'timestamp' => ['start' => 1792288802, 'stop' => 1792289102], 'info' => ['size' => 328100000000, 'repository' => ['size' => 65600000000, 'delta' => 2100000000]], 'error' => false],
         ],
     ]];
@@ -910,7 +911,7 @@ it('keeps the pgBackRest report litio pushes and shows the backups and problems 
 
     expect(App\Actions\DevOps\MonitorDatabaseReplicas::make()->backupReport()['backups'])->toHaveCount(2);
 
-    Illuminate\Support\Facades\Cache::put(App\Actions\DevOps\MonitorDatabaseReplicas::PROBLEMS_CACHE_KEY, ['No WAL has reached Cloudflare R2 ever.'], now()->addMinutes(15));
+    Illuminate\Support\Facades\Cache::put(App\Actions\DevOps\MonitorDatabaseReplicas::PROBLEMS_CACHE_KEY, ['No WAL has reached the pgBackRest repositories ever.'], now()->addMinutes(15));
 
     $user = createAdminGuest(createGroup())->getUser();
     $isEngineer = App\Models\Helpers\Ticket::canBeManagedBy($user) && $user->hasGroupAccess();
@@ -921,10 +922,11 @@ it('keeps the pgBackRest report litio pushes and shows the backups and problems 
             ->component('Devops/Dashboard', false)
             ->where('databaseBackups.backups.0.label', '20261017-120933F_20261018-020002I')
             ->where('databaseBackups.backups.0.repo_delta', 2100000000)
+            ->where('databaseBackups.backups.1.repo_name', 'AWS S3 Frankfurt')
             ->where('databaseBackups.backups.1.duration_seconds', 2168)
             ->where('databaseBackups.restore_from', Carbon\CarbonImmutable::createFromTimestamp(1792241141)->toIso8601String())
             ->where('auth.user.is_engineer', $isEngineer)
-            ->where('auth.user.devops_problems', $isEngineer ? ['No WAL has reached Cloudflare R2 ever.'] : []));
+            ->where('auth.user.devops_problems', $isEngineer ? ['No WAL has reached the pgBackRest repositories ever.'] : []));
 });
 
 it('records nightly coverage by module and bundle sizes, separates codecov history and shows them on the code health tab', function () {

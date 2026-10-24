@@ -24,8 +24,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * the only way to undo a bad DELETE, has to be copied again before it protects
  * anything. Asked from the primary so a dead replica host is noticed too.
  *
- * Also watches the primary's WAL archiving to Cloudflare R2 with pgBackRest
- * (INI-113), the only copy that allows a restore to a chosen minute.
+ * Also watches the primary's WAL archiving with pgBackRest to AWS S3 Frankfurt
+ * (INI-113, INI-132), the only copy that allows a restore to a chosen minute.
  */
 class MonitorDatabaseReplicas
 {
@@ -46,6 +46,11 @@ class MonitorDatabaseReplicas
     public const string DELAYED_SLOT = 'replica_helio_delayed';
 
     public const string STANZA = 'aiku';
+
+    /** @var array<int, string> pgBackRest repoN of devops/postgres/pgbackrest-aiku.conf */
+    public const array REPOSITORIES = [
+        1 => 'AWS S3 Frankfurt',
+    ];
 
     public const string PGBACKREST_CACHE_KEY = 'devops:pgbackrest';
 
@@ -201,26 +206,25 @@ class MonitorDatabaseReplicas
             ->sortByDesc('finished_at')
             ->map(fn (array $backup) => [
                 ...$backup,
+                'repo'             => $backup['repo'] ?? 1,
+                'repo_name'        => $this->repositoryName($backup['repo'] ?? 1),
                 'started_at'       => CarbonImmutable::createFromTimestamp($backup['started_at'])->toIso8601String(),
                 'finished_at'      => CarbonImmutable::createFromTimestamp($backup['finished_at'])->toIso8601String(),
                 'duration_seconds' => $backup['finished_at'] - $backup['started_at'],
             ])
             ->values();
-        $newestFinishedAt = $backups->isEmpty() ? null : CarbonImmutable::parse($backups->first()['finished_at']);
-        $isArchiving      = $archiver->archive_mode !== 'off';
+        $isArchiving = $archiver->archive_mode !== 'off';
 
         $archiveIssue = $this->archiveIssues($archiver)[0] ?? null;
-        $backupIssue  = null;
+        $backupIssues = [];
 
         if ($isArchiving) {
-            $backupIssue = match (true) {
-                !$receivedAt || $receivedAt->isBefore(now()->subMinutes(self::BACKUP_REPORT_STALE_MINUTES)) => 'litio has not reported the pgBackRest backups '.($receivedAt ? 'since '.$receivedAt->utc()->format('j M H:i').' UTC' : 'yet').'. Check the report line in /etc/cron.d/pgbackrest-aiku on litio.',
-                !$newestFinishedAt                                                                          => 'There is no pgBackRest backup in Cloudflare R2, so the archived WAL cannot be restored. Run a full backup on litio.',
-                $newestFinishedAt->isBefore(now()->subHours(self::BACKUP_STALE_HOURS))                       => 'The newest pgBackRest backup in Cloudflare R2 finished '.$newestFinishedAt->utc()->format('j M H:i').' UTC: the nightly backup on litio has not run or failed. See /var/log/pgbackrest/aiku-backup.log on litio.',
-                ($stanza['status_code'] ?? 0) !== 0                                                         => 'pgBackRest reports: '.$stanza['status_message'].'.',
-                default                                                                                     => null,
-            };
+            $backupIssues = !$receivedAt || $receivedAt->isBefore(now()->subMinutes(self::BACKUP_REPORT_STALE_MINUTES))
+                ? ['litio has not reported the pgBackRest backups '.($receivedAt ? 'since '.$receivedAt->utc()->format('j M H:i').' UTC' : 'yet').'. Check the report line in /etc/cron.d/pgbackrest-aiku on litio.']
+                : $this->repositoryIssues($stanza, $backups);
         }
+
+        $backupIssue = $backupIssues ? implode(' ', $backupIssues) : null;
 
         return [
             'archive_mode'     => $isArchiving,
@@ -235,8 +239,42 @@ class MonitorDatabaseReplicas
             'restore_to'       => $archiver->last_archived_time ? CarbonImmutable::parse($archiver->last_archived_time)->toIso8601String() : null,
             'archive_issue'    => $archiveIssue,
             'backup_issue'     => $backupIssue,
-            'issues'           => array_values(array_filter([$archiveIssue, $backupIssue])),
+            'issues'           => array_values(array_filter([$archiveIssue, ...$backupIssues])),
         ];
+    }
+
+    /**
+     * Each repository is checked on its own: a fresh backup in one must not hide another
+     * that stopped receiving them.
+     *
+     * @param  array<string, mixed>|null  $stanza
+     * @param  Collection<int, array<string, mixed>>  $backups  newest first
+     * @return array<int, string>
+     */
+    public function repositoryIssues(?array $stanza, Collection $backups): array
+    {
+        $repos = collect($stanza['repos'] ?? [])->keyBy('key');
+        if ($repos->isEmpty()) {
+            $repos = collect([1 => ['key' => 1, 'status_code' => $stanza['status_code'] ?? 0, 'status_message' => $stanza['status_message'] ?? null]]);
+        }
+
+        return $repos->map(function (array $repo) use ($backups) {
+            $name   = $this->repositoryName($repo['key']);
+            $newest = $backups->firstWhere('repo', $repo['key']);
+            $newestFinishedAt = $newest ? CarbonImmutable::parse($newest['finished_at']) : null;
+
+            return match (true) {
+                !$newestFinishedAt                                                     => "There is no pgBackRest backup in $name, so the WAL archived there cannot be restored. Run a full backup to it on litio.",
+                $newestFinishedAt->isBefore(now()->subHours(self::BACKUP_STALE_HOURS)) => "The newest pgBackRest backup in $name finished ".$newestFinishedAt->utc()->format('j M H:i').' UTC: the nightly backup on litio has not run or failed. See /var/log/pgbackrest/aiku-backup.log on litio.',
+                ($repo['status_code'] ?? 0) !== 0                                      => "pgBackRest reports for $name: ".$repo['status_message'].'.',
+                default                                                                => null,
+            };
+        })->filter()->values()->all();
+    }
+
+    public function repositoryName(int $key): string
+    {
+        return self::REPOSITORIES[$key] ?? "pgBackRest repository $key";
     }
 
     /**
@@ -260,7 +298,7 @@ class MonitorDatabaseReplicas
         $since   = $lastArchived ? 'since '.$lastArchived->utc()->format('j M H:i').' UTC' : 'ever';
         $failing = $lastFailed && (!$lastArchived || $lastFailed->isAfter($lastArchived)) ? ' and the last attempts failed' : '';
 
-        return ["No WAL has reached Cloudflare R2 $since$failing. Point-in-time recovery stops at that moment, and boro keeps the unsent WAL on its disk. Check `pgbackrest --stanza=aiku check` on boro."];
+        return ["No WAL has reached the pgBackRest repositories $since$failing. Point-in-time recovery stops at that moment, and boro keeps the unsent WAL on its disk. Check `pgbackrest --stanza=aiku check` on boro."];
     }
 
     /**

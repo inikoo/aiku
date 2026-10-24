@@ -10,6 +10,8 @@ import { ctrans } from "@/Composables/useTrans"
 import { useFormatTime, useRangeFromNow } from "@/Composables/useFormatTime"
 
 export interface DatabaseBackup {
+    repo: number
+    repo_name: string
     label: string
     type: "full" | "diff" | "incr"
     started_at: string
@@ -64,7 +66,7 @@ const cardClass = (issue: string | null) => (issue ? "border-red-300 bg-red-50" 
 
 <template>
     <section>
-        <h4 class="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Database backups in Cloudflare R2") }}</h4>
+        <h4 class="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">{{ ctrans("Database backups (pgBackRest)") }}</h4>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-lg border p-4" :class="cardClass(report.archive_issue)">
                 <div class="flex items-baseline justify-between gap-2">
@@ -126,11 +128,12 @@ const cardClass = (issue: string | null) => (issue ? "border-red-300 bg-red-50" 
                     {{ ctrans("Full on Saturday, incremental the other nights, 02:00 UTC. Reported :ago.", { ago: ago(report.reported_at) }) }}
                 </div>
                 <ul v-if="report.backups.length" class="mt-3 divide-y divide-gray-100 text-sm">
-                    <li v-for="backup in report.backups" :key="backup.label" class="flex items-center gap-x-3 py-1.5">
+                    <li v-for="backup in report.backups" :key="`${backup.repo}-${backup.label}`" class="flex items-center gap-x-3 py-1.5">
                         <span class="w-24 shrink-0 whitespace-nowrap text-xs font-medium" :class="backup.type === 'full' ? 'text-gray-900' : 'text-gray-500'">{{ types[backup.type] }}</span>
                         <span class="flex-1 whitespace-nowrap tabular-nums">{{ when(backup.finished_at) }}</span>
+                        <span class="whitespace-nowrap text-xs text-gray-500">{{ backup.repo_name }}</span>
                         <span class="whitespace-nowrap text-xs tabular-nums text-gray-500">{{ duration(backup.duration_seconds) }}</span>
-                        <span class="w-20 whitespace-nowrap text-right text-xs tabular-nums text-gray-500" v-tooltip="ctrans('Uploaded to R2')">
+                        <span class="w-20 whitespace-nowrap text-right text-xs tabular-nums text-gray-500" v-tooltip="ctrans('Uploaded to :repository', { repository: backup.repo_name })">
                             {{ formatSize(backup.repo_delta ?? backup.repo_size) }}
                         </span>
                     </li>

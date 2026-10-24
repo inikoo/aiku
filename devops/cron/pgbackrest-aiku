@@ -1,5 +1,5 @@
-# Backups of the aiku production database with pgBackRest to Cloudflare R2
-# (INI-113, setup in devops/postgres/pgbackrest-aiku.conf). Install on LITIO only:
+# Backups of the aiku production database with pgBackRest to AWS S3 Frankfurt
+# (INI-113, INI-132, setup in devops/postgres/pgbackrest-aiku.conf). Install on LITIO only:
 #     install -m 644 devops/cron/pgbackrest-aiku /etc/cron.d/pgbackrest-aiku
 #
 # Taken from litio's live replica (backup-standby), not helio's delayed one, where
@@ -9,13 +9,13 @@
 # weeks of fulls and removes older ones with their WAL.
 #
 # Every 10 minutes `pgbackrest info` is sent to aiku for the
-# Devops dashboard and MonitorDatabaseReplicas (the app cannot read the R2 key), with
+# Devops dashboard and MonitorDatabaseReplicas (the app cannot read the repository keys), with
 # the token of /etc/aiku-server-metrics.env. When it stops arriving for 30 minutes,
 # the dashboard and Discord say so.
 #
 # A failure is reported on Discord through aiku-db-backup --alert, so it runs as
 # root and steps down to postgres. Install the script on litio too:
 #     install -m 755 devops/postgres/aiku-db-backup.sh /usr/local/bin/aiku-db-backup
-0 2 * * 6   root runuser -u postgres -- pgbackrest --stanza=aiku --type=full backup >> /var/log/pgbackrest/aiku-cron.log 2>&1 || /usr/local/bin/aiku-db-backup --alert "The weekly pgBackRest full backup of the production database to R2 failed. See /var/log/pgbackrest/aiku-backup.log on litio."
-0 2 * * 0-5 root runuser -u postgres -- pgbackrest --stanza=aiku --type=incr backup >> /var/log/pgbackrest/aiku-cron.log 2>&1 || /usr/local/bin/aiku-db-backup --alert "The nightly pgBackRest incremental backup of the production database to R2 failed. See /var/log/pgbackrest/aiku-backup.log on litio."
+0 2 * * 6   root runuser -u postgres -- pgbackrest --stanza=aiku --type=full backup >> /var/log/pgbackrest/aiku-cron.log 2>&1 || /usr/local/bin/aiku-db-backup --alert "The weekly pgBackRest full backup of the production database to AWS S3 failed. See /var/log/pgbackrest/aiku-backup.log on litio."
+0 2 * * 0-5 root runuser -u postgres -- pgbackrest --stanza=aiku --type=incr backup >> /var/log/pgbackrest/aiku-cron.log 2>&1 || /usr/local/bin/aiku-db-backup --alert "The nightly pgBackRest incremental backup of the production database to AWS S3 failed. See /var/log/pgbackrest/aiku-backup.log on litio."
 */10 * * * * root runuser -u postgres -- pgbackrest --stanza=aiku --output=json info | (. /etc/aiku-server-metrics.env; curl -fsS -m 30 -o /dev/null -H "X-DEVOPS-TOKEN: $SERVER_METRICS_TOKEN" -H "Content-Type: application/json" --data-binary @- "${SERVER_METRICS_URL:-https://aiku.io/devops}/pgbackrest") >> /var/log/pgbackrest/aiku-cron.log 2>&1
