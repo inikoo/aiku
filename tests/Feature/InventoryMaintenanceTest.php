@@ -1017,3 +1017,30 @@ test('reprice org stock counts prices counts from a date at the given cost and l
         ->and((float)$earlier->refresh()->org_amount)->toBe(62.9)
         ->and((float)$marker->refresh()->org_amount)->toBe(0.0);
 });
+
+test('recost aurora counts with picks prices only aurora picks priced too high and leaves counts alone', function () {
+    [$orgStock, $location] = costFixStockInLocation($this->group, $this->organisation, 'RCSP-'.Str::random(4));
+
+    $movement = fn (string $type, float $quantity, float $amount, string $date, ?string $sourceId, ?float $costPerSku = null) => tap(
+        StoreOrgStockMovement::make()->action($orgStock, $location, ['type' => $type, 'quantity' => $quantity, 'org_amount' => $amount], strict: false),
+        fn ($stored) => DB::table('org_stock_movements')->where('id', $stored->id)->update(['date' => $date, 'source_id' => $sourceId, 'cost_per_sku' => $costPerSku])
+    );
+
+    $movement(OrgStockMovementTypeEnum::PURCHASE->value, 1000, 50, '2025-01-01', null, 0.05);
+    $spiked    = $movement(OrgStockMovementTypeEnum::PICKED->value, -140, -79758, '2026-07-31', '1:rcsp1');
+    $cheap     = $movement(OrgStockMovementTypeEnum::PICKED->value, -10, -0.1, '2026-08-01', '1:rcsp2');
+    $wildCount = $movement(OrgStockMovementTypeEnum::WRITE_OFF->value, -5, -900, '2026-08-02', '1:rcsp3');
+
+    $recost = RecostAuroraStockCountMovements::make();
+
+    expect($recost->mispricedCounts($this->organisation, '2025-01-01')->where('org_stock_id', $orgStock->id)->pluck('id')->all())->toBe([$wildCount->id])
+        ->and($recost->mispricedCounts($this->organisation, '2025-01-01', true)->where('org_stock_id', $orgStock->id)->pluck('id')->all())->toBe([$spiked->id]);
+
+    $recost->handle($this->organisation, '2025-01-01', false, true);
+
+    expect((float)$spiked->refresh()->org_amount)->toBe(-7.0)
+        ->and((float)$spiked->quantity)->toBe(-140.0)
+        ->and((float)DB::table('help4274_recosted_org_stock_movements')->where('id', $spiked->id)->value('org_amount'))->toBe(-79758.0)
+        ->and((float)$cheap->refresh()->org_amount)->toBe(-0.1)
+        ->and((float)$wildCount->refresh()->org_amount)->toBe(-900.0);
+});

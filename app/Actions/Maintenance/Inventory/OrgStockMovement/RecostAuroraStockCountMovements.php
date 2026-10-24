@@ -28,8 +28,10 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * is priced at that median instead; the old rows are copied to
  * help4274_recosted_org_stock_movements first. Counts with no purchase to compare against, or
  * whose purchases disagree by more than ten times among themselves (a box priced as a sheet),
- * are left alone: there is no cost to trust. The SKUs' running values, daily histories and organisation stock value days are
- * then worked out again.
+ * are left alone: there is no cost to trust. With --picks the same is done for Aurora picks and
+ * their returns, but only when priced too high (a pipette bought at £0.05 picked at £569.70): a
+ * pick below the median can be an older, cheaper purchase. The SKUs' running values, daily
+ * histories and organisation stock value days are then worked out again.
  */
 class RecostAuroraStockCountMovements
 {
@@ -42,18 +44,22 @@ class RecostAuroraStockCountMovements
 
     private const int PURCHASE_SPREAD = 10;
 
+    private const array COUNT_TYPES = ['found', 'write-off'];
+
+    private const array PICK_TYPES = ['picked', 'return-picked', 'cancel-picked'];
+
     /** @var array<string, float> */
     private array $monthlyRates = [];
 
     public function getCommandSignature(): string
     {
-        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--dry-run}';
+        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--picks : picks and their returns priced too high, instead of counts} {--dry-run}';
     }
 
     /**
      * @return Collection<int, object{id: int, org_stock_id: int, code: string, type: string, date: string, quantity: float, org_amount: float, purchase_cost: float}>
      */
-    public function mispricedCounts(Organisation $organisation, string $from): Collection
+    public function mispricedCounts(Organisation $organisation, string $from, bool $picks = false): Collection
     {
         return collect(DB::select(
             "select * from (
@@ -69,20 +75,28 @@ class RecostAuroraStockCountMovements
                     where p.org_stock_id = m.org_stock_id and p.type = 'purchase' and p.quantity > 0
                     and coalesce(p.cost_per_sku, p.org_amount / p.quantity) > 0
                 ) purchases on purchases.highest <= purchases.lowest * ?
-                where m.organisation_id = ? and m.source_id is not null and m.type in ('found', 'write-off') and m.quantity <> 0 and m.date >= ?
+                where m.organisation_id = ? and m.source_id is not null and m.type = any(?::text[]) and m.quantity <> 0 and m.date >= ?
             ) counts
-            where purchase_cost > 0 and (abs(org_amount / quantity) > purchase_cost * ? or abs(org_amount / quantity) < purchase_cost / ?)
+            where purchase_cost > 0 and (abs(org_amount / quantity) > purchase_cost * ? or (? = 0 and abs(org_amount / quantity) < purchase_cost / ?))
             order by abs(org_amount - quantity * purchase_cost) desc",
-            [self::PURCHASE_SPREAD, $organisation->id, $from, self::TOLERANCE, self::TOLERANCE]
+            [
+                self::PURCHASE_SPREAD,
+                $organisation->id,
+                '{'.implode(',', $picks ? self::PICK_TYPES : self::COUNT_TYPES).'}',
+                $from,
+                self::TOLERANCE,
+                (int)$picks,
+                self::TOLERANCE,
+            ]
         ));
     }
 
     /**
      * @return array{movements: int, recorded: float, recosted: float, org_stocks: int, organisation_days_rolled_up: int}
      */
-    public function handle(Organisation $organisation, string $from, bool $dryRun): array
+    public function handle(Organisation $organisation, string $from, bool $dryRun, bool $picks = false): array
     {
-        $counts = $this->mispricedCounts($organisation, $from);
+        $counts = $this->mispricedCounts($organisation, $from, $picks);
 
         $report = [
             'movements'                   => $counts->count(),
@@ -156,11 +170,12 @@ class RecostAuroraStockCountMovements
         $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         $dryRun       = (bool)$command->option('dry-run');
         $from         = (string)$command->option('from');
+        $picks        = (bool)$command->option('picks');
 
         if ($dryRun) {
             $command->table(
                 ['Movement', 'SKO', 'Type', 'Date', 'Quantity', 'Recorded', 'Per SKO', 'Purchase cost', 'Recosted'],
-                $this->mispricedCounts($organisation, $from)->map(fn ($count) => [
+                $this->mispricedCounts($organisation, $from, $picks)->map(fn ($count) => [
                     $count->id,
                     $count->code,
                     $count->type,
@@ -174,7 +189,7 @@ class RecostAuroraStockCountMovements
             );
         }
 
-        $report = $this->handle($organisation, $from, $dryRun);
+        $report = $this->handle($organisation, $from, $dryRun, $picks);
         $command->table(['What', 'Value'], collect($report)->map(fn (int|float $value, string $what) => [$what, $value])->values()->all());
         $command->info($dryRun ? '[dry run] nothing written' : 'Done');
 
