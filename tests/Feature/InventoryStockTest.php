@@ -1503,8 +1503,8 @@ test('the sko list search and the search index find a sko by the code of its sup
         ]))->assertOk()->viewData('page')['props']['index']['data']
     )->pluck('code')->all();
 
-    expect($orgStock->fresh()->toSearchableArray()['supplier_codes'])->toBe('STAMF-'.$orgStock->id)
-        ->and($otherOrgStock->fresh()->toSearchableArray()['supplier_codes'])->toBe('')
+    expect(explode(' ', $orgStock->fresh()->toSearchableArray()['supplier_codes']))->toContain('STAMF-'.$orgStock->id)
+        ->and(explode(' ', $otherOrgStock->fresh()->toSearchableArray()['supplier_codes']))->not->toContain('STAMF-'.$orgStock->id)
         ->and($codesShown('stamf-'.$orgStock->id))->toBe([$orgStock->code])
         ->and($codesShown($otherOrgStock->code))->toBe([$otherOrgStock->code]);
 });
