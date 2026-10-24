@@ -144,7 +144,9 @@ else
 fi
 # Postgres and the queue Redis listen on the vSwitch address; started before
 # networkd has configured it, Redis fails to bind and Postgres comes up on
-# localhost only, so the replica and the other host cannot reach them.
+# localhost only, so the replica and the other host cannot reach them. netplan's
+# wait-online uses --any, so this ordering alone does not hold: the
+# ip_nonlocal_bind sysctl below is what makes the bind safe.
 for unit in postgresql@ redis-server@; do
   place "$DEVOPS/systemd/wait-for-network.conf" "/etc/systemd/system/${unit}.service.d/wait-for-network.conf"
 done
@@ -194,10 +196,12 @@ else
 fi
 
 echo "sysctl:"
-place "$DEVOPS/sysctl/99-aiku.conf" /etc/sysctl.d/99-aiku.conf
-if [[ $DRY_RUN != 1 ]]; then
-  sysctl -q --load /etc/sysctl.d/99-aiku.conf
-fi
+for conf in 99-aiku.conf 90-nonlocal-bind.conf; do
+  place "$DEVOPS/sysctl/$conf" "/etc/sysctl.d/$conf"
+  if [[ $DRY_RUN != 1 ]]; then
+    sysctl -q --load "/etc/sysctl.d/$conf"
+  fi
+done
 
 # The GitHub runner (CI host only) is set up by devops/setup-ci-runner.sh.
 
