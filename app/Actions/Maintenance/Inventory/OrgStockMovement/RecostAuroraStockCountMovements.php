@@ -56,13 +56,13 @@ class RecostAuroraStockCountMovements
 
     public function getCommandSignature(): string
     {
-        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--picks : picks and their returns priced more than ten times too high, instead of counts} {--dry-run}';
+        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--picks : picks and their returns priced more than ten times too high, instead of counts} {--org-stock=* : only these SKO codes} {--dry-run}';
     }
 
     /**
      * @return Collection<int, object{id: int, org_stock_id: int, code: string, type: string, date: string, quantity: float, org_amount: float, purchase_cost: float}>
      */
-    public function mispricedCounts(Organisation $organisation, string $from, bool $picks = false): Collection
+    public function mispricedCounts(Organisation $organisation, string $from, bool $picks = false, array $orgStockCodes = []): Collection
     {
         return collect(DB::select(
             "select * from (
@@ -78,7 +78,7 @@ class RecostAuroraStockCountMovements
                     where p.org_stock_id = m.org_stock_id and p.type = 'purchase' and p.quantity > 0
                     and coalesce(p.cost_per_sku, p.org_amount / p.quantity) > 0
                 ) purchases on purchases.highest <= purchases.lowest * ?
-                where m.organisation_id = ? and m.source_id is not null and m.type = any(?::text[]) and m.quantity <> 0 and m.date >= ?
+                where m.organisation_id = ? and m.source_id is not null and m.type = any(?::text[]) and (cardinality(?::text[]) = 0 or os.code = any(?::text[])) and m.quantity <> 0 and m.date >= ?
             ) counts
             where purchase_cost > 0 and (abs(org_amount / quantity) > purchase_cost * ? or (? = 0 and abs(org_amount / quantity) < purchase_cost / ?))
             order by abs(org_amount - quantity * purchase_cost) desc",
@@ -86,6 +86,8 @@ class RecostAuroraStockCountMovements
                 self::PURCHASE_SPREAD,
                 $organisation->id,
                 '{'.implode(',', $picks ? self::PICK_TYPES : self::COUNT_TYPES).'}',
+                $this->textArray($orgStockCodes),
+                $this->textArray($orgStockCodes),
                 $from,
                 $picks ? self::PICK_TOLERANCE : self::TOLERANCE,
                 (int)$picks,
@@ -97,9 +99,9 @@ class RecostAuroraStockCountMovements
     /**
      * @return array{movements: int, recorded: float, recosted: float, org_stocks: int, organisation_days_rolled_up: int}
      */
-    public function handle(Organisation $organisation, string $from, bool $dryRun, bool $picks = false): array
+    public function handle(Organisation $organisation, string $from, bool $dryRun, bool $picks = false, array $orgStockCodes = []): array
     {
-        $counts = $this->mispricedCounts($organisation, $from, $picks);
+        $counts = $this->mispricedCounts($organisation, $from, $picks, $orgStockCodes);
 
         $report = [
             'movements'                   => $counts->count(),
@@ -157,6 +159,14 @@ class RecostAuroraStockCountMovements
         return $report;
     }
 
+    /**
+     * @param array<int, string> $values
+     */
+    private function textArray(array $values): string
+    {
+        return '{'.implode(',', array_map(fn (string $value) => '"'.str_replace(['\\', '"'], ['\\\\', '\\"'], $value).'"', $values)).'}';
+    }
+
     private function rateForMonth(Organisation $organisation, Carbon $date): float
     {
         return $this->monthlyRates[$date->format('Y-m')] ??= GetHistoricCurrencyExchange::run(
@@ -174,11 +184,12 @@ class RecostAuroraStockCountMovements
         $dryRun       = (bool)$command->option('dry-run');
         $from         = (string)$command->option('from');
         $picks        = (bool)$command->option('picks');
+        $orgStockCodes = $command->option('org-stock');
 
         if ($dryRun) {
             $command->table(
                 ['Movement', 'SKO', 'Type', 'Date', 'Quantity', 'Recorded', 'Per SKO', 'Purchase cost', 'Recosted'],
-                $this->mispricedCounts($organisation, $from, $picks)->map(fn ($count) => [
+                $this->mispricedCounts($organisation, $from, $picks, $orgStockCodes)->map(fn ($count) => [
                     $count->id,
                     $count->code,
                     $count->type,
@@ -192,7 +203,7 @@ class RecostAuroraStockCountMovements
             );
         }
 
-        $report = $this->handle($organisation, $from, $dryRun, $picks);
+        $report = $this->handle($organisation, $from, $dryRun, $picks, $orgStockCodes);
         $command->table(['What', 'Value'], collect($report)->map(fn (int|float $value, string $what) => [$what, $value])->values()->all());
         $command->info($dryRun ? '[dry run] nothing written' : 'Done');
 

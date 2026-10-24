@@ -1034,9 +1034,11 @@ test('recost aurora counts with picks prices only aurora picks priced too high a
     $recost = RecostAuroraStockCountMovements::make();
 
     expect($recost->mispricedCounts($this->organisation, '2025-01-01')->where('org_stock_id', $orgStock->id)->pluck('id')->all())->toBe([$wildCount->id])
-        ->and($recost->mispricedCounts($this->organisation, '2025-01-01', true)->where('org_stock_id', $orgStock->id)->pluck('id')->all())->toBe([$spiked->id]);
+        ->and($recost->mispricedCounts($this->organisation, '2025-01-01', true)->where('org_stock_id', $orgStock->id)->pluck('id')->all())->toBe([$spiked->id])
+        ->and($recost->mispricedCounts($this->organisation, '2025-01-01', true, ['NOT-'.$orgStock->code])->where('org_stock_id', $orgStock->id))->toBeEmpty()
+        ->and($recost->mispricedCounts($this->organisation, '2025-01-01', true, [$orgStock->code])->pluck('id')->all())->toBe([$spiked->id]);
 
-    $recost->handle($this->organisation, '2025-01-01', false, true);
+    $recost->handle($this->organisation, '2025-01-01', false, true, [$orgStock->code]);
 
     expect((float)$spiked->refresh()->org_amount)->toBe(-7.0)
         ->and((float)$spiked->quantity)->toBe(-140.0)
