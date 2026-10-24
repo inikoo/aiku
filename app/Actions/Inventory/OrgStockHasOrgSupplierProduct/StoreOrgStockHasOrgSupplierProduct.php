@@ -33,6 +33,8 @@ class StoreOrgStockHasOrgSupplierProduct extends OrgAction
         /** @var OrgStockHasOrgSupplierProduct $orgStockHasOrgSupplierProduct */
         $orgStockHasOrgSupplierProduct = $stockHasSupplierProduct->orgStockHasOrgSupplierProducts()->create($modelData);
 
+        $orgStock->searchable();
+
         return $orgStockHasOrgSupplierProduct;
     }
 

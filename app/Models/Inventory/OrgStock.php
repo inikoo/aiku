@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Models\Traits\HasSearch;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -181,9 +182,25 @@ class OrgStock extends Model implements Auditable, HasMedia
             'organisation_id' => $this->organisation_id,
             'code'            => $this->code,
             'name'            => $this->name,
+            'supplier_codes'  => $this->searchableSupplierCodes(),
             'state'           => $this->state->value,
             'created_at'      => is_string($this->created_at) ? Carbon::parse($this->created_at)->timestamp : $this->created_at->timestamp,
         ];
+    }
+
+    /**
+     * Some suppliers only print their own code on the box, so staff search for the SKO by it.
+     */
+    public function searchableSupplierCodes(): string
+    {
+        return DB::table('org_stock_has_org_supplier_products')
+            ->join('org_supplier_products', 'org_supplier_products.id', 'org_stock_has_org_supplier_products.org_supplier_product_id')
+            ->join('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id')
+            ->where('org_stock_has_org_supplier_products.org_stock_id', $this->id)
+            ->orderBy('supplier_products.code')
+            ->distinct()
+            ->pluck('supplier_products.code')
+            ->implode(' ');
     }
 
     public function getRouteKeyName(): string

@@ -1475,3 +1475,36 @@ test('stock, sko and trade unit showcases list their supplier products with link
     expect($stockRows[0]['route']['name'])->toBe('grp.supply-chain.supplier_products.show')
         ->and($orgStockRows[0]['route']['parameters']['orgSupplierProduct'])->toBe($orgSupplierProduct->slug);
 });
+
+test('the sko list search and the search index find a sko by the code of its supplier product', function () {
+    $warehouse = createWarehouse();
+    [$stock, $other] = array_slice(createStocks($this->group), 0, 2);
+    [$orgStock, $otherOrgStock] = createOrgStocks($this->organisation, [$stock, $other]);
+
+    $supplier = StoreSupplier::make()->action($this->group, Supplier::factory()->definition());
+    OrgSupplier::where('supplier_id', $supplier->id)->where('organisation_id', $this->organisation->id)->exists()
+        || StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, array_merge(SupplierProduct::factory()->definition(), ['code' => 'STAMF-'.$orgStock->id]));
+    $stock->supplierProducts()->attach($supplierProduct->id);
+    $orgStock->orgSupplierProducts()->attach(
+        $supplierProduct->orgSupplierProducts()->where('organisation_id', $this->organisation->id)->value('id'),
+        [
+            'local_priority'                => 1,
+            'status'                        => true,
+            'stock_has_supplier_product_id' => DB::table('stock_has_supplier_products')->where('stock_id', $stock->id)->where('supplier_product_id', $supplierProduct->id)->value('id'),
+        ]
+    );
+
+    $codesShown = fn (string $search): array => collect(
+        $this->withoutVite()->get(route('grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index', [
+            $this->organisation->slug,
+            $warehouse->slug,
+            'index_filter' => ['global' => $search],
+        ]))->assertOk()->viewData('page')['props']['index']['data']
+    )->pluck('code')->all();
+
+    expect($orgStock->fresh()->toSearchableArray()['supplier_codes'])->toBe('STAMF-'.$orgStock->id)
+        ->and($otherOrgStock->fresh()->toSearchableArray()['supplier_codes'])->toBe('')
+        ->and($codesShown('stamf-'.$orgStock->id))->toBe([$orgStock->code])
+        ->and($codesShown($otherOrgStock->code))->toBe([$otherOrgStock->code]);
+});

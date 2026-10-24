@@ -105,6 +105,10 @@ class UpdateSupplierProduct extends OrgAction
             }
         }
 
+        if ($wasChanged(['code'])) {
+            OrgStock::whereHas('orgSupplierProducts', fn ($query) => $query->where('supplier_product_id', $supplierProduct->id))->searchable();
+        }
+
         if ($wasChanged(['cost', 'extra_costs', 'currency_id'])) {
             $orgStocks = OrgStock::whereHas('orgSupplierProducts', fn ($query) => $query->where('supplier_product_id', $supplierProduct->id))->get();
             foreach ($orgStocks as $orgStock) {

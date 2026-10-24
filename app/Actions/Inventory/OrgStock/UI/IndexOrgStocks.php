@@ -235,7 +235,8 @@ class IndexOrgStocks extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('org_stocks.code', $value)
-                    ->orWhereAnyWordStartWith('org_stocks.name', $value);
+                    ->orWhereAnyWordStartWith('org_stocks.name', $value)
+                    ->orWhereHas('orgSupplierProducts.supplierProduct', fn ($query) => $query->whereStartWith('supplier_products.code', $value));
             });
         });
 

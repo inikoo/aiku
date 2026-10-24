@@ -42,6 +42,11 @@ class GetOrgStockSearchSchema
                         'type' => 'string',
                     ],
                     [
+                        'name'     => 'supplier_codes',
+                        'type'     => 'string',
+                        'optional' => true,
+                    ],
+                    [
                         'name' => 'created_at',
                         'type' => 'int64',
                     ],
@@ -54,7 +59,7 @@ class GetOrgStockSearchSchema
                 'default_sorting_field' => 'created_at',
             ],
             'search-parameters' => [
-                'query_by' => 'code,name'
+                'query_by' => 'code,name,supplier_codes'
             ],
         ];
     }
