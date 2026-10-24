@@ -29,8 +29,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
  * help4274_recosted_org_stock_movements first. Counts with no purchase to compare against, or
  * whose purchases disagree by more than ten times among themselves (a box priced as a sheet),
  * are left alone: there is no cost to trust. With --picks the same is done for Aurora picks and
- * their returns, but only when priced too high (a pipette bought at £0.05 picked at £569.70): a
- * pick below the median can be an older, cheaper purchase. The SKUs' running values, daily
+ * their returns, but only when priced more than ten times the median (a pipette bought at £0.05
+ * picked at £569.70): a pick a few times off can be a real older or landed cost, and one below the
+ * median an older, cheaper purchase. The SKUs' running values, daily
  * histories and organisation stock value days are then worked out again.
  */
 class RecostAuroraStockCountMovements
@@ -41,6 +42,8 @@ class RecostAuroraStockCountMovements
     private const string BACKUP_TABLE = 'help4274_recosted_org_stock_movements';
 
     private const int TOLERANCE = 3;
+
+    private const int PICK_TOLERANCE = 10;
 
     private const int PURCHASE_SPREAD = 10;
 
@@ -53,7 +56,7 @@ class RecostAuroraStockCountMovements
 
     public function getCommandSignature(): string
     {
-        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--picks : picks and their returns priced too high, instead of counts} {--dry-run}';
+        return 'org_stock_movement:recost_aurora_counts {organisation} {--from=2024-01-01} {--picks : picks and their returns priced more than ten times too high, instead of counts} {--dry-run}';
     }
 
     /**
@@ -84,7 +87,7 @@ class RecostAuroraStockCountMovements
                 $organisation->id,
                 '{'.implode(',', $picks ? self::PICK_TYPES : self::COUNT_TYPES).'}',
                 $from,
-                self::TOLERANCE,
+                $picks ? self::PICK_TOLERANCE : self::TOLERANCE,
                 (int)$picks,
                 self::TOLERANCE,
             ]
